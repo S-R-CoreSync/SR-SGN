@@ -40,15 +40,25 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       }),
     ]);
 
+    const { resolveImage } = await import("@/lib/image-fallback");
+
     // Enforce strict language isolation: Arabic must have Arabic chars, En/Nl must NOT
     posts = rawPosts
       .filter((p) => isPureLocaleText(p.title, locale))
-      .map((p) => ({ ...p, category: localizeCategory(p.category, locale) }))
+      .map((p) => ({ 
+        ...p, 
+        image: resolveImage(p.image, p.title, p.category),
+        category: localizeCategory(p.category, locale) 
+      }))
       .slice(0, 20);
 
     videoPosts = rawVideoPosts
       .filter((p) => isPureLocaleText(p.title, locale))
-      .map((p) => ({ ...p, category: localizeCategory(p.category, locale) }))
+      .map((p) => ({ 
+        ...p, 
+        image: resolveImage(p.image, p.title, p.category),
+        category: localizeCategory(p.category, locale) 
+      }))
       .slice(0, 6);
   } catch (e) {
     console.error("[Home] Failed to fetch posts:", e);
