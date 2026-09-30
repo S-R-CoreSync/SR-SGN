@@ -42,8 +42,10 @@ export interface PrayerTimesResult {
 }
 
 const ARABIC_DIGITS = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
-function toArabicDigits(str: string): string {
-  return str.replace(/[0-9]/g, (d) => ARABIC_DIGITS[parseInt(d, 10)] ?? d);
+export function toArabicDigits(str: string | number | null | undefined): string {
+  if (str === null || str === undefined) return "";
+  const s = String(str);
+  return s.replace(/[0-9]/g, (d) => ARABIC_DIGITS[parseInt(d, 10)] ?? d);
 }
 
 const d2r = (d: number) => (d * Math.PI) / 180;
