@@ -102,6 +102,22 @@ const serviceGroups: ServiceGroup[] = [
         badge: "PARTNER",
         iconColor: "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 border-emerald-200/60 dark:border-emerald-800/40",
       },
+      {
+        key: "nav.emergency",
+        subKey: "nav.emergencySub",
+        href: "/emergency",
+        icon: ShieldAlert,
+        badge: "SOS",
+        iconColor: "text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/50 border-red-200/60 dark:border-red-800/40",
+      },
+      {
+        key: "nav.prayers",
+        subKey: "nav.prayersSub",
+        href: "/prayers",
+        icon: Moon,
+        badge: "PRAYERS",
+        iconColor: "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 border-emerald-200/60 dark:border-emerald-800/40",
+      },
     ],
   },
   {
