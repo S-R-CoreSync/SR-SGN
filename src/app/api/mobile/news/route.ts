@@ -37,9 +37,14 @@ export async function GET(req: NextRequest) {
       nextCursor = next!.id;
     }
 
+    const { resolveImage } = await import("@/lib/image-fallback");
     const filteredPosts = posts
       .filter((p) => isPureLocaleText(p.title, locale))
-      .map((p) => ({ ...p, category: localizeCategory(p.category, locale) }));
+      .map((p) => ({
+        ...p,
+        image: resolveImage(p.image, p.title, p.category),
+        category: localizeCategory(p.category, locale),
+      }));
 
     return NextResponse.json({ posts: filteredPosts, nextCursor });
   } catch (e: any) {

@@ -43,9 +43,14 @@ export async function GET(req: NextRequest) {
         include: { author: { select: { name: true } } },
       });
       if (!post) return NextResponse.json({ error: "not found" }, { status: 404 });
+      const { resolveImage } = await import("@/lib/image-fallback");
+      const resolvedPost = {
+        ...post,
+        image: resolveImage(post.image, post.title, post.category),
+      };
       // تحديث المشاهدات بشكل غير متزامن (لا يحجب الاستجابة)
       prisma.post.update({ where: { id: post.id }, data: { views: { increment: 1 } } }).catch(() => {});
-      return NextResponse.json(post);
+      return NextResponse.json(resolvedPost);
     }
     // فلترة حسب اللغة
     const where: any = {
@@ -73,9 +78,14 @@ export async function GET(req: NextRequest) {
     ]);
 
     const { isPureLocaleText, localizeCategory } = await import("@/lib/language-guard");
+    const { resolveImage } = await import("@/lib/image-fallback");
     const posts = rawPosts
       .filter((p) => isPureLocaleText(p.title, locale))
-      .map((p) => ({ ...p, category: localizeCategory(p.category, locale) }))
+      .map((p) => ({
+        ...p,
+        image: resolveImage(p.image, p.title, p.category),
+        category: localizeCategory(p.category, locale),
+      }))
       .slice(0, limit);
 
     return NextResponse.json(
