@@ -33,7 +33,8 @@ const CATEGORIES = [
   "\u0645\u0646\u0648\u0639\u0627\u062a"
 ];
 
-import { resolveImage } from "@/lib/image-fallback";
+import { resolveImage, handleImgError } from "@/lib/image-fallback";
+import { formatLocalizedDigits } from "@/lib/language-guard";
 
 function getThumb(post: Post): string {
   if (post.image) return resolveImage(post.image, post.title, post.category);
@@ -273,7 +274,7 @@ function NewsPageInner() {
                     return (
                       <div key={p.id} className="bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-transparent hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 ease-out group flex flex-col relative">
                         <div className="block overflow-hidden relative aspect-video cursor-pointer" onClick={(e) => handlePostClick(e, p)}>
-                          <img src={getThumb(p)} alt={p.title} loading="lazy" decoding="async" onError={(e) => { (e.currentTarget as HTMLImageElement).src = resolveImage(null, p.title, p.category); }} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out" />
+                          <img src={getThumb(p)} alt={p.title} loading="lazy" decoding="async" onError={(e) => handleImgError(e, p.title, p.category)} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out" />
                           <span className="absolute top-3 right-3 backdrop-blur-md bg-white/75 text-[#1a5632] font-semibold text-xs px-2.5 py-1 rounded-full shadow-sm border border-white/20">
                             {CATEGORY_LABELS[p.category] || p.category}
                           </span>
@@ -288,15 +289,15 @@ function NewsPageInner() {
                         <div className="p-5 flex flex-col flex-grow">
                           <h3 className="font-bold text-gray-900 text-base line-clamp-2 leading-snug hover:text-[#1a5632] transition-colors duration-200">
                             {isVideo ? (
-                              <button onClick={(e) => handlePostClick(e as any, p)} className="text-right font-bold w-full focus:outline-none">{p.title}</button>
+                              <button onClick={(e) => handlePostClick(e as any, p)} className="text-right font-bold w-full focus:outline-none">{formatLocalizedDigits(p.title, locale)}</button>
                             ) : (
-                              <Link href={`/news/${p.slug || p.id}`}>{p.title}</Link>
+                              <Link href={`/news/${p.slug || p.id}`}>{formatLocalizedDigits(p.title, locale)}</Link>
                             )}
                           </h3>
-                          {p.excerpt && <p className="text-sm text-gray-500 mt-2 line-clamp-2 leading-relaxed">{p.excerpt}</p>}
+                          {p.excerpt && <p className="text-sm text-gray-500 mt-2 line-clamp-2 leading-relaxed">{formatLocalizedDigits(p.excerpt, locale)}</p>}
                           <div className="flex items-center justify-between mt-5 pt-3 border-t border-gray-50 text-xs text-gray-400 mt-auto">
                             <div className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /><span>{formatDate(p.createdAt, locale)}</span></div>
-                            <div className="flex items-center gap-1.5 font-medium"><Eye className="w-3.5 h-3.5" /><span>{p.views || 0}</span></div>
+                            <div className="flex items-center gap-1.5 font-medium"><Eye className="w-3.5 h-3.5" /><span>{formatLocalizedDigits(p.views || 0, locale)}</span></div>
                           </div>
                         </div>
                       </div>
@@ -310,7 +311,7 @@ function NewsPageInner() {
                       <ChevronRight className="w-4 h-4" />
                     </button>
                     {Array.from({ length: totalPages }, (_, i) => (
-                      <button key={i} onClick={() => setPage(i)} className={`w-10 h-10 rounded-xl text-sm font-semibold transition-all ${page === i ? "bg-[#1a5632] text-white shadow-md shadow-[#1a5632]/20" : "border border-gray-200 hover:bg-gray-50 text-gray-700"}`}>{i + 1}</button>
+                      <button key={i} onClick={() => setPage(i)} className={`w-10 h-10 rounded-xl text-sm font-semibold transition-all ${page === i ? "bg-[#1a5632] text-white shadow-md shadow-[#1a5632]/20" : "border border-gray-200 hover:bg-gray-50 text-gray-700"}`}>{formatLocalizedDigits(i + 1, locale)}</button>
                     ))}
                     <button onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1} title={t('nextPage')} aria-label={t('nextPage')} className="p-2.5 rounded-xl border border-gray-200 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
                       <ChevronLeft className="w-4 h-4" />

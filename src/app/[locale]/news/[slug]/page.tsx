@@ -96,7 +96,7 @@ export default async function ArticlePage({ params }: Props) {
         </Link>
 
         <article className="bg-white rounded-2xl overflow-hidden border shadow-sm">
-          {post.image && !post.content.includes("youtube.com/embed") && (
+          {!post.content.includes("youtube.com/embed") && (
             <SafeImage src={imgSrc} alt={post.title} fallbackSrc={fallbackSrc} className="w-full aspect-video max-h-[70vh] object-cover" />
           )}
 
