@@ -189,6 +189,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         <Link
                           key={n.href}
                           href={n.href}
+                          prefetch={true}
                           className={`flex items-center gap-3 px-3 py-2 text-sm rounded-xl transition-all duration-150 ${
                             isActive
                               ? "bg-emerald-50 text-[#1a5632] font-bold shadow-sm"
