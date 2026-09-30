@@ -3,13 +3,15 @@
 import { useSession, signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { Link, useRouter, usePathname } from "@/i18n/routing";
-import { LayoutDashboard, CheckSquare, Users, FileText, LogOut, Menu, X, MessageSquare, Sparkles, MessageCircle, Mail, Calendar, HandHeart, Globe, Megaphone, User, BarChart3, Shield, Image as ImageIcon, Facebook, Heart, Building2, Smartphone, Search, ChevronDown, ChevronRight, ArrowUpRight } from "lucide-react";
+import { LayoutDashboard, CheckSquare, Users, FileText, LogOut, Menu, X, MessageSquare, Sparkles, MessageCircle, Mail, Calendar, HandHeart, Globe, Megaphone, User, BarChart3, Shield, Image as ImageIcon, Facebook, Heart, Building2, Smartphone, Search, ChevronDown, ChevronRight, ArrowUpRight, Printer, Command } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { SgnLogo } from "@/components/sgn-logo";
 import { NotificationBell } from "@/components/notification-bell";
 import { NotificationToaster } from "@/components/notification-toaster";
 import { FreeSyrianFlag, DutchFlag } from "@/components/flags";
+import { CommandPalette } from "@/components/dashboard/command-palette";
+import { ExecutiveReportModal } from "@/components/dashboard/executive-report-modal";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
@@ -17,6 +19,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const t = useTranslations("dashboard");
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [commandOpen, setCommandOpen] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({
     overview: false,
     content: false,
