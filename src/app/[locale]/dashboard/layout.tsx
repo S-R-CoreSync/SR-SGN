@@ -236,6 +236,27 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* Quick Command Palette Search */}
+            <button
+              onClick={() => setCommandOpen(true)}
+              className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 bg-gray-100 hover:bg-gray-200/80 dark:bg-gray-800 dark:hover:bg-gray-700 transition-all border border-gray-200/80 dark:border-gray-700"
+              title="البحث السريع والتنقل (Ctrl+K)"
+            >
+              <Search className="w-3.5 h-3.5 text-gray-400" />
+              <span className="hidden md:inline">بحث سريع</span>
+              <kbd className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-400">Ctrl K</kbd>
+            </button>
+
+            {/* Executive PDF Report Button */}
+            <button
+              onClick={() => setReportOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-[#1a5632] dark:text-[#edd28a] bg-[#c8a84e]/15 hover:bg-[#c8a84e]/25 border border-[#c8a84e]/30 transition-all"
+              title="تصدير تقرير الإدارة الرسمي PDF"
+            >
+              <Printer className="w-3.5 h-3.5" />
+              <span className="hidden lg:inline">تقرير الإدارة (PDF)</span>
+            </button>
+
             <Link
               href="/"
               target="_blank"
@@ -271,6 +292,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </main>
       </div>
       <NotificationToaster />
+
+      {/* Spotlight Command Palette (Ctrl+K) */}
+      <CommandPalette 
+        open={commandOpen} 
+        onClose={() => setCommandOpen(false)} 
+        onPrintReport={() => setReportOpen(true)}
+      />
+
+      {/* Printable Executive Board Report Modal */}
+      <ExecutiveReportModal
+        open={reportOpen}
+        onClose={() => setReportOpen(false)}
+        vitalityScore={92}
+        stats={{}}
+      />
     </div>
   );
 }
