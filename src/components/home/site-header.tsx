@@ -263,6 +263,8 @@ const serviceGroups: ServiceGroup[] = [
 ];
 
 const secondaryNav = [
+  { key: "nav.emergency", href: "/emergency" },
+  { key: "nav.prayers", href: "/prayers" },
   { key: "nav.about", href: "/about" },
   { key: "nav.regulations", href: "/regulations" },
   { key: "nav.volunteer", href: "/volunteer" },

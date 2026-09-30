@@ -175,7 +175,9 @@ export function SiteFooter() {
               </ul>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-gray-800 text-center text-[10px] w-full">
+            <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-gray-800 text-center text-[10px] w-full">
+              <Link href="/emergency" className="bg-red-950/60 hover:bg-red-900 text-red-200 py-1.5 rounded-lg transition-colors border border-red-800/40 font-bold">{tNav("emergency") || "طوارئ SOS"}</Link>
+              <Link href="/prayers" className="bg-[#0B132B] hover:bg-black py-1.5 rounded-lg text-[#CCAA00] transition-colors border border-gray-900/40">{tNav("prayers") || "مواقيت الصلاة"}</Link>
               <Link href="/about" className="bg-[#0B132B] hover:bg-black py-1.5 rounded-lg text-gray-300 transition-colors border border-gray-900/40">{tNav("about")}</Link>
               <Link href="/regulations" className="bg-[#0B132B] hover:bg-black py-1.5 rounded-lg text-gray-300 transition-colors border border-gray-900/40">{tNav("regulations")}</Link>
               <Link href="/volunteer" className="bg-[#0B132B] hover:bg-black py-1.5 rounded-lg text-gray-300 transition-colors border border-gray-900/40">{tNav("volunteer")}</Link>
