@@ -737,6 +737,7 @@
     },
     "volunteersPage": {
       "title": "Vrijwilligersaanvragen",
+      "search": "Zoeken op naam, e-mail of vaardigheden...",
       "noVolunteers": "Nog geen vrijwilligersaanvragen",
       "skills": "Vaardigheden: ",
       "duration": "Duur: "
