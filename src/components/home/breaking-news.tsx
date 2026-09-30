@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Loader2, Radio } from "lucide-react";
+import { formatLocalizedDigits } from "@/lib/language-guard";
 
 interface TickerPost {
   id: string;
@@ -65,7 +66,7 @@ export function BreakingNews() {
                 <span className="bg-white/20 text-white text-[10px] px-1.5 py-0.5 rounded font-bold">
                   {post.category}
                 </span>
-                <span>{post.title}</span>
+                <span>{formatLocalizedDigits(post.title, locale)}</span>
                 <span className="text-red-300 mx-2">✦</span>
               </Link>
             ))}

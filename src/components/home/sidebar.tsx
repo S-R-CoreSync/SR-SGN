@@ -53,9 +53,7 @@ export function Sidebar({ latest }: { latest: Post[] }) {
                   alt=""
                   loading="lazy"
                   decoding="async"
-                  onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).src = resolveImage(null, item.title, item.cat);
-                  }}
+                  onError={(e) => handleImgError(e, item.title, item.cat)}
                   className="w-full h-full object-cover"
                 />
                 {item.videoId && (
@@ -67,8 +65,11 @@ export function Sidebar({ latest }: { latest: Post[] }) {
                 )}
               </div>
               <div className="min-w-0">
-                <p className="text-sm text-gray-900 font-medium line-clamp-2 leading-snug">{item.title}</p>
-                <div className="flex items-center gap-1 mt-1 text-xs text-gray-400"><Clock className="w-3 h-3" /><span>{item.time}</span></div>
+                <p className="text-sm text-gray-900 font-medium line-clamp-2 leading-snug">{formatLocalizedDigits(item.title, locale)}</p>
+                <div className="flex items-center gap-1 mt-1 text-xs text-gray-400">
+                  <Clock className="w-3 h-3" />
+                  <span>{formatLocalizedDigits(item.time, locale)}</span>
+                </div>
               </div>
             </Link>
           ))}
