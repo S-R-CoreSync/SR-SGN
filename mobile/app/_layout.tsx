@@ -174,10 +174,64 @@ function StackScreens() {
           title: t("dashboard.title"),
           headerStyle: { backgroundColor: COLORS.primary },
           headerTintColor: "#fff",
-
+        }}
+      />
+      <Stack.Screen
+        name="emergency"
+        options={{
+          headerShown: true,
+          title: t("emergency.title") || "دليل الطوارئ (SOS)",
+          headerStyle: { backgroundColor: "#DC2626" },
+          headerTintColor: "#fff",
+        }}
+      />
+      <Stack.Screen
+        name="prayers"
+        options={{
+          headerShown: true,
+          title: t("prayers.title") || "مواقيت الصلاة",
+          headerStyle: { backgroundColor: COLORS.primary },
+          headerTintColor: "#fff",
+        }}
+      />
+      <Stack.Screen
+        name="brief-scanner"
+        options={{
+          headerShown: true,
+          title: t("tabs.briefScanner") || "قارئ ومترجم الرسائل",
+          headerStyle: { backgroundColor: "#7C3AED" },
+          headerTintColor: "#fff",
+        }}
+      />
+      <Stack.Screen
+        name="inburgering"
+        options={{
+          headerShown: true,
+          title: t("inburgeringQuiz.title") || "اختبار الاندماج (KNM)",
+          headerStyle: { backgroundColor: COLORS.primary },
+          headerTintColor: "#fff",
+        }}
+      />
+      <Stack.Screen
+        name="community-map"
+        options={{
+          headerShown: true,
+          title: t("nav.communityMap") || "خريطة الجالية والمراكز",
+          headerStyle: { backgroundColor: COLORS.primary },
+          headerTintColor: "#fff",
+        }}
+      />
+      <Stack.Screen
+        name="marktplaats"
+        options={{
+          headerShown: true,
+          title: t("tabs.marktplaats") || "سوق الجالية والأثاث",
+          headerStyle: { backgroundColor: "#0D9488" },
+          headerTintColor: "#fff",
         }}
       />
     </Stack>
+
   );
 }
 
