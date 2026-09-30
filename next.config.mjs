@@ -34,6 +34,42 @@ const nextConfig = {
         protocol: "https",
         hostname: "**.sy-nl.org",
       },
+      {
+        protocol: "https",
+        hostname: "assets.zyrosite.com",
+      },
+      {
+        protocol: "https",
+        hostname: "i.ytimg.com",
+      },
+      {
+        protocol: "https",
+        hostname: "img.youtube.com",
+      },
+      {
+        protocol: "https",
+        hostname: "**.fbcdn.net",
+      },
+      {
+        protocol: "https",
+        hostname: "**.facebook.com",
+      },
+      {
+        protocol: "https",
+        hostname: "images.cdn.nos.nl",
+      },
+      {
+        protocol: "https",
+        hostname: "**.public.blob.vercel-storage.com",
+      },
+      {
+        protocol: "https",
+        hostname: "**.vercel-storage.com",
+      },
+      {
+        protocol: "https",
+        hostname: "**.googleusercontent.com",
+      },
     ],
   },
   headers: async () => [
