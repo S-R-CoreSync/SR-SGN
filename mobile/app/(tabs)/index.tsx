@@ -7,6 +7,7 @@ import { getImageUrl } from "../../lib/api";
 import { Ionicons } from "@expo/vector-icons";
 import { useI18n } from "../../lib/i18n-context";
 import { formatDate } from "../../lib/date";
+import { toArabicDigits } from "../../lib/prayers";
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -258,19 +259,17 @@ export default function HomeScreen() {
                 elevation: 3,
               }}
             >
-              {item.image && (
-                <Image source={{ uri: getImageUrl(item.image) || undefined }} style={{ width: "100%", height: 180 }} resizeMode="cover" />
-              )}
+              <Image source={{ uri: getImageUrl(item.image, item.title, item.category) }} style={{ width: "100%", height: 180 }} resizeMode="cover" />
               <View style={{ padding: 14 }}>
                 <Text style={{ fontSize: 11, color: COLORS.accent, fontWeight: "600", marginBottom: 4 }}>
                   {getCategoryTranslation(item.category)}
                 </Text>
                 <Text style={{ fontSize: 15, fontWeight: "bold", color: COLORS.text, marginBottom: 6, lineHeight: 22 }}>
-                  {item.title}
+                  {locale === "ar" ? toArabicDigits(item.title) : item.title}
                 </Text>
                 {item.excerpt && (
                   <Text style={{ fontSize: 13, color: COLORS.textSecondary, lineHeight: 19, marginBottom: 8 }} numberOfLines={2}>
-                    {item.excerpt}
+                    {locale === "ar" ? toArabicDigits(item.excerpt) : item.excerpt}
                   </Text>
                 )}
                 <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between", alignItems: "center" }}>
