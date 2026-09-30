@@ -80,7 +80,134 @@ export default function HomeScreen() {
         </View>
       </View>
 
+      {/* Quick Services Carousel */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ paddingHorizontal: 16, gap: 10, paddingVertical: 4, flexDirection: isRTL ? "row-reverse" : "row" }}
+        style={{ maxHeight: 72, marginBottom: 8 }}
+      >
+        <TouchableOpacity
+          onPress={() => router.push("/emergency")}
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: "#DC262615",
+            borderWidth: 1,
+            borderColor: "#DC262640",
+            borderRadius: 14,
+            paddingHorizontal: 12,
+            paddingVertical: 8,
+            minWidth: 70,
+          }}
+        >
+          <Ionicons name="warning" size={20} color="#DC2626" />
+          <Text style={{ fontSize: 11, fontWeight: "bold", color: "#DC2626", marginTop: 2 }}>SOS</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => router.push("/prayers")}
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: COLORS.card,
+            borderWidth: 1,
+            borderColor: COLORS.border,
+            borderRadius: 14,
+            paddingHorizontal: 12,
+            paddingVertical: 8,
+            minWidth: 70,
+          }}
+        >
+          <Ionicons name="moon-outline" size={20} color="#CCAA00" />
+          <Text style={{ fontSize: 11, fontWeight: "600", color: COLORS.text, marginTop: 2 }}>
+            {locale === "ar" ? "الصلاة" : "Prayers"}
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => router.push("/brief-scanner")}
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: COLORS.card,
+            borderWidth: 1,
+            borderColor: COLORS.border,
+            borderRadius: 14,
+            paddingHorizontal: 12,
+            paddingVertical: 8,
+            minWidth: 70,
+          }}
+        >
+          <Ionicons name="scan-outline" size={20} color="#A855F7" />
+          <Text style={{ fontSize: 11, fontWeight: "600", color: COLORS.text, marginTop: 2 }}>
+            {locale === "ar" ? "ماسح الرسائل" : "Scanner"}
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => router.push("/inburgering")}
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: COLORS.card,
+            borderWidth: 1,
+            borderColor: COLORS.border,
+            borderRadius: 14,
+            paddingHorizontal: 12,
+            paddingVertical: 8,
+            minWidth: 70,
+          }}
+        >
+          <Ionicons name="school-outline" size={20} color="#F59E0B" />
+          <Text style={{ fontSize: 11, fontWeight: "600", color: COLORS.text, marginTop: 2 }}>
+            {locale === "ar" ? "الاندماج" : "Inburgering"}
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => router.push("/community-map")}
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: COLORS.card,
+            borderWidth: 1,
+            borderColor: COLORS.border,
+            borderRadius: 14,
+            paddingHorizontal: 12,
+            paddingVertical: 8,
+            minWidth: 70,
+          }}
+        >
+          <Ionicons name="map-outline" size={20} color="#0284C7" />
+          <Text style={{ fontSize: 11, fontWeight: "600", color: COLORS.text, marginTop: 2 }}>
+            {locale === "ar" ? "الخريطة" : "Map"}
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => router.push("/marktplaats")}
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: COLORS.card,
+            borderWidth: 1,
+            borderColor: COLORS.border,
+            borderRadius: 14,
+            paddingHorizontal: 12,
+            paddingVertical: 8,
+            minWidth: 70,
+          }}
+        >
+          <Ionicons name="gift-outline" size={20} color="#0D9488" />
+          <Text style={{ fontSize: 11, fontWeight: "600", color: COLORS.text, marginTop: 2 }}>
+            {locale === "ar" ? "سوق الأثاث" : "Markt"}
+          </Text>
+        </TouchableOpacity>
+      </ScrollView>
+
       {/* Category filter */}
+
       <FlatList
         horizontal
         data={categories}
