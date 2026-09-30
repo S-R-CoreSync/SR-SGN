@@ -7,6 +7,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { getToken, getImageUrl } from "../../lib/api";
 import { useI18n } from "../../lib/i18n-context";
 import { formatDate } from "../../lib/date";
+import { toArabicDigits } from "../../lib/prayers";
 
 export default function NewsDetailScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
@@ -64,9 +65,7 @@ export default function NewsDetailScreen() {
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: COLORS.background }}>
-      {post.image && (
-        <Image source={{ uri: getImageUrl(post.image) || undefined }} style={{ width: "100%", height: 240 }} resizeMode="cover" />
-      )}
+      <Image source={{ uri: getImageUrl(post.image, post.title, post.category) }} style={{ width: "100%", height: 240 }} resizeMode="cover" />
 
       <View style={{ padding: 16 }}>
         <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
@@ -86,7 +85,7 @@ export default function NewsDetailScreen() {
         </View>
 
         <Text style={{ fontSize: 20, fontWeight: "bold", color: COLORS.text, lineHeight: 30, marginBottom: 8 }}>
-          {post.title}
+          {locale === "ar" ? toArabicDigits(post.title) : post.title}
         </Text>
 
         <Text style={{ fontSize: 13, color: COLORS.textSecondary, marginBottom: 16 }}>
@@ -96,7 +95,7 @@ export default function NewsDetailScreen() {
         <View style={{ width: "100%", height: 1, backgroundColor: COLORS.border, marginBottom: 16 }} />
 
         <Text style={{ fontSize: 15, color: COLORS.text, lineHeight: 26 }}>
-          {post.content}
+          {locale === "ar" ? toArabicDigits(post.content) : post.content}
         </Text>
 
         {post.source && (
