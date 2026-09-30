@@ -2,7 +2,9 @@
 
 import { Link } from "@/i18n/routing";
 import { Clock, Play } from "lucide-react";
-import { PLACEHOLDER_IMG, handleImgError, resolveImage } from "@/lib/image-fallback";
+import { handleImgError, resolveImage } from "@/lib/image-fallback";
+import { useLocale } from "next-intl";
+import { formatLocalizedDigits } from "@/lib/language-guard";
 
 interface Post {
   title: string; cat: string; img: string | null; excerpt: string; author: string; time: string; slug: string;
@@ -10,6 +12,7 @@ interface Post {
 }
 
 export function HeroSection({ posts }: { posts: Post[] }) {
+  const locale = useLocale();
   if (!posts.length) return null;
   const first = posts[0];
   const rest = posts.slice(1, 3);
@@ -26,9 +29,7 @@ export function HeroSection({ posts }: { posts: Post[] }) {
           alt=""
           loading="lazy"
           decoding="async"
-          onError={(e) => {
-            (e.currentTarget as HTMLImageElement).src = resolveImage(null, first.title, first.cat);
-          }}
+          onError={(e) => handleImgError(e, first.title, first.cat)}
           className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
         />
         {first.videoId && (
@@ -41,9 +42,14 @@ export function HeroSection({ posts }: { posts: Post[] }) {
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
         <div className="absolute bottom-0 p-6 text-white">
           <span className="inline-block bg-[#c8a84e] text-[#1a1a2e] text-xs font-bold px-2 py-1 rounded mb-2">{first.cat}</span>
-          <h2 className="text-2xl md:text-3xl font-bold mb-2">{first.title}</h2>
-          <p className="text-sm text-gray-300 line-clamp-2">{first.excerpt}</p>
-          <div className="flex items-center gap-3 mt-3 text-xs text-gray-400"><span>{first.author}</span><span>•</span><Clock className="w-3 h-3" /><span>{first.time}</span></div>
+          <h2 className="text-2xl md:text-3xl font-bold mb-2">{formatLocalizedDigits(first.title, locale)}</h2>
+          <p className="text-sm text-gray-300 line-clamp-2">{formatLocalizedDigits(first.excerpt, locale)}</p>
+          <div className="flex items-center gap-3 mt-3 text-xs text-gray-400">
+            <span>{first.author}</span>
+            <span>•</span>
+            <Clock className="w-3 h-3" />
+            <span>{formatLocalizedDigits(first.time, locale)}</span>
+          </div>
         </div>
       </Link>
 
@@ -55,9 +61,7 @@ export function HeroSection({ posts }: { posts: Post[] }) {
             alt=""
             loading="lazy"
             decoding="async"
-            onError={(e) => {
-              (e.currentTarget as HTMLImageElement).src = resolveImage(null, f.title, f.cat);
-            }}
+            onError={(e) => handleImgError(e, f.title, f.cat)}
             className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
           />
           {f.videoId && (
@@ -70,8 +74,11 @@ export function HeroSection({ posts }: { posts: Post[] }) {
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
           <div className="absolute bottom-0 p-4 text-white">
             <span className="inline-block bg-[#c8a84e] text-[#1a1a2e] text-xs font-bold px-2 py-0.5 rounded mb-1">{f.cat}</span>
-            <h3 className="text-base font-bold leading-snug">{f.title}</h3>
-            <div className="flex items-center gap-2 mt-1 text-xs text-gray-400"><Clock className="w-3 h-3" /><span>{f.time}</span></div>
+            <h3 className="text-base font-bold leading-snug">{formatLocalizedDigits(f.title, locale)}</h3>
+            <div className="flex items-center gap-2 mt-1 text-xs text-gray-400">
+              <Clock className="w-3 h-3" />
+              <span>{formatLocalizedDigits(f.time, locale)}</span>
+            </div>
           </div>
         </Link>
       ))}

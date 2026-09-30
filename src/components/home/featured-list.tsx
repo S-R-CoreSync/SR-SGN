@@ -1,9 +1,10 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { ArrowLeft, Clock, Play } from "lucide-react";
-import { PLACEHOLDER_IMG, handleImgError, resolveImage } from "@/lib/image-fallback";
+import { handleImgError, resolveImage } from "@/lib/image-fallback";
+import { formatLocalizedDigits } from "@/lib/language-guard";
 
 interface Post {
   title: string; cat: string; img: string | null; excerpt: string; time: string; slug: string;
@@ -12,6 +13,7 @@ interface Post {
 
 export function FeaturedList({ posts }: { posts: Post[] }) {
   const t = useTranslations();
+  const locale = useLocale();
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
@@ -31,9 +33,7 @@ export function FeaturedList({ posts }: { posts: Post[] }) {
                   alt=""
                   loading="lazy"
                   decoding="async"
-                  onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).src = resolveImage(null, f.title, f.cat);
-                  }}
+                  onError={(e) => handleImgError(e, f.title, f.cat)}
                   className="w-full h-full object-cover"
                 />
                 {f.videoId && (
@@ -46,9 +46,12 @@ export function FeaturedList({ posts }: { posts: Post[] }) {
               </div>
               <div className="flex-1 min-w-0">
                 <span className="text-xs text-[#1a5632] font-bold">{f.cat}</span>
-                <h4 className="font-bold text-gray-900 text-sm group-hover:text-[#1a5632] transition-colors line-clamp-2">{f.title}</h4>
-                <p className="text-xs text-gray-500 mt-1 line-clamp-1">{f.excerpt}</p>
-                <div className="flex items-center gap-2 mt-1.5 text-xs text-gray-400"><Clock className="w-3 h-3" /><span>{f.time}</span></div>
+                <h4 className="font-bold text-gray-900 text-sm group-hover:text-[#1a5632] transition-colors line-clamp-2">{formatLocalizedDigits(f.title, locale)}</h4>
+                <p className="text-xs text-gray-500 mt-1 line-clamp-1">{formatLocalizedDigits(f.excerpt, locale)}</p>
+                <div className="flex items-center gap-2 mt-1.5 text-xs text-gray-400">
+                  <Clock className="w-3 h-3" />
+                  <span>{formatLocalizedDigits(f.time, locale)}</span>
+                </div>
               </div>
             </Link>
           );
