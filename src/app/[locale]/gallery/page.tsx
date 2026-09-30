@@ -25,14 +25,15 @@ export default function GalleryPage() {
   const [activeCategory, setActiveCategory] = useState<string>("الكل");
 
   useEffect(() => {
-    fetch("/api/uploads")
+    setLoading(true);
+    fetch(`/api/uploads?locale=${locale}`)
       .then(r => r.json())
       .then(data => { 
         setImages(Array.isArray(data) ? data : []); 
         setLoading(false); 
       })
       .catch(() => setLoading(false));
-  }, []);
+  }, [locale]);
 
   // Filter categories
   const categories = [

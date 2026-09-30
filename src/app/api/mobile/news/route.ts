@@ -1,14 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { isPureLocaleText, localizeCategory } from "@/lib/language-guard";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const category = searchParams.get("category");
   const limit = Math.min(Number(searchParams.get("limit")) || 20, 50);
   const cursor = searchParams.get("cursor");
+  const locale = searchParams.get("locale") || "ar";
 
   try {
-    const where: Record<string, unknown> = { published: true };
+    const where: Record<string, unknown> = { published: true, locale };
     if (category) where.category = category;
 
     const posts = await prisma.post.findMany({
@@ -35,7 +37,11 @@ export async function GET(req: NextRequest) {
       nextCursor = next!.id;
     }
 
-    return NextResponse.json({ posts, nextCursor });
+    const filteredPosts = posts
+      .filter((p) => isPureLocaleText(p.title, locale))
+      .map((p) => ({ ...p, category: localizeCategory(p.category, locale) }));
+
+    return NextResponse.json({ posts: filteredPosts, nextCursor });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
