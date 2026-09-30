@@ -35,15 +35,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   }, [status, session, router]);
 
-  // Force body background to be light gray in dashboard to match the layout
-  useEffect(() => {
-    const originalBg = document.body.style.backgroundColor;
-    document.body.style.backgroundColor = "#f9fafb"; 
-    
-    return () => {
-      document.body.style.backgroundColor = originalBg;
-    };
-  }, []);
+
 
   if (status === "loading") {
     return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-[#1a5632] border-t-transparent rounded-full" /></div>;
