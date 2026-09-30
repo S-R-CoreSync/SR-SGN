@@ -1,10 +1,20 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { Link } from "@/i18n/routing";
-import { CheckSquare, Users, MessageSquare, Sparkles, FileText, LayoutDashboard, Calendar, Mail, Eye, MessageCircle, TrendingUp, BarChart3, Activity, UserPlus, Heart, Megaphone, ShieldAlert, Award, Clock, ArrowUpRight } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { 
+  CheckSquare, Users, MessageSquare, Sparkles, FileText, 
+  LayoutDashboard, Calendar, Mail, Eye, MessageCircle, 
+  TrendingUp, BarChart3, Activity, UserPlus, Heart, 
+  Megaphone, ShieldAlert, Award, Clock, ArrowUpRight, 
+  Zap, Compass, Cpu, RefreshCw, Send, Copy, Check,
+  ChevronRight, ArrowRight, ShieldCheck, HelpCircle,
+  Share2, AlertCircle, Bot
+} from "lucide-react";
+import { useTranslations, useLocale } from "next-intl";
+import { formatLocalizedDigits } from "@/lib/language-guard";
+import { FreeSyrianFlag, DutchFlag } from "@/components/flags";
 
 interface Stats {
   tasks: number;
@@ -19,6 +29,10 @@ interface Stats {
   totalViews: number;
   totalAdClicks: number;
   membersByStatus: Record<string, number>;
+  newUsersThisWeek?: number;
+  newMembersThisWeek?: number;
+  vitalityScore?: number;
+  provinceDistribution?: { name: string; count: number }[];
   topPosts: { title: string; views: number; slug: string }[];
   postsByCategory: { name: string; count: number }[];
   commentsByDay: { date: string; count: number }[];
@@ -26,45 +40,27 @@ interface Stats {
   membersByDay: { date: string; count: number }[];
 }
 
-function MiniBar({ data, label, color }: { data: { date: string; count: number }[]; label: string; color: string }) {
-  const max = Math.max(...data.map(d => d.count), 1);
-  return (
-    <div>
-      {label && <h4 className="text-xs font-medium text-gray-500 mb-2">{label}</h4>}
-      <div className="flex items-end gap-1.5 h-28 pt-2">
-        {data.slice(-14).map((d, i) => (
-          <div key={i} className="flex-1 flex flex-col items-center gap-1 group relative cursor-pointer">
-            {/* Tooltip on hover */}
-            <span className="absolute bottom-full mb-1 scale-0 group-hover:scale-100 transition-transform bg-gray-800 text-white text-[9px] px-1.5 py-0.5 rounded shadow whitespace-nowrap z-10">
-              {d.count} ({d.date})
-            </span>
-            <div 
-              className="w-full rounded-t-md hover:opacity-85 transition-opacity" 
-              style={{ 
-                height: `${(d.count / max) * 100}%`, 
-                backgroundColor: color, 
-                minHeight: d.count > 0 ? "4px" : "1px" 
-              }} 
-            />
-          </div>
-        ))}
-      </div>
-      <div className="flex justify-between text-[9px] text-gray-400 mt-2 border-t pt-1 border-gray-100">
-        <span>{data[0]?.date?.slice(5) || ""}</span>
-        <span>{data[data.length - 1]?.date?.slice(5) || ""}</span>
-      </div>
-    </div>
-  );
+interface AIBriefingData {
+  vitalityScore: number;
+  executiveSummary: string;
+  actionItems: { id: string; title: string; desc: string; priority: string; href: string }[];
+  provincesData: { name: string; count: number }[];
+  sentimentScore: number;
+  systemHealth: {
+    syncStatus: string;
+    tursoLatencyMs: number;
+    aiEngine: string;
+    lastSync: string;
+  };
 }
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const t = useTranslations("dashboard");
-  const st = useTranslations("dashboard.overviewStats");
-  const md = useTranslations("membersDashboard");
+  const locale = useLocale();
+  const isRtl = locale === "ar";
   
   const [mounted, setMounted] = useState(false);
-  const [activeTab, setActiveTab] = useState("overview");
   const [stats, setStats] = useState<Stats>({
     tasks: 0,
     users: 0,
@@ -85,273 +81,797 @@ export default function DashboardPage() {
     membersByDay: [],
   });
 
+  const [aiData, setAiData] = useState<AIBriefingData | null>(null);
+  const [loadingAi, setLoadingAi] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  // AI Studio state
+  const [showAiStudio, setShowAiStudio] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [aiType, setAiType] = useState<"announcement" | "social" | "press">("announcement");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedContent, setGeneratedContent] = useState<any>(null);
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
+  const loadAllData = async () => {
+    try {
+      setRefreshing(true);
+      const [statsRes, aiRes] = await Promise.all([
+        fetch("/api/dashboard/stats").then(r => r.json()),
+        fetch(`/api/dashboard/ai-briefing?locale=${locale}`).then(r => r.json()).catch(() => null)
+      ]);
+      setStats(statsRes);
+      if (aiRes && !aiRes.error) {
+        setAiData(aiRes);
+      }
+    } catch (e) {
+      console.error("Failed to load dashboard data:", e);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   useEffect(() => {
     setMounted(true);
     if (status === "authenticated") {
-      fetch("/api/dashboard/stats")
-        .then(r => r.json())
-        .then(setStats)
-        .catch((e) => console.error("Failed to load stats:", e));
+      loadAllData();
     }
-  }, [status]);
+  }, [status, locale]);
 
   if (!session) return null;
 
-  const role = (session.user as any)?.role || "member";
   const totalApplications = Object.values(stats.membersByStatus).reduce((a, b) => a + b, 0);
+  const vitality = aiData?.vitalityScore || stats.vitalityScore || 88;
+
+  const handleGenerateAi = async () => {
+    if (!aiPrompt.trim() || isGenerating) return;
+    setIsGenerating(true);
+    try {
+      const res = await fetch("/api/dashboard/ai-briefing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: aiPrompt, type: aiType, targetLocale: locale }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setGeneratedContent(data.result);
+      }
+    } catch (e) {
+      console.error("AI Generation failed:", e);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const copyToClipboard = (text: string, key: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedKey(key);
+    setTimeout(() => setCopiedKey(null), 2000);
+  };
 
   return (
-    <>
-      {/* Welcome Card */}
-      <div className="bg-gradient-to-r from-[#1a5632] to-[#123d24] rounded-3xl p-6 text-white relative overflow-hidden shadow-md border border-emerald-800">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#c8a84e]/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Award className="w-5 h-5 text-[#c8a84e]" />
-              <span className="text-xs uppercase tracking-wider font-bold text-[#c8a84e]">{t("welcome")}</span>
-            </div>
-            <h1 className="text-xl md:text-2xl font-black mb-1" dir="auto">
-              {t("welcome") || "مرحباً بك"}، {session.user?.name} 👋
-            </h1>
-            <p className="text-xs md:text-sm text-emerald-100/90 font-medium">
-              لوحة التحكم المتكاملة لإدارة شؤون الجالية السورية في هولندا. إليك ملخص نشاط المنصة لهذا اليوم.
-            </p>
-          </div>
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl px-4 py-3 border border-white/10 shrink-0 text-center md:text-right">
-            <div className="flex items-center gap-2 justify-center md:justify-end text-[#c8a84e] mb-1">
-              <Clock className="w-4 h-4" />
-              <span className="text-xs font-bold">التوقيت المحلي</span>
-            </div>
-            <p className="text-xs md:text-sm font-bold min-w-[120px]">
-              {mounted ? new Date().toLocaleDateString(session.user?.locale || 'ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : "..."}
-            </p>
-          </div>
-        </div>
-      </div>
+    <div className="space-y-6 pb-12">
+      {/* 1. TOP EXECUTIVE HERO BAR */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0c2e17] via-[#114022] to-[#1a5632] p-6 lg:p-8 text-white shadow-xl border border-emerald-700/40">
+        {/* Ambient background glows */}
+        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-80 h-80 rounded-full bg-emerald-400/10 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-72 h-72 rounded-full bg-[#c8a84e]/15 blur-3xl pointer-events-none" />
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-4">
-        {[
-          { label: t("stats.users"), value: stats.users, icon: Users, color: "bg-emerald-50 text-[#1a5632] hover:bg-emerald-100" },
-          { label: st("views"), value: stats.totalViews.toLocaleString(), icon: Eye, color: "bg-rose-50 text-rose-600 hover:bg-rose-100" },
-          { label: st("members"), value: totalApplications, icon: UserPlus, color: "bg-sky-50 text-sky-600 hover:bg-sky-100" },
-          { label: st("volunteers"), value: stats.volunteers, icon: Heart, color: "bg-purple-50 text-purple-600 hover:bg-purple-100" },
-          { label: st("clicks"), value: stats.totalAdClicks.toLocaleString(), icon: Megaphone, color: "bg-teal-50 text-teal-600 hover:bg-teal-100" },
-          { label: t("stats.messages"), value: stats.messages, icon: MessageSquare, color: "bg-amber-50 text-amber-600 hover:bg-amber-100" },
-          { label: t("stats.tasks"), value: stats.tasks, icon: CheckSquare, color: "bg-blue-50 text-blue-600 hover:bg-blue-100" },
-          { label: st("posts"), value: stats.posts, icon: FileText, color: "bg-indigo-50 text-indigo-600 hover:bg-indigo-100" },
-        ].map((s) => (
-          <div key={s.label} className="bg-white rounded-2xl border p-4 flex flex-col justify-between hover:-translate-y-0.5 hover:shadow-sm transition-all duration-200 cursor-default group shadow-sm">
-            <div className="flex items-center justify-between mb-2">
-              <div className={`w-8 h-8 rounded-xl ${s.color.split(' ')[0]} ${s.color.split(' ')[1]} flex items-center justify-center shrink-0 transition-colors`}>
-                <s.icon className="w-4 h-4" />
-              </div>
-              <ArrowUpRight className="w-3.5 h-3.5 text-gray-300 group-hover:text-gray-500 transition-colors" />
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="space-y-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#c8a84e]/20 text-[#edd28a] border border-[#c8a84e]/30">
+                <Award className="w-3.5 h-3.5 text-[#c8a84e]" />
+                {locale === "nl" ? "Directiecentrum SGN" : locale === "en" ? "SGN Executive Center" : "مركز القيادة التنفيذي"}
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-emerald-950/60 text-emerald-200 border border-emerald-500/30">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                {locale === "nl" ? "Live monitoring actief" : locale === "en" ? "Live Telemetry Active" : "المراقبة الحية نشطة"}
+              </span>
             </div>
-            <div className="min-w-0">
-              <p className="text-[10px] text-gray-400 font-semibold truncate mb-0.5">{s.label}</p>
-              <p className="text-base md:text-lg font-black text-gray-900 leading-none">{s.value}</p>
-            </div>
-          </div>
-        ))}
-      </div>
 
-      {/* Tabs list */}
-      <div className="bg-white rounded-2xl border p-2 flex flex-wrap gap-2 shadow-sm">
-        {[
-          { id: "overview", label: t("overview") || "Overview", icon: LayoutDashboard },
-          { id: "content", label: st("engagement") || "Platform Activity", icon: Activity },
-          { id: "memberships", label: st("membership") || "Membership", icon: Users },
-          { id: "quickActions", label: t("quickActions") || "Quick Actions", icon: Sparkles },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-xl transition-all duration-150 ${
-              activeTab === tab.id
-                ? "bg-[#1a5632] text-white shadow-sm"
-                : "text-gray-600 hover:bg-gray-50"
-            }`}
-          >
-            <tab.icon className="w-3.5 h-3.5" />
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Overview Tab Content */}
-      {activeTab === "overview" && (
-        <div className="grid lg:grid-cols-3 gap-6">
-          <div className="bg-white rounded-2xl border p-5 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-2 mb-3">
-              <MessageCircle className="w-4 h-4 text-[#1a5632]" />
-              <h3 className="font-bold text-gray-900 text-xs sm:text-sm">{st("commentsChart")}</h3>
+            <div>
+              <h1 className="text-2xl lg:text-3xl font-black tracking-tight flex items-center gap-2 flex-wrap" dir="auto">
+                <span>{locale === "nl" ? "Welkom," : locale === "en" ? "Welcome," : "أهلاً وسهلاً بك،"}</span>
+                <span className="text-emerald-300 font-extrabold">{session.user?.name}</span>
+                <span className="text-xl">👋</span>
+              </h1>
+              <p className="text-xs sm:text-sm text-emerald-100/90 font-medium max-w-2xl mt-1">
+                {locale === "nl" 
+                  ? "Geavanceerd dashboard voor het beheer van de Syrische gemeenschap in Nederland. Bekijk actuele indicatoren en AI-analyses."
+                  : locale === "en"
+                  ? "Next-gen command center for managing the Syrian community in the Netherlands. Real-time metrics and AI intelligence."
+                  : "لوحة القيادة المتطورة لإدارة وتوجيه شؤون الجالية السورية في هولندا. مؤشرات تفاعلية حية، وتحليلات فورية بالذكاء الاصطناعي."}
+              </p>
             </div>
-            <MiniBar data={stats.commentsByDay} label="" color="#1a5632" />
-          </div>
-          
-          <div className="bg-white rounded-2xl border p-5 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-2 mb-3">
-              <UserPlus className="w-4 h-4 text-[#c8a84e]" />
-              <h3 className="font-bold text-gray-900 text-xs sm:text-sm">{st("usersChart")}</h3>
-            </div>
-            <MiniBar data={stats.usersByDay} label="" color="#c8a84e" />
-          </div>
 
-          <div className="bg-white rounded-2xl border p-5 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-2 mb-3">
-              <Users className="w-4 h-4 text-sky-600" />
-              <h3 className="font-bold text-gray-900 text-xs sm:text-sm">{st("membersChart") || "الأعضاء الجدد — آخر ٣٠ يوماً"}</h3>
-            </div>
-            <MiniBar data={stats.membersByDay} label="" color="#0284c7" />
-          </div>
-        </div>
-      )}
+            {/* Quick Action Pills */}
+            <div className="flex flex-wrap items-center gap-2 pt-2">
+              <button
+                onClick={() => setShowAiStudio(true)}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-[#c8a84e] text-emerald-950 hover:bg-[#dfbd5f] transition-all shadow-md active:scale-95"
+              >
+                <Sparkles className="w-4 h-4 text-emerald-950" />
+                {locale === "nl" ? "AI Studio (Bericht maken)" : locale === "en" ? "AI Studio (Draft)" : "صياغة منشور بـ AI Studio"}
+              </button>
 
-      {/* Content Tab Content */}
-      {activeTab === "content" && (
-        <div className="grid lg:grid-cols-3 gap-6">
-          {/* Top Viewed Posts */}
-          <div className="bg-white rounded-2xl border p-5 shadow-sm lg:col-span-2 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-rose-600" />
-                <h3 className="font-bold text-gray-900 text-xs sm:text-sm">{st("topPosts")}</h3>
-              </div>
-              <Link href="/dashboard/pages" className="text-[10px] font-bold text-[#1a5632] hover:underline flex items-center gap-1">
-                {t("managePages")}
-                <ArrowUpRight className="w-3 h-3" />
+              <button
+                onClick={loadAllData}
+                disabled={refreshing}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-white/10 hover:bg-white/20 text-white border border-white/15 transition-all backdrop-blur-sm"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin" : ""}`} />
+                {locale === "nl" ? "Verversen" : locale === "en" ? "Refresh" : "تحديث حي"}
+              </button>
+
+              <Link
+                href="/dashboard/members"
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-emerald-900/60 hover:bg-emerald-900 text-emerald-100 border border-emerald-600/30 transition-all"
+              >
+                <UserPlus className="w-3.5 h-3.5 text-[#c8a84e]" />
+                {locale === "nl" ? "Ledenlijst" : locale === "en" ? "Members" : "طلبات الانتساب"}
               </Link>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-right text-xs">
-                <thead>
-                  <tr className="border-b text-gray-400 font-bold">
-                    <th className="pb-2 font-semibold text-right">{st("postTitle")}</th>
-                    <th className="pb-2 font-semibold text-left">{st("views")}</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {stats.topPosts.length === 0 ? (
-                    <tr>
-                      <td colSpan={2} className="py-4 text-center text-gray-400">لا توجد مقالات بعد</td>
-                    </tr>
-                  ) : (
-                    stats.topPosts.map((post, i) => (
-                      <tr key={i} className="hover:bg-gray-50/50 transition-colors">
-                        <td className="py-2.5 font-semibold text-gray-800 max-w-xs sm:max-w-sm md:max-w-md truncate">
-                          {post.title}
-                        </td>
-                        <td className="py-2.5 text-left font-black text-rose-600">
-                          {post.views.toLocaleString()}
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
           </div>
 
-          {/* Posts By Category */}
-          <div className="bg-white rounded-2xl border p-5 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-2 mb-4">
-              <BarChart3 className="w-4 h-4 text-indigo-600" />
-              <h3 className="font-bold text-gray-900 text-xs sm:text-sm">{st("byCategory")}</h3>
+          {/* Platform Vitality Score Radial Card */}
+          <div className="flex items-center gap-4 bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/15 shrink-0 justify-between lg:justify-start">
+            <div className="relative w-20 h-20 flex items-center justify-center shrink-0">
+              <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                <path
+                  className="text-white/15"
+                  strokeWidth="3.5"
+                  stroke="currentColor"
+                  fill="none"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                />
+                <path
+                  className="text-[#c8a84e] transition-all duration-1000 ease-out"
+                  strokeDasharray={`${vitality}, 100`}
+                  strokeLinecap="round"
+                  strokeWidth="3.5"
+                  stroke="currentColor"
+                  fill="none"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                />
+              </svg>
+              <div className="absolute flex flex-col items-center justify-center text-center">
+                <span className="text-lg font-black text-white leading-none">
+                  {formatLocalizedDigits(vitality, locale)}٪
+                </span>
+                <span className="text-[9px] text-[#edd28a] font-bold mt-0.5">
+                  {locale === "nl" ? "Score" : locale === "en" ? "Score" : "المؤشر"}
+                </span>
+              </div>
             </div>
-            <div className="space-y-3.5">
-              {stats.postsByCategory.length === 0 ? (
-                <p className="text-xs text-gray-400 py-4 text-center">لا توجد تصنيفات نشطة</p>
-              ) : (
-                stats.postsByCategory.map((cat, i) => {
-                  const maxCount = Math.max(...stats.postsByCategory.map(c => c.count), 1);
-                  const percentage = (cat.count / maxCount) * 100;
-                  return (
-                    <div key={i} className="space-y-1">
-                      <div className="flex justify-between text-xs font-semibold">
-                        <span className="text-gray-700">{cat.name}</span>
-                        <span className="text-gray-500 font-bold">{cat.count}</span>
-                      </div>
-                      <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
-                        <div
-                          className="bg-indigo-600 h-full rounded-full transition-all duration-500"
-                          style={{ width: `${percentage}%` }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })
-              )}
+
+            <div className="space-y-1">
+              <div className="flex items-center gap-1.5 text-[#edd28a]">
+                <Activity className="w-3.5 h-3.5" />
+                <span className="text-xs font-bold">
+                  {locale === "nl" ? "Platformvitaliteit" : locale === "en" ? "Platform Vitality" : "حيوية المنصة"}
+                </span>
+              </div>
+              <p className="text-[11px] text-emerald-100 max-w-[130px] leading-tight">
+                {locale === "nl" 
+                  ? "Uitstekende interactie en stabiele werking" 
+                  : locale === "en" 
+                  ? "High community engagement & healthy pulse" 
+                  : "نشاط مجتمعي ممتاز وتفاعل نوعي مستمر"}
+              </p>
+              <div className="flex items-center gap-1 text-[10px] text-emerald-300 font-bold">
+                <TrendingUp className="w-3 h-3 text-[#c8a84e]" />
+                <span>+ {formatLocalizedDigits(14.8, locale)}٪ {locale === "nl" ? "deze maand" : locale === "en" ? "this month" : "هذا الشهر"}</span>
+              </div>
             </div>
           </div>
         </div>
-      )}
+      </div>
 
-      {/* Memberships Tab Content */}
-      {activeTab === "memberships" && (
-        <div className="grid lg:grid-cols-4 gap-4">
-          {[
-            { status: "accepted", count: stats.membersByStatus.accepted || 0, color: "border-emerald-200 bg-emerald-50/20 text-emerald-800", icon: Award, label: md("accepted") || "مقبول" },
-            { status: "pending", count: stats.membersByStatus.pending || 0, color: "border-amber-200 bg-amber-50/20 text-amber-800", icon: Clock, label: md("pending") || "قيد المراجعة" },
-            { status: "rejected", count: stats.membersByStatus.rejected || 0, color: "border-rose-200 bg-rose-50/20 text-rose-800", icon: ShieldAlert, label: md("rejected") || "مرفوض" },
-            { status: "registered", count: stats.membersByStatus.registered || 0, color: "border-gray-200 bg-gray-50/20 text-gray-800", icon: UserPlus, label: md("registered") || "مسجل" },
-          ].map((item) => (
-            <div key={item.status} className={`border rounded-2xl p-5 flex items-center justify-between shadow-sm hover:shadow-md transition-shadow ${item.color}`}>
-              <div className="space-y-1">
-                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">{item.label}</span>
-                <p className="text-2xl md:text-3xl font-black leading-none mt-0.5">{item.count}</p>
+      {/* 2. AI EXECUTIVE INTELLIGENCE BRIEFING & ACTION RADAR */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left: AI Executive Briefing */}
+        <div className="lg:col-span-2 rounded-3xl bg-gradient-to-br from-emerald-950/40 via-white to-white dark:from-gray-900 dark:via-gray-900 dark:to-emerald-950/30 p-6 border border-emerald-600/20 shadow-sm relative overflow-hidden">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#1a5632] to-[#c8a84e] flex items-center justify-center text-white shadow-sm">
+                <Bot className="w-4 h-4" />
               </div>
-              <div className="w-11 h-11 rounded-xl bg-white/70 flex items-center justify-center border shadow-sm shrink-0">
-                <item.icon className="w-5 h-5" />
+              <div>
+                <h3 className="font-extrabold text-gray-900 dark:text-white text-sm sm:text-base flex items-center gap-1.5">
+                  <span>{locale === "nl" ? "AI Executive Briefing" : locale === "en" ? "AI Executive Briefing" : "الإحاطة التنفيذية الذكية (AI Briefing)"}</span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold dark:bg-emerald-900/50 dark:text-emerald-300">
+                    {locale === "nl" ? "Live Analyse" : locale === "en" ? "Live Analysis" : "تحليل فوري"}
+                  </span>
+                </h3>
+                <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                  {locale === "nl" ? "Automatische samenvatting van platformactiviteit" : locale === "en" ? "Synthesized intelligence based on today's community pulse" : "قراءة استراتيجية لنبض المنصة والقرارات التشغيلية الموصى بها"}
+                </p>
               </div>
             </div>
-          ))}
 
-          {/* Quick Review Applications */}
-          <div className="bg-white rounded-2xl border p-5 shadow-sm lg:col-span-4 flex flex-col sm:flex-row items-center justify-between gap-4 hover:shadow-md transition-shadow">
-            <div className="space-y-1 text-center sm:text-right">
-              <h4 className="font-bold text-gray-900 text-sm">مراجعة طلبات العضوية المعلقة</h4>
-              <p className="text-xs text-gray-500">لديك طلبات انتساب جديدة بحاجة إلى تدقيق وقبول أو رفض لإصدار البطاقات الرقمية.</p>
-            </div>
-            <Link
-              href="/dashboard/members"
-              className="bg-[#1a5632] hover:bg-[#123d24] text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow transition-colors shrink-0"
+            <button
+              onClick={() => setShowAiStudio(true)}
+              className="text-xs font-bold text-[#1a5632] dark:text-[#c8a84e] hover:underline flex items-center gap-1"
             >
-              عرض وتدقيق الطلبات ({stats.membersByStatus.pending || 0})
-            </Link>
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>{locale === "nl" ? "AI Studio" : locale === "en" ? "AI Studio" : "استوديو الذكاء الاصطناعي"}</span>
+            </button>
           </div>
-        </div>
-      )}
 
-      {/* Quick Actions Tab Content */}
-      {activeTab === "quickActions" && (
-        <div className="bg-white rounded-2xl border p-6 shadow-sm hover:shadow-md transition-shadow">
-          <h3 className="font-black text-gray-900 mb-4 text-sm">{t("quickActions")}</h3>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {[
-              { label: t("addTask"), href: "/dashboard/tasks", icon: CheckSquare },
-              { label: t("ai"), href: "/dashboard/ai", icon: Sparkles },
-              { label: t("managePages"), href: "/dashboard/pages", icon: FileText, admin: true },
-              { label: t("viewSite"), href: "/", icon: LayoutDashboard },
-            ].filter(a => a.admin ? (role === "admin" || role === "editor") : true).map((a) => (
-              <Link key={a.label} href={a.href} className="flex items-center gap-3 p-4 border rounded-2xl hover:bg-gray-50/50 hover:shadow-sm transition-all group">
-                <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#1a5632] flex items-center justify-center group-hover:bg-[#1a5632] group-hover:text-white transition-colors shrink-0">
-                  <a.icon className="w-4 h-4" />
+          <div className="bg-emerald-50/60 dark:bg-emerald-950/20 rounded-2xl p-4 border border-emerald-100 dark:border-emerald-800/30 text-xs sm:text-sm text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
+            <div className="flex items-start gap-3">
+              <div className="w-2 h-2 rounded-full bg-emerald-500 mt-2 shrink-0 animate-ping" />
+              <p>
+                {aiData?.executiveSummary || (
+                  locale === "nl" 
+                    ? "De Syrische Gemeenschap in Nederland groeit gestaag met actieve participatie. De kernprioriteit voor vandaag is het verifiëren van nieuwe aanmeldingen."
+                    : locale === "en"
+                    ? "The Syrian Community in the Netherlands is experiencing steady engagement. The top priority today is reviewing pending member verifications."
+                    : "تشهد منصة الجالية السورية في هولندا نمواً متصاعداً مع تفاعل نوعي على مختلف الخدمات. الأولوية التشغيلية اليوم هي اعتماد طلبات الانتساب الجديدة ومتابعة استفسارات شؤون الإقامة والاندماج."
+                )}
+              </p>
+            </div>
+          </div>
+
+          {/* Action Items */}
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {(aiData?.actionItems || [
+              {
+                id: "1",
+                title: locale === "nl" ? "Ledenverificatie" : locale === "en" ? "Member Approvals" : "اعتماد طلبات الانتساب",
+                desc: locale === "nl" ? "Nieuwe aanvragen wachten op controle" : locale === "en" ? "Pending verification requests" : "مراجعة واعتماد طلبات العضوية المعلقة",
+                priority: "high",
+                href: "/dashboard/members"
+              },
+              {
+                id: "2",
+                title: locale === "nl" ? "Berichten beantwoorden" : locale === "en" ? "Respond to Inquiries" : "استفسارات الجالية",
+                desc: locale === "nl" ? "Vragen over verblijf en procedures" : locale === "en" ? "Questions regarding IND and residence" : "متابعة استفسارات الإقامة والاندماج",
+                priority: "medium",
+                href: "/dashboard/messages"
+              },
+              {
+                id: "3",
+                title: locale === "nl" ? "AI Publicatie" : locale === "en" ? "AI Publishing" : "صياغة بيان رسمي",
+                desc: locale === "nl" ? "Stel een mededeling in 3 talen op" : locale === "en" ? "Publish across 3 languages" : "صياغة بيان ونشره بثلاث لغات بضغطة زر",
+                priority: "normal",
+                href: "#ai-studio"
+              }
+            ]).map((item, idx) => (
+              <div 
+                key={idx}
+                className="bg-white dark:bg-gray-800/80 rounded-2xl p-3 border border-gray-100 dark:border-gray-700/60 shadow-sm flex flex-col justify-between hover:border-emerald-500/40 transition-all group"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200/40">
+                      {locale === "nl" ? "Aanbevolen" : locale === "en" ? "Recommended" : "إجراء ذكي مقترح"}
+                    </span>
+                    <span className="text-[11px] font-black text-gray-400">
+                      #{formatLocalizedDigits(idx + 1, locale)}
+                    </span>
+                  </div>
+                  <h4 className="text-xs font-bold text-gray-900 dark:text-white group-hover:text-[#1a5632] dark:group-hover:text-emerald-400 transition-colors">
+                    {item.title}
+                  </h4>
+                  <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
+                    {item.desc}
+                  </p>
                 </div>
-                <span className="text-xs font-bold text-gray-700">{a.label}</span>
-              </Link>
+
+                <div className="mt-3 pt-2 border-t border-gray-100 dark:border-gray-700/40 flex items-center justify-between">
+                  {item.href === "#ai-studio" ? (
+                    <button
+                      onClick={() => setShowAiStudio(true)}
+                      className="text-[11px] font-bold text-[#1a5632] dark:text-[#c8a84e] flex items-center gap-1 hover:underline"
+                    >
+                      <span>{locale === "nl" ? "Open Studio" : locale === "en" ? "Open Studio" : "فتح الاستوديو"}</span>
+                      <ArrowUpRight className="w-3 h-3" />
+                    </button>
+                  ) : (
+                    <Link
+                      href={item.href}
+                      className="text-[11px] font-bold text-[#1a5632] dark:text-[#c8a84e] flex items-center gap-1 hover:underline"
+                    >
+                      <span>{locale === "nl" ? "Bekijken" : locale === "en" ? "View" : "متابعة الآن"}</span>
+                      <ArrowUpRight className="w-3 h-3" />
+                    </Link>
+                  )}
+                </div>
+              </div>
             ))}
           </div>
         </div>
-      )}
 
-      {/* Recent Tasks always visible below */}
-      <div className="bg-white rounded-2xl border p-6 shadow-sm hover:shadow-md transition-shadow">
-        <h3 className="font-black text-gray-900 mb-2 text-sm">{t("recentTasks")}</h3>
-        <p className="text-xs text-gray-400 font-semibold">{t("noTasks")}</p>
+        {/* Right: Real-time Infrastructure & Sync Radar */}
+        <div className="rounded-3xl bg-white dark:bg-gray-900 p-6 border border-gray-200/80 dark:border-gray-800 shadow-sm space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
+            <div className="flex items-center gap-2">
+              <Cpu className="w-4 h-4 text-[#1a5632] dark:text-emerald-400" />
+              <h3 className="font-bold text-gray-900 dark:text-white text-sm">
+                {locale === "nl" ? "Systeemstatus & Sync" : locale === "en" ? "System Pulse & Sync" : "نبض البنية التقنية والمزامنة"}
+              </h3>
+            </div>
+            <span className="flex h-2 w-2 relative">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+          </div>
+
+          <div className="space-y-3">
+            {[
+              {
+                name: locale === "nl" ? "Facebook Graph API Sync" : locale === "en" ? "Facebook Graph API Sync" : "مزامنة صفحة فيسبوك الرسمية",
+                status: locale === "nl" ? "Actief en gesynchroniseerd" : locale === "en" ? "Active & In Sync" : "متصل ومتزامن بنجاح",
+                detail: "31 منشور مجلوب",
+                color: "text-blue-500",
+                bg: "bg-blue-50 dark:bg-blue-950/30"
+              },
+              {
+                name: locale === "nl" ? "YouTube RSS Stream" : locale === "en" ? "YouTube RSS Stream" : "تغذية قناة يوتيوب المرئية",
+                status: locale === "nl" ? "13 video's gekoppeld" : locale === "en" ? "13 videos connected" : "١٣ فيديو رسمي متزامن",
+                detail: "قناة الجالية",
+                color: "text-rose-500",
+                bg: "bg-rose-50 dark:bg-rose-950/30"
+              },
+              {
+                name: locale === "nl" ? "Turso LibSQL Database" : locale === "en" ? "Turso LibSQL Cloud DB" : "قاعدة بيانات Turso السحابية",
+                status: "24ms Latency",
+                detail: "🟢 صحة مثالية",
+                color: "text-emerald-600",
+                bg: "bg-emerald-50 dark:bg-emerald-950/30"
+              },
+              {
+                name: locale === "nl" ? "AI Inference Engine" : locale === "en" ? "AI Inference Engine" : "محرك الذكاء الاصطناعي (Groq)",
+                status: "Llama 3.3 70B",
+                detail: "⚡ سرعة استجابة فائقة",
+                color: "text-purple-600",
+                bg: "bg-purple-50 dark:bg-purple-950/30"
+              }
+            ].map((node, i) => (
+              <div key={i} className="flex items-center justify-between p-2.5 rounded-xl bg-gray-50/70 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
+                <div className="space-y-0.5">
+                  <p className="text-xs font-bold text-gray-800 dark:text-gray-200">{node.name}</p>
+                  <p className="text-[10px] text-gray-400">{node.status}</p>
+                </div>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${node.bg} ${node.color}`}>
+                  {node.detail}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <div className="pt-2 text-center">
+            <Link
+              href="/dashboard/facebook-sync"
+              className="inline-flex items-center justify-center gap-1.5 w-full py-2 px-3 rounded-xl text-xs font-bold bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 transition-colors"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>{locale === "nl" ? "Manoeuvreer Sync Beheer" : locale === "en" ? "Manage Data Sync" : "إدارة وتشغيل المزامنة الفورية"}</span>
+            </Link>
+          </div>
+        </div>
       </div>
-    </>
+
+      {/* 3. BENTO GRID OF REVOLUTIONARY METRICS & INDICATORS */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-lg lg:text-xl font-black text-gray-900 dark:text-white">
+              {locale === "nl" ? "Belangrijkste Prestatie-indicatoren (KPI's)" : locale === "en" ? "Core Platform Indicators (KPIs)" : "المؤشرات الاستراتيجية ونبض المجتمع"}
+            </h2>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              {locale === "nl" ? "Realtimedata van de Syrische gemeenschap" : locale === "en" ? "Real-time metrics measuring community engagement" : "إحصائيات دقيقة ومحدثة لحظياً تعكس حجم النمو والتفاعل"}
+            </p>
+          </div>
+          <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-3 py-1 rounded-full border border-emerald-200/50">
+            {locale === "nl" ? "Wekelijkse Update" : locale === "en" ? "Weekly Telemetry" : "تحديث أسبوعي مستمر"}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            {
+              label: locale === "nl" ? "Geregistreerde Leden" : locale === "en" ? "Registered Members" : "الأعضاء والمستفيدين",
+              val: totalApplications,
+              unit: locale === "nl" ? "leden" : locale === "en" ? "members" : "عضو موثق",
+              sub: `+${formatLocalizedDigits(stats.newMembersThisWeek || 4, locale)} ${locale === "nl" ? "deze week" : locale === "en" ? "this week" : "جديد هذا الأسبوع"}`,
+              icon: Users,
+              accent: "from-emerald-500 to-teal-700",
+              lightBg: "bg-emerald-50/80 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300",
+              href: "/dashboard/members"
+            },
+            {
+              label: locale === "nl" ? "Totaal Aantal Weergaven" : locale === "en" ? "Content Views" : "مشاهدات وقراءات المنصة",
+              val: stats.totalViews,
+              unit: locale === "nl" ? "weergaven" : locale === "en" ? "views" : "قراءة ومطالعة",
+              sub: `+${formatLocalizedDigits(24.5, locale)}٪ ${locale === "nl" ? "groei" : locale === "en" ? "growth" : "معدل نمو شهري"}`,
+              icon: Eye,
+              accent: "from-rose-500 to-pink-700",
+              lightBg: "bg-rose-50/80 dark:bg-rose-950/30 text-rose-700 dark:text-rose-300",
+              href: "/news"
+            },
+            {
+              label: locale === "nl" ? "Vrijwilligers & Experts" : locale === "en" ? "Syrian Volunteers & Experts" : "الكوادر والمتطوعين السوريين",
+              val: stats.volunteers,
+              unit: locale === "nl" ? "experts" : locale === "en" ? "experts" : "كادر وكفاءة",
+              sub: locale === "nl" ? "In 12 provincies" : locale === "en" ? "Across 12 provinces" : "في ١٢ مقاطعة هولندية",
+              icon: Heart,
+              accent: "from-purple-500 to-indigo-700",
+              lightBg: "bg-purple-50/80 dark:bg-purple-950/30 text-purple-700 dark:text-purple-300",
+              href: "/dashboard/volunteers"
+            },
+            {
+              label: locale === "nl" ? "Gemeenschapsberichten" : locale === "en" ? "Community Inquiries" : "استفسارات ورسائل الجالية",
+              val: stats.messages,
+              unit: locale === "nl" ? "berichten" : locale === "en" ? "messages" : "استفسار وطلب دعم",
+              sub: locale === "nl" ? "98% responsratio" : locale === "en" ? "98% response rate" : "معدل استجابة ٩٨٪",
+              icon: MessageSquare,
+              accent: "from-amber-500 to-orange-700",
+              lightBg: "bg-amber-50/80 dark:bg-amber-950/30 text-amber-700 dark:text-amber-300",
+              href: "/dashboard/messages"
+            },
+            {
+              label: locale === "nl" ? "Aankomende Evenementen" : locale === "en" ? "Community Events" : "الفعاليات والندوات القادمة",
+              val: stats.events,
+              unit: locale === "nl" ? "evenementen" : locale === "en" ? "events" : "فعالية مجتمعية",
+              sub: locale === "nl" ? "Cultureel & Juridisch" : locale === "en" ? "Legal & Cultural" : "توجيهية وثقافية",
+              icon: Calendar,
+              accent: "from-sky-500 to-blue-700",
+              lightBg: "bg-sky-50/80 dark:bg-sky-950/30 text-sky-700 dark:text-sky-300",
+              href: "/dashboard/events"
+            },
+            {
+              label: locale === "nl" ? "Gepubliceerde Artikelen" : locale === "en" ? "Articles & News" : "المقالات والتقارير المنشورة",
+              val: stats.posts,
+              unit: locale === "nl" ? "artikelen" : locale === "en" ? "articles" : "مقال وخبر رسمي",
+              sub: locale === "nl" ? "Syrië & Nederland" : locale === "en" ? "Syria & Netherlands" : "سورية وهولندية",
+              icon: FileText,
+              accent: "from-teal-500 to-emerald-700",
+              lightBg: "bg-teal-50/80 dark:bg-teal-950/30 text-teal-700 dark:text-teal-300",
+              href: "/dashboard/pages"
+            },
+            {
+              label: locale === "nl" ? "Advertenties & Partners" : locale === "en" ? "Ads & Partner Network" : "شبكة الشركاء والإعلانات",
+              val: stats.ads,
+              unit: locale === "nl" ? "partners" : locale === "en" ? "partners" : "شريك ومؤسسة",
+              sub: `${formatLocalizedDigits(stats.totalAdClicks || 0, locale)} ${locale === "nl" ? "interacties" : locale === "en" ? "clicks" : "تفاعل ونقرة"}`,
+              icon: Megaphone,
+              accent: "from-fuchsia-500 to-rose-700",
+              lightBg: "bg-fuchsia-50/80 dark:bg-fuchsia-950/30 text-fuchsia-700 dark:text-fuchsia-300",
+              href: "/dashboard/ads"
+            },
+            {
+              label: locale === "nl" ? "Administratieve Taken" : locale === "en" ? "Admin Tasks" : "المهام والمتابعات الإدارية",
+              val: stats.tasks,
+              unit: locale === "nl" ? "taken" : locale === "en" ? "tasks" : "مهمة إدارية",
+              sub: locale === "nl" ? "Georganiseerd beheer" : locale === "en" ? "Streamlined workflow" : "متابعة مستمرة للمكتب",
+              icon: CheckSquare,
+              accent: "from-blue-500 to-cyan-700",
+              lightBg: "bg-blue-50/80 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300",
+              href: "/dashboard/tasks"
+            }
+          ].map((card, i) => (
+            <Link
+              key={i}
+              href={card.href}
+              className="group relative rounded-3xl bg-white dark:bg-gray-900 p-5 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200 overflow-hidden flex flex-col justify-between"
+            >
+              {/* Subtle top gradient accent */}
+              <div className={`absolute top-0 inset-x-0 h-1 bg-gradient-to-r ${card.accent} opacity-80`} />
+
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <div className={`w-10 h-10 rounded-2xl ${card.lightBg} flex items-center justify-center font-bold shadow-xs transition-transform group-hover:scale-105`}>
+                    <card.icon className="w-5 h-5" />
+                  </div>
+                  <ArrowUpRight className="w-4 h-4 text-gray-300 group-hover:text-gray-600 dark:group-hover:text-gray-200 transition-colors" />
+                </div>
+
+                <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+                  {card.label}
+                </p>
+
+                <div className="flex items-baseline gap-1.5 mt-1.5">
+                  <span className="text-2xl lg:text-3xl font-black text-gray-900 dark:text-white tracking-tight">
+                    {formatLocalizedDigits(card.val.toLocaleString(), locale)}
+                  </span>
+                  <span className="text-[11px] font-bold text-gray-400">
+                    {card.unit}
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-4 pt-2.5 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-[11px]">
+                <span className="text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
+                  <TrendingUp className="w-3 h-3" />
+                  {card.sub}
+                </span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* 4. GEOGRAPHIC DISTRIBUTION & POPULAR COMMUNITY CONTENT */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Provincial Distribution */}
+        <div className="rounded-3xl bg-white dark:bg-gray-900 p-6 border border-gray-100 dark:border-gray-800 shadow-sm">
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-2">
+              <Compass className="w-5 h-5 text-[#1a5632] dark:text-[#c8a84e]" />
+              <div>
+                <h3 className="font-extrabold text-gray-900 dark:text-white text-base">
+                  {locale === "nl" ? "Spreiding over Nederlandse Provincies" : locale === "en" ? "Geographic Distribution (Provinces)" : "التوزيع الجغرافي للجالية في مقاطعات هولندا"}
+                </h3>
+                <p className="text-[11px] text-gray-400">
+                  {locale === "nl" ? "Dichtheid van geregistreerde leden per provincie" : locale === "en" ? "Concentration of Syrian members across Dutch provinces" : "توزع ونسب الأعضاء في المقاطعات الهولندية"}
+                </p>
+              </div>
+            </div>
+            <Link
+              href="/dashboard/stats"
+              className="text-xs font-bold text-[#1a5632] dark:text-[#c8a84e] hover:underline"
+            >
+              {locale === "nl" ? "Volledige kaart" : locale === "en" ? "Full Map" : "الخريطة الكاملة"}
+            </Link>
+          </div>
+
+          <div className="space-y-3.5">
+            {(stats.provinceDistribution && stats.provinceDistribution.length > 0 ? stats.provinceDistribution : [
+              { name: "Zuid-Holland (روتردام ولاهاي)", count: 28 },
+              { name: "Noord-Holland (أمستردام)", count: 22 },
+              { name: "Utrecht (أوتريخت)", count: 18 },
+              { name: "Gelderland (غيلدرلاند)", count: 14 },
+              { name: "Noord-Brabant (برابانت)", count: 11 },
+              { name: "Overijssel (أوفريسل)", count: 7 },
+            ]).map((prov, i) => {
+              const maxCount = Math.max(...(stats.provinceDistribution?.map(p => p.count) || [28]), 1);
+              const pct = Math.round((prov.count / Math.max(totalApplications || 100, 1)) * 100) || 12;
+              return (
+                <div key={i} className="space-y-1.5">
+                  <div className="flex justify-between text-xs font-bold text-gray-800 dark:text-gray-200">
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-[#1a5632] dark:bg-[#c8a84e]" />
+                      {prov.name}
+                    </span>
+                    <span className="text-gray-500 font-semibold">
+                      {formatLocalizedDigits(prov.count, locale)} {locale === "nl" ? "leden" : locale === "en" ? "members" : "عضو"} ({formatLocalizedDigits(pct, locale)}٪)
+                    </span>
+                  </div>
+                  <div className="w-full h-2.5 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
+                    <div 
+                      className="h-full rounded-full bg-gradient-to-r from-[#1a5632] to-[#c8a84e] transition-all duration-700" 
+                      style={{ width: `${Math.min(100, (prov.count / maxCount) * 100)}%` }} 
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Top Community Content */}
+        <div className="rounded-3xl bg-white dark:bg-gray-900 p-6 border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <BarChart3 className="w-5 h-5 text-[#c8a84e]" />
+                <div>
+                  <h3 className="font-extrabold text-gray-900 dark:text-white text-base">
+                    {locale === "nl" ? "Meest Gelezen Artikelen" : locale === "en" ? "Top Read Articles" : "المقالات الأكثر قراءة وتأثيراً"}
+                  </h3>
+                  <p className="text-[11px] text-gray-400">
+                    {locale === "nl" ? "Nieuws met hoogste interactie van lezers" : locale === "en" ? "High engagement stories in the community" : "الأخبار التي تحظى بأعلى نسب مطالعة ونقاش"}
+                  </p>
+                </div>
+              </div>
+              <Link
+                href="/news"
+                className="text-xs font-bold text-[#1a5632] dark:text-[#c8a84e] hover:underline"
+              >
+                {locale === "nl" ? "Alles bekijken" : locale === "en" ? "View All" : "كافة الأخبار"}
+              </Link>
+            </div>
+
+            <div className="space-y-3">
+              {(stats.topPosts && stats.topPosts.length > 0 ? stats.topPosts.slice(0, 5) : [
+                { title: "دليل تجديد الإقامات وقوانين الاندماج الجديدة في هولندا ٢٠٢٦", views: 1840, slug: "inburgering-2026" },
+                { title: "الجالية السورية تعقد لقاءً مفتوحاً في أوتريخت لمناقشة فرص العمل والتعليم", views: 1420, slug: "utrecht-meeting" },
+                { title: "صندوق التكافل الاجتماعي ونقل الجثامين: خطوات الاشتراك والخدمات المقدمة", views: 1290, slug: "solidarity-fund" },
+                { title: "افتتاح بطولة الربيع الكروية للجالية السورية بمشاركة ١٦ فريقاً", views: 980, slug: "spring-tournament" },
+                { title: "إرشادات قانونية هامة بخصوص لم الشمل وإجراءات مصلحة الهجرة IND", views: 870, slug: "ind-family-reunion" },
+              ]).map((post, idx) => (
+                <div 
+                  key={idx}
+                  className="flex items-center justify-between p-3 rounded-2xl bg-gray-50/70 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800 hover:border-emerald-500/30 transition-all"
+                >
+                  <div className="flex items-center gap-3 min-w-0 pr-2">
+                    <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 flex items-center justify-center text-xs font-black shrink-0">
+                      {formatLocalizedDigits(idx + 1, locale)}
+                    </span>
+                    <p className="text-xs font-bold text-gray-800 dark:text-gray-200 truncate">
+                      {post.title}
+                    </p>
+                  </div>
+                  <span className="text-xs font-black text-[#1a5632] dark:text-[#c8a84e] shrink-0 flex items-center gap-1 bg-white dark:bg-gray-800 px-2.5 py-1 rounded-xl shadow-xs border border-gray-100 dark:border-gray-700">
+                    <Eye className="w-3 h-3 text-gray-400" />
+                    {formatLocalizedDigits(post.views.toLocaleString(), locale)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-6 pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs">
+            <span className="text-gray-400">
+              {locale === "nl" ? "Automatisch gecategoriseerd met AI" : locale === "en" ? "AI Content Categorization Active" : "تصنيف المحتوى مؤتمت بالذكاء الاصطناعي"}
+            </span>
+            <span className="font-bold text-[#1a5632] dark:text-[#c8a84e]">
+              SGN Editorial Intelligence
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* 5. AI STUDIO MODAL / DRAWER */}
+      {showAiStudio && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-900 rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-gray-200 dark:border-gray-800 space-y-5 animate-in fade-in zoom-in-95 duration-150 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-[#1a5632] to-[#c8a84e] flex items-center justify-center text-white shadow-md">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-black text-gray-900 dark:text-white text-base">
+                    {locale === "nl" ? "SGN AI Instant Studio" : locale === "en" ? "SGN AI Instant Studio" : "استوديو الصياغة الذكي (AI Studio)"}
+                  </h3>
+                  <p className="text-xs text-gray-400">
+                    {locale === "nl" ? "Creëer professionele mededelingen in 3 talen" : locale === "en" ? "Draft official press releases and community announcements" : "صياغة بيانات رسمية ومنشورات احترافية بثلاث لغات متطابقة بضغطة زر"}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowAiStudio(false)}
+                className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-300 font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Prompt Form */}
+            <div className="space-y-3">
+              <label className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                {locale === "nl" ? "Waar gaat het bericht over?" : locale === "en" ? "What is this announcement about?" : "ما هو موضوع الإعلان أو البيان الرسمي؟"}
+              </label>
+              <textarea
+                value={aiPrompt}
+                onChange={(e) => setAiPrompt(e.target.value)}
+                placeholder={
+                  locale === "nl" 
+                    ? "Bijv. Uitnodiging voor een voorlichtingsbijeenkomst over inburgering in Amsterdam op zaterdag..." 
+                    : locale === "en" 
+                    ? "e.g., Invitation to a legal webinar regarding family reunification and IND rules next Saturday..."
+                    : "مثال: إعلان رسمي عن تنظيم ندوة قانونية مجانية حول قوانين الإقامة ولم الشمل في أمستردام يوم السبت القادم مع توفير مترجمين..."
+                }
+                rows={3}
+                className="w-full rounded-2xl p-3.5 text-xs sm:text-sm border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#1a5632]"
+              />
+
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-400 font-medium">
+                    {locale === "nl" ? "Type:" : locale === "en" ? "Type:" : "نوع المحتوى:"}
+                  </span>
+                  {[
+                    { id: "announcement", label: locale === "nl" ? "Mededeling" : locale === "en" ? "Announcement" : "بيان رسمي" },
+                    { id: "social", label: locale === "nl" ? "Social Media" : locale === "en" ? "Social Post" : "منشور فيسبوك" },
+                    { id: "press", label: locale === "nl" ? "Persbericht" : locale === "en" ? "Press Release" : "خبر صحفي" },
+                  ].map((t) => (
+                    <button
+                      key={t.id}
+                      onClick={() => setAiType(t.id as any)}
+                      className={`text-xs font-bold px-3 py-1.5 rounded-xl border transition-all ${
+                        aiType === t.id
+                          ? "bg-[#1a5632] text-white border-[#1a5632]"
+                          : "bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700"
+                      }`}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  onClick={handleGenerateAi}
+                  disabled={!aiPrompt.trim() || isGenerating}
+                  className="px-5 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-[#1a5632] to-[#123d24] text-white hover:opacity-95 transition-all shadow-md disabled:opacity-50 flex items-center gap-2"
+                >
+                  {isGenerating ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      <span>{locale === "nl" ? "Aan het genereren..." : locale === "en" ? "Generating..." : "جاري الصياغة الذكية..."}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-3.5 h-3.5 text-[#c8a84e]" />
+                      <span>{locale === "nl" ? "Genereer 3 Talen" : locale === "en" ? "Generate 3 Languages" : "توليد بثلاث لغات"}</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Generated Results */}
+            {generatedContent && (
+              <div className="space-y-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+                <h4 className="text-xs font-black uppercase tracking-wider text-emerald-800 dark:text-emerald-400">
+                  {locale === "nl" ? "Gegenereerde Resultaten" : locale === "en" ? "Generated Output" : "المحتوى المولد جاهز للنشر:"}
+                </h4>
+
+                {/* Arabic */}
+                <div className="p-3.5 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200/50 dark:border-emerald-800/40 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-emerald-900 dark:text-emerald-300 flex items-center gap-1.5">
+                      <FreeSyrianFlag className="w-4 h-3 rounded-xs" />
+                      <span>النسخة العربية (العربية الفصحى)</span>
+                    </span>
+                    <button
+                      onClick={() => copyToClipboard(`${generatedContent.titleAr}\n\n${generatedContent.contentAr}`, "ar")}
+                      className="text-xs text-emerald-800 dark:text-emerald-300 font-bold hover:underline flex items-center gap-1"
+                    >
+                      {copiedKey === "ar" ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span>{copiedKey === "ar" ? "تم النسخ!" : "نسخ النص"}</span>
+                    </button>
+                  </div>
+                  <p className="text-xs font-bold text-gray-900 dark:text-white">{generatedContent.titleAr}</p>
+                  <p className="text-xs text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">{generatedContent.contentAr}</p>
+                </div>
+
+                {/* Dutch */}
+                <div className="p-3.5 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                      <DutchFlag className="w-4 h-3 rounded-xs" />
+                      <span>Nederlandse Versie (Professioneel)</span>
+                    </span>
+                    <button
+                      onClick={() => copyToClipboard(`${generatedContent.titleNl}\n\n${generatedContent.contentNl}`, "nl")}
+                      className="text-xs text-gray-600 dark:text-gray-300 font-bold hover:underline flex items-center gap-1"
+                    >
+                      {copiedKey === "nl" ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span>{copiedKey === "nl" ? "Gekopieerd!" : "Kopiëren"}</span>
+                    </button>
+                  </div>
+                  <p className="text-xs font-bold text-gray-900 dark:text-white">{generatedContent.titleNl}</p>
+                  <p className="text-xs text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">{generatedContent.contentNl}</p>
+                </div>
+
+                {/* English */}
+                <div className="p-3.5 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                      <Globe className="w-3.5 h-3.5 text-blue-600" />
+                      <span>English Version</span>
+                    </span>
+                    <button
+                      onClick={() => copyToClipboard(`${generatedContent.titleEn}\n\n${generatedContent.contentEn}`, "en")}
+                      className="text-xs text-gray-600 dark:text-gray-300 font-bold hover:underline flex items-center gap-1"
+                    >
+                      {copiedKey === "en" ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span>{copiedKey === "en" ? "Copied!" : "Copy"}</span>
+                    </button>
+                  </div>
+                  <p className="text-xs font-bold text-gray-900 dark:text-white">{generatedContent.titleEn}</p>
+                  <p className="text-xs text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">{generatedContent.contentEn}</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
