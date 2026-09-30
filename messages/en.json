@@ -737,6 +737,7 @@
     },
     "volunteersPage": {
       "title": "Volunteer Applications",
+      "search": "Search by name, email or skills...",
       "noVolunteers": "No volunteer applications yet",
       "skills": "Skills: ",
       "duration": "Duration: "
