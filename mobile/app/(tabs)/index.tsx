@@ -1,4 +1,4 @@
-import { View, Text, FlatList, TouchableOpacity, Image, ActivityIndicator, TextInput } from "react-native";
+import { View, Text, FlatList, TouchableOpacity, Image, ActivityIndicator, TextInput, ScrollView } from "react-native";
 import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import { COLORS } from "../../constants/colors";

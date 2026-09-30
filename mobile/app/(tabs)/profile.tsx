@@ -56,6 +56,12 @@ export default function ProfileScreen() {
   }
 
   const menuItems = [
+    { icon: "warning-outline" as const, label: t("emergency.title") || "دليل الطوارئ (SOS)", route: "/emergency" },
+    { icon: "moon-outline" as const, label: t("prayers.title") || "مواقيت الصلاة", route: "/prayers" },
+    { icon: "scan-outline" as const, label: t("tabs.briefScanner") || "قارئ ومترجم الرسائل (AI)", route: "/brief-scanner" },
+    { icon: "school-outline" as const, label: t("inburgeringQuiz.title") || "اختبار الاندماج (KNM)", route: "/inburgering" },
+    { icon: "map-outline" as const, label: t("nav.communityMap") || "خريطة الجالية والمراكز", route: "/community-map" },
+    { icon: "gift-outline" as const, label: t("tabs.marktplaats") || "سوق الجالية والأثاث المجاني", route: "/marktplaats" },
     { icon: "heart-outline" as const, label: t("profile.favorites"), route: "/(tabs)/favorites" },
     { icon: "card-outline" as const, label: t("memberProfilePage.sectionTitle"), route: "/member-profile" },
     { icon: "briefcase-outline" as const, label: t("nav.services") || "دليل الخدمات", route: "/services" },
@@ -63,6 +69,7 @@ export default function ProfileScreen() {
     { icon: "code-working-outline" as const, label: t("dev.title") || "عن المطور والشركة المنفذة", route: "/developer-profile" },
     { icon: "settings-outline" as const, label: t("profile.settings"), route: "/settings" },
   ];
+
 
   const communityItems = [
     { icon: "wallet-outline" as const, label: t("more.donate"), route: "/donate" },
