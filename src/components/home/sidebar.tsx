@@ -6,6 +6,7 @@ import { Sparkles, Clock, TrendingUp, Heart, Play } from "lucide-react";
 import { Facebook, Instagram, Youtube, Twitter } from "lucide-react";
 import { TikTok } from "@/components/tiktok-icon";
 import { PLACEHOLDER_IMG, handleImgError, resolveImage } from "@/lib/image-fallback";
+import { formatLocalizedDigits } from "@/lib/language-guard";
 import { SurveyWidget } from "@/components/survey";
 import { PrayerTimesWidget } from "@/components/home/prayer-times";
 
