@@ -22,7 +22,7 @@ if (!mode || !["dev", "prod"].includes(mode)) {
   process.exit(1);
 }
 
-const PRODUCTION_URL = "https://sgn-indol.vercel.app";
+const PRODUCTION_URL = "https://sgn-drab.vercel.app";
 const DEV_URL = "http://localhost:3000";
 const targetUrl = mode === "prod" ? PRODUCTION_URL : DEV_URL;
 

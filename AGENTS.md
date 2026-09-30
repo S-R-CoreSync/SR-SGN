@@ -15,7 +15,7 @@
 
 **كل تعديل للمشروع على الهارد ديسك لازم:**
 1. ✅ يترفع للمستودع العام `https://github.com/Salim-Grav/SGN.git`
-2. ✅ يتحدث رابط الزبون بعد الـ push: `https://sgn-indol.vercel.app`
+2. ✅ يتحدث رابط الزبون بعد الـ push: `https://sgn-drab.vercel.app`
 3. ✅ `git add -A && git commit -m "وصف التعديل" && git push`
 
 ## 🔒 قاعدة العزل اللغوي الصارم والمطلق (ممنوع التعديل عليها نهائياً دون إذن مسبق)
@@ -63,7 +63,7 @@ SGN/                          # ← Web app (Next.js 16 + i18n + Tailwind)
 
 | Target | URL | How |
 |--------|-----|-----|
-| **Vercel** | `https://sgn-indol.vercel.app` | `vercel --prod` |
+| **Vercel** | `https://sgn-drab.vercel.app` | `vercel --prod` |
 | **Mobile APK/IPA** | N/A | `cd mobile && npm run build:android` |
 
 > `sy-nl.org` هو موقع خارجي لجلب المعلومات والأخبار فقط — ليس من مشروعنا.
@@ -74,7 +74,7 @@ Before building the mobile app for production:
 ```bash
 cd mobile && npm run set:prod
 ```
-This changes `mobile/constants/config.ts` to use `https://sgn-indol.vercel.app`.
+This changes `mobile/constants/config.ts` to use `https://sgn-drab.vercel.app`.
 - `npm run set:dev` → switches back to `http://localhost:3001`
 - The `build:android` / `build:ios` / `build:web` scripts run `set:prod` automatically.
 

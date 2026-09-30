@@ -38,7 +38,7 @@ export default function DeveloperProfileScreen() {
         <View style={styles.profileHeader}>
           <View style={styles.avatarContainer}>
             <Image
-              source={{ uri: "https://sgn-indol.vercel.app/images/board/Mohammad_Salim_Aziza.png" }}
+              source={{ uri: "https://sgn-drab.vercel.app/images/board/Mohammad_Salim_Aziza.png" }}
               style={styles.avatar}
               defaultSource={require("../assets/icon.png")}
             />
@@ -72,7 +72,7 @@ export default function DeveloperProfileScreen() {
         <View style={[styles.profileHeader, { backgroundColor: "#c8a84e" }]}>
           <View style={styles.avatarContainer}>
             <Image
-              source={{ uri: "https://sgn-indol.vercel.app/images/board/raed_kaakeh.png" }}
+              source={{ uri: "https://sgn-drab.vercel.app/images/board/raed_kaakeh.png" }}
               style={styles.avatar}
               defaultSource={require("../assets/icon.png")}
             />

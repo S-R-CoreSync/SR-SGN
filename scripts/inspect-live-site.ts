@@ -1,5 +1,5 @@
 async function inspect() {
-  const res = await fetch("https://sgn-indol.vercel.app/");
+  const res = await fetch("https://sgn-drab.vercel.app/");
   const html = await res.text();
   console.log("HTML length:", html.length);
   
