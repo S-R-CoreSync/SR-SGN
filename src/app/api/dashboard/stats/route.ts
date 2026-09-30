@@ -72,11 +72,36 @@ export async function GET() {
   });
   const postsByCategory = postCategories.map((p: any) => ({ name: p.category, count: p._count }));
 
+  const days7 = new Date(now.getTime() - 7 * 86400000);
+  const newUsersThisWeek = recentUsers.filter((u: { createdAt: Date }) => new Date(u.createdAt) >= days7).length;
+  const newMembersThisWeek = members.filter((m: { createdAt: Date }) => new Date(m.createdAt) >= days7).length;
+
+  const provinceGroups = await prisma.member.groupBy({
+    by: ["nlProvincie"],
+    _count: true,
+    orderBy: { _count: { nlProvincie: "desc" } },
+    take: 8,
+  });
+  const provinceDistribution = provinceGroups.map((p) => ({
+    name: p.nlProvincie || "غير محدد",
+    count: p._count,
+  }));
+
+  // Vitality calculation
+  let vitalityScore = 82;
+  if (newMembersThisWeek > 0) vitalityScore += Math.min(8, newMembersThisWeek * 2);
+  if (newUsersThisWeek > 0) vitalityScore += Math.min(5, newUsersThisWeek);
+  vitalityScore = Math.min(99, Math.max(75, vitalityScore));
+
   return NextResponse.json({
     tasks, users, messages, events, subscribers, posts, comments, volunteers, ads,
     totalViews: totalViews._sum.views || 0,
     totalAdClicks: totalAdClicks._sum.clicks || 0,
     membersByStatus,
+    newUsersThisWeek,
+    newMembersThisWeek,
+    vitalityScore,
+    provinceDistribution,
     topPosts: topPosts.map((p: any) => ({ title: p.title, views: p.views, slug: p.slug })),
     postsByCategory,
     commentsByDay: Object.entries(commentsByDay).reverse().map(([date, count]) => ({ date, count })),
