@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { Link } from "@/i18n/routing";
 import { Play, Tv, ArrowLeft, Youtube } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { formatLocalizedDigits } from "@/lib/language-guard";
 
 interface Post {
   title: string;
@@ -35,6 +36,7 @@ function extractVideoId(post: Post): string | null {
 /** بطاقة فيديو واحدة — thumbnail ثابتة، iframe فقط عند الضغط */
 function VideoCard({ item }: { item: Post }) {
   const t = useTranslations('latestVideos');
+  const locale = useLocale();
   const [playing, setPlaying] = useState(false);
   const videoId = extractVideoId(item);
 
@@ -90,10 +92,10 @@ function VideoCard({ item }: { item: Post }) {
             href={`/news/${item.slug}`}
             className="text-sm font-bold text-gray-900 line-clamp-2 leading-snug hover:text-[#1a5632] hover:underline mb-2 block"
           >
-            {item.title}
+            {formatLocalizedDigits(item.title, locale)}
           </Link>
           <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed mb-3">
-            {item.excerpt}
+            {formatLocalizedDigits(item.excerpt, locale)}
           </p>
         </div>
         <div className="flex items-center justify-between text-[11px] text-gray-400 pt-2 border-t mt-auto">
@@ -101,7 +103,7 @@ function VideoCard({ item }: { item: Post }) {
             <Youtube className="w-3 h-3 text-red-500" />
             {t('youtubeBadge')}
           </span>
-          <span>{item.time}</span>
+          <span>{formatLocalizedDigits(item.time, locale)}</span>
         </div>
       </div>
     </div>
