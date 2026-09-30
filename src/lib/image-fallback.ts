@@ -110,20 +110,77 @@ export function getPremiumPlaceholder(title?: string | null, category?: string |
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 }
 
-/** Placeholder SVG خضراء بتصميم الجالية — تُستخدم كاحتياطي افتراضي ثابت */
-export const PLACEHOLDER_IMG = getPremiumPlaceholder(null, null);
+const CATEGORY_EDITORIAL_IMAGES: Record<string, string> = {
+  law: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&q=80", // العدالة والمحاكم والقوانين
+  netherlands: "https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?auto=format&fit=crop&w=1200&q=80", // قنوات هولندا ومبانيها
+  community: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1200&q=80", // تجمع وترابط الجالية
+  culture: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80", // الفعاليات والأنشطة الثقافية
+  economy: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80", // المال والأعمال
+  islamic: "https://images.unsplash.com/photo-1564769625905-50e93615e769?auto=format&fit=crop&w=1200&q=80", // الحج والمناسبات الإسلامية
+  sports: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=1200&q=80", // الرياضة والبطولات
+  health: "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=1200&q=80", // الصحة والطب
+  education: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=80", // التعليم والطلاب
+  europe: "https://images.unsplash.com/photo-1491557345352-5929e343eb89?auto=format&fit=crop&w=1200&q=80", // أوروبا وبروكسل
+  general: "https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=1200&q=80", // صحافة وأخبار عامة
+};
 
-/** onError handler: يستبدل الصورة المكسورة بالـ placeholder فوراً */
-export function handleImgError(e: SyntheticEvent<HTMLImageElement>) {
+export function getEditorialFallback(title?: string | null, category?: string | null): string {
+  const combined = `${title || ""} ${category || ""}`.toLowerCase();
+  
+  if (/حج|سفارة|بروكسل|إسلام|عيد|رمضان|مبارك|هجري/.test(combined)) {
+    return CATEGORY_EDITORIAL_IMAGES.islamic;
+  }
+  if (/لجوء|إقامة|ind|محكمة|قانون|حقوق|جواز|شمل|طعن|ترحيل/.test(combined)) {
+    return CATEGORY_EDITORIAL_IMAGES.law;
+  }
+  if (/هولندا|لاهاي|أمستردام|شيوخ|برلمان|وزير|روتردام|أوتريخت/.test(combined)) {
+    return CATEGORY_EDITORIAL_IMAGES.netherlands;
+  }
+  if (/رياضة|تجديف|بطولة|كأس|سباق/.test(combined)) {
+    return CATEGORY_EDITORIAL_IMAGES.sports;
+  }
+  if (/اقتصاد|أعمال|مال|عمل|وظائف|ضرائب|شركات|استثمار/.test(combined)) {
+    return CATEGORY_EDITORIAL_IMAGES.economy;
+  }
+  if (/ثقافة|فن|معرض|موسيقى|حوار|مسرح|تراث/.test(combined)) {
+    return CATEGORY_EDITORIAL_IMAGES.culture;
+  }
+  if (/صحة|طبي|دواء|مستشفى|نفسي/.test(combined)) {
+    return CATEGORY_EDITORIAL_IMAGES.health;
+  }
+  if (/تعليم|جامعة|طلاب|مدرسة|دراسة/.test(combined)) {
+    return CATEGORY_EDITORIAL_IMAGES.education;
+  }
+  if (/أوروبا|اتحاد أوروبي|دولية/.test(combined)) {
+    return CATEGORY_EDITORIAL_IMAGES.europe;
+  }
+  if (/جالية|سوري|سورية|وطن|مجتمع|أهلنا/.test(combined)) {
+    return CATEGORY_EDITORIAL_IMAGES.community;
+  }
+
+  return CATEGORY_EDITORIAL_IMAGES.general;
+}
+
+/** Placeholder SVG خضراء بتصميم الجالية — تُستخدم كاحتياطي افتراضي ثابت */
+export const PLACEHOLDER_IMG = CATEGORY_EDITORIAL_IMAGES.community;
+
+/** onError handler: يستبدل الصورة المكسورة بالصورة التحريرية المناسبة للموضوع فوراً */
+export function handleImgError(e: SyntheticEvent<HTMLImageElement>, title?: string | null, category?: string | null) {
   const img = e.currentTarget;
-  if (img.src !== PLACEHOLDER_IMG) {
-    img.src = PLACEHOLDER_IMG;
+  const fallback = getEditorialFallback(title, category);
+  if (img.src !== fallback) {
+    img.src = fallback;
   }
 }
 
-/** تُرجع رابط الصورة الصحيح أو placeholder عند الفشل */
+/** تُرجع رابط الصورة الصحيح أو بديل تحريري مناسب عند انتهاء الرابط أو عدم وجوده */
 export function resolveImage(img?: string | null, title?: string | null, category?: string | null): string {
-  if (!img) return getPremiumPlaceholder(title, category);
-  if (img.startsWith("http") || img.startsWith("/")) return img;
-  return getPremiumPlaceholder(title, category);
+  // روابط الفيسبوك الموقعة تنتهي تلقائياً وتسبب 403 Forbidden
+  if (!img || img.includes("fbcdn.net") || img.trim() === "") {
+    return getEditorialFallback(title, category);
+  }
+  if (img.startsWith("http") || img.startsWith("/") || img.startsWith("data:")) {
+    return img;
+  }
+  return getEditorialFallback(title, category);
 }
