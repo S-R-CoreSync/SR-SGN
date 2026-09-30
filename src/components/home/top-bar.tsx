@@ -40,6 +40,11 @@ export function TopBar() {
           </div>
         </div>
         <div className="flex items-center gap-4">
+          <Link href="/emergency" className="bg-red-600/90 hover:bg-red-600 text-white font-bold px-2.5 py-0.5 rounded-full transition-colors text-[11px] flex items-center gap-1 shadow-sm">
+            <span>🚨</span>
+            <span>SOS</span>
+          </Link>
+          <Link href="/prayers" className="hover:text-[#c8a84e] transition-colors">{t("prayers.fajr") ? t("prayers.title") : "مواقيت الصلاة"}</Link>
           <Link href="/about" className="hover:text-[#c8a84e] transition-colors">{t("topbar.about")}</Link>
           <Link href="/regulations" className="hover:text-[#c8a84e] transition-colors">{t("topbar.regulations")}</Link>
           <Link href="/volunteer" className="hover:text-[#c8a84e] transition-colors">{t("nav.volunteer")}</Link>
