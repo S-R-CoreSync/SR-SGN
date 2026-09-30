@@ -1,15 +1,17 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Clock } from "lucide-react";
-import { PLACEHOLDER_IMG, handleImgError, resolveImage } from "@/lib/image-fallback";
+import { handleImgError, resolveImage } from "@/lib/image-fallback";
 import { Play } from "lucide-react";
+import { formatLocalizedDigits } from "@/lib/language-guard";
 
 interface Post { title: string; img: string | null; time: string; slug: string; videoId?: string; cat?: string; }
 
 export function MoreNews({ posts }: { posts: Post[] }) {
   const t = useTranslations();
+  const locale = useLocale();
   return (
     <div className="mt-10">
       <div className="flex items-center justify-between mb-4">
@@ -29,9 +31,7 @@ export function MoreNews({ posts }: { posts: Post[] }) {
                   alt=""
                   loading="lazy"
                   decoding="async"
-                  onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).src = resolveImage(null, item.title, item.cat);
-                  }}
+                  onError={(e) => handleImgError(e, item.title, item.cat)}
                   className="w-full aspect-video object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 {isVideo && (
@@ -43,8 +43,11 @@ export function MoreNews({ posts }: { posts: Post[] }) {
                 )}
               </div>
               <div className="p-3">
-                <p className="text-sm font-bold text-gray-900 line-clamp-2 leading-snug">{item.title}</p>
-                <div className="flex items-center gap-1 mt-2 text-xs text-gray-400"><Clock className="w-3 h-3" /><span>{item.time}</span></div>
+                <p className="text-sm font-bold text-gray-900 line-clamp-2 leading-snug">{formatLocalizedDigits(item.title, locale)}</p>
+                <div className="flex items-center gap-1 mt-2 text-xs text-gray-400">
+                  <Clock className="w-3 h-3" />
+                  <span>{formatLocalizedDigits(item.time, locale)}</span>
+                </div>
               </div>
             </Link>
           );
