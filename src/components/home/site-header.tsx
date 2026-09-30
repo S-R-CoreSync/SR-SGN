@@ -27,6 +27,8 @@ import {
   ChefHat,
   Truck,
   Award,
+  ShieldAlert,
+  Moon,
 } from "lucide-react";
 import LanguageSwitcher from "@/components/language-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
