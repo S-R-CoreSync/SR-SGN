@@ -36,10 +36,18 @@ async function main() {
 
   // Check posts by locale
   const byLocale = new Map<string, number>();
+  const arNonArabic: any[] = [];
   for (const p of posts) {
     byLocale.set(p.locale || "none", (byLocale.get(p.locale || "none") || 0) + 1);
+    if (p.locale === "ar" && !/[\u0600-\u06FF]/.test(p.title)) {
+      arNonArabic.push(p);
+    }
   }
   console.log("Posts by locale:", Object.fromEntries(byLocale));
+  console.log("Posts with locale='ar' but NON-Arabic title:", arNonArabic.length);
+  for (const p of arNonArabic) {
+    console.log(`- ${p.id} | source: ${p.source} | title: "${p.title}"`);
+  }
 }
 
 main().then(() => process.exit(0)).catch(err => {
