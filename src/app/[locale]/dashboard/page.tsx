@@ -10,7 +10,7 @@ import {
   Megaphone, ShieldAlert, Award, Clock, ArrowUpRight, 
   Zap, Compass, Cpu, RefreshCw, Send, Copy, Check,
   ChevronRight, ArrowRight, ShieldCheck, HelpCircle,
-  Share2, AlertCircle, Bot
+  Share2, AlertCircle, Bot, Globe
 } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import { formatLocalizedDigits } from "@/lib/language-guard";
