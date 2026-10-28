@@ -36,11 +36,31 @@ const recordLoginAttempt = (identifier: string) => {
   }
 };
 
-const DEFAULT_AUTH_SECRET = "fabfdccaf0f90750ee0dd1442f5ee17295a6874acda53a32b57cb8b23a665bb4";
+// Publicly known values (previous source-controlled fallback and shipped
+// placeholders) must never be accepted as the JWT signing/encryption key.
+const KNOWN_INSECURE_AUTH_SECRETS = new Set([
+  "****5bb4",
+  "change-me-in-production",
+  "your-super-secret-key-change-in-production",
+]);
+
+// Fail closed: no fallback secret is ever used. Resolved lazily (at request
+// time) so that build-time module evaluation does not require the variable.
+function resolveAuthSecret(): string {
+  const secret = process.env.NEXTAUTH_SECRET?.trim();
+  if (!secret || KNOWN_INSECURE_AUTH_SECRETS.has(secret)) {
+    throw new Error(
+      "NEXTAUTH_SECRET is missing or set to a known insecure value. Configure a unique, random secret (e.g. `openssl rand -base64 32`)."
+    );
+  }
+  return secret;
+}
 
 export const authOptions = {
   adapter: PrismaAdapter(prisma),
-  secret: process.env.NEXTAUTH_SECRET || DEFAULT_AUTH_SECRET,
+  get secret(): string {
+    return resolveAuthSecret();
+  },
   session: { strategy: "jwt" },
   pages: {
     signIn: "/login",
