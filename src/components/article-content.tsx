@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Sparkles, Languages, RotateCcw, Lock, ArrowLeft } from "lucide-react";
 import { Link } from "@/i18n/routing";
+import { sanitizeHtml } from "@/lib/sanitize-html";
 
 interface ArticleContentProps {
   originalTitle: string;
@@ -96,7 +97,8 @@ export function ArticleContent({
     return t("translateBtn");
   };
 
-  const contentHtml = content.replace(/\n/g, "<br/>");
+  // Sanitize on render as well, so legacy/synced rows and translated output cannot inject script.
+  const contentHtml = sanitizeHtml(content).replace(/\n/g, "<br/>");
 
   return (
     <div>

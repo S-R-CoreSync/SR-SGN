@@ -6,6 +6,7 @@ import { requireAuthorize } from "@/lib/auth-helpers";
 import { getApiMessage } from "@/lib/api-messages";
 import { triggerSocialShare } from "@/lib/sync/social-share";
 import { createSystemNotification } from "@/lib/notifications/service";
+import { sanitizeHtml } from "@/lib/sanitize-html";
 
 function t(req: Request, key: string) {
   const locale = (req as any).cookies?.get?.('NEXT_LOCALE')?.value || 'ar';
@@ -26,7 +27,7 @@ export async function POST(req: Request) {
   const post = await prisma.post.create({
     data: {
       title,
-      content,
+      content: typeof content === "string" ? sanitizeHtml(content) : content,
       excerpt: excerpt || null,
       image: image || null,
       category: category || t(req, 'nav.communityNews'),
@@ -61,7 +62,7 @@ export async function PATCH(req: Request) {
   const { id, title, content, excerpt, image, category, tags, source, featured, published, slug, membersOnly } = await req.json();
   const data: any = {};
   if (title !== undefined) data.title = title;
-  if (content !== undefined) data.content = content;
+  if (content !== undefined) data.content = typeof content === "string" ? sanitizeHtml(content) : content;
   if (excerpt !== undefined) data.excerpt = excerpt;
   if (image !== undefined) data.image = image;
   if (category !== undefined) data.category = category;
