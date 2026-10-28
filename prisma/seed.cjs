@@ -19,7 +19,15 @@ console.log(`🌱 Seeding database at: ${dbUrl}`);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  const adminPassword = await bcrypt.hash("admin123", 12);
+  // Credentials are never printed. In production builds, a password must be supplied through the
+  // environment; otherwise a random, undisclosed one is used so no known credential is ever created.
+  const resolveSeedPassword = (envName, devDefault) => {
+    const supplied = (process.env[envName] || "").trim();
+    if (supplied) return supplied;
+    return isProd ? require("crypto").randomBytes(32).toString("hex") : devDefault;
+  };
+
+  const adminPassword = await bcrypt.hash(resolveSeedPassword("SEED_ADMIN_PASSWORD", "admin123"), 12);
   const admin = await prisma.user.upsert({
     where: { email: "admin@sy-nl.org" },
     update: {},
@@ -31,7 +39,7 @@ async function main() {
     },
   });
 
-  const memberPassword = await bcrypt.hash("member123", 12);
+  const memberPassword = await bcrypt.hash(resolveSeedPassword("SEED_MEMBER_PASSWORD", "member123"), 12);
   await prisma.user.upsert({
     where: { email: "member@sy-nl.org" },
     update: {},
@@ -43,7 +51,7 @@ async function main() {
     },
   });
 
-  console.log("Users created: admin@sy-nl.org / admin123");
+  console.log("Seed users ensured: admin@sy-nl.org, member@sy-nl.org (credentials are not logged)");
 
   const isProductionDb = tursoUrl && tursoUrl !== "undefined" && tursoToken && tursoToken !== "undefined";
 
