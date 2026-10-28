@@ -71,6 +71,10 @@ export function hasPermission(role: string, userPermissions: string[], permissio
   return getRolePermissions(role).includes(permission);
 }
 
+export function getModuleFromPermission(perm: Permission): string {
+  return perm.split(".")[0];
+}
+
 export const PERMISSION_GROUPS: { module: string; permissions: Permission[] }[] = [
   { module: "news", permissions: ["news.create", "news.edit", "news.delete", "news.publish", "news.feature"] },
   { module: "events", permissions: ["events.create", "events.edit", "events.delete", "events.publish"] },

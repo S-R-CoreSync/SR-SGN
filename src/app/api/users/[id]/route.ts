@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { authorize } from "@/lib/server-permissions";
+import { authorize, checkPrivilegeChange } from "@/lib/server-permissions";
 import { prisma } from "@/lib/db";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -38,6 +38,9 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   try {
     const { id } = await params;
     const { role, roleId } = await req.json();
+
+    const check = await checkPrivilegeChange({ actorId: session.user.id, targetId: id, role, roleId });
+    if (!check.ok) return NextResponse.json({ error: check.error }, { status: check.status });
 
     const user = await prisma.user.update({
       where: { id },

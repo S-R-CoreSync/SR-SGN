@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { requireAuthorize } from "@/lib/auth-helpers";
+import { checkPrivilegeChange } from "@/lib/server-permissions";
 import { getApiMessage } from "@/lib/api-messages";
 
 function t(req: Request, key: string) {
@@ -50,6 +51,9 @@ export async function PATCH(req: Request) {
   if (!session?.user?.id || !(await requireAuthorize(session.user.id, "users.edit_role"))) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const { id, role } = await req.json();
   if (!["admin", "member"].includes(role)) return NextResponse.json({ error: "Invalid role" }, { status: 400 });
+  if (typeof id !== "string") return NextResponse.json({ error: "Invalid id" }, { status: 400 });
+  const check = await checkPrivilegeChange({ actorId: session.user.id, targetId: id, role });
+  if (!check.ok) return NextResponse.json({ error: check.error }, { status: check.status });
   const updated = await prisma.user.update({ where: { id }, data: { role }, select: { id: true, name: true, email: true, role: true, createdAt: true } });
   return NextResponse.json(updated);
 }
