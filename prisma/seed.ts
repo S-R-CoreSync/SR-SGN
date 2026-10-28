@@ -1,11 +1,17 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { randomBytes } from "crypto";
 
 const prisma = new PrismaClient();
 
 async function main() {
   // Create admin user
-  const adminPassword = await bcrypt.hash("admin123", 12);
+  // The admin password must be supplied via the environment; otherwise a random,
+  // unrecoverable password is used (no fixed default credential).
+  const adminPassword = await bcrypt.hash(
+    process.env.ADMIN_SEED_PASSWORD || randomBytes(32).toString("hex"),
+    12
+  );
   const admin = await prisma.user.upsert({
     where: { email: "admin@sy-nl.org" },
     update: {},
@@ -30,7 +36,7 @@ async function main() {
     },
   });
 
-  console.log(`✅ Users created: admin@sy-nl.org / admin123`);
+  console.log(`✅ Users created: admin@sy-nl.org`);
 
   // Delete existing posts
   await prisma.post.deleteMany();
