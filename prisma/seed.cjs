@@ -19,7 +19,12 @@ console.log(`🌱 Seeding database at: ${dbUrl}`);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  const adminPassword = await bcrypt.hash("admin123", 12);
+  // The admin password must be supplied via the environment; otherwise a random,
+  // unrecoverable password is used (no fixed default credential).
+  const adminPassword = await bcrypt.hash(
+    process.env.ADMIN_SEED_PASSWORD || require("crypto").randomBytes(32).toString("hex"),
+    12
+  );
   const admin = await prisma.user.upsert({
     where: { email: "admin@sy-nl.org" },
     update: {},
@@ -43,7 +48,7 @@ async function main() {
     },
   });
 
-  console.log("Users created: admin@sy-nl.org / admin123");
+  console.log("Users created: admin@sy-nl.org");
 
   const isProductionDb = tursoUrl && tursoUrl !== "undefined" && tursoToken && tursoToken !== "undefined";
 
