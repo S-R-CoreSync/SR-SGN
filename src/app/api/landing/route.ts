@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { requireAuthorize } from "@/lib/auth-helpers";
+import { isValidThemeColor } from "@/lib/landing-theme";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -44,6 +45,9 @@ export async function POST(req: Request) {
   }
 
   const data = await req.json();
+  if (data.themeColor && !isValidThemeColor(data.themeColor)) {
+    return NextResponse.json({ error: "Invalid themeColor" }, { status: 400 });
+  }
   const slug = data.slug || data.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
   const existing = await prisma.landingPage.findUnique({ where: { slug } });
@@ -83,6 +87,10 @@ export async function PUT(req: Request) {
   const { id, ...fields } = data;
 
   if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
+
+  if (fields.themeColor !== undefined && !isValidThemeColor(fields.themeColor)) {
+    return NextResponse.json({ error: "Invalid themeColor" }, { status: 400 });
+  }
 
   const page = await prisma.landingPage.update({
     where: { id },

@@ -4,6 +4,7 @@ import { ArrowLeft, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import type { Metadata } from "next";
+import { safeThemeColor } from "@/lib/landing-theme";
 
 interface Props { params: Promise<{ slug: string }> }
 
@@ -33,13 +34,14 @@ export default async function LandingPageView({ params }: Props) {
   if (!page) notFound();
 
   const features = page.features ? JSON.parse(page.features) : [];
+  const themeColor = safeThemeColor(page.themeColor);
 
   return (
     <div className="min-h-screen bg-white landing-page-container">
       <style dangerouslySetInnerHTML={{ __html: `
         .landing-page-container {
-          --theme: ${page.themeColor};
-          --theme-bg-light: ${page.themeColor}0a;
+          --theme: ${themeColor};
+          --theme-bg-light: ${themeColor}0a;
         }
       `}} />
       <nav className="absolute top-0 left-0 right-0 z-10 p-4">
