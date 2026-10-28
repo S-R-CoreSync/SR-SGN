@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { authorize } from "@/lib/server-permissions";
+import { authorize, checkPrivilegeChange } from "@/lib/server-permissions";
 import { prisma } from "@/lib/db";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -28,6 +28,17 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   try {
     const { id } = await params;
     const { permissions } = await req.json();
+
+    if (permissions !== undefined && permissions !== null && !Array.isArray(permissions)) {
+      return NextResponse.json({ error: "Invalid permissions" }, { status: 400 });
+    }
+
+    // Only entries that would be effective (granted) count against the actor's privilege ceiling.
+    const requested: string[] = (permissions ?? [])
+      .filter((p: { permission: string; granted?: boolean }) => (p?.granted ?? true) !== false)
+      .map((p: { permission: string }) => String(p.permission));
+    const check = await checkPrivilegeChange({ actorId: session.user.id, targetId: id, permissions: requested });
+    if (!check.ok) return NextResponse.json({ error: check.error }, { status: check.status });
 
     // Replace all permissions for this user
     await prisma.userPermission.deleteMany({ where: { userId: id } });
