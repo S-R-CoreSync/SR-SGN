@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 import PDFDocument from "pdfkit";
 import { getApiMessage } from "@/lib/api-messages";
 
-import { getSessionUser } from "@/lib/mobile-auth";
+import { getSessionUser, getUserFromMobileToken } from "@/lib/mobile-auth";
 
 function t(_req: Request, key: string) {
   const locale = (_req as any).cookies?.get?.('NEXT_LOCALE')?.value || 'ar';
@@ -16,18 +16,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     const url = new URL(_req.url);
     const queryToken = url.searchParams.get("token");
     if (queryToken) {
-      const dbUser = await prisma.user.findUnique({
-        where: { id: queryToken },
-        select: { id: true, name: true, email: true, role: true }
-      });
-      if (dbUser) {
-        user = {
-          id: dbUser.id,
-          name: dbUser.name,
-          email: dbUser.email,
-          role: dbUser.role || "member"
-        };
-      }
+      user = await getUserFromMobileToken(queryToken);
     }
   }
 
