@@ -1,11 +1,26 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/db";
+import { authOptions } from "@/lib/auth";
+import { requireAuthorize } from "@/lib/auth-helpers";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const action = url.searchParams.get("action") || "diagnose";
+
+  // Authorization must be enforced before any database work is performed.
+  // Read-only diagnostics require "settings.view"; mutating actions require "settings.edit".
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const permission =
+    action === "fix-locale" || action === "fix-images" ? "settings.edit" : "settings.view";
+  if (!(await requireAuthorize(session.user.id, permission))) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   try {
     if (action === "diagnose") {
