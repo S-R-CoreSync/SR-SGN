@@ -6,8 +6,20 @@ type Messages = Record<string, any>;
 
 const allMessages: Record<string, Messages> = { ar: arMessages, en: enMessages, nl: nlMessages };
 
+function normalizeLocale(locale: string | undefined): string {
+  const normalized = (locale ?? 'ar').trim().toLowerCase();
+  if (!normalized) return 'ar';
+
+  if (normalized in allMessages) return normalized;
+
+  const language = normalized.split(/[-_]/)[0];
+  if (language in allMessages) return language;
+
+  return 'ar';
+}
+
 export function getApiMessage(locale: string, key: string, vars?: Record<string, string>): string {
-  const msgs = allMessages[locale] || allMessages.ar;
+  const msgs = allMessages[normalizeLocale(locale)] || allMessages.ar;
   const keys = key.split('.');
   let current: any = msgs;
   for (const k of keys) {

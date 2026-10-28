@@ -1453,6 +1453,7 @@
     "passwordRequired": "Wachtwoord is verplicht",
     "passwordMinLength": "Wachtwoord moet minimaal 6 tekens bevatten",
     "subjectRequired": "Onderwerp is verplicht",
+    "subjectMinLength": "Onderwerp moet minimaal 2 tekens bevatten",
     "messageRequired": "Bericht is verplicht",
     "messageMinLength": "Bericht moet minimaal 10 tekens bevatten"
   },

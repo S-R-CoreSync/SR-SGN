@@ -51,6 +51,11 @@ describe("createFieldRules", () => {
     expect(rules.email.pattern.message).toBe("Ongeldig e-mailadres");
   });
 
+  it("supports locale aliases like 'en-US' and uses the right subject minimum message", () => {
+    const rules = createFieldRules("en-US");
+    expect(rules.subject.minLength.message).toBe("Subject must be at least 2 characters");
+  });
+
   it("has expected structure for all fields", () => {
     const rules = createFieldRules("ar");
     expect(rules).toHaveProperty("name");

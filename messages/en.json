@@ -1453,6 +1453,7 @@
     "passwordRequired": "Password is required",
     "passwordMinLength": "Password must be at least 6 characters",
     "subjectRequired": "Subject is required",
+    "subjectMinLength": "Subject must be at least 2 characters",
     "messageRequired": "Message is required",
     "messageMinLength": "Message must be at least 10 characters"
   },

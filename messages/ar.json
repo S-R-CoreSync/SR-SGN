@@ -1464,6 +1464,7 @@
     "passwordRequired": "كلمة المرور مطلوبة",
     "passwordMinLength": "كلمة المرور يجب أن تكون 6 أحرف على الأقل",
     "subjectRequired": "الموضوع مطلوب",
+    "subjectMinLength": "الموضوع يجب أن يكون حرفين على الأقل",
     "messageRequired": "الرسالة مطلوبة",
     "messageMinLength": "الرسالة يجب أن تكون 10 أحرف على الأقل"
   },
