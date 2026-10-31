@@ -30,7 +30,7 @@ export async function DELETE(req: NextRequest) {
     const { token } = await req.json();
     if (!token) return NextResponse.json({ error: "token is required" }, { status: 400 });
 
-    await prisma.pushToken.deleteMany({ where: { token } });
+    await prisma.pushToken.deleteMany({ where: { token: { equals: token } } });
     return NextResponse.json({ message: "Token removed" });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
