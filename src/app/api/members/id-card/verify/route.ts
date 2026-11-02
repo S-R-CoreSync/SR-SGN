@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { authorize } from "@/lib/server-permissions";
+import { isAdminUser } from "@/lib/server-permissions";
 import { prisma } from "@/lib/db";
 import { decryptBuffer } from "@/lib/crypto";
 import { ollamaGenerate } from "@/lib/ai/ollama";
@@ -10,8 +10,12 @@ import path from "path";
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.id || !(await authorize(session.user.id, "volunteers.view"))) {
+  // Government ID documents are restricted to administrators only
+  if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  if (!(await isAdminUser(session.user.id))) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   try {
