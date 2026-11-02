@@ -11,6 +11,7 @@ import { authOptions } from "@/lib/auth";
 import { ArticleContent } from "@/components/article-content";
 import { resolveImage } from "@/lib/image-fallback";
 import SafeImage from "@/components/ui/safe-image";
+import { safeJsonLd } from "@/lib/json-ld";
 
 interface Props { params: Promise<{ locale: string; slug: string }> }
 
@@ -88,7 +89,7 @@ export default async function ArticlePage({ params }: Props) {
 
   return (
     <div dir={dir} className="min-h-screen bg-gray-50">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }} />
       <div className="max-w-4xl mx-auto px-4 py-8">
         <Link href="/news" className="inline-flex items-center gap-2 text-[#1a5632] hover:text-[#0f3d23] mb-6 text-sm">
           <ArrowLeft className="w-4 h-4" />
