@@ -14,7 +14,7 @@
 ## 📤 Git Rule (مهم جداً)
 
 **كل تعديل للمشروع على الهارد ديسك لازم:**
-1. ✅ يترفع للمستودع العام `https://github.com/Salim-Grav/SGN.git`
+1. ✅ يترفع للمستودع العام `https://github.com/CastleStrangers/SGN.git` (أو `https://github.com/Salim-Grav/SGN.git`)
 2. ✅ يتحدث رابط الزبون بعد الـ push: `https://sgn-drab.vercel.app`
 3. ✅ `git add -A && git commit -m "وصف التعديل" && git push`
 
