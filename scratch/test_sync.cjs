@@ -3,7 +3,7 @@ const fs = require('fs');
 
 const data = JSON.stringify({});
 const options = {
-  hostname: 'sgn-indol.vercel.app',
+  hostname: 'sgn-drab.vercel.app',
   path: '/api/sync',
   method: 'POST',
   headers: {

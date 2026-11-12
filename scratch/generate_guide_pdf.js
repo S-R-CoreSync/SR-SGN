@@ -205,7 +205,7 @@ const htmlContent = `
     <div class="option-details">
       <div class="detail-item"><span class="detail-label">الوصف التفصيلي:</span> يسحب آخر كود للمشروع من المستودع العام، ويقوم بحفظ وإيداع كافة تعديلاتك الجديدة مع طلب كتابة رسالة توضيحية للتعديل، ثم يرفعه للمستودع العام GitHub.</div>
       <div class="detail-item"><span class="detail-label">متى يُستخدم؟</span> عند إنجاز أي ميزة برمجية جديدة والرغبة في جعلها حية ومباشرة للزبائن والمستخدمين على السيرفر الفعلي.</div>
-      <div class="detail-item"><span class="detail-label">النتيجة:</span> يقوم سيرفر Vercel تلقائياً ببناء ونشر النسخة النهائية من الموقع لتحديث الرابط: https://sgn-indol.vercel.app.</div>
+      <div class="detail-item"><span class="detail-label">النتيجة:</span> يقوم سيرفر Vercel تلقائياً ببناء ونشر النسخة النهائية من الموقع لتحديث الرابط: https://sgn-drab.vercel.app.</div>
     </div>
   </div>
 

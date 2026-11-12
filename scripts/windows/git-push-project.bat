@@ -106,7 +106,7 @@ if %errorlevel% equ 0 (
 
 echo.
 echo - جاري فتح رابط العميل للمعاينة...
-start https://sgn-indol.vercel.app
+start https://sgn-drab.vercel.app
 
 echo.
 echo =======================================================

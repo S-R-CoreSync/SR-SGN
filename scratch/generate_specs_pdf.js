@@ -333,7 +333,7 @@ const htmlContent = `
   <h2>7. قواعد التطوير والرفع (Development Rules)</h2>
   <ul>
     <li><strong>المزامنة الشاملة:</strong> أي ميزة أو تعديل أو إضافة للمفاتيح اللغوية (i18n) يجب أن تتم في ملفات ترجمة الويب والموبايل معاً لضمان عدم حدوث تعارضات.</li>
-    <li><strong>قاعدة النشر الفوري:</strong> يجب رفع كل تعديل فوراً لـ GitHub وتحديث خادم الإنتاج ورابط العميل Vercel (sgn-indol.vercel.app).</li>
+    <li><strong>قاعدة النشر الفوري:</strong> يجب رفع كل تعديل فوراً لـ GitHub وتحديث خادم الإنتاج ورابط العميل Vercel (sgn-drab.vercel.app).</li>
   </ul>
 
   <div class="footer">

@@ -178,7 +178,7 @@ def create_specification_document():
     add_heading(doc, "5. إرشادات وقواعد التطوير والرفع (Rules)")
     
     add_bullet(doc, "قاعدة المزامنة الشاملة: أي ميزة أو تعديل أو إضافة للمفاتيح اللغوية (i18n) يجب أن تتم في الويب والموبايل معاً.")
-    add_bullet(doc, "قاعدة النشر الفوري: يجب رفع كل تعديل فوراً لـ GitHub وتحديث خادم الإنتاج ورابط العميل Vercel (sgn-indol.vercel.app).")
+    add_bullet(doc, "قاعدة النشر الفوري: يجب رفع كل تعديل فوراً لـ GitHub وتحديث خادم الإنتاج ورابط العميل Vercel (sgn-drab.vercel.app).")
     
     # Save word doc
     try:

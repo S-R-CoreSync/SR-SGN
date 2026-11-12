@@ -51,6 +51,6 @@ git push origin main
 echo.
 
 echo ==========================================
-echo Done! Check https://sgn-indol.vercel.app
+echo Done! Check https://sgn-drab.vercel.app
 echo ==========================================
 pause

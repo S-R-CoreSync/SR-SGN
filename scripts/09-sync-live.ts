@@ -21,7 +21,7 @@ async function main() {
   const cronSecret = process.env.CRON_SECRET || "sgn-cron-secret-2026"
   
   try {
-    const res = await fetch("https://sgn-indol.vercel.app/api/sync", {
+    const res = await fetch("https://sgn-drab.vercel.app/api/sync", {
       method: "POST",
       headers: {
         "x-cron-secret": cronSecret,
@@ -44,7 +44,7 @@ async function main() {
        }
        
        console.log(`\n🎉 اكتملت المزامنة بنجاح! تم إضافة ${totalNew} خبر جديد على الموقع الحي.`)
-       console.log(`📍 الأخبار الآن ظاهرة للعميل على: https://sgn-indol.vercel.app/news\n`)
+       console.log(`📍 الأخبار الآن ظاهرة للعميل على: https://sgn-drab.vercel.app/news\n`)
     } else {
        console.error(`\n❌ فشل الاتصال بالموقع الحي. (الرمز: ${res.status})`)
        console.error(`الرد من الخادم:`, await res.text())
