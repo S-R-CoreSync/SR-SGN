@@ -236,6 +236,7 @@
   },
   "dashboard": {
     "title": "Dashboard",
+    "documentsGenerator": "Official Documents & Paperwork",
     "posts": "News Articles",
     "users": "Users",
     "events": "Events",
