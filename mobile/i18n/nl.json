@@ -236,6 +236,7 @@
   },
   "dashboard": {
     "title": "Dashboard",
+    "documentsGenerator": "Officiële Documenten & Papierwerk",
     "posts": "Nieuwsartikelen",
     "users": "Gebruikers",
     "events": "Evenementen",
