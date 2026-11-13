@@ -90,6 +90,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       items: [
         { label: t("members"), href: "/dashboard/members", icon: Users },
         { label: "إدارة المستندات", href: "/dashboard/members/vault", icon: Shield, admin: true },
+        { label: t("documentsGenerator"), href: "/dashboard/documents-generator", icon: Printer, admin: true },
         { label: t("membershipSettings"), href: "/dashboard/membership-settings", icon: CheckSquare },
         { label: t("volunteers"), href: "/dashboard/volunteers", icon: HandHeart, editor: true },
         { label: t("tasks"), href: "/dashboard/tasks", icon: CheckSquare },

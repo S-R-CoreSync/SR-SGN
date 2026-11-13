@@ -87,6 +87,14 @@ export function CommandPalette({
       shortcut: "PDF"
     },
     {
+      id: "nav-docs-gen",
+      title: locale === "nl" ? "Officiële Documenten & Contracten Generator" : locale === "en" ? "Official Paperwork & Contracts Generator" : "مولّد الورقيات والنماذج والعقود الرسمية",
+      category: locale === "nl" ? "Slimme Acties" : locale === "en" ? "Smart Actions" : "إجراءات ذكية فورية",
+      href: "/dashboard/documents-generator",
+      icon: Printer,
+      shortcut: "DOCS",
+    },
+    {
       id: "sync-data",
       title: locale === "nl" ? "Facebook & YouTube Sync Beheren" : locale === "en" ? "Manage Facebook & YouTube Sync" : "إدارة وتشغيل مزامنة الأخبار واليوتيوب",
       category: locale === "nl" ? "Slimme Acties" : locale === "en" ? "Smart Actions" : "إجراءات ذكية فورية",
