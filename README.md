@@ -121,5 +121,5 @@ npm run set:prod
 
 ## 📡 النشر والإنتاج (Deployment)
 
-* **المستودع العام (GitHub)**: `https://github.com/Salim-Grav/SGN.git`
+* **المستودع العام (GitHub)**: `https://github.com/S-R-CoreSync/SR-SGN.git`
 * **المنصة الحية (Vercel)**: `https://sgn-drab.vercel.app` (يتم النشر التلقائي فور رفع التعديلات على فرع `main`).

@@ -53,8 +53,8 @@ echo.
 
 :: 2. التحقق من مسار المستودع البعيد
 echo [2/5] التحقق من رابط المستودع (Remote URL)...
-git remote set-url origin https://github.com/CastleStrangers/SGN.git
-echo   [✓] تم توجيه المستودع لـ: https://github.com/CastleStrangers/SGN.git
+git remote set-url origin https://github.com/S-R-CoreSync/SR-SGN.git
+echo   [✓] تم توجيه المستودع لـ: https://github.com/S-R-CoreSync/SR-SGN.git
 echo.
 
 :: 3. طلب رسالة الالتزام (Commit Message)
