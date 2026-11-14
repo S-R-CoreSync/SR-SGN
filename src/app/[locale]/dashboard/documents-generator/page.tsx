@@ -2,16 +2,18 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useLocale } from "next-intl";
+import { Link } from "@/i18n/routing";
 import {
   Printer, FileText, RefreshCw, User, Building2, HandHeart,
   Calendar, Sparkles, Loader2, Search, Check, Settings2, Eye,
   Copy, Stamp, QrCode, Wand2, Plus, Trash2, ArrowRight, ShieldCheck,
-  CheckCircle2, Info, FileSpreadsheet
+  CheckCircle2, Info, ArrowLeft, PenTool, ZoomIn, ZoomOut, Mail,
+  RotateCcw, Download
 } from "lucide-react";
 import {
   DOCUMENT_TEMPLATES, BOARD_OFFICERS, SGN_ORGANIZATION_INFO,
   OFFICIAL_VOLUNTEER_ARTICLES, VOLUNTEER_DEPARTMENTS,
-  DocumentParty, VolunteerArticle
+  DocumentParty
 } from "@/lib/documents/templates";
 
 // ============================================================
@@ -91,7 +93,8 @@ export default function DocumentsGeneratorPage() {
 
   // Tab State
   const [activeTab, setActiveTab] = useState<"parties" | "articles" | "ai">("parties");
-  const [copied, setCopied] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState<number>(100);
+  const [viewMode, setViewMode] = useState<"split" | "previewOnly">("split");
 
   // Contract Settings
   const [templateId, setTemplateId] = useState<string>("volunteer_agreement");
@@ -123,6 +126,12 @@ export default function DocumentsGeneratorPage() {
   });
   const [secondPartyPostcode, setSecondPartyPostcode] = useState<string>("2286JB");
 
+  // Digital Signature State
+  const [showSignaturePad, setShowSignaturePad] = useState<boolean>(false);
+  const [volunteerSignature, setVolunteerSignature] = useState<string | null>(null);
+  const signatureCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [isDrawing, setIsDrawing] = useState(false);
+
   // Articles State (Editable)
   const [articles, setArticles] = useState<EditableArticle[]>(() =>
     OFFICIAL_VOLUNTEER_ARTICLES.map(a => ({
@@ -144,6 +153,7 @@ export default function DocumentsGeneratorPage() {
   const [aiPrompt, setAiPrompt] = useState<string>("");
   const [generatingAi, setGeneratingAi] = useState<boolean>(false);
   const [aiMessage, setAiMessage] = useState<string | null>(null);
+  const [isPrinting, setIsPrinting] = useState<boolean>(false);
 
   // Fetch real members & volunteers from DB
   useEffect(() => {
@@ -199,7 +209,7 @@ export default function DocumentsGeneratorPage() {
         });
       }
 
-      // Add Maher Aslan default if not already there
+      // Add Maher Aslan sample
       if (!list.some(x => x.name.includes("Maher") || x.name.includes("ماهر"))) {
         list.unshift({
           id: "maher-sample",
@@ -295,7 +305,6 @@ export default function DocumentsGeneratorPage() {
         setArticles(data.articles);
         setAiMessage(isAr ? "تم تحديث بنود العقد وتخصيصها بالذكاء الاصطناعي بنجاح ✓" : "Contractartikelen succesvol gegenereerd en bijgewerkt via AI ✓");
       } else if (data.content) {
-        // Append as a new article
         const newArtNum = articles.length + 1;
         setArticles(prev => [
           ...prev,
@@ -309,14 +318,14 @@ export default function DocumentsGeneratorPage() {
         ]);
         setAiMessage(isAr ? "تمت إضافة المادة التخصصية إلى العقد بنجاح ✓" : "Extra bepaling succesvol toegevoegd aan het contract ✓");
       }
-    } catch (err) {
+    } catch {
       setAiMessage(isAr ? "تعذر الاتصال بالذكاء الاصطناعي، يرجى المحاولة ثانية." : "AI fout, probeer opnieuw.");
     } finally {
       setGeneratingAi(false);
     }
   };
 
-  // Reset Articles to original standard
+  // Reset Articles
   const handleResetArticles = () => {
     setArticles(
       OFFICIAL_VOLUNTEER_ARTICLES.map(a => ({
@@ -329,19 +338,90 @@ export default function DocumentsGeneratorPage() {
     );
   };
 
-  // Dedicated Print Function (Zero-Interference Print Window)
-  const handleDedicatedPrint = () => {
-    const printArea = document.getElementById("sgn-contract-print-content");
-    if (!printArea) return;
+  // ── SIGNATURE PAD LOGIC ──
+  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    const canvas = signatureCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    setIsDrawing(true);
+    const rect = canvas.getBoundingClientRect();
+    const x = ("touches" in e) ? e.touches[0].clientX - rect.left : e.clientX - rect.left;
+    const y = ("touches" in e) ? e.touches[0].clientY - rect.top : e.clientY - rect.top;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+  };
 
-    const printWindow = window.open("", "_blank", "width=900,height=1100");
-    if (!printWindow) {
-      // Fallback to normal window.print()
-      window.print();
+  const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    if (!isDrawing) return;
+    const canvas = signatureCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = ("touches" in e) ? e.touches[0].clientX - rect.left : e.clientX - rect.left;
+    const y = ("touches" in e) ? e.touches[0].clientY - rect.top : e.clientY - rect.top;
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = "#0b2545";
+    ctx.lineTo(x, y);
+    ctx.stroke();
+  };
+
+  const stopDrawing = () => {
+    setIsDrawing(false);
+  };
+
+  const clearSignature = () => {
+    const canvas = signatureCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    setVolunteerSignature(null);
+  };
+
+  const saveSignature = () => {
+    const canvas = signatureCanvasRef.current;
+    if (!canvas) return;
+    const dataUrl = canvas.toDataURL("image/png");
+    setVolunteerSignature(dataUrl);
+    setShowSignaturePad(false);
+  };
+
+  // ── RELIABLE HIDDEN IFRAME PRINT ENGINE (Zero-Interference) ──
+  const handlePrintViaHiddenIframe = () => {
+    setIsPrinting(true);
+    const printContent = document.getElementById("sgn-contract-print-content");
+    if (!printContent) {
+      setIsPrinting(false);
       return;
     }
 
-    const htmlContent = `
+    // Remove old print frame if exists
+    const existingFrame = document.getElementById("sgn-silent-print-iframe");
+    if (existingFrame) existingFrame.remove();
+
+    // Create an invisible iframe
+    const iframe = document.createElement("iframe");
+    iframe.id = "sgn-silent-print-iframe";
+    iframe.style.position = "fixed";
+    iframe.style.right = "0";
+    iframe.style.bottom = "0";
+    iframe.style.width = "0";
+    iframe.style.height = "0";
+    iframe.style.border = "0";
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow?.document;
+    if (!doc) {
+      setIsPrinting(false);
+      return;
+    }
+
+    // Prepare complete standalone HTML with exact styles and fonts embedded
+    const fullHtml = `
 <!DOCTYPE html>
 <html lang="${lang === "ar" ? "ar" : "nl"}" dir="${lang === "ar" ? "rtl" : "ltr"}">
 <head>
@@ -350,7 +430,7 @@ export default function DocumentsGeneratorPage() {
   <style>
     @page {
       size: A4 portrait;
-      margin: 15mm 18mm 15mm 18mm;
+      margin: 10mm 14mm 10mm 14mm;
     }
     * {
       box-sizing: border-box;
@@ -362,58 +442,75 @@ export default function DocumentsGeneratorPage() {
       padding: 0;
       background: #ffffff;
       color: #111827;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      font-size: 10pt;
-      line-height: 1.55;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 9.8pt;
+      line-height: 1.5;
     }
-    .page-break {
-      page-break-before: always;
-      break-before: page;
-      margin-top: 10mm;
+    .page-sheet {
+      width: 100%;
+      min-height: 275mm;
+      padding: 10mm 12mm 10mm 12mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      page-break-after: always;
+      break-after: page;
+    }
+    .page-sheet:last-child {
+      page-break-after: avoid;
+      break-after: avoid;
+    }
+    .header-box {
+      text-align: center;
+      padding-bottom: 12px;
+      margin-bottom: 12px;
+      border-bottom: 2px solid #1a5632;
     }
     .header-logo {
-      width: 65px;
-      height: 65px;
+      width: 60px;
+      height: 60px;
       object-fit: contain;
-      margin-bottom: 6px;
+      margin: 0 auto 6px auto;
+      display: block;
     }
     .org-title {
-      font-size: 13.5pt;
-      font-weight: 800;
+      font-size: 13pt;
+      font-weight: 900;
       color: #1a5632;
       letter-spacing: 0.3px;
     }
     .org-kvk {
       font-size: 8.5pt;
-      color: #6b7280;
+      color: #4b5563;
       font-family: monospace;
       margin-top: 2px;
     }
     .contract-title {
-      font-size: 13pt;
-      font-weight: 800;
+      font-size: 12pt;
+      font-weight: 900;
       color: #111827;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      margin-top: 14px;
-      margin-bottom: 6px;
+      text-align: center;
+      margin: 8px 0 4px 0;
     }
     .meta-bar {
       display: flex;
       justify-content: center;
-      gap: 25px;
+      gap: 22px;
       font-size: 8.5pt;
       color: #4b5563;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
+      text-align: center;
     }
     .parties-box {
       border: 1px solid #d1d5db;
       background-color: #f9fafb;
       border-radius: 6px;
-      padding: 12px 16px;
-      margin-bottom: 14px;
+      padding: 10px 14px;
+      margin-bottom: 12px;
       display: flex;
-      gap: 20px;
+      gap: 18px;
     }
     .party-col {
       flex: 1;
@@ -421,58 +518,70 @@ export default function DocumentsGeneratorPage() {
     }
     .party-heading {
       font-size: 9.5pt;
-      font-weight: 700;
+      font-weight: 800;
       color: #1a5632;
       border-bottom: 1px solid #e5e7eb;
-      padding-bottom: 4px;
-      margin-bottom: 6px;
+      padding-bottom: 3px;
+      margin-bottom: 5px;
     }
-    .party-field {
-      margin-bottom: 3px;
-      color: #374151;
-    }
-    .party-field strong {
+    .party-name {
+      font-weight: 800;
       color: #111827;
+      font-size: 9.5pt;
+      margin-bottom: 2px;
+    }
+    .party-details {
+      color: #374151;
+      line-height: 1.45;
     }
     .preamble {
       font-size: 8pt;
-      color: #6b7280;
+      color: #4b5563;
       background: #f3f4f6;
       border-radius: 4px;
-      padding: 8px 12px;
-      margin-bottom: 14px;
+      padding: 6px 10px;
+      margin-bottom: 12px;
       line-height: 1.45;
     }
     .article {
-      margin-bottom: 11px;
+      margin-bottom: 9px;
     }
     .article-title {
-      font-size: 9.5pt;
+      font-size: 9pt;
       font-weight: 800;
       color: #1a5632;
-      margin-bottom: 4px;
+      margin-bottom: 3px;
     }
     .article-p {
+      font-size: 8.5pt;
+      color: #1f2937;
+      margin-bottom: 3px;
+      line-height: 1.45;
+    }
+    .page-minimal-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 8pt;
+      color: #6b7280;
+      border-bottom: 1px solid #e5e7eb;
+      padding-bottom: 6px;
+      margin-bottom: 12px;
+    }
+    .attestation-box {
       font-size: 8.8pt;
       color: #1f2937;
-      margin-bottom: 4px;
       line-height: 1.5;
-    }
-    .signatures-section {
-      margin-top: 25px;
+      padding-top: 10px;
       border-top: 1px solid #e5e7eb;
-      padding-top: 18px;
-    }
-    .attestation-text {
-      font-size: 8.8pt;
-      color: #374151;
-      line-height: 1.5;
-      margin-bottom: 24px;
+      margin-top: 12px;
+      margin-bottom: 16px;
     }
     .signatures-grid {
       display: flex;
       justify-content: space-between;
-      gap: 40px;
+      gap: 35px;
+      margin-top: 10px;
       position: relative;
     }
     .sig-col {
@@ -480,19 +589,19 @@ export default function DocumentsGeneratorPage() {
       position: relative;
     }
     .sig-label {
-      font-size: 9.5pt;
-      font-weight: 700;
+      font-size: 9pt;
+      font-weight: 800;
       color: #111827;
-      margin-bottom: 4px;
+      margin-bottom: 3px;
     }
     .sig-sub {
       font-size: 8.5pt;
       color: #4b5563;
-      margin-bottom: 40px;
+      margin-bottom: 35px;
     }
     .sig-line {
       border-bottom: 1.5px solid #111827;
-      width: 180px;
+      width: 170px;
       margin-bottom: 4px;
     }
     .sig-date {
@@ -501,41 +610,76 @@ export default function DocumentsGeneratorPage() {
     }
     .seal-img {
       position: absolute;
-      top: 10px;
-      right: 20px;
-      width: 80px;
-      height: 80px;
-      opacity: 0.82;
+      top: 5px;
+      right: 15px;
+      width: 75px;
+      height: 75px;
+      opacity: 0.85;
       pointer-events: none;
     }
-    .footer-bar {
-      margin-top: 25px;
-      border-top: 1px solid #e5e7eb;
-      padding-top: 6px;
+    .volunteer-sig-img {
+      position: absolute;
+      bottom: 18px;
+      left: 10px;
+      max-height: 45px;
+      object-fit: contain;
+    }
+    .qr-verification {
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #f3f4f6;
+    }
+    .qr-box {
+      width: 44px;
+      height: 44px;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      padding: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .qr-text {
       font-size: 7.5pt;
       color: #6b7280;
-      text-align: center;
-      line-height: 1.4;
+      line-height: 1.35;
+    }
+    .footer-bar {
+      border-top: 1px solid #e5e7eb;
+      padding-top: 5px;
+      margin-top: 15px;
+      font-size: 7.5pt;
+      color: #6b7280;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
   </style>
 </head>
 <body>
-  ${printArea.innerHTML}
-  <script>
-    window.onload = function() {
-      setTimeout(function() {
-        window.print();
-        window.close();
-      }, 350);
-    };
-  </script>
+  ${printContent.innerHTML}
 </body>
 </html>
     `;
 
-    printWindow.document.open();
-    printWindow.document.write(htmlContent);
-    printWindow.document.close();
+    doc.open();
+    doc.write(fullHtml);
+    doc.close();
+
+    // Trigger print after ensuring all images and content are ready
+    setTimeout(() => {
+      try {
+        iframe.contentWindow?.focus();
+        iframe.contentWindow?.print();
+      } catch (e) {
+        console.error("Print error:", e);
+      } finally {
+        setIsPrinting(false);
+      }
+    }, 400);
   };
 
   // Helper labels
@@ -555,75 +699,121 @@ export default function DocumentsGeneratorPage() {
   const selectedDeptObj = VOLUNTEER_DEPARTMENTS.find(d => d.id === department);
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-100 flex flex-col font-sans selection:bg-emerald-100">
 
-      {/* ── TOP ACTION BAR (Header) ── */}
-      <div className="bg-white border-b border-slate-200 px-6 py-3.5 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-30 shadow-xs">
+      {/* ── TOP ACTION & NAVIGATION BAR ── */}
+      <div className="bg-white border-b border-slate-200 px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3 sticky top-0 z-30 shadow-xs print:hidden">
+
+        {/* Left: Back to Dashboard & Title */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-800 shadow-xs">
-            <FileText className="w-5 h-5" />
-          </div>
+          <Link
+            href="/dashboard"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-bold transition group"
+            title="الرجوع إلى لوحة التحكم الرئيسية"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 text-slate-500 group-hover:-translate-x-0.5 transition-transform" />
+            <span>{isAr ? "الرجوع للوحة التحكم" : "Terug naar Dashboard"}</span>
+          </Link>
+
+          <div className="h-5 w-px bg-slate-200 hidden sm:block" />
+
           <div>
-            <h1 className="text-base font-bold text-slate-900 leading-tight">
-              {isAr ? "منشئ ومحرر العقود والوثائق الرسمية" : "Officiële Documenten- en Contractengenerator"}
+            <h1 className="text-sm sm:text-base font-extrabold text-slate-900 leading-tight">
+              {isAr ? "منشئ ومحرر العقود والوثائق الرسمية" : "Documenten- & Contractengenerator"}
             </h1>
-            <p className="text-xs text-slate-500 flex items-center gap-2">
-              <span>{orgHeaderTitle}</span>
+            <p className="text-[11px] text-slate-500 hidden sm:flex items-center gap-2">
+              <span className="font-semibold text-emerald-800">{orgHeaderTitle}</span>
               <span>•</span>
-              <span className="font-mono text-emerald-700">KvK: {SGN_ORGANIZATION_INFO.kvkNumber}</span>
+              <span className="font-mono text-slate-600">KvK: {SGN_ORGANIZATION_INFO.kvkNumber}</span>
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5 flex-wrap">
+        {/* Right: Quick Actions, Language, Signature, & Print */}
+        <div className="flex items-center gap-2 flex-wrap">
+
           {/* Quick Load Maher Aslan */}
           <button
             onClick={handleLoadMaherAslan}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-xs transition"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-emerald-50 hover:border-emerald-300 text-slate-700 text-xs font-semibold transition"
             title="تحميل وتعبئة النموذج المعتمد لماهر أصلان"
           >
-            <User className="w-3.5 h-3.5 text-emerald-600" />
-            <span>{isAr ? "نموذج ماهر أصلان المعتمد" : "Model Maher Aslan"}</span>
+            <User className="w-3 h-3 text-emerald-600" />
+            <span>{isAr ? "نموذج ماهر أصلان" : "Model Aslan"}</span>
           </button>
 
-          {/* Language Toggle */}
+          {/* Digital Signature Trigger */}
+          <button
+            onClick={() => setShowSignaturePad(true)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-bold transition ${
+              volunteerSignature
+                ? "bg-emerald-50 border-emerald-300 text-emerald-800"
+                : "border-slate-300 bg-white hover:bg-slate-50 text-slate-700"
+            }`}
+            title="توقيع الطرف الثاني على الشاشة"
+          >
+            <PenTool className="w-3.5 h-3.5 text-emerald-600" />
+            <span>{volunteerSignature ? (isAr ? "تم التوقيع ✓" : "Getekend ✓") : (isAr ? "توقيع على الشاشة" : "Ondertekenen")}</span>
+          </button>
+
+          {/* Language Selector */}
           <div className="flex rounded-lg border border-slate-200 p-0.5 bg-slate-100 text-xs font-bold">
             <button
               onClick={() => setLang("nl")}
-              className={`px-2.5 py-1 rounded-md transition ${lang === "nl" ? "bg-white text-emerald-800 shadow-xs" : "text-slate-600 hover:text-slate-900"}`}
+              className={`px-2 py-1 rounded-md transition ${lang === "nl" ? "bg-white text-emerald-800 shadow-xs" : "text-slate-600 hover:text-slate-900"}`}
             >
               Nederlands
             </button>
             <button
               onClick={() => setLang("ar")}
-              className={`px-2.5 py-1 rounded-md transition ${lang === "ar" ? "bg-white text-emerald-800 shadow-xs" : "text-slate-600 hover:text-slate-900"}`}
+              className={`px-2 py-1 rounded-md transition ${lang === "ar" ? "bg-white text-emerald-800 shadow-xs" : "text-slate-600 hover:text-slate-900"}`}
             >
               عربي
             </button>
             <button
               onClick={() => setLang("bilingual")}
-              className={`px-2.5 py-1 rounded-md transition ${lang === "bilingual" ? "bg-white text-emerald-800 shadow-xs" : "text-slate-600 hover:text-slate-900"}`}
+              className={`px-2 py-1 rounded-md transition ${lang === "bilingual" ? "bg-white text-emerald-800 shadow-xs" : "text-slate-600 hover:text-slate-900"}`}
             >
-              ثنائي / Bi
+              ثنائي
             </button>
           </div>
 
-          {/* Dedicated Print Button */}
+          {/* Zoom & View Controls */}
+          <div className="hidden md:flex items-center border border-slate-200 rounded-lg p-0.5 bg-white text-xs">
+            <button
+              onClick={() => setZoomLevel(Math.max(75, zoomLevel - 15))}
+              className="p-1 hover:bg-slate-100 rounded text-slate-600"
+              title="تصغير"
+            >
+              <ZoomOut className="w-3.5 h-3.5" />
+            </button>
+            <span className="px-1.5 font-mono text-[11px] text-slate-600">{zoomLevel}%</span>
+            <button
+              onClick={() => setZoomLevel(Math.min(130, zoomLevel + 15))}
+              className="p-1 hover:bg-slate-100 rounded text-slate-600"
+              title="تكبير"
+            >
+              <ZoomIn className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          {/* Primary Print Button */}
           <button
-            onClick={handleDedicatedPrint}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-sm transition transform active:scale-95"
+            onClick={handlePrintViaHiddenIframe}
+            disabled={isPrinting}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-sm transition transform active:scale-95 disabled:opacity-50"
           >
-            <Printer className="w-4 h-4" />
-            <span>{isAr ? "طباعة وتصدير PDF فوري" : "Afdrukken / Exporteer PDF"}</span>
+            {isPrinting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Printer className="w-4 h-4" />}
+            <span>{isAr ? "طباعة وتصدير PDF فوري" : "Afdrukken / PDF"}</span>
           </button>
         </div>
       </div>
 
-      {/* ── MAIN WORKSPACE (Split Screen) ── */}
+      {/* ── WORKSPACE ── */}
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
 
-        {/* ── LEFT PANEL: Controls & Customization ── */}
-        <div className="w-full lg:w-[480px] bg-white border-r border-slate-200 flex flex-col flex-shrink-0 h-[calc(100vh-65px)]">
+        {/* ── LEFT PANEL: Controls ── */}
+        <div className="w-full lg:w-[480px] bg-white border-r border-slate-200 flex flex-col flex-shrink-0 h-[calc(100vh-60px)] print:hidden">
 
           {/* Navigation Tabs */}
           <div className="flex border-b border-slate-200 bg-slate-50/70 p-1">
@@ -1123,276 +1313,367 @@ export default function DocumentsGeneratorPage() {
         </div>
 
         {/* ── RIGHT PANEL: Live Multi-Page A4 Contract Preview ── */}
-        <div className="flex-1 bg-slate-200/70 p-6 lg:p-10 overflow-y-auto flex flex-col items-center">
+        <div className="flex-1 bg-slate-200/80 p-4 sm:p-8 overflow-y-auto flex flex-col items-center">
 
-          {/* Wrapper for the printable content */}
-          <div id="sgn-contract-print-content" className="space-y-8 w-full max-w-[210mm]">
+          {/* Scale wrapper based on zoom level */}
+          <div
+            style={{ transform: `scale(${zoomLevel / 100})`, transformOrigin: "top center", transition: "transform 0.15s ease-out" }}
+            className="w-full flex flex-col items-center"
+          >
 
-            {/* ══════════════════════════════════════════════════════ */}
-            {/* PAGE 1: HEADER, PARTIES, PREAMBLE, ARTICLES 1 - 5    */}
-            {/* ══════════════════════════════════════════════════════ */}
-            <div
-              className="bg-white shadow-xl mx-auto flex flex-col justify-between"
-              style={{
-                width: "210mm",
-                minHeight: "297mm",
-                padding: "16mm 20mm 14mm 20mm",
-                boxSizing: "border-box",
-                fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-                position: "relative",
-              }}
-              dir={isAr && !isBi ? "rtl" : "ltr"}
-            >
-              <div>
-                {/* ── CLEAN HEADER (Page 1 Only) ── */}
-                <div className="text-center pb-4 mb-4 border-b-2 border-emerald-800">
-                  <img
-                    src="/logo.png"
-                    alt="SGN Official Seal"
-                    className="w-14 h-14 object-contain mx-auto mb-1.5 filter drop-shadow-xs"
-                    onError={(e) => { (e.target as HTMLElement).style.display = "none"; }}
-                  />
-                  <div className="text-base font-black text-emerald-900 tracking-wide">
-                    {orgHeaderTitle}
-                  </div>
-                  <div className="text-[10px] text-slate-500 font-mono mt-0.5">
-                    KvK-nummer: {SGN_ORGANIZATION_INFO.kvkNumber}
-                  </div>
-                </div>
+            {/* Wrapper for the printable content */}
+            <div id="sgn-contract-print-content" className="space-y-8 w-full max-w-[210mm]">
 
-                {/* ── TITLE & REFERENCE ── */}
-                <div className="text-center mb-4">
-                  <h2 className="text-sm font-black text-slate-900 tracking-wider">
-                    {contractDocTitle}
-                  </h2>
-                  <div className="flex justify-center items-center gap-6 text-[10px] text-slate-600 mt-1 font-medium">
-                    <span>{isNl ? "Referentie" : "الرقم المرجعي"}: <strong className="font-mono text-slate-900">{refNumber}</strong></span>
-                    <span>{isNl ? "Datum" : "التاريخ"}: <strong className="text-slate-900">{issueDate}</strong></span>
-                    <span>{isNl ? "Plaats" : "المكان"}: <strong className="text-slate-900">{city}</strong></span>
-                  </div>
-                </div>
-
-                {/* ── PARTIES BOX (De Ondergetekenden) ── */}
-                <div className="border border-slate-300 rounded-lg p-3 bg-slate-50/80 mb-4 text-[10px] leading-relaxed">
-                  <div className="text-[11px] font-bold text-emerald-900 mb-2 border-b border-slate-200 pb-1">
-                    {isNl ? "De ondergetekenden (Partijen):" : "أطراف الاتفاقية:"}
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    {/* Eerste Partij */}
-                    <div>
-                      <div className="font-bold text-slate-900 mb-0.5">
-                        {isNl ? "1. De Organisatie (Eerste Partij):" : "١. المنظمة (الطرف الأول):"}
-                      </div>
-                      <div className="text-slate-800 font-bold">
-                        {isNl ? SGN_ORGANIZATION_INFO.nameNl : SGN_ORGANIZATION_INFO.nameAr}
-                      </div>
-                      <div className="text-slate-600 text-[9.5px]">
-                        <div>{SGN_ORGANIZATION_INFO.street}, {SGN_ORGANIZATION_INFO.postcodeCity}</div>
-                        <div>KvK: {SGN_ORGANIZATION_INFO.kvkNumber}</div>
-                        <div>{isNl ? "Vertegenwoordigd door" : "يمثلها"}: <strong>{signatory.name}</strong> ({isNl ? signatory.titleNl : signatory.titleAr})</div>
-                      </div>
+              {/* ══════════════════════════════════════════════════════ */}
+              {/* PAGE 1: HEADER, PARTIES, PREAMBLE, ARTICLES 1 - 5    */}
+              {/* ══════════════════════════════════════════════════════ */}
+              <div
+                className="page-sheet bg-white shadow-xl mx-auto flex flex-col justify-between"
+                style={{
+                  width: "210mm",
+                  minHeight: "297mm",
+                  padding: "16mm 20mm 14mm 20mm",
+                  boxSizing: "border-box",
+                  fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+                  position: "relative",
+                }}
+                dir={isAr && !isBi ? "rtl" : "ltr"}
+              >
+                <div>
+                  {/* ── CLEAN HEADER (Page 1 Only) ── */}
+                  <div className="header-box text-center pb-4 mb-4 border-b-2 border-emerald-800">
+                    <img
+                      src="/logo.png"
+                      alt="SGN Official Seal"
+                      className="header-logo w-14 h-14 object-contain mx-auto mb-1.5 filter drop-shadow-xs"
+                      onError={(e) => { (e.target as HTMLElement).style.display = "none"; }}
+                    />
+                    <div className="org-title text-base font-black text-emerald-900 tracking-wide">
+                      {orgHeaderTitle}
                     </div>
-
-                    {/* Tweede Partij */}
-                    <div dir={isAr && !isBi ? "rtl" : "ltr"}>
-                      <div className="font-bold text-slate-900 mb-0.5">
-                        {isNl ? "2. De Vrijwilliger (Tweede Partij):" : "٢. المتطوع (الطرف الثاني):"}
-                      </div>
-                      <div className="text-slate-800 font-bold">
-                        {secondParty.name}
-                      </div>
-                      <div className="text-slate-600 text-[9.5px]">
-                        <div>{secondParty.address}, {secondPartyPostcode} {secondParty.city}</div>
-                        <div>{isNl ? "Geboortedatum" : "تاريخ الميلاد"}: {secondParty.birthDate || "-"} | Ref: {secondParty.idNumber || "-"}</div>
-                        <div>E-mail: {secondParty.email || "-"} | Tel: {secondParty.phone || "-"}</div>
-                        <div>{isNl ? "Afdeling" : "القسم"}: <strong>{isAr ? selectedDeptObj?.labelAr : selectedDeptObj?.labelNl}</strong> ({hoursPerWeek} {isNl ? "uur/week" : "ساعة/أسبوع"})</div>
-                      </div>
+                    <div className="org-kvk text-[10px] text-slate-500 font-mono mt-0.5">
+                      KvK-nummer: {SGN_ORGANIZATION_INFO.kvkNumber}
                     </div>
                   </div>
-                </div>
 
-                {/* ── PREAMBLE (Considerans) ── */}
-                <div className="text-[9px] text-slate-600 bg-slate-100 rounded-md p-2 mb-3 leading-relaxed">
-                  <strong>{isNl ? "In aanmerking nemende dat:" : "الديباجة والأساس القانوني:"}</strong>{" "}
-                  {isNl
-                    ? "Partijen deze vrijwilligersovereenkomst aangaan conform de toepasselijke Nederlandse wetgeving (waaronder de fiscale vrijwilligersregeling van de Belastingdienst en de AVG). Deze overeenkomst creëert uitdrukkelijk geen arbeidsovereenkomst in de zin van art. 7:610 Burgerlijk Wetboek."
-                    : "أبرم الطرفان هذه الاتفاقية التطوعية وفقاً لأحكام القانون المدني الهولندي ولوائح مصلحة الضرائب وقانون حماية الخصوصية (AVG)، ولا تشكل هذه الاتفاقية بأي حال عقد عمل ملزم وفق المادة 7:610 من القانون المدني الهولندي."}
-                </div>
+                  {/* ── TITLE & REFERENCE ── */}
+                  <div className="text-center mb-4">
+                    <h2 className="contract-title text-sm font-black text-slate-900 tracking-wider">
+                      {contractDocTitle}
+                    </h2>
+                    <div className="meta-bar flex justify-center items-center gap-6 text-[10px] text-slate-600 mt-1 font-medium">
+                      <span>{isNl ? "Referentie" : "الرقم المرجعي"}: <strong className="font-mono text-slate-900">{refNumber}</strong></span>
+                      <span>{isNl ? "Datum" : "التاريخ"}: <strong className="text-slate-900">{issueDate}</strong></span>
+                      <span>{isNl ? "Plaats" : "المكان"}: <strong className="text-slate-900">{city}</strong></span>
+                    </div>
+                  </div>
 
-                {/* ── ARTICLES 1 TO 5 ── */}
-                <div className="space-y-2.5">
-                  {articles.slice(0, 5).map((art) => (
-                    <div key={art.number} className="text-[10px] leading-relaxed">
-                      <div className="font-bold text-emerald-900 mb-0.5">
-                        {isNl ? art.titleNl : isAr ? art.titleAr : `${art.titleNl} — ${art.titleAr}`}
-                      </div>
+                  {/* ── PARTIES BOX (De Ondergetekenden) ── */}
+                  <div className="parties-box border border-slate-300 rounded-lg p-3 bg-slate-50/80 mb-4 text-[10px] leading-relaxed">
+                    <div className="text-[11px] font-bold text-emerald-900 mb-2 border-b border-slate-200 pb-1">
+                      {isNl ? "De ondergetekenden (Partijen):" : "أطراف الاتفاقية:"}
+                    </div>
 
-                      {isNl && art.paragraphsNl.map((p, idx) => (
-                        <p key={idx} className="text-slate-700 mb-0.5">{p}</p>
-                      ))}
-
-                      {isAr && !isBi && art.paragraphsAr.map((p, idx) => (
-                        <p key={idx} dir="rtl" className="text-slate-700 mb-0.5">{p}</p>
-                      ))}
-
-                      {isBi && (
-                        <div className="grid grid-cols-2 gap-2 text-[9.5px]">
-                          <div>{art.paragraphsNl.map((p, i) => <p key={i} className="text-slate-700 mb-0.5">{p}</p>)}</div>
-                          <div dir="rtl" className="border-r border-slate-200 pr-2">{art.paragraphsAr.map((p, i) => <p key={i} className="text-slate-600 mb-0.5">{p}</p>)}</div>
+                    <div className="grid grid-cols-2 gap-4">
+                      {/* Eerste Partij */}
+                      <div className="party-col">
+                        <div className="party-heading font-bold text-slate-900 mb-0.5">
+                          {isNl ? "1. De Organisatie (Eerste Partij):" : "١. المنظمة (الطرف الأول):"}
                         </div>
-                      )}
+                        <div className="party-name text-slate-800 font-bold">
+                          {isNl ? SGN_ORGANIZATION_INFO.nameNl : SGN_ORGANIZATION_INFO.nameAr}
+                        </div>
+                        <div className="party-details text-slate-600 text-[9.5px]">
+                          <div>{SGN_ORGANIZATION_INFO.street}, {SGN_ORGANIZATION_INFO.postcodeCity}</div>
+                          <div>KvK: {SGN_ORGANIZATION_INFO.kvkNumber}</div>
+                          <div>{isNl ? "Vertegenwoordigd door" : "يمثلها"}: <strong>{signatory.name}</strong> ({isNl ? signatory.titleNl : signatory.titleAr})</div>
+                        </div>
+                      </div>
+
+                      {/* Tweede Partij */}
+                      <div className="party-col" dir={isAr && !isBi ? "rtl" : "ltr"}>
+                        <div className="party-heading font-bold text-slate-900 mb-0.5">
+                          {isNl ? "2. De Vrijwilliger (Tweede Partij):" : "٢. المتطوع (الطرف الثاني):"}
+                        </div>
+                        <div className="party-name text-slate-800 font-bold">
+                          {secondParty.name}
+                        </div>
+                        <div className="party-details text-slate-600 text-[9.5px]">
+                          <div>{secondParty.address}, {secondPartyPostcode} {secondParty.city}</div>
+                          <div>{isNl ? "Geboortedatum" : "تاريخ الميلاد"}: {secondParty.birthDate || "-"} | Ref: {secondParty.idNumber || "-"}</div>
+                          <div>E-mail: {secondParty.email || "-"} | Tel: {secondParty.phone || "-"}</div>
+                          <div>{isNl ? "Afdeling" : "القسم"}: <strong>{isAr ? selectedDeptObj?.labelAr : selectedDeptObj?.labelNl}</strong> ({hoursPerWeek} {isNl ? "uur/week" : "ساعة/أسبوع"})</div>
+                        </div>
+                      </div>
                     </div>
-                  ))}
+                  </div>
+
+                  {/* ── PREAMBLE (Considerans) ── */}
+                  <div className="preamble text-[9px] text-slate-600 bg-slate-100 rounded-md p-2 mb-3 leading-relaxed">
+                    <strong>{isNl ? "In aanmerking nemende dat:" : "الديباجة والأساس القانوني:"}</strong>{" "}
+                    {isNl
+                      ? "Partijen deze vrijwilligersovereenkomst aangaan conform de toepasselijke Nederlandse wetgeving (waaronder de fiscale vrijwilligersregeling van de Belastingdienst en de AVG). Deze overeenkomst creëert uitdrukkelijk geen arbeidsovereenkomst in de zin van art. 7:610 Burgerlijk Wetboek."
+                      : "أبرم الطرفان هذه الاتفاقية التطوعية وفقاً لأحكام القانون المدني الهولندي ولوائح مصلحة الضرائب وقانون حماية الخصوصية (AVG)، ولا تشكل هذه الاتفاقية بأي حال عقد عمل ملزم وفق المادة 7:610 من القانون المدني الهولندي."}
+                  </div>
+
+                  {/* ── ARTICLES 1 TO 5 ── */}
+                  <div className="space-y-2.5">
+                    {articles.slice(0, 5).map((art) => (
+                      <div key={art.number} className="article text-[10px] leading-relaxed">
+                        <div className="article-title font-bold text-emerald-900 mb-0.5">
+                          {isNl ? art.titleNl : isAr ? art.titleAr : `${art.titleNl} — ${art.titleAr}`}
+                        </div>
+
+                        {isNl && art.paragraphsNl.map((p, idx) => (
+                          <p key={idx} className="article-p text-slate-700 mb-0.5">{p}</p>
+                        ))}
+
+                        {isAr && !isBi && art.paragraphsAr.map((p, idx) => (
+                          <p key={idx} dir="rtl" className="article-p text-slate-700 mb-0.5">{p}</p>
+                        ))}
+
+                        {isBi && (
+                          <div className="grid grid-cols-2 gap-2 text-[9.5px]">
+                            <div>{art.paragraphsNl.map((p, i) => <p key={i} className="article-p text-slate-700 mb-0.5">{p}</p>)}</div>
+                            <div dir="rtl" className="border-r border-slate-200 pr-2">{art.paragraphsAr.map((p, i) => <p key={i} className="article-p text-slate-600 mb-0.5">{p}</p>)}</div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* ── FOOTER (Page 1) ── */}
+                <div className="footer-bar pt-3 border-t border-slate-200 text-center text-[8.5px] text-slate-500 flex justify-between items-center font-sans">
+                  <span>{SGN_ORGANIZATION_INFO.street}, {SGN_ORGANIZATION_INFO.postcodeCity} • Tel: {SGN_ORGANIZATION_INFO.phone}</span>
+                  <span>KvK: {SGN_ORGANIZATION_INFO.kvkNumber} • {SGN_ORGANIZATION_INFO.contactEmail} • {SGN_ORGANIZATION_INFO.website}</span>
+                  <span className="font-bold">{isNl ? "Pagina 1 van 2" : "الصفحة ١ من ٢"}</span>
                 </div>
               </div>
 
-              {/* ── FOOTER (Page 1) ── */}
-              <div className="pt-3 border-t border-slate-200 text-center text-[8.5px] text-slate-500 flex justify-between items-center font-sans">
-                <span>{SGN_ORGANIZATION_INFO.street}, {SGN_ORGANIZATION_INFO.postcodeCity} • Tel: {SGN_ORGANIZATION_INFO.phone}</span>
-                <span>KvK: {SGN_ORGANIZATION_INFO.kvkNumber} • {SGN_ORGANIZATION_INFO.contactEmail} • {SGN_ORGANIZATION_INFO.website}</span>
-                <span className="font-bold">{isNl ? "Pagina 1 van 2" : "الصفحة ١ من ٢"}</span>
+              {/* ══════════════════════════════════════════════════════ */}
+              {/* PAGE 2: ARTICLES 6 - 9, ATTESTATION, SIGNATURES & SEAL*/}
+              {/* ══════════════════════════════════════════════════════ */}
+              <div
+                className="page-sheet bg-white shadow-xl mx-auto flex flex-col justify-between"
+                style={{
+                  width: "210mm",
+                  minHeight: "297mm",
+                  padding: "16mm 20mm 14mm 20mm",
+                  boxSizing: "border-box",
+                  fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+                  position: "relative",
+                }}
+                dir={isAr && !isBi ? "rtl" : "ltr"}
+              >
+                <div>
+                  {/* ── MINIMAL TOP BAR (Page 2) ── */}
+                  <div className="page-minimal-bar flex justify-between items-center text-[9px] text-slate-400 pb-2 mb-4 border-b border-slate-200">
+                    <span className="font-bold text-slate-700">{orgHeaderTitle}</span>
+                    <span>Ref: {refNumber} — {secondParty.name}</span>
+                  </div>
+
+                  {/* ── REMAINING ARTICLES (6 TO END) ── */}
+                  <div className="space-y-3 mb-6">
+                    {articles.slice(5).map((art) => (
+                      <div key={art.number} className="article text-[10px] leading-relaxed">
+                        <div className="article-title font-bold text-emerald-900 mb-0.5">
+                          {isNl ? art.titleNl : isAr ? art.titleAr : `${art.titleNl} — ${art.titleAr}`}
+                        </div>
+
+                        {isNl && art.paragraphsNl.map((p, idx) => (
+                          <p key={idx} className="article-p text-slate-700 mb-0.5">{p}</p>
+                        ))}
+
+                        {isAr && !isBi && art.paragraphsAr.map((p, idx) => (
+                          <p key={idx} dir="rtl" className="article-p text-slate-700 mb-0.5">{p}</p>
+                        ))}
+
+                        {isBi && (
+                          <div className="grid grid-cols-2 gap-2 text-[9.5px]">
+                            <div>{art.paragraphsNl.map((p, i) => <p key={i} className="article-p text-slate-700 mb-0.5">{p}</p>)}</div>
+                            <div dir="rtl" className="border-r border-slate-200 pr-2">{art.paragraphsAr.map((p, i) => <p key={i} className="article-p text-slate-600 mb-0.5">{p}</p>)}</div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* ── CLOSING ATTESTATION ── */}
+                  <div className="attestation-box text-[9.5px] text-slate-800 leading-relaxed mb-6 pt-3 border-t border-slate-200">
+                    {isNl ? (
+                      <p>
+                        Aldus in tweevoud opgemaakt en ondertekend te <strong>{city}</strong> op <strong>{issueDate}</strong>. Beide partijen verklaren een getekend exemplaar van deze overeenkomst te hebben ontvangen en akkoord te gaan met de bepalingen.
+                      </p>
+                    ) : (
+                      <p dir="rtl">
+                        حُرر هذا العقد من نسختين أصليتين متطابقتين، ووُقّع في مدينة <strong>{city}</strong> بتاريخ <strong>{issueDate}</strong>. ويقر الطرفان باستلام نسخة موقعة وبموافقتهما التامة على كافة البنود الواردة أعلاه.
+                      </p>
+                    )}
+                  </div>
+
+                  {/* ── SIGNATURES & SEAL SECTION (Only at the end) ── */}
+                  <div className="signatures-section relative pt-2">
+                    <div className="signatures-grid grid grid-cols-2 gap-10">
+
+                      {/* SGN Bestuur Signature */}
+                      <div className="sig-col relative">
+                        <div className="sig-label text-[11px] font-bold text-slate-900 mb-1">
+                          {isNl ? "Namens het Bestuur van SGN:" : "عن مجلس إدارة الجالية (الطرف الأول):"}
+                        </div>
+                        <div className="sig-sub text-[10px] text-slate-700 mb-10 leading-tight">
+                          <strong>{signatory.name}</strong><br />
+                          <span className="text-slate-500">{isNl ? signatory.titleNl : signatory.titleAr}</span>
+                        </div>
+
+                        <div className="sig-line border-b-2 border-slate-800 w-48 mb-1.5" />
+                        <div className="sig-date text-[9px] text-slate-500">
+                          {isNl ? "Handtekening & Stempel" : "التوقيع والختم الرسمي"}
+                        </div>
+
+                        {/* Official Circular Seal */}
+                        {includeSeal && (
+                          <div className="seal-img absolute top-2 right-4 w-20 h-20 opacity-85 pointer-events-none">
+                            <img
+                              src="/logo.png"
+                              alt="SGN Official Seal"
+                              className="w-full h-full object-contain filter drop-shadow-xs"
+                              onError={(e) => { (e.target as HTMLElement).style.display = "none"; }}
+                            />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Volunteer Signature */}
+                      <div className="sig-col" dir={isAr && !isBi ? "rtl" : "ltr"}>
+                        <div className="sig-label text-[11px] font-bold text-slate-900 mb-1">
+                          {isNl ? "De Vrijwilliger (Tweede Partij):" : "المتطوع (الطرف الثاني):"}
+                        </div>
+                        <div className="sig-sub text-[10px] text-slate-700 mb-10 leading-tight">
+                          <strong>{secondParty.name}</strong><br />
+                          <span className="text-slate-500">Ref: {secondParty.idNumber || "-"}</span>
+                        </div>
+
+                        {/* If Live Signature Drawn */}
+                        {volunteerSignature ? (
+                          <div className="relative mb-2">
+                            <img src={volunteerSignature} alt="Handtekening" className="volunteer-sig-img h-11 object-contain" />
+                            <div className="sig-line border-b-2 border-slate-800 w-48 mb-1.5 pt-11" />
+                          </div>
+                        ) : (
+                          <div className="sig-line border-b-2 border-slate-800 w-48 mb-1.5" />
+                        )}
+
+                        <div className="sig-date text-[9px] text-slate-500 flex items-center justify-between w-48">
+                          <span>{isNl ? "Handtekening vrijwilliger" : "توقيع المتطوع"}</span>
+                          {volunteerSignature && (
+                            <button
+                              onClick={() => setVolunteerSignature(null)}
+                              className="text-[9px] text-red-500 hover:underline print:hidden"
+                            >
+                              {isAr ? "مسح" : "Wis"}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* QR Code Verification */}
+                    {includeQr && (
+                      <div className="qr-verification mt-8 flex items-center gap-3 pt-3 border-t border-slate-100">
+                        <div className="qr-box w-12 h-12 border border-slate-300 rounded p-1 bg-white flex items-center justify-center flex-shrink-0">
+                          <QrCode className="w-10 h-10 text-slate-800" />
+                        </div>
+                        <div className="qr-text text-[8.5px] text-slate-500 leading-tight">
+                          <strong className="text-slate-700">{isNl ? "Digitale Verificatie" : "التحقق الرقمي الرسمي"}</strong><br />
+                          KvK: {SGN_ORGANIZATION_INFO.kvkNumber} • Ref: {refNumber}<br />
+                          {SGN_ORGANIZATION_INFO.website}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* ── FOOTER (Page 2) ── */}
+                <div className="footer-bar pt-3 border-t border-slate-200 text-center text-[8.5px] text-slate-500 flex justify-between items-center font-sans">
+                  <span>{SGN_ORGANIZATION_INFO.street}, {SGN_ORGANIZATION_INFO.postcodeCity} • Tel: {SGN_ORGANIZATION_INFO.phone}</span>
+                  <span>KvK: {SGN_ORGANIZATION_INFO.kvkNumber} • {SGN_ORGANIZATION_INFO.contactEmail} • {SGN_ORGANIZATION_INFO.website}</span>
+                  <span className="font-bold">{isNl ? "Pagina 2 van 2" : "الصفحة ٢ من ٢"}</span>
+                </div>
               </div>
+
             </div>
-
-            {/* ══════════════════════════════════════════════════════ */}
-            {/* PAGE 2: ARTICLES 6 - 9, ATTESTATION, SIGNATURES & SEAL*/}
-            {/* ══════════════════════════════════════════════════════ */}
-            <div
-              className="bg-white shadow-xl mx-auto flex flex-col justify-between page-break"
-              style={{
-                width: "210mm",
-                minHeight: "297mm",
-                padding: "16mm 20mm 14mm 20mm",
-                boxSizing: "border-box",
-                fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-                position: "relative",
-              }}
-              dir={isAr && !isBi ? "rtl" : "ltr"}
-            >
-              <div>
-                {/* ── MINIMAL TOP BAR (Page 2) ── */}
-                <div className="flex justify-between items-center text-[9px] text-slate-400 pb-2 mb-4 border-b border-slate-200">
-                  <span className="font-bold text-slate-700">{orgHeaderTitle}</span>
-                  <span>Ref: {refNumber} — {secondParty.name}</span>
-                </div>
-
-                {/* ── REMAINING ARTICLES (6 TO END) ── */}
-                <div className="space-y-3 mb-6">
-                  {articles.slice(5).map((art) => (
-                    <div key={art.number} className="text-[10px] leading-relaxed">
-                      <div className="font-bold text-emerald-900 mb-0.5">
-                        {isNl ? art.titleNl : isAr ? art.titleAr : `${art.titleNl} — ${art.titleAr}`}
-                      </div>
-
-                      {isNl && art.paragraphsNl.map((p, idx) => (
-                        <p key={idx} className="text-slate-700 mb-0.5">{p}</p>
-                      ))}
-
-                      {isAr && !isBi && art.paragraphsAr.map((p, idx) => (
-                        <p key={idx} dir="rtl" className="text-slate-700 mb-0.5">{p}</p>
-                      ))}
-
-                      {isBi && (
-                        <div className="grid grid-cols-2 gap-2 text-[9.5px]">
-                          <div>{art.paragraphsNl.map((p, i) => <p key={i} className="text-slate-700 mb-0.5">{p}</p>)}</div>
-                          <div dir="rtl" className="border-r border-slate-200 pr-2">{art.paragraphsAr.map((p, i) => <p key={i} className="text-slate-600 mb-0.5">{p}</p>)}</div>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-
-                {/* ── CLOSING ATTESTATION ── */}
-                <div className="text-[9.5px] text-slate-800 leading-relaxed mb-6 pt-3 border-t border-slate-200">
-                  {isNl ? (
-                    <p>
-                      Aldus in tweevoud opgemaakt en ondertekend te <strong>{city}</strong> op <strong>{issueDate}</strong>. Beide partijen verklaren een getekend exemplaar van deze overeenkomst te hebben ontvangen en akkoord te gaan met de bepalingen.
-                    </p>
-                  ) : (
-                    <p dir="rtl">
-                      حُرر هذا العقد من نسختين أصليتين متطابقتين، ووُقّع في مدينة <strong>{city}</strong> بتاريخ <strong>{issueDate}</strong>. ويقر الطرفان باستلام نسخة موقعة وبموافقتهما التامة على كافة البنود الواردة أعلاه.
-                    </p>
-                  )}
-                </div>
-
-                {/* ── SIGNATURES & SEAL SECTION (Only at the end) ── */}
-                <div className="relative pt-2">
-                  <div className="grid grid-cols-2 gap-10">
-
-                    {/* SGN Bestuur Signature */}
-                    <div className="relative">
-                      <div className="text-[11px] font-bold text-slate-900 mb-1">
-                        {isNl ? "Namens het Bestuur van SGN:" : "عن مجلس إدارة الجالية (الطرف الأول):"}
-                      </div>
-                      <div className="text-[10px] text-slate-700 mb-10 leading-tight">
-                        <strong>{signatory.name}</strong><br />
-                        <span className="text-slate-500">{isNl ? signatory.titleNl : signatory.titleAr}</span>
-                      </div>
-
-                      <div className="border-b-2 border-slate-800 w-48 mb-1.5" />
-                      <div className="text-[9px] text-slate-500">
-                        {isNl ? "Handtekening & Stempel" : "التوقيع والختم الرسمي"}
-                      </div>
-
-                      {/* Official Circular Seal */}
-                      {includeSeal && (
-                        <div className="absolute top-2 right-4 w-20 h-20 opacity-85 pointer-events-none">
-                          <img
-                            src="/logo.png"
-                            alt="SGN Official Seal"
-                            className="w-full h-full object-contain filter drop-shadow-xs"
-                            onError={(e) => { (e.target as HTMLElement).style.display = "none"; }}
-                          />
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Volunteer Signature */}
-                    <div dir={isAr && !isBi ? "rtl" : "ltr"}>
-                      <div className="text-[11px] font-bold text-slate-900 mb-1">
-                        {isNl ? "De Vrijwilliger (Tweede Partij):" : "المتطوع (الطرف الثاني):"}
-                      </div>
-                      <div className="text-[10px] text-slate-700 mb-10 leading-tight">
-                        <strong>{secondParty.name}</strong><br />
-                        <span className="text-slate-500">Ref: {secondParty.idNumber || "-"}</span>
-                      </div>
-
-                      <div className="border-b-2 border-slate-800 w-48 mb-1.5" />
-                      <div className="text-[9px] text-slate-500">
-                        {isNl ? "Handtekening vrijwilliger" : "توقيع المتطوع"}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* QR Code Verification */}
-                  {includeQr && (
-                    <div className="mt-8 flex items-center gap-3 pt-3 border-t border-slate-100">
-                      <div className="w-12 h-12 border border-slate-300 rounded p-1 bg-white flex items-center justify-center flex-shrink-0">
-                        <QrCode className="w-10 h-10 text-slate-800" />
-                      </div>
-                      <div className="text-[8.5px] text-slate-500 leading-tight">
-                        <strong className="text-slate-700">{isNl ? "Digitale Verificatie" : "التحقق الرقمي الرسمي"}</strong><br />
-                        KvK: {SGN_ORGANIZATION_INFO.kvkNumber} • Ref: {refNumber}<br />
-                        {SGN_ORGANIZATION_INFO.website}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* ── FOOTER (Page 2) ── */}
-              <div className="pt-3 border-t border-slate-200 text-center text-[8.5px] text-slate-500 flex justify-between items-center font-sans">
-                <span>{SGN_ORGANIZATION_INFO.street}, {SGN_ORGANIZATION_INFO.postcodeCity} • Tel: {SGN_ORGANIZATION_INFO.phone}</span>
-                <span>KvK: {SGN_ORGANIZATION_INFO.kvkNumber} • {SGN_ORGANIZATION_INFO.contactEmail} • {SGN_ORGANIZATION_INFO.website}</span>
-                <span className="font-bold">{isNl ? "Pagina 2 van 2" : "الصفحة ٢ من ٢"}</span>
-              </div>
-            </div>
-
           </div>
         </div>
 
       </div>
+
+      {/* ── DIGITAL SIGNATURE MODAL ── */}
+      {showSignaturePad && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b pb-2">
+              <h3 className="font-bold text-sm text-slate-900 flex items-center gap-2">
+                <PenTool className="w-4 h-4 text-emerald-600" />
+                <span>{isAr ? "لوحة التوقيع الرقمي الحي" : "Digitaal Handtekeningenpaneel"}</span>
+              </h3>
+              <button
+                onClick={() => setShowSignaturePad(false)}
+                className="text-slate-400 hover:text-slate-600 text-lg leading-none"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-500">
+              {isAr
+                ? "ارسم التوقيع بالماوس أو الإصبع/القلم على الشاشة ليتم تضمينه في ورقة العقد:"
+                : "Teken uw handtekening met de muis of vinger op het scherm:"}
+            </p>
+
+            <div className="border-2 border-dashed border-slate-300 rounded-xl bg-slate-50 overflow-hidden flex justify-center">
+              <canvas
+                ref={signatureCanvasRef}
+                width={380}
+                height={160}
+                onMouseDown={startDrawing}
+                onMouseMove={draw}
+                onMouseUp={stopDrawing}
+                onMouseLeave={stopDrawing}
+                onTouchStart={startDrawing}
+                onTouchMove={draw}
+                onTouchEnd={stopDrawing}
+                className="cursor-crosshair bg-white touch-none"
+              />
+            </div>
+
+            <div className="flex justify-between items-center pt-2">
+              <button
+                onClick={clearSignature}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>{isAr ? "مسح وإعادة" : "Wissen"}</span>
+              </button>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setShowSignaturePad(false)}
+                  className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs text-slate-600 hover:bg-slate-100"
+                >
+                  {isAr ? "إلغاء" : "Annuleren"}
+                </button>
+                <button
+                  onClick={saveSignature}
+                  className="px-4 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-xs"
+                >
+                  {isAr ? "حفظ التوقيع بالعقد" : "Opslaan in Contract"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
