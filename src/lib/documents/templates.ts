@@ -52,14 +52,147 @@ export interface DocumentTemplate {
 
 export const SGN_ORGANIZATION_INFO = {
   nameAr: "الجالية السورية في هولندا",
-  nameNl: "Stichting De Syrische Gemeenschap in Nederland",
+  nameNl: "De Syrische Gemeenschap in Nederland",
   shortName: "SGN",
-  kvkNumber: "96718943",
+  address: "Laan van Meerdervoort 53-D, 2517 AE Den Haag, Nederland",
+  street: "Laan van Meerdervoort 53-D",
+  postcodeCity: "2517 AE Den Haag",
   country: "Nederland",
-  officialWebsite: "https://sgn-drab.vercel.app",
+  phone: "+31 6 24795887",
   contactEmail: "info@sy-nl.org",
+  website: "www.sy-nl.org",
+  officialWebsite: "https://sgn-drab.vercel.app",
+  kvkNumber: "96718943",
   legalForm: "Stichting / Vereniging conform Burgerlijk Wetboek Boek 2",
 };
+
+export interface VolunteerArticle {
+  number: number;
+  titleNl: string;
+  titleAr: string;
+  paragraphsNl: string[];
+  paragraphsAr: string[];
+}
+
+export const OFFICIAL_VOLUNTEER_ARTICLES: VolunteerArticle[] = [
+  {
+    number: 1,
+    titleNl: "Artikel 1 - Werkzaamheden",
+    titleAr: "المادة الأولى - المهام والمسؤوليات التطوعية",
+    paragraphsNl: [
+      "1. De vrijwilliger werkt als vrijwilliger binnen de hierboven aangegeven afdeling en verricht de bijbehorende taken, zoals omschreven in de functieomschrijving van de organisatie.",
+      "2. In overleg kunnen de taken worden aangepast.",
+      "3. De vrijwilliger handelt conform het beleid en de doelstellingen van de Syrische Gemeenschap in Nederland."
+    ],
+    paragraphsAr: [
+      "١. يعمل المتطوع بصفة تطوعية ضمن القسم واللجنة المحددة أعلاه، ويؤدي المهام المنوطة به والمبينة في التوصيف المعتمد من الجالية.",
+      "٢. يجوز تعديل وتطوير المهام الموكلة بناءً على التشاور والتنسيق المستمر بين الطرفين.",
+      "٣. يلتزم المتطوع بالعمل وفق سياسات وأهداف الجالية السورية في هولندا ونظامها الداخلي."
+    ]
+  },
+  {
+    number: 2,
+    titleNl: "Artikel 2 - Duur van de overeenkomst",
+    titleAr: "المادة الثانية - مدة الاتفاقية وساعات العمل",
+    paragraphsNl: [
+      "1. De vrijwilliger treedt in dienst op de hierboven genoemde startdatum en zet zich gemiddeld :(10-12) uur per week in.",
+      "2. De overeenkomst kan door beide partijen worden beëindigd met een opzegtermijn van één maand, acht weken gerekend."
+    ],
+    paragraphsAr: [
+      "١. تسري هذه الاتفاقية من تاريخ البدء المذكور، ويلتزم المتطوع بتقديم متوسط (١٠-١٢) ساعة أسبوعياً.",
+      "٢. يحق لأي من الطرفين إنهاء هذه الاتفاقية بإشعار خطي مسبق مدته شهر واحد."
+    ]
+  },
+  {
+    number: 3,
+    titleNl: "Artikel 3 - Proeftijd",
+    titleAr: "المادة الثالثة - فترة التجربة والتقييم",
+    paragraphsNl: [
+      "1. De eerste maand geldt als proeftijd, waarin beide partijen kunnen beslissen de samenwerking voort te zetten of te beëindigen. Aan het einde vindt een evaluatiegesprek plaats."
+    ],
+    paragraphsAr: [
+      "١. يعتبر الشهر الأول فترة تجربة واستكشاف، يحق خلالها لأي من الطرفين إنهاء التعاون أو الاستمرار به، ويعقد في نهايتها اجتماع تقييمي."
+    ]
+  },
+  {
+    number: 4,
+    titleNl: "Artikel 4 - Begeleiding, informatie en scholing",
+    titleAr: "المادة الرابعة - التوجيه والتدريب والدعم",
+    paragraphsNl: [
+      "1. De vrijwilliger heeft recht op begeleiding en ondersteuning vanuit de organisatie.",
+      "2. Indien gewenst en mogelijk, biedt de organisatie passende scholing aan die relevant is voor de werkzaamheden.",
+      "3. De vrijwilliger ontvangt de benodigde informatie over de organisatie, de werkwijze en zijn/haar werkzaamheden."
+    ],
+    paragraphsAr: [
+      "١. يحق للمتطوع الحصول على التوجيه والدعم والمتابعة اللازمة من إدارة الجالية.",
+      "٢. تقدم الجالية للمتطوع دورات وورشات تدريبية مناسبة لطبيعة مهامه كلما توفر ذلك.",
+      "٣. يتلقى المتطوع كافة المعلومات والمستندات الإرشادية الخاصة بآلية العمل واختصاصاته."
+    ]
+  },
+  {
+    number: 5,
+    titleNl: "Artikel 5 - Vrijwilligersvergoeding",
+    titleAr: "المادة الخامسة - المكافأة التطوعية",
+    paragraphsNl: [
+      "1. De vrijwilliger ontvangt in beginsel geen vergoeding voor de werkzaamheden. Indien van toepassing kan in overleg een vrijwilligersvergoeding of onkostenvergoeding worden toegekend, conform het beleid van de organisatie."
+    ],
+    paragraphsAr: [
+      "١. الأصل في العمل التطوعي أنه دون مقابل مالي. ويجوز بالاتفاق والتشاور صرف مكافأة تطوعية أو بدل مصاريف وفق ضوابط مصلحة الضرائب الهولندية وسياسات الجالية."
+    ]
+  },
+  {
+    number: 6,
+    titleNl: "Artikel 6 - Onkostenvergoeding",
+    titleAr: "المادة السادسة - تعويض النفقات والمصاريف",
+    paragraphsNl: [
+      "1. De vrijwilliger ontvangt in beginsel geen onkostenvergoeding. Indien noodzakelijk en in overleg kunnen redelijke, aantoonbare kosten worden vergoed."
+    ],
+    paragraphsAr: [
+      "١. يتم تعويض المتطوع عن المصاريف التشغيلية والتنقل الضرورية والمثبتة بفواتير وإيصالات رسمية بعد أخذ الموافقة المسبقة."
+    ]
+  },
+  {
+    number: 7,
+    titleNl: "Artikel 7 - Verzekeringen",
+    titleAr: "المادة السابعة - التأمين القانوني للمتطوعين",
+    paragraphsNl: [
+      "1. De Syrische Gemeenschap in Nederland heeft voor haar vrijwilligers een aansprakelijkheidsverzekering voor bedrijven afgesloten, en indien van toepassing een collectieve ongevallenverzekering."
+    ],
+    paragraphsAr: [
+      "١. تشمل الجالية متطوعيها بوثيقة تأمين المسؤولية المدنية والتأمين الجماعي المعتمد في هولندا ضد الحوادث والأضرار أثناء أداء المهام التطوعية."
+    ]
+  },
+  {
+    number: 8,
+    titleNl: "Artikel 8 - Conflicten",
+    titleAr: "المادة الثامنة - حل الخلافات",
+    paragraphsNl: [
+      "1. Bij geschillen tussen de vrijwilliger en de organisatie wordt de kwestie eerst in onderling overleg besproken. Indien dit niet tot een oplossing leidt, wordt de kwestie voorgelegd aan het bestuur van de organisatie."
+    ],
+    paragraphsAr: [
+      "١. في حال نشوء أي خلاف أو إشكال، تتم معالجته أولاً بالتشاور المباشر والحوار الودي، وفي حال تعذر ذلك يرفع النزاع لمجلس إدارة الجالية للبت فيه."
+    ]
+  },
+  {
+    number: 9,
+    titleNl: "Artikel 9 - Geheimhoudingsplicht",
+    titleAr: "المادة التاسعة - التزام السرية والخصوصية (AVG)",
+    paragraphsNl: [
+      "1. De vrijwilliger behandelt alle informatie over (de leden, activiteiten en interne zaken van) de organisatie vertrouwelijk, tenzij uitdrukkelijk en schriftelijk anders is overeengekomen of wettelijk verplicht is."
+    ],
+    paragraphsAr: [
+      "١. يلتزم المتطوع بالحفاظ التام على سرية كافة بيانات الأعضاء ومعلومات الجالية وأنشطتها الداخلية، وفقاً لقوانين حماية الخصوصية الأوروبية (AVG/GDPR)."
+    ]
+  }
+];
+
+export const VOLUNTEER_DEPARTMENTS = [
+  { id: "media", labelNl: "Media & Communicatie", labelAr: "الإعلام والتواصل" },
+  { id: "ict", labelNl: "ICT", labelAr: "تكنولوجيا المعلومات والتقنية" },
+  { id: "events", labelNl: "Evenementen", labelAr: "الفعاليات والنشاطات" },
+  { id: "projects", labelNl: "Projecten", labelAr: "المشاريع والتطوير" },
+  { id: "other", labelNl: "Overig", labelAr: "أخرى" },
+];
 
 export const DOCUMENT_TEMPLATES: DocumentTemplate[] = [
   {
