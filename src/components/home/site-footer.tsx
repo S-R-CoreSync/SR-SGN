@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Link } from "@/i18n/routing";
+import { Link, usePathname } from "@/i18n/routing";
 import { FreeSyrianFlag, DutchFlag } from "@/components/flags";
 import { SgnLogo } from "@/components/sgn-logo";
 import { Facebook, Instagram, Youtube, Twitter, Mail, MessageCircle, MapPin } from "lucide-react";
@@ -16,6 +16,11 @@ const socials = [
 ];
 
 export function SiteFooter() {
+  const pathname = usePathname();
+  if (pathname && pathname.includes("/dashboard")) {
+    return null;
+  }
+
   const t = useTranslations("footer");
   const tNav = useTranslations("nav");
   const locale = useLocale();
@@ -29,7 +34,7 @@ export function SiteFooter() {
   };
 
   return (
-    <footer className="bg-[#0B132B] text-white pt-16 pb-8 border-t-2 border-[#CCAA00]" dir={isRtl ? "rtl" : "ltr"}>
+    <footer className="bg-[#0B132B] text-white pt-16 pb-8 border-t-2 border-[#CCAA00] print:hidden" dir={isRtl ? "rtl" : "ltr"}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 mb-12">

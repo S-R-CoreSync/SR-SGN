@@ -133,7 +133,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar - positioned on the right for RTL with overflow-y-auto */}
-      <aside className={`fixed lg:sticky top-0 right-0 z-40 w-64 h-screen bg-white border-l overflow-y-auto transform transition-transform duration-200 ${open ? "translate-x-0" : "translate-x-full lg:translate-x-0"}`}>
+      <aside className={`fixed lg:sticky top-0 right-0 z-40 w-64 h-screen bg-white border-l overflow-y-auto transform transition-transform duration-200 print:hidden ${open ? "translate-x-0" : "translate-x-full lg:translate-x-0"}`}>
         <div className="p-4 border-b">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -223,8 +223,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {open && <div onClick={() => setOpen(false)} className="fixed inset-0 bg-black/20 z-30 lg:hidden" />}
 
       {/* Main */}
-      <div className="flex-1 min-h-screen bg-gray-50/70 dark:bg-gray-950 transition-colors">
-        <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200/80 dark:border-gray-800 px-4 lg:px-6 h-16 flex items-center justify-between sticky top-0 z-20 transition-colors">
+      <div className="flex-1 min-h-screen bg-gray-50/70 dark:bg-gray-950 transition-colors print:bg-white print:p-0 print:m-0">
+        <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200/80 dark:border-gray-800 px-4 lg:px-6 h-16 flex items-center justify-between sticky top-0 z-20 transition-colors print:hidden">
           <div className="flex items-center gap-3">
             <button onClick={() => setOpen(true)} className="lg:hidden p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-gray-700 dark:text-gray-200" title="Open Menu" aria-label="Open Menu"><Menu className="w-5 h-5" /></button>
             <div className="hidden sm:flex items-center gap-2">
