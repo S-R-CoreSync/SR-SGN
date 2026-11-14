@@ -123,3 +123,5 @@ npm run set:prod
 
 * **المستودع العام (GitHub)**: `https://github.com/S-R-CoreSync/SR-SGN.git`
 * **المنصة الحية (Vercel)**: `https://sgn-drab.vercel.app` (يتم النشر التلقائي فور رفع التعديلات على فرع `main`).
+
+<!-- trigger-deploy: 1794619405523 -->
