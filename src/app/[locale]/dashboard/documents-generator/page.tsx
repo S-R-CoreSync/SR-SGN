@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { 
   DOCUMENT_TEMPLATES, BOARD_OFFICERS, SGN_ORGANIZATION_INFO, 
+  OFFICIAL_VOLUNTEER_ARTICLES, VOLUNTEER_DEPARTMENTS,
   DocumentFormData, DocumentParty 
 } from "@/lib/documents/templates";
 import { formatLocalizedDigits } from "@/lib/language-guard";
@@ -73,17 +74,43 @@ export default function DocumentsGeneratorPage() {
   // Signatory
   const [selectedSignatory, setSelectedSignatory] = useState(BOARD_OFFICERS[0]);
 
+  // Volunteer Agreement Specifics (Conform Maher Aslan Official Standard Model)
+  const [selectedDepartment, setSelectedDepartment] = useState<string>("media");
+  const [otherDepartment, setOtherDepartment] = useState<string>("");
+  const [hoursPerWeek, setHoursPerWeek] = useState<string>("10-12");
+  const [secondPartyPostcode, setSecondPartyPostcode] = useState<string>("2286JB");
+
   // Second party details
   const [secondParty, setSecondParty] = useState<DocumentParty>({
-    name: "محمد كمال الحلبي",
+    name: "ماهر أصلان - Maher Aslan",
     idNumber: "NL-BSN-89412356",
-    birthDate: "1994-05-12",
-    address: "Stationsplein 45",
-    city: "Utrecht",
-    email: "m.alhalabi@example.nl",
-    phone: "+31 6 87654321",
-    roleOrTitle: "متطوع في لجنة الدعم والاندماج",
+    birthDate: "1988-04-12",
+    address: "Johanna Westerdijkstraat 14",
+    city: "Rijswijk",
+    email: "mahernet88@gmail.com",
+    phone: "0641173391",
+    roleOrTitle: "متطوع في قسم الإعلام والتواصل",
   });
+
+  const handleLoadMaherAslanSample = () => {
+    setSelectedTemplateId("volunteer_agreement");
+    setLanguageMode("nl");
+    setSecondParty({
+      name: "Maher Aslan",
+      idNumber: "SGN-VOL-029",
+      birthDate: "1988-04-12",
+      address: "Johanna Westerdijkstraat 14",
+      city: "Rijswijk",
+      email: "mahernet88@gmail.com",
+      phone: "0641173391",
+      roleOrTitle: "Vrijwilliger Media & Communicatie",
+    });
+    setSecondPartyPostcode("2286JB");
+    setSelectedDepartment("media");
+    setHoursPerWeek("10-12");
+    setIssueDateGregorian("2026-11-02");
+    setRefNumber("SGN-VOL-2026-0211");
+  };
 
   // Custom Content
   const [customSubject, setCustomSubject] = useState<string>("تطوع في أنشطة الإرشاد القانوني والترجمة للجالية");
@@ -289,6 +316,18 @@ export default function DocumentsGeneratorPage() {
                 </select>
               </div>
             </div>
+
+            {/* Quick Standard Model Button (Maher Aslan PDF Template) */}
+            <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={handleLoadMaherAslanSample}
+                className="w-full py-2.5 px-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30 text-xs font-bold flex items-center justify-center gap-2 transition-colors shadow-xs"
+              >
+                <FileCheck className="w-4 h-4 text-emerald-600" />
+                <span>تحميل وتعبئة النموذج المعتمد (ماهر أصلان - Maher Aslan)</span>
+              </button>
+            </div>
           </div>
 
           {/* 3. Document Customization Form */}
@@ -336,10 +375,22 @@ export default function DocumentsGeneratorPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-2">
                 <div>
                   <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                    المدينة بهولندا
+                    الرمز البريدي (Postcode)
+                  </label>
+                  <input
+                    type="text"
+                    value={secondPartyPostcode}
+                    onChange={(e) => setSecondPartyPostcode(e.target.value)}
+                    placeholder="2286JB"
+                    className="w-full text-xs p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                    المدينة (Woonplaats)
                   </label>
                   <input
                     type="text"
@@ -350,7 +401,7 @@ export default function DocumentsGeneratorPage() {
                 </div>
                 <div>
                   <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                    العنوان الكامل
+                    العنوان الكامل (Adres)
                   </label>
                   <input
                     type="text"
@@ -360,6 +411,54 @@ export default function DocumentsGeneratorPage() {
                   />
                 </div>
               </div>
+
+              {selectedTemplateId === "volunteer_agreement" && (
+                <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2">
+                  <label className="text-[11px] font-bold text-slate-800 dark:text-slate-200 block">
+                    القسم / الفريق التطوعي (Afdeling / Team)
+                  </label>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    {VOLUNTEER_DEPARTMENTS.map((dept) => (
+                      <label key={dept.id} className="flex items-center gap-2 cursor-pointer text-slate-700 dark:text-slate-300 font-medium">
+                        <input
+                          type="radio"
+                          name="volunteer-dept"
+                          checked={selectedDepartment === dept.id}
+                          onChange={() => setSelectedDepartment(dept.id)}
+                          className="text-emerald-600 focus:ring-emerald-500"
+                        />
+                        <span>{dept.labelNl} ({dept.labelAr})</span>
+                      </label>
+                    ))}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 pt-2">
+                    <div>
+                      <label className="text-[10.5px] font-bold text-slate-600 dark:text-slate-400 block mb-1">
+                        ساعات التطوع أسبوعياً
+                      </label>
+                      <input
+                        type="text"
+                        value={hoursPerWeek}
+                        onChange={(e) => setHoursPerWeek(e.target.value)}
+                        placeholder="10-12"
+                        className="w-full text-xs p-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10.5px] font-bold text-slate-600 dark:text-slate-400 block mb-1">
+                        تاريخ البدء (Startdatum)
+                      </label>
+                      <input
+                        type="date"
+                        value={issueDateGregorian}
+                        onChange={(e) => setIssueDateGregorian(e.target.value)}
+                        className="w-full text-xs p-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div>
                 <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 block mb-1">
@@ -479,64 +578,47 @@ export default function DocumentsGeneratorPage() {
               style={{ minHeight: "297mm" }}
             >
               
-              {/* TOP HEADER: Official SGN Letterhead */}
+              {/* TOP HEADER: Official SGN Letterhead (Matching Maher Aslan PDF) */}
               <div>
-                <div className="flex items-start justify-between border-b-2 border-emerald-900 pb-5 mb-6">
-                  {/* Arabic Side */}
-                  <div className="text-right">
-                    <h2 className="text-lg font-black text-emerald-900 tracking-tight">
-                      الجمعية العامة للجالية السورية في هولندا
-                    </h2>
-                    <p className="text-xs font-bold text-slate-700 mt-0.5">
-                      مؤسسة مدنية غير ربحية مسجلة رسمياً في هولندا
-                    </p>
-                    <p className="text-[11px] font-semibold text-slate-500 mt-1">
-                      السجل التجاري الهولندي KvK: <span className="font-mono font-bold text-emerald-800">{SGN_ORGANIZATION_INFO.kvkNumber}</span>
-                    </p>
+                <div className="flex items-center gap-4 border-b border-slate-300 pb-3 mb-3">
+                  {/* Official Circular SGN Seal / Logo on Top-Left */}
+                  <div className="w-16 h-16 shrink-0 relative flex items-center justify-center">
+                    <img
+                      src="/logo.png"
+                      alt="SGN Official Seal"
+                      className="w-full h-full object-contain"
+                      onError={(e) => {
+                        (e.target as HTMLElement).style.display = "none";
+                      }}
+                    />
                   </div>
 
-                  {/* Center Emblem / Flags */}
-                  <div className="flex flex-col items-center justify-center px-4">
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <div className="w-8 h-5 shadow-sm rounded-sm overflow-hidden border border-slate-300">
-                        <SyrianRevolutionFlag className="w-full h-full object-cover" />
-                      </div>
-                      <div className="w-8 h-5 shadow-sm rounded-sm overflow-hidden border border-slate-300">
-                        <DutchFlag className="w-full h-full object-cover" />
-                      </div>
-                    </div>
-                    <span className="text-[9px] font-black text-emerald-900 tracking-widest uppercase">
-                      SGN • NL
-                    </span>
-                  </div>
-
-                  {/* Dutch Side */}
-                  <div className="text-left font-sans">
-                    <h2 className="text-base font-bold text-emerald-950">
-                      Stichting De Syrische Gemeenschap
+                  {/* Header Title in Arabic & Dutch */}
+                  <div className="flex-1 text-center md:text-right">
+                    <h2 className="text-xl font-black text-slate-900 tracking-tight leading-none mb-1">
+                      الجالية السورية في هولندا
                     </h2>
-                    <p className="text-xs font-semibold text-slate-600">
-                      in Nederland (SGN Platform)
-                    </p>
-                    <p className="text-[11px] text-slate-500 mt-1">
-                      Handelsregister KvK: <span className="font-mono font-bold text-slate-800">{SGN_ORGANIZATION_INFO.kvkNumber}</span>
-                    </p>
+                    <h3 className="text-sm font-bold text-slate-700 tracking-wide font-sans">
+                      De Syrische Gemeenschap in Nederland
+                    </h3>
                   </div>
                 </div>
 
-                {/* Metadata Stripe */}
-                <div className="flex items-center justify-between text-xs font-semibold text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-200 mb-6 font-mono">
-                  <div>
-                    <span className="text-slate-500">الرقم المرجعي (Ref): </span>
-                    <strong className="text-emerald-900">{refNumber}</strong>
+                {/* Sub-header Address & Contact Line - Matching Maher Aslan PDF */}
+                <div className="text-[9px] text-slate-600 border-b border-slate-300 pb-2 mb-3 text-center space-y-0.5 font-sans">
+                  <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5">
+                    <span>📍 Laan van Meerdervoort 53-D, 2517 AE Den Haag, Nederland</span>
+                    <span>|</span>
+                    <span>📞 +31 6 24795887</span>
+                    <span>|</span>
+                    <span>✉ info@sy-nl.org</span>
                   </div>
-                  <div>
-                    <span className="text-slate-500">التاريخ (Datum): </span>
-                    <strong className="text-slate-800">{issueDateGregorian} م</strong>
-                  </div>
-                  <div>
-                    <span className="text-slate-500">المقر (Plaats): </span>
-                    <strong className="text-slate-800">{city}, Nederland</strong>
+                  <div className="flex items-center justify-center gap-4 text-[8.5px] font-semibold text-slate-700">
+                    <span>🌐 www.sy-nl.org</span>
+                    <span>|</span>
+                    <span>KvK: 96718943</span>
+                    <span>|</span>
+                    <span className="font-mono text-[8px] text-slate-500">Ref: {refNumber}</span>
                   </div>
                 </div>
 
@@ -556,47 +638,119 @@ export default function DocumentsGeneratorPage() {
                 {/* Dynamic Content Based on Template */}
                 <div className="text-xs text-slate-800 space-y-4 text-justify leading-relaxed">
                   
-                  {/* Parties Identification Box */}
-                  <div className="border border-slate-200 rounded-xl p-3.5 bg-slate-50/50 space-y-2 text-xs">
-                    <p>
-                      <strong>الطرف الأول (Eerste Partij):</strong> {SGN_ORGANIZATION_INFO.nameAr} ({SGN_ORGANIZATION_INFO.nameNl})، المسجلة لدى غرفة التجارة الهولندية برقم KvK: {SGN_ORGANIZATION_INFO.kvkNumber}، ويمثلها قانوناً السيد/ة: <strong>{selectedSignatory.name}</strong> بصفتها: <strong>{selectedSignatory.titleAr}</strong>.
-                    </p>
-                    <p>
-                      <strong>الطرف الثاني (Tweede Partij):</strong> السيد/ة <strong>{secondParty.name}</strong>، المقيم في: <strong>{secondParty.address || "هولندا"}، {secondParty.city || "Nederland"}</strong>، رقم المرجع/الهوية: <strong>{secondParty.idNumber || "مسجل في سجلات الجالية"}</strong>.
-                    </p>
-                  </div>
-
-                  {/* Body Content 1: Volunteer Agreement */}
-                  {selectedTemplateId === "volunteer_agreement" && (
-                    <div className="space-y-3">
-                      <div>
-                        <h4 className="font-bold text-emerald-950 mb-0.5">البند الأول: طبيعة العمل والوضع القانوني (Aard van de Overeenkomst)</h4>
-                        <p>
-                          يقر الطرفان بأن هذه الاتفاقية تخضع للائحة التطوع المعفاة من الضرائب الصادرة عن مصلحة الضرائب الهولندية (Vrijwilligersregeling Belastingdienst) وأحكام المادة 7:610 من القانون المدني الهولندي، وأن هذا العمل تطوعي غير مأجور للمنفعة العامة ولا ينشئ أي علاقة عمل وظيفية أو رابطة تبعية ملزمة (Geen fictieve dienstbetrekking).
+                  {/* Body Content 1: Volunteer Agreement (Exact replica of Maher Aslan Official Model) */}
+                  {selectedTemplateId === "volunteer_agreement" ? (
+                    <div className="space-y-3.5 text-slate-900 font-sans -mt-3">
+                      {/* Black Title Banner - Maher Aslan PDF Style */}
+                      <div className="bg-[#1e293b] text-white py-2 px-3 rounded-xs text-center shadow-xs">
+                        <h2 className="text-sm font-black tracking-widest uppercase">
+                          VRIJWILLIGERSOVEREENKOMST
+                        </h2>
+                        <p className="text-[10px] text-slate-300 font-medium">
+                          De Syrische Gemeenschap in Nederland
                         </p>
                       </div>
 
-                      <div>
-                        <h4 className="font-bold text-emerald-950 mb-0.5">البند الثاني: المهام وساعات العمل (Werkzaamheden en Inzet)</h4>
-                        <p>
-                          يقوم الطرف الثاني بمهام: <strong>{customSubject || "المساهمة في المبادرات والأنشطة التطوعية للجالية"}</strong>، مع مراعاة أن ساعات التطوع اختيارية ومنسقة بين الطرفين بما لا يتعارض مع القوانين المعمول بها.
-                        </p>
+                      {/* Preamble */}
+                      <p className="text-[10px] leading-normal text-slate-700 text-justify">
+                        De Syrische Gemeenschap in Nederland, gevestigd te Laan van Meerdervoort 53-D, 2517 AE Den Haag, Nederland, KvK-nummer: 96718943, hierbij rechtsgeldig vertegenwoordigd door de voorzitter, de heer Abd al-Munem Shaman (hierna: &quot;de organisatie&quot;), en:
+                      </p>
+
+                      {/* Two Side-by-Side Metadata Boxes */}
+                      <div className="grid grid-cols-2 gap-3 text-[9.5px]">
+                        {/* Organization Box */}
+                        <div className="border border-slate-300 rounded p-2.5 bg-slate-50/40 space-y-0.5">
+                          <h4 className="font-bold text-slate-900 text-[10px] border-b border-slate-200 pb-0.5 mb-1">
+                            Gegevens van de organisatie
+                          </h4>
+                          <p><strong className="text-slate-800">Naam:</strong> De Syrische Gemeenschap in Nederland</p>
+                          <p><strong className="text-slate-800">Adres:</strong> Laan van Meerdervoort 53-D, 2517 AE Den Haag</p>
+                          <p><strong className="text-slate-800">KvK-nummer:</strong> 96718943</p>
+                          <p><strong className="text-slate-800">E-mail:</strong> info@sy-nl.org</p>
+                          <p><strong className="text-slate-800">Website:</strong> www.sy-nl.org</p>
+                          <p><strong className="text-slate-800">Vertegenwoordigd door:</strong> Abd al-Munem Shaman (voorzitter)</p>
+                        </div>
+
+                        {/* Volunteer Box */}
+                        <div className="border border-slate-300 rounded p-2.5 bg-slate-50/40 space-y-0.5">
+                          <h4 className="font-bold text-slate-900 text-[10px] border-b border-slate-200 pb-0.5 mb-1">
+                            Gegevens van de vrijwilliger
+                          </h4>
+                          <p><strong className="text-slate-800">Naam:</strong> {secondParty.name}</p>
+                          <p><strong className="text-slate-800">Adres:</strong> {secondParty.address || "Johanna Westerdijkstraat 14"}</p>
+                          <p><strong className="text-slate-800">Postcode en woonplaats:</strong> {secondPartyPostcode || "2286JB"} {secondParty.city || "Rijswijk"}</p>
+                          <p><strong className="text-slate-800">E-mail:</strong> {secondParty.email || "mahernet88@gmail.com"}</p>
+                          <p><strong className="text-slate-800">Telefoonnummer:</strong> {secondParty.phone || "0641173391"}</p>
+                        </div>
                       </div>
 
-                      <div>
-                        <h4 className="font-bold text-emerald-950 mb-0.5">البند الثالث: التعويض والتأمين (Onkosten en Verzekering)</h4>
-                        <p>
-                          يتمتع المتطوع بتغطية التأمين البلدي للعمل التطوعي (Vrijwilligerspolis) المعمول به عبر البلديات الهولندية (VNG) أثناء تأدية المهام، ويحق له استرداد نفقات السفر والمصاريف الفعلية الضرورية المثبتة بإيصالات رسمية وفق السقف القانوني المعفى لمصلحة الضرائب.
-                        </p>
+                      {/* Afdeling / Team and Hours row */}
+                      <div className="border border-slate-300 rounded p-2 bg-slate-50/30 text-[9.5px] space-y-1">
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                          <span className="font-bold text-slate-800">Afdeling / Team:</span>
+                          {VOLUNTEER_DEPARTMENTS.map((dept) => (
+                            <span key={dept.id} className="inline-flex items-center gap-1 text-slate-700">
+                              <span className={`w-3 h-3 border border-slate-400 rounded-2xs inline-flex items-center justify-center text-[8px] font-bold ${selectedDepartment === dept.id ? "bg-slate-800 text-white" : "bg-white"}`}>
+                                {selectedDepartment === dept.id ? "✓" : ""}
+                              </span>
+                              <span>{dept.labelNl}</span>
+                            </span>
+                          ))}
+                        </div>
+                        <div className="flex items-center justify-between pt-0.5 border-t border-slate-200 text-slate-700">
+                          <span><strong>Startdatum:</strong> {issueDateGregorian}</span>
+                          <span>|</span>
+                          <span><strong>Aantal uren per week:</strong> {hoursPerWeek} uur</span>
+                        </div>
                       </div>
 
-                      <div>
-                        <h4 className="font-bold text-emerald-950 mb-0.5">البند الرابع: السرية والإنهاء (Geheimhouding en Beëindiging)</h4>
-                        <p>
-                          يلتزم الطرف الثاني بالسرية التامة لبيانات الأعضاء والملفات المنصوص عليها بلائحة AVG، ويحق لكلا الطرفين إنهاء هذا التعاقد التطوعي في أي وقت وبإشعار شفهي أو خطي دون ترتيب أي تعويضات مالية.
-                        </p>
+                      <p className="text-[9.5px] font-bold text-slate-800 pt-0.5">
+                        Zijn het volgende overeengekomen:
+                      </p>
+
+                      {/* The 9 Articles in 2-Column Grid */}
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-[8.5px] leading-tight text-justify">
+                        {/* Column 1: Articles 1-4 */}
+                        <div className="space-y-1.5">
+                          {OFFICIAL_VOLUNTEER_ARTICLES.slice(0, 4).map((art) => (
+                            <div key={art.number} className="space-y-0.5">
+                              <h5 className="font-bold text-slate-900 border-b border-slate-200 pb-0.2">
+                                {art.titleNl}
+                              </h5>
+                              {art.paragraphsNl.map((p, idx) => (
+                                <p key={idx} className="text-slate-700">{p}</p>
+                              ))}
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Column 2: Articles 5-9 */}
+                        <div className="space-y-1.5">
+                          {OFFICIAL_VOLUNTEER_ARTICLES.slice(4).map((art) => (
+                            <div key={art.number} className="space-y-0.5">
+                              <h5 className="font-bold text-slate-900 border-b border-slate-200 pb-0.2">
+                                {art.titleNl}
+                              </h5>
+                              {art.paragraphsNl.map((p, idx) => (
+                                <p key={idx} className="text-slate-700">{p}</p>
+                              ))}
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
+                  ) : (
+                    <>
+                      {/* Parties Identification Box for other templates */}
+                      <div className="border border-slate-200 rounded-xl p-3.5 bg-slate-50/50 space-y-2 text-xs">
+                        <p>
+                          <strong>الطرف الأول (Eerste Partij):</strong> {SGN_ORGANIZATION_INFO.nameAr} ({SGN_ORGANIZATION_INFO.nameNl})، المسجلة لدى غرفة التجارة الهولندية برقم KvK: {SGN_ORGANIZATION_INFO.kvkNumber}، ويمثلها قانوناً السيد/ة: <strong>{selectedSignatory.name}</strong> بصفتها: <strong>{selectedSignatory.titleAr}</strong>.
+                        </p>
+                        <p>
+                          <strong>الطرف الثاني (Tweede Partij):</strong> السيد/ة <strong>{secondParty.name}</strong>، المقيم في: <strong>{secondParty.address || "هولندا"}، {secondParty.city || "Nederland"}</strong>، رقم المرجع/الهوية: <strong>{secondParty.idNumber || "مسجل في سجلات الجالية"}</strong>.
+                        </p>
+                      </div>
+                    </>
                   )}
 
                   {/* Body Content 2: Membership Application */}
@@ -720,78 +874,148 @@ export default function DocumentsGeneratorPage() {
               </div>
 
               {/* BOTTOM SECTION: Signatures, Stamp & QR Verification */}
-              <div className="mt-8 pt-6 border-t border-slate-200">
-                <div className="grid grid-cols-3 gap-4 items-end text-xs">
-                  
-                  {/* Left: Second Party Signature */}
-                  <div className="text-center space-y-8">
-                    <span className="font-bold text-slate-700 block">
-                      توقيع الطرف الثاني / المستفيد<br />
-                      <span className="text-[10px] text-slate-500 font-sans font-normal">Handtekening Tweede Partij</span>
-                    </span>
-                    <div className="border-b border-dashed border-slate-400 w-32 mx-auto" />
-                    <span className="text-[11px] font-bold text-slate-800 block">
-                      {secondParty.name}
-                    </span>
-                  </div>
+              <div className="mt-6 pt-4 border-t border-slate-300">
+                {selectedTemplateId === "volunteer_agreement" ? (
+                  <div className="space-y-4">
+                    <p className="text-[10px] font-bold text-slate-800">
+                      Aldus overeengekomen en in tweevoud ondertekend:
+                    </p>
 
-                  {/* Center: Official Stamp & QR Code */}
-                  <div className="flex flex-col items-center justify-center">
-                    {includeSeal && (
-                      <div className="w-24 h-24 rounded-full border-2 border-emerald-800 border-dashed flex flex-col items-center justify-center text-center p-1 relative shadow-inner bg-emerald-50/20">
-                        <span className="text-[7px] font-black text-emerald-950 uppercase tracking-widest">
-                          ★ SGN NEDERLAND ★
-                        </span>
-                        <div className="my-0.5">
-                          <Stamp className="w-6 h-6 text-emerald-800 opacity-80" />
+                    <div className="grid grid-cols-2 gap-8 items-start text-xs font-sans">
+                      {/* Left: Organization (Voorzitter) */}
+                      <div className="space-y-2">
+                        <div>
+                          <strong className="block text-slate-900 text-[11px]">
+                            Namens de Syrische Gemeenschap in Nederland
+                          </strong>
+                          <span className="text-[10.5px] font-bold text-slate-800 block">
+                            {selectedSignatory.name}
+                          </span>
+                          <span className="text-[9.5px] text-slate-600 block">
+                            {selectedSignatory.titleNl || "Voorzitter"}
+                          </span>
                         </div>
-                        <span className="text-[8px] font-black text-emerald-900 leading-tight">
-                          الجالية السورية في هولندا<br />
-                          الختم الرسمي المعتمد
-                        </span>
-                        <span className="text-[6.5px] font-mono text-emerald-700 mt-0.5">
-                          KvK: 96718943
-                        </span>
-                      </div>
-                    )}
 
-                    {includeQr && (
-                      <div className="mt-2 text-center">
-                        <div className="w-12 h-12 border border-slate-300 rounded p-1 bg-white mx-auto shadow-xs flex items-center justify-center">
-                          <QrCode className="w-full h-full text-slate-800" />
+                        <div className="pt-2 flex items-center gap-4">
+                          <span className="text-[10px] font-bold text-slate-700">Handtekening:</span>
+                          <div className="relative">
+                            <div className="border-b border-dashed border-slate-400 w-28 h-6" />
+                            {includeSeal && (
+                              <div className="absolute -top-4 left-4 w-20 h-20 pointer-events-none opacity-90">
+                                <img
+                                  src="/logo.png"
+                                  alt="Official Stamp"
+                                  className="w-full h-full object-contain filter drop-shadow-xs"
+                                  onError={(e) => {
+                                    (e.target as HTMLElement).style.display = "none";
+                                  }}
+                                />
+                              </div>
+                            )}
+                          </div>
                         </div>
-                        <span className="text-[8px] font-mono text-slate-400 block mt-0.5">
-                          تحقق رقمي فوري
-                        </span>
                       </div>
-                    )}
-                  </div>
 
-                  {/* Right: Board Representative Signature */}
-                  <div className="text-center space-y-8">
-                    <span className="font-bold text-emerald-950 block">
-                      عن مجلس إدارة الجالية<br />
-                      <span className="text-[10px] text-slate-500 font-sans font-normal">Namens het Bestuur SGN</span>
-                    </span>
-                    <div className="border-b border-dashed border-emerald-800 w-32 mx-auto" />
-                    <div className="text-[11px] font-bold text-emerald-900">
-                      <span>{selectedSignatory.name}</span>
-                      <span className="block text-[9.5px] font-medium text-slate-600">
-                        {selectedSignatory.titleAr}
-                      </span>
+                      {/* Right: Volunteer */}
+                      <div className="space-y-2">
+                        <div>
+                          <strong className="block text-slate-900 text-[11px]">
+                            De vrijwilliger
+                          </strong>
+                          <span className="text-[10.5px] font-bold text-slate-800 block">
+                            Naam: {secondParty.name}
+                          </span>
+                          <span className="text-[9.5px] text-slate-600 block">
+                            Datum: {issueDateGregorian}
+                          </span>
+                        </div>
+
+                        <div className="pt-2 flex items-center gap-4">
+                          <span className="text-[10px] font-bold text-slate-700">Handtekening:</span>
+                          <div className="border-b border-dashed border-slate-400 w-28 h-6" />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Official Footer */}
+                    <div className="mt-4 pt-2 border-t border-slate-300 text-center text-[9px] text-slate-600 font-sans">
+                      <span>De Syrische Gemeenschap in Nederland • www.sy-nl.org • info@sy-nl.org</span>
                     </div>
                   </div>
-                </div>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-3 gap-4 items-end text-xs">
+                      {/* Left: Second Party Signature */}
+                      <div className="text-center space-y-8">
+                        <span className="font-bold text-slate-700 block">
+                          توقيع الطرف الثاني / المستفيد<br />
+                          <span className="text-[10px] text-slate-500 font-sans font-normal">Handtekening Tweede Partij</span>
+                        </span>
+                        <div className="border-b border-dashed border-slate-400 w-32 mx-auto" />
+                        <span className="text-[11px] font-bold text-slate-800 block">
+                          {secondParty.name}
+                        </span>
+                      </div>
 
-                {/* Footer disclaimer */}
-                <div className="mt-6 pt-3 border-t border-slate-200 flex items-center justify-between text-[9px] text-slate-500 font-sans">
-                  <span>
-                    Stichting De Syrische Gemeenschap in Nederland • KvK: 96718943 • {SGN_ORGANIZATION_INFO.officialWebsite}
-                  </span>
-                  <span>
-                    Conform Boek 2 Burgerlijk Wetboek, Vrijwilligersregeling en AVG Privacywetgeving
-                  </span>
-                </div>
+                      {/* Center: Official Stamp & QR Code */}
+                      <div className="flex flex-col items-center justify-center">
+                        {includeSeal && (
+                          <div className="w-24 h-24 rounded-full border-2 border-emerald-800 border-dashed flex flex-col items-center justify-center text-center p-1 relative shadow-inner bg-emerald-50/20">
+                            <span className="text-[7px] font-black text-emerald-950 uppercase tracking-widest">
+                              ★ SGN NEDERLAND ★
+                            </span>
+                            <div className="my-0.5">
+                              <Stamp className="w-6 h-6 text-emerald-800 opacity-80" />
+                            </div>
+                            <span className="text-[8px] font-black text-emerald-900 leading-tight">
+                              الجالية السورية في هولندا<br />
+                              الختم الرسمي المعتمد
+                            </span>
+                            <span className="text-[6.5px] font-mono text-emerald-700 mt-0.5">
+                              KvK: 96718943
+                            </span>
+                          </div>
+                        )}
+
+                        {includeQr && (
+                          <div className="mt-2 text-center">
+                            <div className="w-12 h-12 border border-slate-300 rounded p-1 bg-white mx-auto shadow-xs flex items-center justify-center">
+                              <QrCode className="w-full h-full text-slate-800" />
+                            </div>
+                            <span className="text-[8px] font-mono text-slate-400 block mt-0.5">
+                              تحقق رقمي فوري
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Right: Board Representative Signature */}
+                      <div className="text-center space-y-8">
+                        <span className="font-bold text-emerald-950 block">
+                          عن مجلس إدارة الجالية<br />
+                          <span className="text-[10px] text-slate-500 font-sans font-normal">Namens het Bestuur SGN</span>
+                        </span>
+                        <div className="border-b border-dashed border-emerald-800 w-32 mx-auto" />
+                        <div className="text-[11px] font-bold text-emerald-900">
+                          <span>{selectedSignatory.name}</span>
+                          <span className="block text-[9.5px] font-medium text-slate-600">
+                            {selectedSignatory.titleAr}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Footer disclaimer */}
+                    <div className="mt-6 pt-3 border-t border-slate-200 flex items-center justify-between text-[9px] text-slate-500 font-sans">
+                      <span>
+                        Stichting De Syrische Gemeenschap in Nederland • KvK: 96718943 • {SGN_ORGANIZATION_INFO.officialWebsite}
+                      </span>
+                      <span>
+                        Conform Boek 2 Burgerlijk Wetboek, Vrijwilligersregeling en AVG Privacywetgeving
+                      </span>
+                    </div>
+                  </>
+                )}
               </div>
 
             </div>
