@@ -30,6 +30,9 @@ vercel-*.txt
 # Environment variables
 .env*.local
 
+# Vercel CLI
+.vercel/
+
 # TypeScript cache
 *.tsbuildinfo
 
