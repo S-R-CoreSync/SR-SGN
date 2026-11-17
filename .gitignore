@@ -17,9 +17,6 @@ Antigravity/
 *.db-journal
 *.db.bak
 prisma/dev-check.db
-# ⚠️ استثناء ضروري: نشر الزبون على Vercel يعمل بـ SQLite محلي (بدون Turso)
-# حذف هذا الملف من المستودع يكسر قاعدة بيانات الإنتاج (خطأ 503)
-!prisma/dev.db
 
 # Log and dump files
 build-log*.txt
