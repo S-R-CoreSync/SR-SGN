@@ -104,6 +104,8 @@ This changes `mobile/constants/config.ts` to use `https://sgn-drab.vercel.app`.
 3. `npm run i18n:check` — يمنع إضافة نصوص عربية جديدة (خط أساس + ratchet)
 4. Verify new pages have nav links in `top-bar.tsx`, `site-header.tsx`, `footer`
 
+> ⚠️ **Node.js version**: المشروع يتطلب **Node 22 LTS**. `.nvmrc` يحتوي `22`. على Windows (nvm-windows): `nvm use 22.22.3` (أو `nvm use 22`). **لا تستخدم** Node v27 alpha (موجود في `C:\Program Files\nodejs`) — يسبب فشل build. CI يستخدم Node 22 (`.github/workflows/ci.yml`).
+
 > ⚠️ **مهم — مسار المشروع يحتوي على الرمز `&`:**
 > الأمر `npm run dev` يفشل داخل `cmd` لأن `node_modules/.bin/next.cmd` لا يتعامل مع `&`.
 > استخدم بدلاً منه:
