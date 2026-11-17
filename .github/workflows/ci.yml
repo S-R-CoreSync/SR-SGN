@@ -63,7 +63,8 @@ jobs:
         run: npm run i18n:check
 
       - name: تهيئة قاعدة بيانات الاختبار
-        run: npx prisma db push --accept-data-loss --skip-generate
+        # ملاحظة: Prisma v7 أزال الخيار --skip-generate
+        run: npx prisma db push --accept-data-loss
 
       - name: اختبارات الوحدة (Vitest)
         run: npm run test:run
