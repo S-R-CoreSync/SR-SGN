@@ -37,6 +37,7 @@
   },
   "devDependencies": {
     "@types/react": "~19.1.10",
+    "tsx": "^4.23.15",
     "typescript": "^5.3.0"
   },
   "private": true
