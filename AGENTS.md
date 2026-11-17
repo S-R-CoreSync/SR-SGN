@@ -75,12 +75,12 @@ Before building the mobile app for production:
 cd mobile && npm run set:prod
 ```
 This changes `mobile/constants/config.ts` to use `https://sgn-drab.vercel.app`.
-- `npm run set:dev` → switches back to `http://localhost:3001`
+- `npm run set:dev` → switches back to `http://localhost:3000`
 - The `build:android` / `build:ios` / `build:web` scripts run `set:prod` automatically.
 
 ## 🌐 i18n Rule
 
-- **Web i18n** → `src/messages/{ar,en,nl}.json` (600+ keys, 40+ namespaces)
+- **Web i18n** → `messages/{ar,en,nl}.json` (600+ keys, 40+ namespaces)
 - **Mobile i18n** → `mobile/i18n/{ar,en,nl}.json` (60+ keys, 12 namespaces)
 - **Shared keys** must exist in BOTH web and mobile i18n files.
 - **New feature** → add i18n keys to web AND mobile message files.
@@ -97,8 +97,16 @@ This changes `mobile/constants/config.ts` to use `https://sgn-drab.vercel.app`.
 
 1. `npm run build` — web app compiles (70 routes, 0 TypeScript errors)
 2. `cd mobile && npx tsc --noEmit` — mobile compiles (module-not-found for native libs OK)
-3. `npm run i18n:check` — no hardcoded Arabic in source files
+3. `npm run i18n:check` — يمنع إضافة نصوص عربية جديدة (خط أساس + ratchet)
 4. Verify new pages have nav links in `top-bar.tsx`, `site-header.tsx`, `footer`
+
+> ⚠️ **مهم — مسار المشروع يحتوي على الرمز `&`:**
+> الأمر `npm run dev` يفشل داخل `cmd` لأن `node_modules/.bin/next.cmd` لا يتعامل مع `&`.
+> استخدم بدلاً منه:
+> ```bat
+> node "node_modules\next\dist\bin\next" dev -p 3000
+> ```
+> أو شغّل `scripts\windows\start-dev-environment.bat` / `restart-dev.bat`.
 
 ## 🔄 SGN Workflow — من فكرة إلى نشر
 
@@ -139,7 +147,7 @@ This changes `mobile/constants/config.ts` to use `https://sgn-drab.vercel.app`.
 - **API i18n**: `tReq(req, key)` or `getApiMessage(locale, key, vars)` — NEVER hardcoded Arabic
 - **Hydration**: `suppressHydrationWarning` + `mounted` state for client-only values (theme, etc.)
 - **Responsive**: RTL-first for Arabic, LTR for English/Dutch
-- **Ports**: Web dev = `:3000` (Experimental/Testing), Web prod = `:3001`, Mobile dev = `http://localhost:3000/api`
+- **Ports**: Web dev = `:3000`, Web prod (محلياً) = `:3000` (Docker = `:3001`), Mobile dev = `http://localhost:3000/api`
 - **AI Chatbot**: `POST /api/chat/ai` — uses Ollama (`qwen2.5:7b`, local); system prompt defines assistant as Syrian community expert; rate-limited (30 msg/min); saves to `ChatAISession` + `ChatAIMessage` tables
 - **AI Switch (Gemini → Ollama / Anthropic)**: All AI features now default to **Ollama** (`qwen2.5:7b`) locally. In production, the system supports **Anthropic (Claude)** via Vercel AI Gateway or **OpenAI**. Configure via `AI_PROVIDER`, `ANTHROPIC_BASE_URL`, and `ANTHROPIC_CUSTOM_HEADERS`.
 - **Ollama Models**: `ollama pull qwen2.5:7b` (~4.7GB, excellent Arabic) for text; `ollama pull llava:7b` (~4.5GB) for vision (ID extraction). Must be running (`ollama serve`) before using any AI features.

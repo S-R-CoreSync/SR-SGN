@@ -1,70 +1,76 @@
 @echo off
 chcp 65001 > nul
 setlocal enabledelayedexpansion
-title Automated Git Sync and Vercel Deploy (SGN)
+title SGN - مزامنة Git ونشر Vercel
+
 cd /d "%~dp0..\.."
+set "ROOT=%cd%"
+set "REMOTE_URL=https://github.com/S-R-CoreSync/SR-SGN.git"
+set "CLIENT_URL=https://sgn-drab.vercel.app"
 
 echo =======================================================
-echo   AUTOMATED GIT SYNC and VERCEL DEPLOY (SGN)
+echo   مزامنة Git التلقائية والنشر على Vercel (SGN)
 echo =======================================================
 echo.
 
-:: Create and update desktop shortcuts
-powershell -Command "$ws = New-Object -ComObject WScript.Shell; $desktop = [System.IO.Path]::Combine([Environment]::GetFolderPath('Desktop'), 'Git Auto Sync.lnk'); $s = $ws.CreateShortcut($desktop); $s.TargetPath = '%~f0'; $s.WorkingDirectory = '%~dp0'; $s.Save()" 2>nul
-powershell -Command "$ws = New-Object -ComObject WScript.Shell; $desktop = [System.IO.Path]::Combine([Environment]::GetFolderPath('Desktop'), 'Start SGN Server.lnk'); $vbs = [System.IO.Path]::Combine('%~dp0', 'تشغيل.vbs'); $s = $ws.CreateShortcut($desktop); $s.TargetPath = $vbs; $s.WorkingDirectory = '%~dp0'; $s.Save()" 2>nul
-powershell -Command "$ws = New-Object -ComObject WScript.Shell; $desktop = [System.IO.Path]::Combine([Environment]::GetFolderPath('Desktop'), 'AI Reclassify News.lnk'); $bat = [System.IO.Path]::Combine('%~dp0', 'run-reclassify.bat'); $s = $ws.CreateShortcut($desktop); $s.TargetPath = $bat; $s.WorkingDirectory = '%~dp0'; $s.Save()" 2>nul
+:: إنشاء اختصارات سطح المكتب (اختياري، يفشل بصمت)
+powershell -NoProfile -Command "$ws = New-Object -ComObject WScript.Shell; $d = [Environment]::GetFolderPath('Desktop'); foreach ($x in @(@('Git Auto Sync.lnk','%~f0'), @('Start SGN Server.lnk','%~dp0start-server.vbs'))) { $s = $ws.CreateShortcut((Join-Path $d $x[0])); $s.TargetPath = $x[1]; $s.WorkingDirectory = '%~dp0'; $s.Save() }" 2>nul
 
-:: 1. Sync SGN (Child)
-echo [1/3] Syncing SGN repository...
-echo Checking and correcting SGN repository remote URL...
-git remote get-url origin 2>nul | findstr "CastleStrangers1979" >nul
-if !errorlevel! equ 0 (
-    echo - Correcting SGN origin URL to CastleStrangers...
-    git remote set-url origin https://github.com/S-R-CoreSync/SR-SGN.git
+:: 1) التأكد من المستودع الصحيح
+echo [1/4] التحقق من مستودع Git...
+set "CURRENT_REMOTE="
+for /f "delims=" %%u in ('git remote get-url origin 2^>nul') do set "CURRENT_REMOTE=%%u"
+if /i not "!CURRENT_REMOTE!"=="!REMOTE_URL!" (
+    echo   - تصحيح رابط المستودع إلى S-R-CoreSync/SR-SGN ...
+    git remote set-url origin "%REMOTE_URL%"
+) else (
+    echo   - رابط المستودع صحيح.
 )
 
-echo Untracking database, log, environment, and cache files in SGN...
-git rm --cached -f .env .env.local prisma/dev.db prisma/dev.db-journal pm2-error.log pm2-out.log tsconfig.tsbuildinfo git-repair-log.txt status.txt status-parent.txt check-status.bat cmd_output.log dev-server*.log dev-srv*.log verification-report.txt >nul 2>&1
-
-git add .
+:: 2) إضافة ورفع التعديلات
+echo.
+echo [2/4] فحص التعديلات المحلية...
+git add -A
 git diff-index --quiet HEAD --
 if %errorlevel% neq 0 (
-    echo - Changes detected in SGN. Committing...
-    git commit -m "auto: commit SGN changes"
+    echo   - توجد تعديلات، جاري إنشاء commit...
+    git commit -m "chore: مزامنة تلقائية لتحديثات المشروع"
 ) else (
-    echo - SGN repository is already clean.
+    echo   - لا توجد تعديلات جديدة.
 )
-echo - Pulling latest SGN changes...
-git pull origin main --rebase
+
+echo.
+echo [3/4] سحب أحدث التغييرات من الفرع main...
+git pull origin main --rebase --autostash
 if %errorlevel% neq 0 (
-    echo [!] WARNING: SGN pull/rebase failed. Aborting and trying auto-resolve (theirs)...
+    echo [!] فشل السحب التلقائي. جاري إلغاء rebase والمحاولة بدمج تلقائي...
     git rebase --abort 2>nul
-    git pull origin main --rebase -X theirs
+    git pull origin main --no-rebase -X ours
 )
-echo - Pushing SGN changes to origin...
+
+echo.
+echo [4/4] رفع التعديلات إلى GitHub...
 git push origin main
 if %errorlevel% neq 0 (
-    echo [!] ERROR: Failed to push SGN changes.
-    set /p force_sgn="Do you want to FORCE PUSH the SGN repository to GitHub? (y/n): "
-    if /i "!force_sgn!"=="y" (
-        echo - Force pushing SGN repository...
-        git push origin main --force
-    )
+    echo [!] تحذير: فشل الرفع. تحقق من الاتصال أو الصلاحيات.
+    echo     لن يتم تنفيذ force push تلقائياً حفاظاً على سلامة المستودع.
+    goto :deploy
 )
 
-:: 2. Deploy to Vercel
+:deploy
 echo.
-echo [2/2] Deploying directly to Vercel staging...
-call vercel --prod --yes
+echo [*] نشر النسخة الإنتاجية على Vercel...
+where vercel >nul 2>&1
+if %errorlevel% equ 0 (
+    call vercel --prod --yes
+) else (
+    echo   - أداة Vercel غير مثبتة، سيتم الاعتماد على النشر التلقائي من GitHub.
+)
 
-:: 3. Open Staging Site Preview
-echo.
-echo - Opening Staging/Preview website in your browser...
-start https://sgn-drab.vercel.app
-
-:: 4. Verification & Auto Exit
 echo.
 echo =======================================================
-echo   SUCCESS: SGN repository synced, deployed, and clean!
+echo   تمت المزامنة بنجاح
+echo   رابط الزبون: %CLIENT_URL%
 echo =======================================================
+echo.
 timeout /t 10

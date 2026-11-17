@@ -1,14 +1,17 @@
 @echo off
-title SGN News Re-classification - SGN
+chcp 65001 > nul
+title SGN - إعادة تصنيف الأخبار بالذكاء الاصطناعي
+
 echo =======================================================
-echo   SGN NEWS RE-CLASSIFICATION WITH LOCAL OLLAMA AI
-echo   Running AI re-classification script...
+echo   إعادة تصنيف الأخبار باستخدام Ollama المحلي
 echo =======================================================
 echo.
-cd /d "%~dp0"
-call npm run reclassify
+
+cd /d "%~dp0..\.."
+node node_modules\tsx\dist\cli.mjs scripts\03-reclassify-posts.ts
+
 echo.
 echo =======================================================
-echo   Done!
+echo   تم!
 echo =======================================================
 pause

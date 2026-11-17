@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/db";
+import { SITE_URL } from "@/lib/site";
 
 interface Props {
   params: Promise<{ locale: string }>;
@@ -9,7 +10,7 @@ export async function generateMetadata({ params }: Props) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'liveStreams' });
   return {
-    metadataBase: new URL("https://sgn-indol.vercel.app"),
+    metadataBase: new URL(SITE_URL),
     title: t('title'),
     description: t('subtitle'),
   };

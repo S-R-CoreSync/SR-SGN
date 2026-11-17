@@ -2,6 +2,7 @@ import { View, Text, ScrollView, TouchableOpacity, Image, Linking, StyleSheet } 
 import { COLORS } from "../constants/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useI18n } from "../lib/i18n-context";
+import { CONFIG } from "../constants/config";
 
 export default function DeveloperProfileScreen() {
   const { t, isRTL } = useI18n();
@@ -38,7 +39,7 @@ export default function DeveloperProfileScreen() {
         <View style={styles.profileHeader}>
           <View style={styles.avatarContainer}>
             <Image
-              source={{ uri: "https://sgn-drab.vercel.app/images/board/Mohammad_Salim_Aziza.png" }}
+              source={{ uri: `${CONFIG.APP_URL}/images/board/Mohammad_Salim_Aziza.png` }}
               style={styles.avatar}
               defaultSource={require("../assets/icon.png")}
             />
@@ -72,7 +73,7 @@ export default function DeveloperProfileScreen() {
         <View style={[styles.profileHeader, { backgroundColor: "#c8a84e" }]}>
           <View style={styles.avatarContainer}>
             <Image
-              source={{ uri: "https://sgn-drab.vercel.app/images/board/raed_kaakeh.png" }}
+              source={{ uri: `${CONFIG.APP_URL}/images/board/raed_kaakeh.png` }}
               style={styles.avatar}
               defaultSource={require("../assets/icon.png")}
             />

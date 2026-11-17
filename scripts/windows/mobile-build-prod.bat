@@ -1,59 +1,62 @@
 @echo off
 chcp 65001 > nul
 setlocal enabledelayedexpansion
-title SGN Mobile Build & Deploy Tool
+title SGN - بناء تطبيق الموبايل ونشره
+
 cd /d "%~dp0..\..\mobile"
+set "MOBILE_DIR=%cd%"
+set "ROOT=%cd%\.."
 
 echo =======================================================
-echo        أداة بناء تطبيق الموبايل ونشره للزبون (SGN)
+echo        بناء تطبيق الموبايل ونشره (SGN)
 echo =======================================================
 echo.
 
-:: 1. تهيئة بيئة الإنتاج للموبايل
-echo [1/3] جاري تهيئة بيئة الإنتاج (Production Environment)...
-call npm run set:prod
+:: 1) ضبط بيئة الإنتاج
+echo [1/3] ضبط بيئة الإنتاج (Production Environment)...
+node "%ROOT%\node_modules\tsx\dist\cli.mjs" scripts\set-env.ts prod
 if %errorlevel% neq 0 (
-    echo [!] خطأ: فشل إعداد بيئة الإنتاج. يرجى التأكد من تثبيت التبعيات.
+    echo [!] خطأ: تعذّر ضبط بيئة الإنتاج. تحقق من mobile\constants\config.ts
     pause
     exit /b 1
 )
-echo   [✓] تم ضبط روابط الـ API على: https://sgn-drab.vercel.app
+echo   [OK] تم ضبط روابط الـ API على: https://sgn-drab.vercel.app
 echo.
 
-:: 2. اختيار منصة البناء
-echo [2/3] الرجاء اختيار المنصة التي ترغب في بنائها:
+:: 2) اختيار المنصة
+echo [2/3] اختر منصة البناء:
 echo   1. أندرويد (Android APK/Bundle)
 echo   2. آيفون (iOS IPA)
-echo   3. الويب للموبايل (Mobile Web)
+echo   3. ويب الموبايل (Mobile Web)
 echo.
-set /p platform_choice="أدخل رقم الاختيار (1-3): "
+set /p platform_choice="أدخل رقم الخيار (1-3): "
 
 if "%platform_choice%"=="1" (
-    echo جاري البدء ببناء الأندرويد باستخدام EAS...
-    call npm run build:android
+    echo جاري بناء حزمة أندرويد عبر EAS...
+    call npx eas-cli build --platform android
 ) else if "%platform_choice%"=="2" (
-    echo جاري البدء ببناء الآيفون باستخدام EAS...
-    call npm run build:ios
+    echo جاري بناء حزمة آيفون عبر EAS...
+    call npx eas-cli build --platform ios
 ) else if "%platform_choice%"=="3" (
-    echo جاري البدء بتصدير نسخة الويب للموبايل...
-    call npm run build:web
+    echo جاري تصدير نسخة الويب...
+    node node_modules\expo\bin\cli export --platform web
 ) else (
-    echo [!] اختيار غير صحيح.
+    echo [!] خيار غير صالح.
     pause
     exit /b 1
 )
 echo.
 
-:: 3. مزامنة التغييرات مع المستودع لتوثيق البناء
-echo [3/3] جاري مزامنة تعديلات البيئة مع المستودع العام...
-cd /d "%~dp0..\.."
+:: 3) حفظ إعدادات الإنتاج في Git
+echo [3/3] حفظ إعدادات الإنتاج في المستودع...
+cd /d "%ROOT%"
 git add mobile/constants/config.ts
-git commit -m "chore: update mobile config to production and build app"
+git commit -m "chore: تحديث إعدادات الموبايل لبيئة الإنتاج"
 git push origin main
 echo.
 
 echo =======================================================
-echo      تمت عملية التهيئة والبناء والمزامنة بنجاح!
+echo      تم تجهيز نسخة الإنتاج للموبايل بنجاح!
 echo =======================================================
 echo.
 pause

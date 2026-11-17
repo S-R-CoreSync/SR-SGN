@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
 import { getApiMessage } from './api-messages';
+import { SITE_URL } from './site';
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || "smtp.hostinger.com",
@@ -22,14 +23,14 @@ function t(locale: string, key: string, vars?: Record<string, string>) {
 export async function sendPasswordResetEmail(email: string, token: string, locale = 'ar') {
   if (!isConfigured()) return;
   const senderName = fromName || t(locale, 'emailTemplates.senderName');
-  const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password/${token}`;
+  const resetUrl = `${SITE_URL}/reset-password/${token}`;
   await transporter.sendMail({
     from: `"${senderName}" <${fromAddr}>`,
     to: email,
     subject: t(locale, 'emailTemplates.resetPasswordSubject'),
     html: `
       <div style="font-family: Arial; max-width: 480px; margin: auto; padding: 24px; border: 1px solid #e5e7eb; border-radius: 12px;">
-        <img src="${process.env.NEXT_PUBLIC_APP_URL}/logo.png" style="width: 48px; height: 48px;" />
+        <img src="${SITE_URL}/logo.png" style="width: 48px; height: 48px;" />
         <h2 style="color: #1a5632;">${t(locale, 'emailTemplates.resetPasswordHeading')}</h2>
         <p>${t(locale, 'emailTemplates.resetPasswordBody')}</p>
         <a href="${resetUrl}" style="display: inline-block; background: #1a5632; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin: 16px 0;">
@@ -50,7 +51,7 @@ export async function sendMemberConfirmationEmail(email: string | undefined, nam
     subject: t(locale, 'emailTemplates.memberConfirmSubject'),
     html: `
       <div style="font-family: Arial; max-width: 480px; margin: auto; padding: 24px; border: 1px solid #e5e7eb; border-radius: 12px;">
-        <img src="${process.env.NEXT_PUBLIC_APP_URL}/logo.png" style="width: 48px; height: 48px;" />
+        <img src="${SITE_URL}/logo.png" style="width: 48px; height: 48px;" />
         <h2 style="color: #1a5632;">${t(locale, 'emailTemplates.memberConfirmGreeting', { name: nameAr })}</h2>
         <p>${t(locale, 'emailTemplates.memberConfirmBody')}</p>
         <p style="color: #6b7280; font-size: 12px; margin-top: 24px;">${t(locale, 'emailTemplates.memberConfirmFooter')}</p>
@@ -62,7 +63,7 @@ export async function sendMemberConfirmationEmail(email: string | undefined, nam
 export async function sendAdminNotificationEmail(nameAr: string, nameNl: string, whatsapp: string, originCity: string, locale = 'ar') {
   if (!isConfigured()) return;
   const senderName = fromName || t(locale, 'emailTemplates.senderName');
-  const dashboardUrl = `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/members`;
+  const dashboardUrl = `${SITE_URL}/dashboard/members`;
   if (!fromAddr) return;
   await transporter.sendMail({
     from: `"${senderName}" <${fromAddr}>`,
@@ -96,7 +97,7 @@ export async function sendStatusChangeEmail(email: string, nameAr: string, statu
   const body = isAccepted
     ? t(locale, 'emailTemplates.statusAcceptedBody')
     : t(locale, 'emailTemplates.statusRejectedBody');
-  const profileUrl = `${process.env.NEXT_PUBLIC_APP_URL}/member/${memberId}`;
+  const profileUrl = `${SITE_URL}/member/${memberId}`;
 
   await transporter.sendMail({
     from: `"${senderName}" <${fromAddr}>`,
@@ -104,7 +105,7 @@ export async function sendStatusChangeEmail(email: string, nameAr: string, statu
     subject,
     html: `
       <div style="font-family: Arial; max-width: 480px; margin: auto; padding: 24px; border: 1px solid #e5e7eb; border-radius: 12px;">
-        <img src="${process.env.NEXT_PUBLIC_APP_URL}/logo.png" style="width: 48px; height: 48px;" />
+        <img src="${SITE_URL}/logo.png" style="width: 48px; height: 48px;" />
         <h2 style="color: #1a5632;">${headline}</h2>
         <p>${body}</p>
         ${notes ? `<div style="background: #fef3c7; padding: 12px; border-radius: 8px; margin: 16px 0; color: #92400e; font-size: 13px;"><strong>${t(locale, 'emailTemplates.notesLabel')}</strong> ${notes}</div>` : ""}

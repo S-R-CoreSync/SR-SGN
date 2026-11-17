@@ -1,6 +1,8 @@
 @echo off
+chcp 65001 > nul
+cd /d "%~dp0..\.."
 echo ===================================================
-echo [1/3] Downloading production variables from Vercel...
+echo [1/3] تنزيل متغيرات الإنتاج من Vercel...
 echo ===================================================
 call npx vercel env pull --environment=production .env.production
 

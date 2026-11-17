@@ -1,22 +1,31 @@
 #!/usr/bin/env node
 /**
  * scripts/08-validate-i18n.ts
- * 
- * التحقق من عدم وجود نصوص عربية hardcoded في الكود
- * جميع النصوص يجب أن تمر عبر نظام i18n
- * 
+ *
+ * فحص النصوص العربية المباشرة (hardcoded) في كود الويب.
+ *
+ * يعتمد أسلوب "خط الأساس" (Baseline / Ratchet):
+ *   - لا يمنع وجود دين تقني قديم، لكنه يمنع إضافة نصوص عربية جديدة.
+ *   - عند تحسين ملف (تقليل عدد النصوص) يتم تحديث خط الأساس تلقائياً بالوضع الجديد.
+ *
  * الاستخدام:
- *   npm run i18n:check
- *   npx tsx scripts/08-validate-i18n.ts
+ *   npm run i18n:check              # فحص ومقارنة بخط الأساس (يفشل عند وجود مخالفات جديدة)
+ *   npm run i18n:check -- --report  # عرض كل المواضع
+ *   npm run i18n:check -- --update-baseline  # اعتماد الوضع الحالي كخط أساس
+ *
+ * استثناء سطر من الفحص: أضف التعليق  // i18n-ignore  في نهاية السطر.
  */
 
-import { readFileSync, readdirSync, statSync } from "fs"
-import { join, dirname } from "path"
+import { readFileSync, readdirSync, statSync, writeFileSync, existsSync } from "fs"
+import { join, dirname, relative, sep } from "path"
 import { fileURLToPath } from "url"
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
-const srcDir = join(__dirname, "..", "src")
+const projectRoot = join(__dirname, "..")
+const srcDir = join(projectRoot, "src")
+const baselinePath = join(__dirname, "i18n-baseline.json")
+
 const arabicRegex = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/
 
 interface Issue {
@@ -25,78 +34,160 @@ interface Issue {
   content: string
 }
 
+interface Baseline {
+  generatedAt: string
+  files: Record<string, number>
+}
+
 const issues: Issue[] = []
 
+/** إزالة التعليقات الكتلية والسطرية قبل الفحص */
+function stripComments(source: string): string {
+  // تعليقات كتلية /* ... */
+  let out = source.replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, " "))
+  // تعليقات سطرية // ...
+  out = out.replace(/(^|[^:])\/\/[^\n]*/g, (m, p1) => p1 + " ".repeat(m.length - p1.length))
+  return out
+}
+
 function scanDir(dir: string) {
-  const entries = readdirSync(dir)
-  for (const entry of entries) {
+  for (const entry of readdirSync(dir)) {
     const fullPath = join(dir, entry)
 
-    // تخطي المجلدات المستثناة
-    if (entry === "node_modules" || entry === ".next" || entry === "messages") {
+    if (entry === "node_modules" || entry === ".next" || entry === "messages") continue
+
+    if (statSync(fullPath).isDirectory()) {
+      // تخطي مجلدات الاختبارات
+      if (entry === "__tests__" || entry === "__mocks__" || entry === "tests") continue
+      scanDir(fullPath)
       continue
     }
 
-    if (statSync(fullPath).isDirectory()) {
-      scanDir(fullPath)
-    } else if (/\.(ts|tsx)$/.test(entry) && !fullPath.includes("messages")) {
-      const content = readFileSync(fullPath, "utf-8")
-      const lines = content.split("\n")
+    if (!/\.(ts|tsx)$/.test(entry)) continue
+    if (/\.(test|spec)\.(ts|tsx)$/.test(entry)) continue
 
-      lines.forEach((line, i) => {
-        // تخطي التعليقات والـ console logs
-        if (line.trim().startsWith("//") || line.trim().startsWith("*")) {
-          return
-        }
+    const raw = readFileSync(fullPath, "utf-8")
+    if (!arabicRegex.test(raw)) continue
 
-        if (arabicRegex.test(line)) {
-          issues.push({
-            file: fullPath.replace(srcDir, ""),
-            line: i + 1,
-            content: line.trim().substring(0, 80),
-          })
-        }
+    const withoutComments = stripComments(raw)
+    const lines = raw.split("\n")
+    const codeLines = withoutComments.split("\n")
+
+    lines.forEach((line, i) => {
+      if (!arabicRegex.test(codeLines[i] ?? "")) return
+      const trimmed = line.trim()
+      // تخطي السجلات والتشخيص
+      if (/^console\.(log|warn|error|info|debug)\(/.test(trimmed)) return
+      if (trimmed.includes("i18n-ignore")) return
+
+      issues.push({
+        file: relative(srcDir, fullPath).split(sep).join("/"),
+        line: i + 1,
+        content: trimmed.substring(0, 100),
       })
-    }
+    })
+  }
+}
+
+function countByFile(list: Issue[]): Record<string, number> {
+  const counts: Record<string, number> = {}
+  for (const issue of list) counts[issue.file] = (counts[issue.file] ?? 0) + 1
+  return counts
+}
+
+function loadBaseline(): Baseline | null {
+  if (!existsSync(baselinePath)) return null
+  try {
+    return JSON.parse(readFileSync(baselinePath, "utf-8")) as Baseline
+  } catch {
+    return null
   }
 }
 
 function main() {
-  console.log(`\n╔════════════════════════════════════════════════════════════╗`)
-  console.log(`║  🌍 فحص i18n - البحث عن نصوص عربية مباشرة`)
-  console.log(`╚════════════════════════════════════════════════════════════╝\n`)
+  const args = process.argv.slice(2)
+  const updateBaseline = args.includes("--update-baseline")
+  const reportAll = args.includes("--report")
 
-  console.log(`📁 فحص المجلد: ${srcDir}\n`)
+  console.log(`\n╔════════════════════════════════════════════════════════════╗`)
+  console.log(`║  🌍 فحص i18n — النصوص العربية المباشرة في كود الويب        ║`)
+  console.log(`╚════════════════════════════════════════════════════════════╝\n`)
+  console.log(`📁 المجلد المفحوص: src/\n`)
 
   scanDir(srcDir)
+  const current = countByFile(issues)
 
-  if (issues.length === 0) {
-    console.log(`✅ لا توجد نصوص عربية مباشرة - رائع!\n`)
+  if (updateBaseline) {
+    const baseline: Baseline = {
+      generatedAt: new Date().toISOString(),
+      files: Object.fromEntries(Object.entries(current).sort((a, b) => a[0].localeCompare(b[0]))),
+    }
+    writeFileSync(baselinePath, JSON.stringify(baseline, null, 2) + "\n", "utf-8")
+    console.log(`✅ تم تحديث خط الأساس: ${Object.keys(current).length} ملف / ${issues.length} سطر.\n`)
+    process.exit(0)
+  }
+
+  const baseline = loadBaseline()
+  if (!baseline) {
+    console.log(`⚠️  لا يوجد خط أساس بعد. سيتم إنشاؤه تلقائياً للوضع الحالي.\n`)
+    writeFileSync(
+      baselinePath,
+      JSON.stringify(
+        { generatedAt: new Date().toISOString(), files: Object.fromEntries(Object.entries(current).sort((a, b) => a[0].localeCompare(b[0]))) },
+        null,
+        2
+      ) + "\n",
+      "utf-8"
+    )
+    console.log(`✅ أُنشئ خط الأساس (${issues.length} سطر). من الآن، أي نص عربي جديد سيُرفض.\n`)
+    process.exit(0)
+  }
+
+  // المخالفات الجديدة = زيادة عن خط الأساس لكل ملف + ملفات جديدة
+  const regressions: Array<{ file: string; added: number }> = []
+  for (const [file, count] of Object.entries(current)) {
+    const allowed = baseline.files[file] ?? 0
+    if (count > allowed) regressions.push({ file, added: count - allowed })
+  }
+
+  const improved = Object.entries(baseline.files).filter(
+    ([file, count]) => (current[file] ?? 0) < count
+  )
+  const totalCurrent = issues.length
+  const totalBaseline = Object.values(baseline.files).reduce((a, b) => a + b, 0)
+
+  if (reportAll) {
+    console.log(`📋 كل المواضع الحالية (${totalCurrent}):\n`)
+    for (const issue of issues) {
+      console.log(`  ${issue.file}:${issue.line}`)
+      console.log(`     ${issue.content}`)
+    }
+    console.log("")
+  }
+
+  if (regressions.length === 0) {
+    console.log(`✅ لا توجد نصوص عربية جديدة مضافة.`)
+    console.log(`   الحالي: ${totalCurrent} سطر / خط الأساس: ${totalBaseline} سطر.`)
+    if (improved.length > 0) {
+      console.log(`   👍 تم تحسين ${improved.length} ملف (يمكنك تشغيل --update-baseline لتثبيت التحسن).`)
+    }
     console.log(`${"═".repeat(62)}\n`)
     process.exit(0)
   }
 
-  console.log(`❌ تم العثور على ${issues.length} مشكلة:\n`)
-
-  issues.forEach((issue, i) => {
-    console.log(`${i + 1}. ${issue.file}:${issue.line}`)
-    console.log(`   📝 ${issue.content}...`)
-  })
-
+  console.log(`❌ تمت إضافة نصوص عربية جديدة (${regressions.length} ملف):\n`)
+  for (const { file, added } of regressions) {
+    console.log(`  • ${file}: +${added} سطر`)
+    for (const issue of issues.filter((i) => i.file === file).slice(-added)) {
+      console.log(`      ${issue.line}: ${issue.content}`)
+    }
+  }
   console.log(`\n${"═".repeat(62)}`)
-  console.log(`\n💡 الحل:`)
-  console.log(`   1. استخدم مفاتيح i18n بدلاً من النصوص المباشرة`)
-  console.log(`   2. أضف النصوص إلى ملف الترجمة messages/ar.json`)
-  console.log(`   3. استخدم useTranslations() hook في Components`)
-  console.log(`   4. استخدم getTranslations() في Server Components\n`)
-
-  console.log(`مثال:`)
-  console.log(`   // ❌ خطأ:`)
-  console.log(`   const message = "مرحبا بك";`)
-  console.log(`\n   // ✅ صحيح:`)
-  console.log(`   const t = useTranslations();`)
-  console.log(`   const message = t("hello");\n`)
-
+  console.log(`💡 الحل:`)
+  console.log(`   1. استخدم useTranslations() أو getTranslations() بدلاً من النص المباشر.`)
+  console.log(`   2. أضف المفاتيح إلى messages/{ar,en,nl}.json.`)
+  console.log(`   3. أضف أيضاً المفاتيح المقابلة في mobile/i18n/{ar,en,nl}.json عند الحاجة.`)
+  console.log(`   4. للاستثناءات المشروعة فقط: أضف  // i18n-ignore  في نهاية السطر.\n`)
   process.exit(1)
 }
 

@@ -12,7 +12,8 @@
 // Production URLs — change these when your domain changes
 // ---------------------------------------------------------------------------
 
-const PRODUCTION_API_URL = "https://sgn-drab.vercel.app/api";
+const PRODUCTION_BASE_URL = "https://sgn-drab.vercel.app";
+const PRODUCTION_API_URL = `${PRODUCTION_BASE_URL}/api`;
 const PRODUCTION_WS_URL = "wss://sgn-drab.vercel.app";
 
 // ---------------------------------------------------------------------------
@@ -26,7 +27,11 @@ const IS_PRODUCTION: boolean =
       process.env?.NODE_ENV === "production")) ||
   false;
 
-const DEV_API_BASE = process.env.EXPO_PUBLIC_API_URL || "https://sgn-drab.vercel.app";
+/**
+ * أثناء التطوير نتصل افتراضياً بالخادم المحلي.
+ * على جهاز حقيقي استخدم EXPO_PUBLIC_API_URL=http://<IP-الكمبيوتر>:3000
+ */
+const DEV_API_BASE = process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000";
 
 // ---------------------------------------------------------------------------
 // Exported configuration
@@ -43,7 +48,7 @@ export const CONFIG = {
   WS_URL: IS_PRODUCTION ? PRODUCTION_WS_URL : DEV_API_BASE.replace(/^http/, "ws"),
 
   /** Full app URL for links/share */
-  APP_URL: IS_PRODUCTION ? "https://sgn-drab.vercel.app" : DEV_API_BASE,
+  APP_URL: IS_PRODUCTION ? PRODUCTION_BASE_URL : DEV_API_BASE,
 
   /**
    * Timeout for API requests (ms)

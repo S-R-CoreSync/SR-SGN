@@ -1,37 +1,46 @@
 @echo off
+chcp 65001 > nul
+setlocal enabledelayedexpansion
+title SGN - إعادة تشغيل خادم الإنتاج المحلي (PM2)
+
+cd /d "%~dp0..\.."
+set "ROOT=%cd%"
+
 echo ==============================================
-echo   Cleaning up port 3001 and resetting PM2
+echo   SGN - إعادة تشغيل PM2
 echo ==============================================
 echo.
 
-echo 1. Finding and killing any process on port 3001...
-powershell -Command "Stop-Process -Id (Get-NetTCPConnection -LocalPort 3001 -ErrorAction SilentlyContinue).OwningProcess -Force -ErrorAction SilentlyContinue"
-echo Done.
+echo [1/5] إيقاف أي عملية تستخدم المنفذ 3000...
+powershell -NoProfile -Command "Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }"
+echo   تم.
 
 echo.
-echo 2. Installing new dependencies (including tsx)...
+echo [2/5] تثبيت الاعتماديات...
 call npm install
-echo Done.
+echo   تم.
 
 echo.
-echo 3. Deleting old PM2 configuration...
-call pm2 delete all
-echo Done.
+echo [3/5] حذف إعدادات PM2 القديمة...
+call pm2 delete all 2>nul
+echo   تم.
 
 echo.
-echo 4. Starting PM2 using ecosystem.config.js...
-call pm2 start ecosystem.config.js
-echo Done.
+echo [4/5] تشغيل PM2 من ecosystem.config.js...
+call pm2 start "%ROOT%\ecosystem.config.js"
+echo   تم.
 
 echo.
-echo 5. Saving new PM2 configuration...
+echo [5/5] حفظ إعدادات PM2...
 call pm2 save
-echo Done.
+echo   تم.
 
 echo.
 echo ==============================================
-echo   PM2 successfully reset!
-echo   Web app: http://localhost:3001
-echo   Sync cron: Every hour
+echo   تمت إعادة تشغيل PM2 بنجاح
+echo   موقع الويب: http://localhost:3000
+echo   مزامنة الأخبار: كل ساعة
 echo ==============================================
+echo.
+echo [!] ملاحظة: شغّل أولاً "npm run build" إذا لم تكن نسخة الإنتاج مبنية.
 pause

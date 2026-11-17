@@ -9,9 +9,9 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - name: تشغيل مزامنة الأخبار
+      - name: إرسال أمر المزامنة إلى الموقع الحي
         run: |
-          curl -s -X POST "https://sgn-indol.vercel.app/api/sync" \
+          curl -sS -f -X POST "https://sgn-drab.vercel.app/api/sync" \
             -H "Content-Type: application/json" \
             -H "x-cron-secret: ${{ secrets.CRON_SECRET }}" \
             -d '{}'

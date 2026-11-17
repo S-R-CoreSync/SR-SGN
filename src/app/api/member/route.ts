@@ -6,6 +6,7 @@ import { sendAdminNotificationEmail, sendMemberConfirmationEmail } from "@/lib/e
 import { sendMemberConfirmationWhatsApp, sendAdminNewMemberWhatsApp } from "@/lib/whatsapp";
 import { sendTelegramNotification } from "@/lib/telegram";
 import { getApiMessage } from "@/lib/api-messages";
+import { SITE_URL } from "@/lib/site";
 
 function t(req: Request, key: string, vars?: Record<string, string>) {
   const locale = (req as any).cookies?.get?.('NEXT_LOCALE')?.value || 'ar';
@@ -70,7 +71,7 @@ export async function POST(req: Request) {
     await sendTelegramNotification(
       t(req, 'notification.telegramNewMember', {
         nameAr, nameNl, whatsapp, originCity, nlProvincie, nlCity,
-        url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/members`
+        url: `${SITE_URL}/dashboard/members`
       })
     );
     return NextResponse.json({ message: t(req, 'api.registrationSuccess'), id: member.id });

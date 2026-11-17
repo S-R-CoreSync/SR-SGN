@@ -37,3 +37,6 @@ vercel-*.txt
 OmniRoute/
 openrouter-agent-tui/
 awesome-freellm-apis/
+
+# نسخة قاعدة بيانات مكررة بالخطأ
+prisma/prisma/

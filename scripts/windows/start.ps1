@@ -1,5 +1,5 @@
-Set-Location -LiteralPath $PSScriptRoot
-Write-Host "Starting server on http://localhost:3000 ..." -ForegroundColor Green
+Set-Location -LiteralPath (Split-Path -Parent (Split-Path -Parent $PSScriptRoot))
+Write-Host "تشغيل الخادم على http://localhost:3000 ..." -ForegroundColor Green
 Start-Process "http://localhost:3000"
-npm run dev
-Read-Host "Press Enter to exit"
+node "node_modules/next/dist/bin/next" dev -p 3000 --webpack
+Read-Host "اضغط Enter للخروج"

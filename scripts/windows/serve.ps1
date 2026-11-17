@@ -1,3 +1,10 @@
-param($Port = 3010)
+param(
+    [int]$Port = 3000
+)
+
+$root = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+Set-Location -LiteralPath $root
 $env:NODE_ENV = "production"
-npx next start -p $Port
+
+Write-Host "http://localhost:$Port" -ForegroundColor Green
+node "node_modules/next/dist/bin/next" start -p $Port

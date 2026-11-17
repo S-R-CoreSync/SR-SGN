@@ -1,10 +1,11 @@
 ﻿import { MetadataRoute } from 'next';
 import { prisma } from '@/lib/db';
+import { SITE_URL } from '@/lib/site';
 
 export const dynamic = 'force-dynamic';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = 'https://sgn-indol.vercel.app';
+  const base = SITE_URL;
   const routes = [
     { url: base + '/', lastModified: new Date() },
     { url: base + '/news', lastModified: new Date() },

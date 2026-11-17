@@ -1,23 +1,21 @@
 @echo off
 chcp 65001 > nul
 setlocal enabledelayedexpansion
-title SGN Live News Sync
+title SGN - مزامنة الأخبار الحية (الموقع الحي)
 
 cd /d "%~dp0..\.."
 
 echo ======================================================
-echo   Push Live News (Update Client Site)
+echo   إرسال أمر مزامنة فوري للموقع الحي
 echo ======================================================
 echo.
-echo This tool will send a direct command to the live client
-echo website to fetch and update its own database instantly.
-echo No dashboard login or database keys required.
+echo سيقوم هذا الأمر بجلب الأخبار وتحديث قاعدة بيانات الموقع الحي.
 echo.
 
-call npx tsx scripts/09-sync-live.ts
+node node_modules\tsx\dist\cli.mjs scripts\09-sync-live.ts
 
 echo.
 echo ======================================================
-echo Done! The client can now refresh the website to see it.
+echo تم! يمكن للزبون تحديث الموقع لرؤية الأخبار الجديدة.
 echo ======================================================
 pause

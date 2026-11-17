@@ -3,6 +3,8 @@
  * أداة لإرسال طلب النشر التلقائي للـ Webhook (Make.com / Zapier)
  */
 
+import { SITE_URL } from "@/lib/site";
+
 interface PostData {
   id: string;
   title: string;
@@ -27,7 +29,7 @@ export async function triggerSocialShare(post: PostData, platforms: string[]) {
   }
 
   // تحديد النطاق الأساسي لبناء الروابط الكاملة
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://sy-nl.org";
+  const baseUrl = SITE_URL;
   
   // بناء رابط الخبر الكامل
   const postUrl = post.slug ? `${baseUrl}/news/${post.slug}` : `${baseUrl}/news`;

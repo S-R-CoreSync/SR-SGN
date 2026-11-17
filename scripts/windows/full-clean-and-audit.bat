@@ -1,55 +1,55 @@
 @echo off
+chcp 65001 > nul
 setlocal enabledelayedexpansion
-title SGN - Full Project Audit and Maintenance
+title SGN - فحص شامل وتنظيف المشروع
 
 echo ======================================================
-echo    SGN Platform - Full Project Audit and Clean
+echo    منصة SGN - فحص شامل وتنظيف المشروع
 echo ======================================================
 echo.
 
-:: 1. Cleanup temporary logs and junk files
-echo [*] Cleaning temporary logs and cache files...
+:: 1) تنظيف الملفات المؤقتة
+echo [*] تنظيف السجلات والملفات المؤقتة...
 del /q /f "%~dp0..\..\*-log.txt" 2>nul
 del /q /f "%~dp0..\..\*-result.txt" 2>nul
 del /q /f "%~dp0..\..\temp_*" 2>nul
 del /q /f "%~dp0..\..\vercel-*.txt" 2>nul
 del /q /f "%~dp0..\..\server.log" 2>nul
-del /q /f "%~dp0..\..\video.mp4" 2>nul
-echo [OK] Junk and temporary files cleaned.
+echo [OK] تم التنظيف.
 echo.
 
-:: 2. Typecheck Web App
-echo [*] Checking Web App TypeScript (src/)...
+:: 2) فحص TypeScript للويب
+echo [*] فحص TypeScript لتطبيق الويب (src/)...
 cd /d "%~dp0..\.."
-call npx tsc --noEmit
+call node node_modules\typescript\bin\tsc --noEmit
 if %errorlevel% neq 0 (
-    echo [ERROR] Web TypeScript check failed!
+    echo [ERROR] فشل فحص TypeScript للويب!
     pause
     exit /b %errorlevel%
 )
-echo [OK] Web TypeScript is 100%% clean!
+echo [OK] TypeScript للويب سليم 100%%.
 echo.
 
-:: 3. Typecheck Mobile App
-echo [*] Checking Mobile App TypeScript (mobile/)...
+:: 3) فحص TypeScript للموبايل
+echo [*] فحص TypeScript لتطبيق الموبايل (mobile/)...
 cd /d "%~dp0..\..\mobile"
-call npx tsc --noEmit
+call node node_modules\typescript\bin\tsc --noEmit
 if %errorlevel% neq 0 (
-    echo [ERROR] Mobile TypeScript check failed!
+    echo [ERROR] فشل فحص TypeScript للموبايل!
     pause
     exit /b %errorlevel%
 )
-echo [OK] Mobile TypeScript is 100%% clean!
+echo [OK] TypeScript للموبايل سليم 100%%.
 echo.
 
-:: 4. Database Check
-echo [*] Verifying Local and Cloud Database integrity...
+:: 4) فحص قاعدة البيانات
+echo [*] التحقق من سلامة قاعدة البيانات المحلية والسحابية...
 cd /d "%~dp0..\.."
-call npx tsx scripts/06-check-database.ts
+call node node_modules\tsx\dist\cli.mjs scripts\06-check-database.ts
 echo.
 
 echo ======================================================
-echo   [SUCCESS] Full Project Audit & Maintenance Completed!
+echo   [SUCCESS] اكتمل الفحص الشامل للمشروع بنجاح!
 echo ======================================================
 echo.
 pause

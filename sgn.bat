@@ -1,4 +1,5 @@
 @echo off
+chcp 65001 > nul
 setlocal enabledelayedexpansion
 title SGN Control Panel
 
@@ -86,7 +87,7 @@ echo   Database Update and Sync (Local and Turso Cloud)
 echo ======================================================
 echo.
 echo [1/3] Running local Prisma db push...
-call npx prisma db push
+call node node_modules\prisma\build\index.js db push
 echo.
 echo [2/3] Downloading production variables from Vercel...
 call npx vercel env pull --environment=production .env.production

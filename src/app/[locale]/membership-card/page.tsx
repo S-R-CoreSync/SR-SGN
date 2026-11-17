@@ -9,6 +9,7 @@ import {
   MapPin, Calendar, User
 } from "lucide-react";
 import { formatLocalizedDigits } from "@/lib/language-guard";
+import { SITE_URL } from "@/lib/site";
 
 const SYRIAN_CITIES = [
   "دمشق", "حلب", "حمص", "حماة", "اللاذقية", "طرطوس", "إدلب", 
@@ -66,7 +67,7 @@ export default function MembershipCardHubPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchLoading, setSearchLoading] = useState(false);
 
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(`https://sgn-indol.vercel.app/api/members/id-card/verify?id=${memberNum}`)}&bgcolor=1a5632&color=ffffff&margin=4`;
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(`${SITE_URL}/api/members/id-card/verify?id=${memberNum}`)}&bgcolor=1a5632&color=ffffff&margin=4`;
 
   const handleGenerate = (e: React.FormEvent) => {
     e.preventDefault();

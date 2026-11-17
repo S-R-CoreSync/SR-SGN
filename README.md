@@ -26,7 +26,8 @@ SGN/                          # ← تطبيق الويب (Next.js 16 + i18n + T
     app/                      # المسارات والصفحات والمنافذ البرمجية (API Routes)
     components/               # عناصر الواجهات المشتركة (React Components)
     lib/                      # المكتبات والخدمات (AI, Prisma, Sync, RAG)
-    messages/                 # ملفات الترجمة للويب (ar.json, en.json, nl.json)
+    i18n/                     # إعداد next-intl (routing + request)
+  messages/                   # ملفات الترجمة للويب (ar.json, en.json, nl.json)
   mobile/                     # ← تطبيق الموبايل (Expo React Native)
     app/                      # شاشات التطبيق الرئيسية (Tabs, Vault, Chat)
     constants/                # الإعدادات والثوابت وروابط الخادم (config.ts)
@@ -87,7 +88,9 @@ npm install
 npm run db:push
 
 # تشغيل خادم التطوير التجريبي
-npm run dev
+# ⚠️ المسار يحتوي على & لذلك لا يعمل "npm run dev" عبر cmd — استخدم:
+node "node_modules\next\dist\bin\next" dev -p 3000
+# أو انقر مزدوجاً على: scripts\windows\start-dev-environment.bat
 ```
 * سيعمل الموقع على الرابط: `http://localhost:3000`
 

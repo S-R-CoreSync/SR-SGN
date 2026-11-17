@@ -26,7 +26,7 @@ if %errorlevel% neq 0 (
 )
 echo.
 echo [ب] فحص توكن فيسبوك (Facebook API)...
-call npx tsx scripts/07-diagnose-facebook.ts
+call node node_modules\tsx\dist\cli.mjs scripts\07-diagnose-facebook.ts
 findstr /I "error expired invalid" fb_diagnose_result.txt >nul
 if %errorlevel% equ 0 (
     echo.

@@ -10,7 +10,12 @@ const nextConfig = {
   },
   serverExternalPackages: [],
   transpilePackages: ["next-auth"],
-  allowedDevOrigins: ["beer-singing-occupation-eugene.trycloudflare.com"],
+  allowedDevOrigins: [
+    "localhost",
+    "127.0.0.1",
+    "beer-singing-occupation-eugene.trycloudflare.com",
+    ...(process.env.ALLOWED_DEV_ORIGINS?.split(",").map((o) => o.trim()).filter(Boolean) ?? []),
+  ],
   reactStrictMode: true,
   compress: true,
   webpack: (config, { isServer }) => {

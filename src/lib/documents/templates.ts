@@ -8,6 +8,8 @@
  * 4. اللائحة العامة لحماية البيانات والخصوصية في الاتحاد الأوروبي وهولندا (AVG / GDPR).
  */
 
+import { SITE_URL } from "@/lib/site";
+
 export interface DocumentParty {
   name: string;
   idNumber?: string;
@@ -61,7 +63,7 @@ export const SGN_ORGANIZATION_INFO = {
   phone: "+31 6 24795887",
   contactEmail: "info@sy-nl.org",
   website: "www.sy-nl.org",
-  officialWebsite: "https://sgn-drab.vercel.app",
+  officialWebsite: SITE_URL,
   kvkNumber: "96718943",
   legalForm: "Stichting / Vereniging conform Burgerlijk Wetboek Boek 2",
 };

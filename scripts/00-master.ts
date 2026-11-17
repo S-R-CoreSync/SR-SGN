@@ -154,7 +154,8 @@ function showHelp() {
 
 async function runScript(script: string) {
   return new Promise((resolve) => {
-    const child = spawn("npx", ["tsx", `scripts/${script}`], {
+    // تشغيل tsx مباشرة عبر node (يتجنب مشاكل .cmd عندما يحتوي المسار على &)
+    const child = spawn(process.execPath, ["node_modules/tsx/dist/cli.mjs", `scripts/${script}`], {
       stdio: "inherit",
       cwd: process.cwd(),
     })
@@ -167,10 +168,17 @@ async function runScript(script: string) {
 
 async function runNpmScript(command: string) {
   return new Promise((resolve) => {
-    const child = spawn("npm", ["run", command], {
-      stdio: "inherit",
-      cwd: process.cwd(),
-    })
+    // على Windows نمرّر الأمر عبر cmd (مع اقتباس صحيح) لتجنب مشاكل مسار يحتوي &
+    const isWindows = process.platform === "win32"
+    const child = isWindows
+      ? spawn("cmd.exe", ["/d", "/s", "/c", `npm run ${command}`], {
+          stdio: "inherit",
+          cwd: process.cwd(),
+        })
+      : spawn("npm", ["run", command], {
+          stdio: "inherit",
+          cwd: process.cwd(),
+        })
 
     child.on("close", (code) => {
       resolve(code)

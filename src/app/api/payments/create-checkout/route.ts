@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { SITE_URL } from "@/lib/site";
 
 export async function POST(req: NextRequest) {
   try {
@@ -33,8 +34,8 @@ export async function POST(req: NextRequest) {
               value: parsedAmount,
             },
             description,
-            redirectUrl: `https://sgn-indol.vercel.app/${locale}/pricing?payment=success`,
-            webhookUrl: `https://sgn-indol.vercel.app/api/payments/webhook`,
+            redirectUrl: `${SITE_URL}/${locale}/pricing?payment=success`,
+            webhookUrl: `${SITE_URL}/api/payments/webhook`,
             method: "ideal",
             metadata: {
               userId: session?.user?.id || null,
