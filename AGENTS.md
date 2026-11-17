@@ -93,6 +93,12 @@ This changes `mobile/constants/config.ts` to use `https://sgn-drab.vercel.app`.
 - Production: Turso (libsql) — set `TURSO_DATABASE_URL` + `TURSO_AUTH_TOKEN`
 - Sync: `prisma db push` after any schema change
 
+> 🚨 **تحذير حرج (لا تحذف `prisma/dev.db`):**
+> مشروع Vercel الذي يخدم `https://sgn-drab.vercel.app` يعمل حالياً بـ **SQLite محلي مضمّن في البناء** (`/var/task/prisma/dev.db`) وليس Turso.
+> حذف `prisma/dev.db` من Git **يكسر الإنتاج فوراً** (`/api/health` يرد 503: `Unable to open connection to local database`).
+> لذلك هو متعقّب في Git رغم كونه ملفاً ثنائياً. الحل الجذري: تفعيل Turso على حساب `salim-grav` ثم حذفه نهائياً.
+> كما أن الكتابة على SQLite في بيئة Vercel غير مستدامة (نظام ملفات للقراءة فقط) — أي تسجيل/إضافة تُفقد مع كل نشر.
+
 ## 🧪 Build Checklist
 
 1. `npm run build` — web app compiles (70 routes, 0 TypeScript errors)
