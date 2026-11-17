@@ -12,11 +12,11 @@ Antigravity/
 .env.*
 !.env.example
 *.log
-# Database files
-*.db.bak
+# Database files (محلية فقط — لا تُرفع للمستودع)
+*.db
 *.db-journal
+*.db.bak
 prisma/dev-check.db
-!prisma/dev.db
 
 # Log and dump files
 build-log*.txt
