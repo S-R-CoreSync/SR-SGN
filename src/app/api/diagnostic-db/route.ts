@@ -4,6 +4,11 @@ import { prisma } from "@/lib/db";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
+  const rawUrl = process.env.TURSO_DATABASE_URL?.trim() || "";
+  const rawToken = process.env.TURSO_AUTH_TOKEN?.trim() || "";
+  const cleanedUrl = rawUrl.replace(/[^\\x20-\\x7E]/g, "").trim().replace(/^["']|["']$/g, "").replace(/\\/+$/, "");
+  const finalUrl = cleanedUrl && !/^[a-z]+:\\/\\//i.test(cleanedUrl) ? `libsql://${cleanedUrl}` : cleanedUrl;
+
   try {
     const postCount = await prisma.post.count();
     const postsBySource = await prisma.post.groupBy({
@@ -33,6 +38,9 @@ export async function GET() {
         hasBlobToken: !!process.env.BLOB_READ_WRITE_TOKEN?.trim(),
         hasFbId: !!process.env.FACEBOOK_PAGE_ID?.trim(),
         hasFbToken: !!process.env.FACEBOOK_PAGE_TOKEN?.trim(),
+        tursoUrlHost: finalUrl.replace(/^.*:\\/\\//, "").split("/")[0],
+        tursoUrlLength: rawUrl.length,
+        tursoTokenLength: rawToken.length,
       },
       db: {
         postCount,
@@ -49,6 +57,9 @@ export async function GET() {
         hasTursoToken: !!process.env.TURSO_AUTH_TOKEN?.trim(),
         hasDatabaseUrl: !!process.env.DATABASE_URL?.trim(),
         hasBlobToken: !!process.env.BLOB_READ_WRITE_TOKEN?.trim(),
+        tursoUrlHost: finalUrl.replace(/^.*:\\/\\//, "").split("/")[0],
+        tursoUrlLength: rawUrl.length,
+        tursoTokenLength: rawToken.length,
       }
     }, { status: 500 });
   }
