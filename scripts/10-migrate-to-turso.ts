@@ -72,6 +72,7 @@ async function main() {
   // ١) التحقق من الاتصال
   try {
     await turso.execute("SELECT 1");
+    await turso.execute("PRAGMA foreign_keys = OFF;");
     log("✅ الاتصال بـ Turso ناجح");
   } catch (e: any) {
     fail(`تعذّر الاتصال بـ Turso: ${e.message}`);
@@ -104,8 +105,8 @@ async function main() {
   // ٣) تنفيذ المخطط على Turso (مع تجاهل الأخطاء المتعلقة بالجداول الموجودة مسبقاً)
   const statements = ddl
     .split(";")
-    .map((s) => s.trim())
-    .filter((s) => s.length > 0 && !/^--/.test(s) && !/^PRAGMA/i.test(s));
+    .map((s) => s.replace(/^\s*--.*$/gm, "").trim())
+    .filter((s) => s.length > 0 && !/^PRAGMA/i.test(s));
 
   log(`   تنفيذ ${statements.length} عبارة إنشاء على Turso …`);
   let created = 0;
@@ -150,17 +151,26 @@ async function main() {
       const placeholders = cols.map(() => "?").join(", ");
       const sql = `INSERT OR REPLACE INTO "${table}" (${colList}) VALUES (${placeholders})`;
 
-      // مسح الجدول أولاً لتجنّب التكرار
-      await turso.execute(`DELETE FROM "${table}"`);
+      // مسح الجدول أولاً لتجنّب التكرار (FK معطّل في نفس الطلب HTTP)
+      await turso.batch(
+        [
+          { sql: "PRAGMA foreign_keys = OFF;", args: [] },
+          { sql: `DELETE FROM "${table}"`, args: [] },
+        ],
+        "write"
+      );
 
       let inserted = 0;
       for (let i = 0; i < rows.length; i += BATCH_SIZE) {
         const chunk = rows.slice(i, i + BATCH_SIZE);
         await turso.batch(
-          chunk.map((row: Record<string, unknown>) => ({
-            sql,
-            args: cols.map((c) => (row[c] === undefined ? null : row[c])) as any[],
-          })),
+          [
+            { sql: "PRAGMA foreign_keys = OFF;", args: [] },
+            ...chunk.map((row: Record<string, unknown>) => ({
+              sql,
+              args: cols.map((c) => (row[c] === undefined ? null : row[c])) as any[],
+            }))
+          ],
           "write"
         );
         inserted += chunk.length;
