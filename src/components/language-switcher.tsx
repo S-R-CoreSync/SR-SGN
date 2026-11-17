@@ -27,7 +27,7 @@ export default function LanguageSwitcher() {
 
   return (
     <div className="relative">
-      <button onClick={() => setOpen(!open)} className="flex items-center gap-1 px-2.5 py-1.5 text-xs border rounded-lg hover:bg-gray-50">
+      <button data-testid="language-switcher" onClick={() => setOpen(!open)} className="flex items-center gap-1 px-2.5 py-1.5 text-xs border rounded-lg hover:bg-gray-50">
         <Globe className="w-3.5 h-3.5" />
         <span className="hidden sm:inline">{LOCALES[locale as keyof typeof LOCALES]?.label || t('arabic')}</span>
       </button>

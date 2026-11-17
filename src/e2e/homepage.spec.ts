@@ -8,8 +8,9 @@ test.describe("Homepage", () => {
 
   test("has language switcher", async ({ page }) => {
     await page.goto("/ar");
-    const langSwitcher = page.locator('[data-testid="language-switcher"], [aria-label*="language"], [aria-label*="لغة"], button:has-text("EN"), button:has-text("NL")');
-    await expect(langSwitcher.first()).toBeVisible();
+    // The switcher is a button containing the Globe icon (lucide-react svg)
+    const langSwitcher = page.locator('[data-testid="language-switcher"]');
+    await expect(langSwitcher).toBeVisible();
   });
 
   test("loads without console errors", async ({ page }) => {
@@ -26,7 +27,8 @@ test.describe("Navigation", () => {
   test("navigates between main pages", async ({ page }) => {
     await page.goto("/ar");
     await page.goto("/ar/news");
-    await expect(page).toHaveURL(/\/ar\/news/);
+    // Arabic is the default locale, so the URL may be /news (locale stripped)
+    await expect(page).toHaveURL(/\/(ar\/)?news/);
   });
 
   test("404 page shows error message", async ({ page }) => {
