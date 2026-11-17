@@ -1,73 +1,93 @@
-name: CI/CD
+# ============================================================
+# 🔄 سير العمل الموحّد للتحقق من الجودة (CI)
+# ------------------------------------------------------------
+# ملاحظة: النشر إلى الإنتاج يتم تلقائياً عبر تكامل Vercel مع Git
+# (كل push إلى main يُطلق نشراً جديداً على رابط الزبون).
+# هذا السير مسؤول فقط عن التحقق: الأنواع، ESLint، i18n، الاختبارات، والبناء.
+# ============================================================
+name: CI
 
 on:
   push:
     branches: [main, develop]
   pull_request:
-    branches: [main]
+    branches: [main, develop]
+
+# أقل صلاحيات ممكنة (قراءة المستودع فقط)
+permissions:
+  contents: read
+
+# إلغاء التشغيلات القديمة عند دفع جديد على نفس الفرع
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
-  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: "true"
   NODE_VERSION: "22"
+  DATABASE_URL: "file:./prisma/test.db"
+  NEXTAUTH_SECRET: "test-secret-key-for-ci"
+  NEXTAUTH_URL: "http://localhost:3000"
+  NEXT_PUBLIC_APP_URL: "http://localhost:3000"
 
 jobs:
-  typecheck:
+  # ── ١) التحقق من الجودة: الأنواع + ESLint + i18n + الاختبارات ──
+  quality:
+    name: Typecheck • Lint • i18n • Tests
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-      - run: npm install --legacy-peer-deps --force
-      - run: npx prisma generate
-      - run: npx tsc --noEmit
+    timeout-minutes: 20
 
-  lint:
-    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-      - run: npm install --legacy-peer-deps --force
-      - run: npm run lint
+      - name: جلب الكود
+        uses: actions/checkout@v4
 
-  test:
-    runs-on: ubuntu-latest
-    env:
-      DATABASE_URL: "file:./prisma/test.db"
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: تهيئة Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
-      - run: npm install --legacy-peer-deps --force
-      - run: npx prisma generate
-      - run: npx prisma db push --accept-data-loss
-      - run: npm test -- --run
+          cache-dependency-path: package-lock.json
 
+      - name: تثبيت الحزم
+        run: npm ci --legacy-peer-deps || npm install --legacy-peer-deps --force
+
+      - name: توليد Prisma Client
+        run: npx prisma generate
+
+      - name: فحص الأنواع (TypeScript)
+        run: npm run typecheck
+
+      - name: فحص ESLint
+        run: npm run lint
+
+      - name: فحص النصوص العربية المباشرة (i18n)
+        run: npm run i18n:check
+
+      - name: تهيئة قاعدة بيانات الاختبار
+        run: npx prisma db push --accept-data-loss --skip-generate
+
+      - name: اختبارات الوحدة (Vitest)
+        run: npm run test:run
+
+  # ── ٢) بناء الإنتاج ──
   build:
+    name: Production Build
     runs-on: ubuntu-latest
-    needs: [typecheck, lint, test]
-    env:
-      DATABASE_URL: "file:./prisma/test.db"
-      NEXTAUTH_SECRET: "test-secret-key-for-ci"
-      NEXTAUTH_URL: "http://localhost:3000"
-      NEXT_PUBLIC_APP_URL: "http://localhost:3000"
+    timeout-minutes: 25
+    needs: quality
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: جلب الكود
+        uses: actions/checkout@v4
+
+      - name: تهيئة Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
-      - run: npm install --legacy-peer-deps --force
-      - run: npx prisma generate
-      - run: npx prisma db push --accept-data-loss
-      - run: npm run build
-      - uses: actions/upload-artifact@v4
-        with:
-          name: next-build
-          path: .next/
+          cache-dependency-path: package-lock.json
+
+      - name: تثبيت الحزم
+        run: npm ci --legacy-peer-deps || npm install --legacy-peer-deps --force
+
+      - name: بناء المشروع
+        run: npm run build
