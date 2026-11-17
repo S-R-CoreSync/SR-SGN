@@ -29,9 +29,21 @@ function log(msg: string) {
   console.log(msg);
 }
 
+/**
+ * تنظيف القيم القادمة من .env: إزالة علامات التنصيص، الأحرف غير اللاتينية (مثل حرف عربي
+ * لُصق بالخطأ)، المسافات، والشرطة المائلة الأخيرة. بدون هذا يفشل الاتصال بـ Turso.
+ */
+function cleanSecret(value: string | undefined): string {
+  return (value ?? "")
+    .replace(/[^\x20-\x7E]/g, "")
+    .trim()
+    .replace(/^["']|["']$/g, "")
+    .replace(/\/+$/, "");
+}
+
 async function main() {
-  const url = process.env.TURSO_DATABASE_URL?.trim();
-  const token = process.env.TURSO_AUTH_TOKEN?.trim();
+  const url = cleanSecret(process.env.TURSO_DATABASE_URL);
+  const token = cleanSecret(process.env.TURSO_AUTH_TOKEN);
 
   if (!url || !token || url === "[SENSITIVE]" || token === "[SENSITIVE]") {
     fail(
@@ -41,7 +53,9 @@ async function main() {
         "  TURSO_AUTH_TOKEN=eyJ..."
     );
   }
-  if (!/^(libsql|https?):\/\//.test(url)) {
+  // إن كان المستخدم لصق العنوان بدون بروتوكول (مثلاً sgn-prod-salim-grav.turso.io) نضيفه تلقائياً
+  const finalUrl = /^[a-z]+:\/\//i.test(url) ? url : `libsql://${url}`;
+  if (!/^(libsql|https?):\/\//.test(finalUrl)) {
     fail(`عنوان Turso غير صالح: ${url} (يجب أن يبدأ بـ libsql:// أو https://)`);
   }
   if (!fs.existsSync(LOCAL_DB)) {
@@ -49,11 +63,11 @@ async function main() {
   }
 
   log("📂 المصدر: prisma/dev.db");
-  log(`☁️  الهدف: ${url.replace(/\/\/.*@/, "//")}`);
+  log(`☁️  الهدف: ${finalUrl.replace(/\/\/.*@/, "//")}`);
   log("");
 
   const local = createClient({ url: `file:${LOCAL_DB}` });
-  const turso = createClient({ url, authToken: token });
+  const turso = createClient({ url: finalUrl, authToken: token });
 
   // ١) التحقق من الاتصال
   try {

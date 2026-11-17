@@ -39,10 +39,18 @@ function log(msg: string) {
   console.log(msg);
 }
 
+/** تنظيف قيمة من .env: إزالة التنصيص والأحرف غير اللاتينية والمسافات. */
+function cleanSecret(value: string | undefined): string {
+  return (value ?? "")
+    .replace(/[^\x20-\x7E]/g, "")
+    .trim()
+    .replace(/^["']|["']$/g, "");
+}
+
 type ApiResult<T> = { ok: boolean; status: number; data: T | null; raw: string };
 
 async function api<T>(endpoint: string, init: RequestInit = {}): Promise<ApiResult<T>> {
-  const token = process.env.TURSO_PLATFORM_TOKEN?.trim();
+  const token = cleanSecret(process.env.TURSO_PLATFORM_TOKEN);
   const res = await fetch(`${API}${endpoint}`, {
     ...init,
     headers: {
@@ -78,7 +86,7 @@ function setEnvVar(key: string, value: string) {
 }
 
 async function main() {
-  const token = process.env.TURSO_PLATFORM_TOKEN?.trim();
+  const token = cleanSecret(process.env.TURSO_PLATFORM_TOKEN);
   if (!token || token === "[SENSITIVE]") {
     fail(
       "لا يوجد TURSO_PLATFORM_TOKEN في .env.\n" +
