@@ -88,7 +88,6 @@ export async function GET() {
     const total = await prisma.member.count();
     const members = await prisma.member.findMany({
       select: { nlProvincie: true },
-      where: { nlProvincie: { not: null } },
     });
 
     const provMap: Record<string, number> = {};
