@@ -92,6 +92,7 @@ This changes `mobile/constants/config.ts` to use `https://sgn-drab.vercel.app`.
 - Local: SQLite (`prisma/dev.db`)
 - Production: Turso (libsql) — set `TURSO_DATABASE_URL` + `TURSO_AUTH_TOKEN`
 - Sync: `prisma db push` after any schema change
+- **حالة الترحيل (17 نوفمبر 2026):** ✅ تمت مزامنة جميع 47 جدولاً إلى قاعدة Turso `sgn-setup-srcoresync.aws-eu-central-1.turso.io` بنجاح (أعداد الصفوف متطابقة). `src/lib/db.ts` يختار Turso تلقائياً في الإنتاج عند توفر المتغيّرين. `prisma/dev.db` ما زال متعقّباً كـ fallback (لا تحذفه قبل تأكيد عمل الإنتاج).
 
 > 🚨 **تحذير حرج (لا تحذف `prisma/dev.db`):**
 > مشروع Vercel الذي يخدم `https://sgn-drab.vercel.app` يعمل حالياً بـ **SQLite محلي مضمّن في البناء** (`/var/task/prisma/dev.db`) وليس Turso.
