@@ -9,7 +9,7 @@ import { TikTok } from "@/components/tiktok-icon";
 import { formatDate } from "@/lib/date";
 
 interface Post {
-  id: string; title: string; excerpt: string; image: string;
+  id: string; title: string; excerpt: string; summary?: string; image: string;
   videoId?: string; category: string; createdAt: string; slug: string; views: number;
   author: { name: string };
 }
@@ -295,6 +295,12 @@ function NewsPageInner() {
                             )}
                           </h3>
                           {p.excerpt && <p className="text-sm text-gray-500 mt-2 line-clamp-2 leading-relaxed">{formatLocalizedDigits(p.excerpt, locale)}</p>}
+                          {locale === "ar" && p.summary && (
+                            <p className="text-xs text-[#1a5632] mt-2 line-clamp-2 leading-relaxed flex gap-1.5 items-start">
+                              <Sparkles className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                              <span>{formatLocalizedDigits(p.summary, locale)}</span>
+                            </p>
+                          )}
                           <div className="flex items-center justify-between mt-5 pt-3 border-t border-gray-50 text-xs text-gray-400 mt-auto">
                             <div className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /><span>{formatDate(p.createdAt, locale)}</span></div>
                             <div className="flex items-center gap-1.5 font-medium"><Eye className="w-3.5 h-3.5" /><span>{formatLocalizedDigits(p.views || 0, locale)}</span></div>

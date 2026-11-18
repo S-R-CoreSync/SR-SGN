@@ -9,6 +9,7 @@ const LIST_SELECT = {
   title: true,
   slug: true,
   excerpt: true,
+  summary: true,
   image: true,
   videoId: true,
   category: true,
