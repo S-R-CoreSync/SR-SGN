@@ -104,21 +104,26 @@ export async function GET(request: NextRequest) {
   const wantsSources = request.nextUrl.searchParams.get("sources") === "true";
   if (wantsSources && process.env.FACEBOOK_PAGE_TOKEN) {
     const token = process.env.FACEBOOK_PAGE_TOKEN.replace(/^["']|["']$/g, "").trim();
-    const appId = process.env.FACEBOOK_CLIENT_ID;
-    const appSecret = process.env.FACEBOOK_CLIENT_SECRET;
     try {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), 5000);
-      const res = await fetch(
+
+      // `debug_token` يقبل التوكن نفسه كـ access_token. وإن كان التوكن تابعاً
+      // لتطبيق آخر غير تطبيق الدخول، نجرّب توكن التطبيق (`app_id|app_secret`) كبديل.
+      const debugUrl = (accessToken: string) =>
         `https://graph.facebook.com/v19.0/debug_token?input_token=${encodeURIComponent(token)}` +
-          `&access_token=${encodeURIComponent(`${appId}|${appSecret}`)}`,
-        { signal: controller.signal, cache: "no-store" }
-      );
-      clearTimeout(timer);
-      const json = (await res.json()) as {
+        `&access_token=${encodeURIComponent(accessToken)}`;
+
+      let json: {
         data?: { is_valid?: boolean; expires_at?: number; scopes?: string[] };
         error?: { message?: string };
-      };
+      } = {};
+      for (const accessToken of [token, `${process.env.FACEBOOK_CLIENT_ID}|${process.env.FACEBOOK_CLIENT_SECRET}`]) {
+        const res = await fetch(debugUrl(accessToken), { signal: controller.signal, cache: "no-store" });
+        json = await res.json();
+        if (json.data) break;
+      }
+      clearTimeout(timer);
       const data = json.data;
       if (!data?.is_valid) {
         checks.facebook = {
