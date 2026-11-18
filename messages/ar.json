@@ -90,12 +90,15 @@
     "items": []
   },
   "categories": {
+    "communityNews": "أخبار الجالية",
     "netherlandsNews": "أخبار هولندا",
     "europeNews": "أخبار أوروبا",
     "economy": "اقتصاد وأعمال",
     "culture": "ثقافة وفن",
     "sports": "رياضة",
-    "tech": "تكنولوجيا"
+    "tech": "تكنولوجيا",
+    "humanitarian": "عمل إنساني",
+    "services": "خدمات"
   },
   "home": {
     "featuredTitle": "أخبار مميزة",
@@ -1668,7 +1671,8 @@
     "backToNews": "العودة إلى الأخبار",
     "countPrefix": "يوجد {count} مقال في هذا القسم",
     "empty": "لا توجد مقالات في هذا القسم حالياً.",
-    "browseAll": "تصفح جميع الأخبار"
+    "browseAll": "تصفح جميع الأخبار",
+    "allCategories": "جميع الأخبار"
   },
   "dev": {
     "title": "عن المطور والشركة المنفذة",

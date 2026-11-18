@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { Clock, ArrowLeft, Newspaper, ChevronRight } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import { formatDate } from "@/lib/date";
+import { formatLocalizedDigits } from "@/lib/language-guard";
 import { resolveImage } from "@/lib/image-fallback";
 
 interface Post {
@@ -39,27 +40,52 @@ const CATEGORY_KEYS: Record<string, string> = {
   خدمات: "services",
 };
 
+/**
+ * ⚠️ مهم: عمود `category` في جدول Post مخزَّن **بالعربية** لكل اللغات،
+ * وواجهة `/api/news` هي التي تترجمه عند العرض عبر `localizeCategory()`.
+ * لذلك الفلترة تكون دائماً بالاسم العربي، مهما كانت لغة الصفحة.
+ */
+
 export default function CategoryPage() {
   const t = useTranslations('newsCategory');
   const tc = useTranslations('categories');
   const locale = useLocale();
   const { slug } = useParams();
   const [posts, setPosts] = useState<Post[]>([]);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  const decodedForCat = typeof slug === "string" ? decodeURIComponent(slug) : slug;
-  const catKey = typeof decodedForCat === "string" ? (CATEGORY_KEYS[decodedForCat] || decodedForCat) : decodedForCat;
-  const catName = tc(catKey) || catKey;
+  const decodedSlug = typeof slug === "string" ? decodeURIComponent(slug) : null;
+  // مفتاح الترجمة إن وُجد، وإلا عنوان عام مترجم — حتى لا يظهر نص عربي في /en و/nl
+  // ولا يرمي next-intl خطأ MISSING_MESSAGE عند قسم غير معروف.
+  const catKey = decodedSlug ? CATEGORY_KEYS[decodedSlug] : undefined;
+  const catName = catKey && tc.has(catKey) ? tc(catKey) : t('allCategories');
+
+  // الفلترة بالاسم العربي دائماً (الترجمة تصير في `/api/news` حسب locale)
+  const apiCategory = decodedSlug ? CATEGORY_API[decodedSlug] || decodedSlug : "";
 
   useEffect(() => {
-    if (!slug || Array.isArray(slug)) return;
-    const decodedSlug = decodeURIComponent(slug);
-    const category = CATEGORY_API[decodedSlug] || decodedSlug;
-    fetch(`/api/news?category=${encodeURIComponent(category)}&limit=50&locale=${locale}`)
+    if (!decodedSlug) return;
+    if (!apiCategory) {
+      setPosts([]);
+      setTotal(0);
+      setLoading(false);
+      return;
+    }
+    const controller = new AbortController();
+    setLoading(true);
+    fetch(`/api/news?category=${encodeURIComponent(apiCategory)}&limit=100&locale=${locale}`, {
+      signal: controller.signal,
+    })
       .then(r => r.json())
-      .then(data => { setPosts(data.posts || []); setLoading(false); })
-      .catch(() => setLoading(false));
-  }, [slug, locale]);
+      .then(data => {
+        setPosts(data.posts || []);
+        setTotal(typeof data.total === "number" ? data.total : (data.posts || []).length);
+        setLoading(false);
+      })
+      .catch(() => { if (!controller.signal.aborted) setLoading(false); });
+    return () => controller.abort();
+  }, [decodedSlug, apiCategory, locale]);
 
   const dir = locale === "ar" ? "rtl" : "ltr";
 
@@ -80,7 +106,7 @@ export default function CategoryPage() {
             <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
               <Newspaper className="w-6 h-6 text-[#1a5632]" /> {catName}
             </h1>
-            <p className="text-sm text-gray-500 mt-1">{t('countPrefix', { count: posts.length })}</p>
+            <p className="text-sm text-gray-500 mt-1">{t('countPrefix', { count: formatLocalizedDigits(total || posts.length, locale) })}</p>
           </div>
         </div>
 

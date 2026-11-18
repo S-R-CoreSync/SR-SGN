@@ -90,12 +90,15 @@
     "items": []
   },
   "categories": {
+    "communityNews": "Gemeenschapsnieuws",
     "netherlandsNews": "Nederland Nieuws",
     "europeNews": "Europa Nieuws",
     "economy": "Economie & Zaken",
     "culture": "Cultuur & Kunst",
     "sports": "Sport",
-    "tech": "Technologie"
+    "tech": "Technologie",
+    "humanitarian": "Humanitair Werk",
+    "services": "Diensten"
   },
   "home": {
     "featuredTitle": "Uitgelicht Nieuws",
@@ -1657,7 +1660,8 @@
     "backToNews": "Terug naar Nieuws",
     "countPrefix": "Er zijn {count} artikelen in deze sectie",
     "empty": "Er zijn momenteel geen artikelen in deze sectie.",
-    "browseAll": "Blader door al het nieuws"
+    "browseAll": "Blader door al het nieuws",
+    "allCategories": "Al het nieuws"
   },
   "dev": {
     "title": "Over de Ontwikkelaar & Studio",

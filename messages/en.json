@@ -90,12 +90,15 @@
     "items": []
   },
   "categories": {
+    "communityNews": "Community News",
     "netherlandsNews": "Netherlands News",
     "europeNews": "Europe News",
     "economy": "Economy & Business",
     "culture": "Culture & Art",
     "sports": "Sports",
-    "tech": "Technology"
+    "tech": "Technology",
+    "humanitarian": "Humanitarian Work",
+    "services": "Services"
   },
   "home": {
     "featuredTitle": "Featured News",
@@ -1657,7 +1660,8 @@
     "backToNews": "Back to News",
     "countPrefix": "There are {count} articles in this section",
     "empty": "There are no articles in this section currently.",
-    "browseAll": "Browse all news"
+    "browseAll": "Browse all news",
+    "allCategories": "All News"
   },
   "dev": {
     "title": "About the Developer & Agency",
