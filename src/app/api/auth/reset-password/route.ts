@@ -2,6 +2,11 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import bcrypt from "bcryptjs";
 import { getApiMessage } from "@/lib/api-messages";
+import { createRateLimiter } from "@/lib/rate-limit";
+import { clientKey, tooMany } from "@/lib/request-guard";
+
+// 🔐 حماية من تخمين توكن إعادة تعيين كلمة السر
+const resetLimiter = createRateLimiter({ maxRequests: 10, windowMs: 15 * 60_000, name: "reset-password" });
 
 function t(req: Request, key: string) {
   const locale = (req as any).cookies?.get?.('NEXT_LOCALE')?.value || 'ar';
@@ -9,6 +14,9 @@ function t(req: Request, key: string) {
 }
 
 export async function POST(req: Request) {
+  const limited = tooMany(resetLimiter, clientKey(req));
+  if (limited) return limited;
+
   try {
     const { token, password } = await req.json();
     if (!token || !password) return NextResponse.json({ error: t(req, 'api.incompleteData') }, { status: 400 });

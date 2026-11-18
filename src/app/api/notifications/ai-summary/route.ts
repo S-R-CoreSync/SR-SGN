@@ -2,12 +2,20 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/mobile-auth";
 import { generateText } from "@/lib/ai/provider";
+import { createRateLimiter } from "@/lib/rate-limit";
+import { tooMany } from "@/lib/request-guard";
+
+// حدّ استهلاك الذكاء الاصطناعي لكل مستخدم
+const summaryLimiter = createRateLimiter({ maxRequests: 10, windowMs: 60_000, name: "ai-notif-summary" });
 
 export async function GET(req: NextRequest) {
   const user = await getSessionUser(req);
   if (!user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const limited = tooMany(summaryLimiter, user.id);
+  if (limited) return limited;
 
   const userId = user.id;
   const userName = user.name || "عضو الجالية";

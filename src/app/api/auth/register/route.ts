@@ -1,8 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import bcrypt from "bcryptjs";
+import { createRateLimiter } from "@/lib/rate-limit";
+import { clientKey, tooMany } from "@/lib/request-guard";
+
+// 🔐 حماية من إنشاء حسابات وهمية بالجملة
+const registerLimiter = createRateLimiter({ maxRequests: 5, windowMs: 60 * 60_000, name: "auth-register" });
 
 export async function POST(req: NextRequest) {
+  const limited = tooMany(registerLimiter, clientKey(req));
+  if (limited) return limited;
+
   try {
     const { name, email, password } = await req.json();
     if (!name || !email || !password) {

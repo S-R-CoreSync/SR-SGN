@@ -43,8 +43,10 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // 🔐 إنشاء بث مباشر (وقد يكون featured على الرئيسية) — للمشرفين فقط.
+    // كان سابقاً يكفي أن يكون الزائر مسجّلاً لينشر بثاً بأي رابط خارجي.
+    if (!session?.user || (session.user as any).role !== "admin") {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
     const body = await req.json();

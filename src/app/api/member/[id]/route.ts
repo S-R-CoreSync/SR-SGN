@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getApiMessage } from "@/lib/api-messages";
+import { createRateLimiter } from "@/lib/rate-limit";
+import { clientKey, tooMany } from "@/lib/request-guard";
+
+// 🔐 منع تضخيم عدّاد المشاهدات وجدول memberView بطلبات آلية
+const profileLimiter = createRateLimiter({ maxRequests: 60, windowMs: 60_000, name: "member-profile" });
 
 function t(_req: Request, key: string) {
   const locale = (_req as any).cookies?.get?.('NEXT_LOCALE')?.value || 'ar';
@@ -8,6 +13,9 @@ function t(_req: Request, key: string) {
 }
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const limited = tooMany(profileLimiter, clientKey(_req));
+  if (limited) return limited;
+
   const { id } = await params;
   const member = await prisma.member.findUnique({
     where: { id, status: "accepted", showInPublicProfile: true },

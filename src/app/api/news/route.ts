@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { createRateLimiter } from "@/lib/rate-limit";
+import { clientKey, tooMany } from "@/lib/request-guard";
 
 export const dynamic = "force-dynamic";
+
+// 🔐 منع تضخيم عدّاد مشاهدات الأخبار بطلبات آلية (الحد سخي ليكفي التصفح الطبيعي)
+const newsLimiter = createRateLimiter({ maxRequests: 120, windowMs: 60_000, name: "news-list" });
 
 // الحقول المُرجَعة في قوائم الأخبار (بدون content لتقليل حجم الاستجابة)
 const LIST_SELECT = {
@@ -25,6 +30,8 @@ const LIST_SELECT = {
 } as const;
 
 export async function GET(req: NextRequest) {
+  const limited = tooMany(newsLimiter, clientKey(req));
+  if (limited) return limited;
 
   const { searchParams } = new URL(req.url);
   const category = searchParams.get("category");

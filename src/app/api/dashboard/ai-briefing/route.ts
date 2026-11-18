@@ -3,10 +3,18 @@ import { prisma } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { generateChat } from "@/lib/ai/provider";
+import { createRateLimiter } from "@/lib/rate-limit";
+import { tooMany } from "@/lib/request-guard";
+
+// حدّ استهلاك الذكاء الاصطناعي لكل مستخدم
+const briefingLimiter = createRateLimiter({ maxRequests: 10, windowMs: 60_000, name: "ai-briefing" });
 
 export async function GET(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const limited = tooMany(briefingLimiter, String(session.user?.id || "anon"));
+  if (limited) return limited;
 
   try {
     const { searchParams } = new URL(req.url);

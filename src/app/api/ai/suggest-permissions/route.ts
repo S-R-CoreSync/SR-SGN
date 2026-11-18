@@ -4,12 +4,20 @@ import { authOptions } from "@/lib/auth";
 import { authorize } from "@/lib/server-permissions";
 import { ALL_PERMISSIONS } from "@/lib/permissions";
 import { ollamaGenerate } from "@/lib/ai/ollama";
+import { createRateLimiter } from "@/lib/rate-limit";
+import { tooMany } from "@/lib/request-guard";
+
+// حدّ استهلاك الذكاء الاصطناعي لكل مستخدم
+const permLimiter = createRateLimiter({ maxRequests: 10, windowMs: 60_000, name: "ai-suggest-permissions" });
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id || !(await authorize(session.user.id, "roles.manage"))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const limited = tooMany(permLimiter, session.user.id);
+  if (limited) return limited;
 
   try {
     const { name, description } = await req.json();

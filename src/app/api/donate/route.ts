@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getApiMessage } from "@/lib/api-messages";
+import { createRateLimiter } from "@/lib/rate-limit";
+import { clientKey, tooMany } from "@/lib/request-guard";
+
+// 🔐 حماية من إغراق جدول التبرعات بسجلات وهمية
+const donateLimiter = createRateLimiter({ maxRequests: 10, windowMs: 10 * 60_000, name: "donate" });
 
 function t(req: Request, key: string, vars?: Record<string, string>) {
   const locale = (req as any).cookies?.get?.('NEXT_LOCALE')?.value || 'ar';
@@ -8,6 +13,9 @@ function t(req: Request, key: string, vars?: Record<string, string>) {
 }
 
 export async function POST(req: Request) {
+  const limited = tooMany(donateLimiter, clientKey(req));
+  if (limited) return limited;
+
   try {
     const body = await req.json();
     const { name, email, phone, amount, message, paymentMethod } = body;

@@ -7,12 +7,20 @@ import { decryptBuffer } from "@/lib/crypto";
 import { ollamaGenerate } from "@/lib/ai/ollama";
 import fs from "fs/promises";
 import path from "path";
+import { createRateLimiter } from "@/lib/rate-limit";
+import { tooMany } from "@/lib/request-guard";
+
+// حدّ استهلاك موديل الرؤية لكل مستخدم
+const verifyLimiter = createRateLimiter({ maxRequests: 15, windowMs: 60_000, name: "id-card-verify" });
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id || !(await authorize(session.user.id, "volunteers.view"))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const limited = tooMany(verifyLimiter, session.user.id);
+  if (limited) return limited;
 
   try {
     const { memberId } = await req.json();

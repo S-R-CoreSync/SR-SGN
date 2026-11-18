@@ -3,12 +3,35 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { generateSummary, translateContent } from "@/lib/ai/text";
 import { prisma } from "@/lib/db";
+import { isAdmin, isEditor } from "@/lib/auth-helpers";
+import { createRateLimiter } from "@/lib/rate-limit";
+import { clientKey, tooMany } from "@/lib/request-guard";
+
+// 🔐 تحرير الأخبار بالذكاء الاصطناعي (يعدّل جدول Post) — للمشرف/المحرر فقط
+const aiNewsLimiter = createRateLimiter({ maxRequests: 20, windowMs: 60_000, name: "ai-news" });
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const role = (session?.user as any)?.role;
+
+  // الحدّ لكل مستخدم إن وُجد، وإلا لكل IP (زر «ترجم المقال» متاح للزوّار)
+  const key = session?.user?.id ? `u:${session.user.id}` : `ip:${clientKey(req)}`;
+  const limited = tooMany(aiNewsLimiter, key);
+  if (limited) return limited;
+
   try {
     const { action, postId, from, to, content } = await req.json();
+
+    // 🔐 `translate` خدمة عرض (زر «ترجم المقال») — متاحة للجميع بحدّ معدّل،
+    // حتى يبقى القسمان `/en` و`/nl` خاليين من النص العربي للزوّار غير المسجّلين.
+    // أي إجراء آخر يعدّل جدول Post أو يولّد ملخصات جماعية → مشرف/محرر فقط.
+    if (action !== "translate") {
+      if (!session?.user || !(isAdmin(role) || isEditor(role))) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+      }
+    } else if (typeof content !== "string" || content.length > 12_000) {
+      return NextResponse.json({ error: "Content too long or missing" }, { status: 400 });
+    }
 
     if (action === "summarize") {
       const post = await prisma.post.findUnique({ where: { id: postId } });
