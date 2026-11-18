@@ -18,6 +18,16 @@ interface HealthCheckResponse {
       responseTime: number;
       error?: string;
     };
+    /**
+     * حالة توكن فيسبوك — يُفحص فقط عند `?sources=true` لتفادي نداء خارجي بكل فحص.
+     * السبب: توكن منتهٍ كان يوقف المزامنة بصمت لأشهر.
+     */
+    facebook?: {
+      status: "ok" | "expiring" | "error";
+      expiresAt?: string | null;
+      daysLeft?: number | null;
+      error?: string;
+    };
     api: {
       status: "ok";
       version: string;
@@ -90,13 +100,58 @@ export async function GET(request: NextRequest) {
     }
   }
 
+  // فحص توكن فيسبوك عند الطلب فقط (`?sources=true`)
+  const wantsSources = request.nextUrl.searchParams.get("sources") === "true";
+  if (wantsSources && process.env.FACEBOOK_PAGE_TOKEN) {
+    const token = process.env.FACEBOOK_PAGE_TOKEN.replace(/^["']|["']$/g, "").trim();
+    const appId = process.env.FACEBOOK_CLIENT_ID;
+    const appSecret = process.env.FACEBOOK_CLIENT_SECRET;
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 5000);
+      const res = await fetch(
+        `https://graph.facebook.com/v19.0/debug_token?input_token=${encodeURIComponent(token)}` +
+          `&access_token=${encodeURIComponent(`${appId}|${appSecret}`)}`,
+        { signal: controller.signal, cache: "no-store" }
+      );
+      clearTimeout(timer);
+      const json = (await res.json()) as {
+        data?: { is_valid?: boolean; expires_at?: number; scopes?: string[] };
+        error?: { message?: string };
+      };
+      const data = json.data;
+      if (!data?.is_valid) {
+        checks.facebook = {
+          status: "error",
+          error: json.error?.message || "Facebook token is not valid",
+        };
+        overallStatus = "degraded";
+      } else {
+        const expiresAt = data.expires_at ?? 0;
+        const daysLeft =
+          expiresAt === 0 ? null : Math.floor((expiresAt * 1000 - Date.now()) / 86_400_000);
+        checks.facebook = {
+          status: daysLeft !== null && daysLeft <= 7 ? "expiring" : "ok",
+          expiresAt: expiresAt === 0 ? null : new Date(expiresAt * 1000).toISOString(),
+          daysLeft,
+        };
+        if (daysLeft !== null && daysLeft <= 7) overallStatus = "degraded";
+      }
+    } catch (error) {
+      checks.facebook = {
+        status: "error",
+        error: error instanceof Error ? error.message : "Unknown error",
+      };
+      overallStatus = "degraded";
+    }
+  }
+
   const response: HealthCheckResponse = {
     status: overallStatus,
     timestamp: new Date().toISOString(),
     uptime: Math.floor((Date.now() - startTime) / 1000),
     checks,
   };
-
   const statusCode = overallStatus === "error" ? 503 : 200;
 
   return NextResponse.json(response, { status: statusCode });
