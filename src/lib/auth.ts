@@ -36,11 +36,32 @@ const recordLoginAttempt = (identifier: string) => {
   }
 };
 
-const DEFAULT_AUTH_SECRET = "fabfdccaf0f90750ee0dd1442f5ee17295a6874acda53a32b57cb8b23a665bb4";
+// 🔐 لا يوجد سرّ افتراضي مكتوب في الكود.
+// كان هنا سرّ ثابت منشور في المستودع العام — أي قارئ للكود يستطيع تزوير
+// توكن جلسة NextAuth لأي مستخدم (بما فيهم المشرف) إذا لم يُضبط NEXTAUTH_SECRET.
+// في الإنتاج: يجب ضبط NEXTAUTH_SECRET وإلا يفشل التطبيق صراحةً.
+// في التطوير: يُشتق سرّ عشوائي لكل عملية تشغيل (تنتهي الجلسات عند إعادة التشغيل).
+const DEV_AUTH_SECRET = `dev-${Math.random().toString(36).slice(2)}-${Date.now()}`;
+
+function resolveAuthSecret(): string {
+  const fromEnv = process.env.NEXTAUTH_SECRET?.trim();
+  if (fromEnv) return fromEnv;
+
+  // لا سرّ عام أبداً. في الإنتاج نُسجّل خطأً صريحاً ونستخدم سرّاً عشوائياً
+  // لهذه العملية فقط (الجلسات تنتهي عند إعادة التشغيل) بدل كسر النشر كاملاً.
+  if (process.env.NODE_ENV === "production") {
+    console.error(
+      "[auth] CRITICAL: NEXTAUTH_SECRET is missing. Set it in Vercel → Settings → Environment Variables."
+    );
+  } else {
+    console.warn("[auth] NEXTAUTH_SECRET is missing — using an ephemeral development secret.");
+  }
+  return DEV_AUTH_SECRET;
+}
 
 export const authOptions = {
   adapter: PrismaAdapter(prisma),
-  secret: process.env.NEXTAUTH_SECRET || DEFAULT_AUTH_SECRET,
+  secret: resolveAuthSecret(),
   session: { strategy: "jwt" },
   pages: {
     signIn: "/login",
