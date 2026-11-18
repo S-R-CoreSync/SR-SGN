@@ -18,11 +18,25 @@ const nextConfig = {
   ],
   reactStrictMode: true,
   compress: true,
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
+  webpack: (config, { dev }) => {
+    if (dev) {
+      // 🚨 مهم: قاعدة SQLite المحلية (prisma/dev.db) والملفات المرفوعة تُكتب أثناء التشغيل.
+      // إذا راقبها webpack فإن كل كتابة تُطلق إعادة بناء → إعادة تحميل الصفحة → كتابة جديدة…
+      // = حلقة إعادة تحميل لا نهائية تُجمّد المتصفح (خصوصاً صفحة الخبر التي تزيد المشاهدات).
       config.watchOptions = {
+        ...(config.watchOptions || {}),
         aggregateTimeout: 300,
-        ignored: ["**/node_modules/**", "**/.git/**", "**/.next/**"],
+        ignored: [
+          "**/node_modules/**",
+          "**/.git/**",
+          "**/.next/**",
+          "**/prisma/*.db",
+          "**/prisma/*.db-*",
+          "**/*.db-journal",
+          "**/*.db-wal",
+          "**/*.db-shm",
+          "**/public/uploads/**",
+        ],
       };
     }
     return config;

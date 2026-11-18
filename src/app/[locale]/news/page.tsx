@@ -34,12 +34,19 @@ const CATEGORIES = [
 ];
 
 import { resolveImage, handleImgError } from "@/lib/image-fallback";
-import { formatLocalizedDigits } from "@/lib/language-guard";
+import { formatLocalizedDigits, formatLocalizedNumber } from "@/lib/language-guard";
 
 function getThumb(post: Post): string {
-  if (post.image) return resolveImage(post.image, post.title, post.category);
-  if (post.videoId) return `https://img.youtube.com/vi/${post.videoId}/hqdefault.jpg`;
-  return resolveImage(null, post.title, post.category);
+  const src = post.image
+    ? resolveImage(post.image, post.title, post.category)
+    : post.videoId
+      ? `https://img.youtube.com/vi/${post.videoId}/hqdefault.jpg`
+      : resolveImage(null, post.title, post.category);
+  // تصغير صور Unsplash للبطاقات (1200px → 640px) لتقليل حجم التحميل ~4x
+  if (src.includes("images.unsplash.com")) {
+    return src.replace(/([?&])w=\d+/, "$1w=640").replace(/([?&])q=\d+/, "$1q=70");
+  }
+  return src;
 }
 
 function NewsPageInner() {
@@ -91,7 +98,7 @@ function NewsPageInner() {
     }
   };
 
-  const fetchPosts = () => {
+  const fetchPosts = (signal?: AbortSignal) => {
     if (activeCategory === "\u062e\u062f\u0645\u0627\u062a") {
       setPosts([]);
       setTotal(0);
@@ -111,17 +118,25 @@ function NewsPageInner() {
     params.set("locale", locale);
     if (searchQuery) params.set("search", searchQuery);
 
-    fetch(`/api/news?${params}`)
+    fetch(`/api/news?${params}`, signal ? { signal } : undefined)
       .then(r => r.json())
       .then(data => {
+        if (signal?.aborted) return;
         setPosts(data.posts || []);
         setTotal(data.total || 0);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch((err) => {
+        if (err?.name === "AbortError") return;
+        setLoading(false);
+      });
   };
 
-  useEffect(() => { fetchPosts(); }, [activeCategory, page]);
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchPosts(controller.signal);
+    return () => controller.abort();
+  }, [activeCategory, page, locale]);
   useEffect(() => {
     setMounted(true);
     fetchCategories();
@@ -140,7 +155,17 @@ function NewsPageInner() {
     if (p.videoId) {
       e.preventDefault();
       setActiveVideoId(p.videoId);
+      return;
     }
+    // الكرت/الصورة قابلان للنقر لفتح الخبر
+    router.push(`/news/${p.slug || p.id}`);
+  };
+
+  // النقر على أي مكان في الكرت يفتح الخبر، عدا الروابط والأزرار (تتولى أمرها بنفسها)
+  const handleCardClick = (e: React.MouseEvent, p: Post) => {
+    const target = e.target as HTMLElement;
+    if (target.closest("a,button")) return;
+    handlePostClick(e, p);
   };
 
   const totalPages = Math.ceil(total / limit);
@@ -189,11 +214,11 @@ function NewsPageInner() {
 
             <div className="hidden lg:flex items-center gap-4 bg-white/5 backdrop-blur-md rounded-2xl p-4 border border-white/10">
               <div className="text-center px-4 border-l border-white/10">
-                <p className="text-xl font-bold text-[#c8a84e]">+2,500</p>
+                <p className="text-xl font-bold text-[#c8a84e]">{formatLocalizedNumber(2500, locale)}</p>
                 <p className="text-xs text-white/60">{t('statMembers')}</p>
               </div>
               <div className="text-center px-4">
-                <p className="text-xl font-bold text-[#c8a84e]">48</p>
+                <p className="text-xl font-bold text-[#c8a84e]">{formatLocalizedNumber(48, locale)}</p>
                 <p className="text-xs text-white/60">{t('statEvents')}</p>
               </div>
             </div>
@@ -225,7 +250,7 @@ function NewsPageInner() {
                     : "bg-white text-gray-700 border border-gray-200 hover:border-[#1a5632]/40 hover:text-[#1a5632] shadow-sm"
                 }`}
               >
-                {CATEGORY_LABELS[cat.name] || cat.name} ({cat.count})
+                {CATEGORY_LABELS[cat.name] || cat.name} ({formatLocalizedNumber(cat.count, locale)})
               </button>
             ))}
           </div>
@@ -265,15 +290,15 @@ function NewsPageInner() {
             ) : (
               <>
                 <div className="text-xs font-semibold text-[#1a5632] mb-5 bg-[#1a5632]/5 w-fit px-3 py-1.5 rounded-lg border border-[#1a5632]/10">
-                  {t('countIn', { total, category: CATEGORY_LABELS[activeCategory] || activeCategory })}
+                  {t('countIn', { total: formatLocalizedNumber(total, locale), category: CATEGORY_LABELS[activeCategory] || activeCategory })}
                 </div>
 
                 <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
                   {posts.map((p) => {
                     const isVideo = !!(p.videoId);
                     return (
-                      <div key={p.id} className="bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-transparent hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 ease-out group flex flex-col relative">
-                        <div className="block overflow-hidden relative aspect-video cursor-pointer" onClick={(e) => handlePostClick(e, p)}>
+                      <div key={p.id} onClick={(e) => handleCardClick(e, p)} className="bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-transparent hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 ease-out group flex flex-col relative cursor-pointer">
+                        <div className="block overflow-hidden relative aspect-video">
                           <img src={getThumb(p)} alt={p.title} loading="lazy" decoding="async" onError={(e) => handleImgError(e, p.title, p.category)} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out" />
                           <span className="absolute top-3 right-3 backdrop-blur-md bg-white/75 text-[#1a5632] font-semibold text-xs px-2.5 py-1 rounded-full shadow-sm border border-white/20">
                             {CATEGORY_LABELS[p.category] || p.category}
@@ -291,7 +316,7 @@ function NewsPageInner() {
                             {isVideo ? (
                               <button onClick={(e) => handlePostClick(e as any, p)} className="text-right font-bold w-full focus:outline-none">{formatLocalizedDigits(p.title, locale)}</button>
                             ) : (
-                              <Link href={`/news/${p.slug || p.id}`}>{formatLocalizedDigits(p.title, locale)}</Link>
+                              <Link href={`/news/${p.slug || p.id}`} prefetch={false}>{formatLocalizedDigits(p.title, locale)}</Link>
                             )}
                           </h3>
                           {p.excerpt && <p className="text-sm text-gray-500 mt-2 line-clamp-2 leading-relaxed">{formatLocalizedDigits(p.excerpt, locale)}</p>}
@@ -339,7 +364,7 @@ function NewsPageInner() {
                 </button>
                 {mounted && categories.map((cat) => (
                   <button key={cat.name} onClick={() => handleCategoryClick(cat.name)} className={`block w-full text-right px-4 py-2.5 rounded-xl text-sm transition-all ${activeCategory === cat.name ? "bg-[#1a5632]/10 text-[#1a5632] font-bold" : "text-gray-700 hover:bg-gray-50"}`}>
-                    {CATEGORY_LABELS[cat.name] || cat.name} ({cat.count})
+                    {CATEGORY_LABELS[cat.name] || cat.name} ({formatLocalizedNumber(cat.count, locale)})
                   </button>
                 ))}
               </div>
@@ -351,9 +376,9 @@ function NewsPageInner() {
                 <span>{t('statsTitle')}</span>
               </h4>
               <div className="grid grid-cols-2 gap-3">
-                {[{ label: t('statMembers'), value: "+2,500" }, { label: t('statEvents'), value: "48" }, { label: t('statVolunteers'), value: "320" }, { label: t('statYears'), value: "5" }].map((s) => (
+                {[{ label: t('statMembers'), value: 2500 }, { label: t('statEvents'), value: 48 }, { label: t('statVolunteers'), value: 320 }, { label: t('statYears'), value: 5 }].map((s) => (
                   <div key={s.label} className="bg-[#1a5632]/5 rounded-xl p-3 text-center border border-[#1a5632]/5">
-                    <p className="text-lg font-extrabold text-[#1a5632]">{s.value}</p>
+                    <p className="text-lg font-extrabold text-[#1a5632]">{formatLocalizedNumber(s.value, locale)}</p>
                     <p className="text-xs text-gray-500 mt-0.5">{s.label}</p>
                   </div>
                 ))}

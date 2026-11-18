@@ -28,7 +28,9 @@ echo   الموقع المحلي: http://localhost:3000
 echo ========================================================
 echo.
 
-timeout /t 8 > nul
+timeout /t 6 > nul
+:: تسخين المسارات في الخلفية حتى لا يبدو الموقع معلّقاً عند أول نقرة
+start "SGN Warm-up" /min cmd /c "cd /d ""%ROOT%"" && node scripts\23-warmup-dev.cjs"
 start http://localhost:3000
 
 exit /b 0

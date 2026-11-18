@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { after } from "next/server";
 import { prisma } from "@/lib/db";
 import { Link } from "@/i18n/routing";
 import { getTranslations } from "next-intl/server";
@@ -67,8 +68,10 @@ export default async function ArticlePage({ params }: Props) {
     ? await prisma.task.findUnique({ where: { id: post.relatedTaskId } })
     : null;
 
-  // Increment view count asynchronously to avoid blocking page render/SQL locks
-  prisma.post.update({ where: { id: post.id }, data: { views: { increment: 1 } } }).catch(() => {});
+  // زيادة المشاهدات بعد إرسال الرد (لا تعطّل العرض ولا تُسلسل قفل الكتابة على SQLite)
+  after(() => {
+    prisma.post.update({ where: { id: post.id }, data: { views: { increment: 1 } } }).catch(() => {});
+  });
 
   const jsonLd = {
     "@context": "https://schema.org",
