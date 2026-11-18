@@ -22,7 +22,33 @@ const ROUTES = [
   "/en/news",
   "/nl/news",
   "/",
+  // الصفحات الأساسية — تترجم عند أول زيارة فقط، فتسخينها يمنع «الانتظار الطويل»
+  "/about",
+  "/events",
+  "/contact",
+  "/members",
+  "/regulations",
+  "/emergency",
+  "/prayers",
 ];
+
+/**
+ * مسار صفحة الخبر (/news/[slug]) لا يُعرف مسبقاً، فأول نقرة على أي خبر
+ * تدفع ثمن الترجمة كاملاً. نجلب أول خبر ونُسخّن مساره (نفس المسار يخدم كل الأقسام).
+ */
+async function firstArticleRoute() {
+  try {
+    const res = await fetch(BASE + "/api/news?locale=ar&limit=1", {
+      signal: AbortSignal.timeout(30000),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const slug = data?.posts?.[0]?.slug || data?.posts?.[0]?.id;
+    return slug ? "/news/" + encodeURIComponent(slug) : null;
+  } catch {
+    return null;
+  }
+}
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -58,7 +84,9 @@ async function waitForServer(maxMs = 180000) {
     process.exit(1);
   }
   console.log("[warmup] الخادم جاهز. جارٍ تسخين المسارات...");
-  for (const route of ROUTES) {
+  const articleRoute = await firstArticleRoute();
+  const allRoutes = articleRoute ? [...ROUTES, articleRoute] : ROUTES;
+  for (const route of allRoutes) {
     const r = await ping(route);
     console.log(`[warmup] ${r.status || "ERR"} ${r.ms}ms  ${decodeURIComponent(route)}`);
   }
