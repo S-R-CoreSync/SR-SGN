@@ -76,6 +76,23 @@ SGN/                          # ← Web app (Next.js 16 + i18n + Tailwind)
 > متغيّرات الإنتاج تُضبط **فقط** من لوحة Vercel (Settings → Environment Variables).
 > للتشخيص: `vercel curl <url>` (لأن روابط الدفعات محمية بـ SSO) + `GET /api/health`.
 
+### 🔑 المتغيّرات الإلزامية على Vercel (تحقّق منها قبل أي نشر)
+
+| المتغيّر | لماذا إلزامي |
+|----------|--------------|
+| `NEXTAUTH_SECRET` | توقيع جلسات NextAuth. **لا يوجد سرّ افتراضي في الكود** (كان موجوداً ومنشوراً = ثغرة تزوير جلسات). إن غاب: الجلسات تُفقد عند كل إعادة تشغيل. |
+| `NEXTAUTH_URL` | `https://sgn-drab.vercel.app` — بدونه تحذيرات NextAuth وروابط دخول خاطئة. |
+| `TURSO_DATABASE_URL` + `TURSO_AUTH_TOKEN` | قاعدة الإنتاج. |
+| `CRON_SECRET` | `/api/sync` للمهمة المجدولة (`x-cron-secret` أو `Authorization: Bearer`). **يجب إضافته أيضاً في GitHub → Settings → Secrets → Actions** وإلا فالمزامنة المجدولة ترجع 403 بصمت. |
+| `SGN_ADMIN_SECRET` | مسارات `/api/admin/*`. |
+| `MOBILE_TOKEN_SECRET` | توقيع توكن الموبايل (HMAC). |
+| `GROQ_API_KEY` + `AI_PROVIDER=groq` | كل ميزات الذكاء الاصطناعي. |
+| `FACEBOOK_CLIENT_ID` / `FACEBOOK_CLIENT_SECRET` / `FACEBOOK_PAGE_ID` / `FACEBOOK_PAGE_TOKEN` | مزامنة فيسبوك + زر ربط الصفحة. |
+| `SMTP_*` | بريد إعادة تعيين كلمة السر. |
+| `WHATSAPP_TOKEN` + `WHATSAPP_INSTANCE_ID` | إرسال رموز OTP. |
+
+> 🚨 **قاعدة دائمة:** لا تكتب أي سرّ داخل الكود (لا كقيمة افتراضية ولا fallback). أي سرّ يُضاف كمتغيّر بيئة فقط.
+
 ## 🔄 Auto-update the Client URL
 
 Before building the mobile app for production:
