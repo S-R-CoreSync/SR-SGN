@@ -110,9 +110,15 @@ This changes `mobile/constants/config.ts` to use `https://sgn-drab.vercel.app`.
 > الأمر `npm run dev` يفشل داخل `cmd` لأن `node_modules/.bin/next.cmd` لا يتعامل مع `&`.
 > استخدم بدلاً منه:
 > ```bat
-> node "node_modules\next\dist\bin\next" dev -p 3000
+> node "node_modules\next\dist\bin\next" dev -p 3000 --webpack
 > ```
 > أو شغّل `scripts\windows\start-dev-environment.bat` / `restart-dev.bat`.
+>
+> 🚨 **`--webpack` إلزامي — لا تحذفه:**
+> بدون `--webpack` يستخدم Next.js 16 **Turbopack**، واللي يفشل على Windows عندما يحتوي مسار المشروع على `&`
+> (حالتنا: `S&R CoreSync`). النتيجة: `/` تعمل، لكن **كل** `/api/*` و`/[locale]/*` ترجع **404**
+> (بما فيها `/api/auth/session` → خطأ next-auth `Unexpected token '<'`، و`/api/health`).
+> الحل الوحيد: `--webpack`. (تم تشخيصه 18 نوفمبر 2026.)
 
 ## 🔄 SGN Workflow — من فكرة إلى نشر
 
