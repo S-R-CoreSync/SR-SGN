@@ -1,14 +1,6 @@
 import { generateText } from "@/lib/ai/provider";
 import type { ExtractedArticle } from "./types";
 
-function cleanJsonResponse(response: string): string {
-  let cleaned = response.trim();
-  if (cleaned.startsWith("```")) {
-    cleaned = cleaned.replace(/^```json\s*/i, "").replace(/```\s*$/, "").trim();
-  }
-  return cleaned;
-}
-
 function detectLanguage(article: ExtractedArticle): "ar" | "nl" | "en" {
   if (/[\u0600-\u06FF]/.test(article.title)) {
     return "ar";
@@ -26,31 +18,34 @@ async function generateTextWithRetry(
   systemPrompt: string,
   options: { responseFormat: "text" | "json" }
 ): Promise<string> {
-  let retries = 3;
-  let delayTime = 10000; // wait 10 seconds on first retry
-  let currentOptions = { ...options }; // mutable copy for retry adjustments
+  // كانت هنا مهلة ٤.٥ ثانية قبل كل نداء (موروثة من حدود Gemini/GitHub 15 RPM).
+  // مع Groq صارت مجرد إبطاء: ١٥ مقالاً × ٣ لغات = ٦٧ ثانية نوم فقط.
+  // الآن مهلة قصيرة + تراجع تصاعدي حقيقي عند 429 (نحترم Retry-After إن وُجد).
+  let retries = 5;
+  let delayTime = 4000;
+  let currentOptions = { ...options };
 
   while (retries > 0) {
     try {
-      // 4.5 seconds base delay between calls (guarantees max 13 RPM to stay safely under Gemini/GitHub 15 RPM limit)
-      await new Promise((resolve) => setTimeout(resolve, 4500));
+      await new Promise((resolve) => setTimeout(resolve, 700));
       return await generateText(prompt, systemPrompt, currentOptions);
     } catch (error) {
       const errMsg = error instanceof Error ? error.message : String(error);
       const isRateLimit = errMsg.includes("429") || errMsg.includes("rate limit") || errMsg.includes("Too many requests");
       const isJsonError = errMsg.includes("400") && errMsg.includes("json_validate_failed");
-      
+
       if (isRateLimit && retries > 1) {
-        console.warn(`\n[Sync AI API] Rate limit hit (429). Retrying in ${delayTime / 1000} seconds... (${retries - 1} retries left)`);
-        await new Promise((resolve) => setTimeout(resolve, delayTime));
+        // احترام retry-after من المزوّد إن كان مذكوراً بالرسالة
+        const hinted = errMsg.match(/retry[- ]after["':\s]+(\d+)/i);
+        const wait = hinted ? Math.min(Number(hinted[1]) * 1000, 60_000) : delayTime;
+        console.warn(`[Sync AI API] Rate limit (429). Retrying in ${Math.round(wait / 1000)}s (${retries - 1} left)`);
+        await new Promise((resolve) => setTimeout(resolve, wait));
         retries--;
-        delayTime *= 2; // exponential backoff
+        delayTime = Math.min(delayTime * 2, 60_000);
       } else if (isJsonError && retries > 1) {
-        // Groq sometimes fails JSON validation — retry without JSON format constraint
-        console.warn(`\n[Sync AI API] JSON validation error. Retrying without JSON format constraint...`);
-        await new Promise((resolve) => setTimeout(resolve, 3000));
+        console.warn(`[Sync AI API] JSON validation error. Retrying as plain text...`);
+        await new Promise((resolve) => setTimeout(resolve, 2000));
         retries--;
-        // On retry, use text format - the cleanJsonResponse will parse it
         currentOptions = { responseFormat: "text" };
       } else {
         throw error;
@@ -60,43 +55,78 @@ async function generateTextWithRetry(
   throw new Error("Failed to generate text after multiple retries due to rate limits.");
 }
 
+/**
+ * ترجمة احتياطية بدون JSON — تُستخدم عندما يفشل تحليل رد JSON
+ * (الموديلات الكبيرة تُرجع أحياناً JSON مبتوراً على المقالات الطويلة،
+ * فيُفقد المقال ويُعاد المحاولة كل تشغيل = بطء دائم).
+ */
+const CHUNK_CHARS = 6000;
+
+async function translatePlainText(text: string, kind: "title" | "body"): Promise<string> {
+  const system =
+    kind === "title"
+      ? "You are a professional news translator. Translate Dutch/English headlines into Arabic. Output only the translated headline."
+      : "You are a professional media translator. Translate Dutch/English news into Arabic. Preserve ALL HTML tags, links, image tags and iframes exactly. Output only the translation.";
+
+  const prompt =
+    kind === "title"
+      ? `Translate this news headline into professional Arabic. Output ONLY the Arabic headline:\n\n${text}`
+      : `Translate the following news article body into professional Arabic, keeping the HTML intact:\n\n${text}`;
+
+  const out = await generateTextWithRetry(prompt, system, { responseFormat: "text" });
+  return (out || "").trim().replace(/^["'«»]+|["'«»]+$/g, "").trim();
+}
+
+/** ترجمة جسم المقال على دفعات لتفادي الردود المبتورة. */
+async function translateBodyInChunks(content: string): Promise<string> {
+  if (content.length <= CHUNK_CHARS) return translatePlainText(content, "body");
+
+  const blocks = content.split(/(?<=<\/(?:p|div|h[1-6]|li|blockquote|figure)>)/i);
+  const chunks: string[] = [];
+  let buffer = "";
+  for (const block of blocks) {
+    if (buffer && buffer.length + block.length > CHUNK_CHARS) {
+      chunks.push(buffer);
+      buffer = block;
+    } else {
+      buffer += block;
+    }
+  }
+  if (buffer) chunks.push(buffer);
+
+  const translated: string[] = [];
+  for (const chunk of chunks) {
+    translated.push(await translatePlainText(chunk, "body"));
+  }
+  return translated.join("");
+}
+
+async function translateArticleFallback(article: ExtractedArticle): Promise<ExtractedArticle | null> {
+  const title = await translatePlainText(article.title, "title");
+  const content = await translateBodyInChunks(article.content);
+  if (!title || !content) return null;
+
+  const plain = content.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  return {
+    ...article,
+    title,
+    content,
+    excerpt: plain.slice(0, 300),
+  };
+}
+
 export async function translateArticle(article: ExtractedArticle): Promise<ExtractedArticle> {
   const isArabic = /[\u0600-\u06FF]/.test(article.title);
   if (isArabic) {
     return article;
   }
 
+  // مسار واحد موثوق: عنوان + جسم (على دفعات). ألغينا مسار JSON لأن الموديلات
+  // كانت تُرجع JSON مبتوراً على المقالات الطويلة → فشل + إعادة محاولات + بطء،
+  // وكان المقال يُفقد فيُعاد ترجمته في كل تشغيل.
   try {
-    const prompt = `Translate the following news article elements into professional, clear, and engaging Arabic suitable for a news platform catering to the Syrian community in the Netherlands.
-You MUST output your response as a valid JSON object matching this schema:
-{
-  "title": "translated title as a brief, professional news headline",
-  "excerpt": "translated summary/excerpt",
-  "content": "translated article body, preserving ALL HTML tags, inline styles, links, image tags, and iframes exactly as they are"
-}
-
-Article to translate:
-Title: ${article.title}
-Excerpt: ${article.excerpt || ""}
-Content: ${article.content}`;
-
-    const response = await generateTextWithRetry(
-      prompt,
-      "You are a professional media translator specializing in translating Dutch and English news into high-quality, professional Arabic. You always respond with a raw JSON object only.",
-      { responseFormat: "json" }
-    );
-
-    const cleaned = cleanJsonResponse(response);
-    const parsed = JSON.parse(cleaned);
-
-    if (parsed.title && parsed.content) {
-      return {
-        ...article,
-        title: parsed.title.trim(),
-        excerpt: parsed.excerpt?.trim() || article.excerpt,
-        content: parsed.content.trim(),
-      };
-    }
+    const fallback = await translateArticleFallback(article);
+    if (fallback) return fallback;
   } catch (error) {
     console.error("AI translation failed for article:", article.title, error);
   }

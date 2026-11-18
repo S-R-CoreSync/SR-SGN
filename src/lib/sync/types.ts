@@ -43,6 +43,10 @@ export interface SyncConfig {
   autoCategorize: boolean
   downloadMedia: boolean
   mediaStorage: "local" | "s3" | "r2"
+  /** سقف عدد المقالات لكل مصدر في التشغيل الواحد (افتراضي ٢٥) */
+  limit?: number
+  /** عدد المقالات المعالَجة بالتوازي (افتراضي ٤، أقصى ٨) */
+  concurrency?: number
 }
 
 export const CATEGORY_MAP: Record<string, string> = {

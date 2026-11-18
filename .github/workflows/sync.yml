@@ -1,17 +1,56 @@
-name: مزامنة الأخبار الدورية
+name: مزامنة الأخبار المجدولة
 
 on:
   schedule:
     - cron: "0 */6 * * *"
   workflow_dispatch:
+    inputs:
+      source:
+        description: "اسم مصدر واحد فقط (اتركه فارغاً لمزامنة الكل)"
+        required: false
+        type: string
 
 jobs:
   sync:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - name: إرسال أمر المزامنة إلى الموقع الحي
+      - name: مزامنة المصادر (كل مصدر بطلب منفصل)
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          ONLY_SOURCE: ${{ inputs.source }}
         run: |
-          curl -sS -f -X POST "https://sgn-drab.vercel.app/api/sync" \
-            -H "Content-Type: application/json" \
-            -H "x-cron-secret: ${{ secrets.CRON_SECRET }}" \
-            -d '{}'
+          set -u
+
+          if [ -z "${CRON_SECRET:-}" ]; then
+            echo "::error::CRON_SECRET غير مضبوط في أسرار المستودع (Settings → Secrets and variables → Actions)"
+            exit 1
+          fi
+
+          ALL_SOURCES="sy-nl.org youtube facebook-sgn nos-netherlands euronews-europe euronews-business euronews-culture"
+          SOURCES="${ONLY_SOURCE:-$ALL_SOURCES}"
+
+          failed=0
+          for src in $SOURCES; do
+            echo "── مزامنة المصدر: $src"
+            code=$(curl -sS -o "/tmp/sync-$src.json" -w "%{http_code}" --max-time 55 \
+              -X POST "https://sgn-drab.vercel.app/api/sync" \
+              -H "Content-Type: application/json" \
+              -H "x-cron-secret: $CRON_SECRET" \
+              -d "{\"source\":\"$src\"}") || code=000
+
+            echo "HTTP $code"
+            head -c 600 "/tmp/sync-$src.json" 2>/dev/null || true
+            echo
+
+            if [ "$code" != "200" ]; then
+              echo "::warning::المصدر $src رجع $code"
+              failed=$((failed + 1))
+            fi
+          done
+
+          if [ "$failed" -gt 0 ]; then
+            echo "::error::فشل $failed مصدر/مصادر"
+            exit 1
+          fi
+          echo "تمّت مزامنة كل المصادر بنجاح"

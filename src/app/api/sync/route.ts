@@ -7,6 +7,10 @@ import { timingSafeEqual } from "crypto"
 
 import { revalidatePath } from "next/cache"
 
+// ⏱️ مهلة التنفيذ على Vercel (الحد الأقصى على Hobby هو ٦٠ ثانية).
+// لذلك صار بالإمكان تشغيل مصدر واحد لكل طلب عبر `source` أو `sources`.
+export const maxDuration = 60
+
 /** مقارنة سرّية آمنة زمنياً (تمنع استنتاج السر من فروق التوقيت). */
 function secretMatches(provided: string | null): boolean {
   const expected = process.env.CRON_SECRET?.trim()
@@ -31,9 +35,29 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json().catch(() => ({}))
-    const results = await runSync(body.sources, {
+
+    // اختيار المصادر: `source: "youtube"` أو `sources: ["sy-nl.org", "youtube"]`
+    // أو `sources: [{...}]` بكائنات كاملة (للتوافق مع الاستدعاءات القديمة).
+    let targets: typeof DEFAULT_SOURCES | undefined
+    if (Array.isArray(body.sources) && body.sources.length > 0) {
+      targets = body.sources.every((s: unknown) => typeof s === "string")
+        ? DEFAULT_SOURCES.filter((s) => (body.sources as string[]).includes(s.name))
+        : (body.sources as typeof DEFAULT_SOURCES)
+    } else if (typeof body.source === "string") {
+      targets = DEFAULT_SOURCES.filter((s) => s.name === body.source)
+      if (targets.length === 0) {
+        return NextResponse.json(
+          { error: `Unknown source "${body.source}"`, available: DEFAULT_SOURCES.map((s) => s.name) },
+          { status: 400 }
+        )
+      }
+    }
+
+    const results = await runSync(targets, {
       autoCategorize: body.autoCategorize !== false,
       downloadMedia: body.downloadMedia !== false,
+      limit: typeof body.limit === "number" ? body.limit : undefined,
+      concurrency: typeof body.concurrency === "number" ? body.concurrency : undefined,
     })
 
     // كسر التخزين المؤقت لكي تظهر الأخبار الجديدة للعميل فوراً
