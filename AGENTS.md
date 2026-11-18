@@ -68,6 +68,14 @@ SGN/                          # ← Web app (Next.js 16 + i18n + Tailwind)
 
 > `sy-nl.org` هو موقع خارجي لجلب المعلومات والأخبار فقط — ليس من مشروعنا.
 
+> 🚨 **قاعدة أمان إلزامية — لا ترفع ملفات `.env` إلى Vercel:**
+> ملف `.vercelignore` في جذر المشروع يستثني `.env` و`.env.*` (ما عدا `.env.example`).
+> **لا تحذف هذا السطر ولا تعطّل الملف.** السبب الحقيقي لعطل 18 نوفمبر 2026 (كل الصفحات 500):
+> رُفع `.env.production` مع النشر وفيه قيم بديلة `[SENSITIVE]`، فقرأها Next.js في الإنتاج
+> وكسر `DATABASE_URL` / `TURSO_DATABASE_URL` / `NEXTAUTH_URL` → `TypeError: Invalid URL`.
+> متغيّرات الإنتاج تُضبط **فقط** من لوحة Vercel (Settings → Environment Variables).
+> للتشخيص: `vercel curl <url>` (لأن روابط الدفعات محمية بـ SSO) + `GET /api/health`.
+
 ## 🔄 Auto-update the Client URL
 
 Before building the mobile app for production:
