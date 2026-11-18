@@ -1,4 +1,28 @@
 import { prisma } from "@/lib/db";
+import { embedText } from "@/lib/ai/embeddings";
+import { searchVectors } from "@/lib/ai/vector-search";
+
+// Semantic news search (Jina + Qdrant). Returns null if unavailable.
+async function searchNewsSemantic(question: string, locale: string): Promise<{ title: string; excerpt: string; category: string; createdAt: Date }[] | null> {
+  try {
+    if (!process.env.JINA_API_KEY || !process.env.QDRANT_URL) return null;
+    const vec = await embedText(question);
+    const hits = await searchVectors(vec, 5);
+    if (hits.length === 0) return null;
+    // Fetch full post data for the hits
+    const ids = hits.map((h) => h.id);
+    const posts = await prisma.post.findMany({
+      where: { id: { in: ids }, published: true },
+      select: { id: true, title: true, excerpt: true, category: true, createdAt: true },
+    });
+    // Preserve vector order
+    const byId = new Map(posts.map((p) => [p.id, p]));
+    return hits.map((h) => byId.get(h.id)).filter(Boolean) as any;
+  } catch (e) {
+    console.warn("[RAG] semantic news search failed, falling back to keyword:", (e as Error).message);
+    return null;
+  }
+}
 
 const STOP_WORDS = new Set([
   "ما", "هل", "كيف", "أين", "متى", "لماذا", "من", "إلى", "عن", "على", "في", "مع", "هل", "هذا",
@@ -93,16 +117,22 @@ export async function buildRAGContext(question: string, locale: string): Promise
     }
   }
 
-  // Search news (Post)
-  const news = await prisma.post.findMany({
-    where: {
-      published: true,
-      OR: buildKeywordOR(keywords, ["title", "excerpt", "content", "tags"]),
-    },
-    orderBy: { createdAt: "desc" },
-    take: 5,
-    select: { title: true, excerpt: true, category: true, createdAt: true },
-  });
+  // Search news (Post) — semantic first, keyword fallback
+  let news: { title: string; excerpt: string | null; category: string; createdAt: Date }[] = [];
+  const semanticNews = await searchNewsSemantic(question, locale);
+  if (semanticNews && semanticNews.length > 0) {
+    news = semanticNews;
+  } else {
+    news = await prisma.post.findMany({
+      where: {
+        published: true,
+        OR: buildKeywordOR(keywords, ["title", "excerpt", "content", "tags"]),
+      },
+      orderBy: { createdAt: "desc" },
+      take: 5,
+      select: { title: true, excerpt: true, category: true, createdAt: true },
+    });
+  }
 
   if (news.length > 0) {
     parts.push("=== أخبار الجالية ===");
