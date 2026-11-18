@@ -30,7 +30,7 @@ export default function RegulationsDashboard() {
     fetch("/api/regulations")
       .then((r) => r.json())
       .then((d) => {
-        if (d.id) {
+        if (d?.id) {
           setData(d);
           setSections(JSON.parse(d.content || "[]"));
         }

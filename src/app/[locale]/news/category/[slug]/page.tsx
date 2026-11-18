@@ -142,13 +142,13 @@ export default function CategoryPage() {
                   );
                 })()}
                 <div className="p-4">
-                  <span className="bg-[#1a5632]/10 text-[#1a5632] text-xs font-bold px-2 py-0.5 rounded">{p.category}</span>
-                  <h3 className="font-bold text-gray-900 mt-2 mb-1 line-clamp-2 leading-snug">{p.title}</h3>
-                  {p.excerpt && <p className="text-sm text-gray-500 line-clamp-2">{p.excerpt}</p>}
+                  <span className="bg-[#1a5632]/10 text-[#1a5632] text-xs font-bold px-2 py-0.5 rounded">{formatLocalizedDigits(p.category, locale)}</span>
+                  <h3 className="font-bold text-gray-900 mt-2 mb-1 line-clamp-2 leading-snug">{formatLocalizedDigits(p.title, locale)}</h3>
+                  {p.excerpt && <p className="text-sm text-gray-500 line-clamp-2">{formatLocalizedDigits(p.excerpt, locale)}</p>}
                   <div className="flex items-center gap-2 mt-3 text-xs text-gray-400">
                     <Clock className="w-3 h-3" />
                     <span>{formatDate(p.createdAt, locale)}</span>
-                    {p.author?.name && <><span>•</span><span>{p.author.name}</span></>}
+                    {p.author?.name && <><span>•</span><span>{formatLocalizedDigits(p.author.name, locale)}</span></>}
                   </div>
                 </div>
               </Link>

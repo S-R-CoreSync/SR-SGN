@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-17T02:38:44.423Z",
+  "generatedAt": "2026-11-18T20:49:42.307Z",
   "files": {
     "app/[locale]/about/align/page.tsx": 35,
     "app/[locale]/courses/inburgering-quiz/page.tsx": 44,
@@ -77,7 +77,7 @@
     "app/api/members/import/route.ts": 8,
     "app/api/notifications/ai-summary/route.ts": 9,
     "app/api/payments/create-checkout/route.ts": 1,
-    "app/api/public/province-stats/route.ts": 9,
+    "app/api/public/province-stats/route.ts": 2,
     "app/api/sync/facebook/route.ts": 1,
     "app/api/uploads/route.ts": 1,
     "app/sitemap.ts": 1,

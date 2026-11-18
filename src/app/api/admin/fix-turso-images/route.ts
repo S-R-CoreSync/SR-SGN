@@ -1,16 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@libsql/client";
 import { getEditorialFallback } from "@/lib/image-fallback";
+import { verifyAdminSecret } from "@/lib/admin-secret";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const secret = searchParams.get("secret");
-
-  if (secret !== "sgn-sync-2026") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const denied = verifyAdminSecret(req);
+  if (denied) return denied;
 
   const tursoUrl = process.env.TURSO_DATABASE_URL?.trim();
   const tursoToken = process.env.TURSO_AUTH_TOKEN?.trim();

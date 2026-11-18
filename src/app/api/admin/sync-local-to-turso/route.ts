@@ -1,16 +1,40 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@libsql/client";
 import path from "path";
+import { verifyAdminSecret } from "@/lib/admin-secret";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const secret = searchParams.get("secret");
+/**
+ * 🔐 أداة نسخ القاعدة المحلية (prisma/dev.db) إلى Turso.
+ *
+ * قواعد الأمان (لا تُخفَّف):
+ *  1. تعمل **محلياً فقط** — على الإنتاج لا يوجد `prisma/dev.db`، وتركها مفتوحة
+ *     هناك كان يسمح بمسح قاعدة الإنتاج بأكملها.
+ *  2. السر من متغيّر البيئة `SGN_ADMIN_SECRET` (راجع `@/lib/admin-secret`) — لا سر في الكود.
+ *  3. الطريقة POST فقط (GET قد يُنفَّذ من متصفح أو زاحف دون قصد).
+ *
+ * الاستخدام المحلي:
+ *   curl -X POST http://localhost:3000/api/admin/sync-local-to-turso \
+ *        -H "x-sync-secret: $SGN_ADMIN_SECRET"
+ */
 
-  if (secret !== "sgn-sync-2026") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+export async function GET() {
+  return NextResponse.json(
+    { error: "Method Not Allowed", hint: "Use POST with the x-sync-secret header." },
+    { status: 405, headers: { Allow: "POST" } }
+  );
+}
+
+export async function POST(req: NextRequest) {
+  // 1) لا تعمل على الإنتاج إطلاقاً
+  if (process.env.VERCEL || process.env.NODE_ENV === "production") {
+    return NextResponse.json({ error: "Not Found" }, { status: 404 });
   }
+
+  // 2) تحقّق السر من البيئة
+  const denied = verifyAdminSecret(req);
+  if (denied) return denied;
 
   const tursoUrl = process.env.TURSO_DATABASE_URL?.trim();
   const tursoToken = process.env.TURSO_AUTH_TOKEN?.trim();

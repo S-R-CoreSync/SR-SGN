@@ -7,7 +7,9 @@ import { requireAuthorize } from "@/lib/auth-helpers";
 export async function GET() {
   try {
     const regulation = await prisma.regulation.findFirst({ orderBy: { createdAt: "desc" } });
-    return NextResponse.json(regulation || { error: "No regulations found" }, { status: regulation ? 200 : 404 });
+    // لا نرجّع 404 عند عدم وجود لوائح: الصفحة تعرض محتوى افتراضياً،
+    // و404 كان يظهر كخطأ في سجلات المتصفح وشبكة الأداء بلا داعٍ.
+    return NextResponse.json(regulation ?? null, { status: 200 });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }

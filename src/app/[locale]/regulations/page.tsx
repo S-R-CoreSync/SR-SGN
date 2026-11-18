@@ -23,7 +23,7 @@ export default function RegulationsPage() {
   useEffect(() => {
     fetch("/api/regulations")
       .then((r) => r.json())
-      .then((d) => { if (d.id) setData(d); })
+      .then((d) => { if (d?.id) setData(d); })
       .catch(console.error);
   }, []);
 
