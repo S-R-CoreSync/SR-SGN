@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateText } from "@/lib/ai/provider";
 import { SGN_ORGANIZATION_INFO, BOARD_OFFICERS } from "@/lib/documents/templates";
+import { createRateLimiter } from "@/lib/rate-limit";
+import { clientKey, tooMany } from "@/lib/request-guard";
+
+// حماية من الإساءة: توليد المستندات يستهلك موديل نصي مدفوع
+const docsLimiter = createRateLimiter({ maxRequests: 10, windowMs: 60_000, name: "generate-ai-doc" });
 
 interface GenerateDocumentRequest {
   documentType: string;
@@ -19,6 +24,9 @@ interface GenerateDocumentRequest {
 }
 
 export async function POST(req: NextRequest) {
+  const limited = tooMany(docsLimiter, clientKey(req));
+  if (limited) return limited;
+
   try {
     const body: GenerateDocumentRequest = await req.json();
     const {

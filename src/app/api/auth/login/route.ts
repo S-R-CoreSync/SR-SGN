@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import bcrypt from "bcryptjs";
+import { signMobileToken } from "@/lib/mobile-token";
 
 export async function POST(req: NextRequest) {
   try {
@@ -21,7 +22,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       user: { id: user.id, name: user.name, email: user.email, role: user.role },
-      token: user.id, // simplified token for mobile
+      // توكن موقّع بـ HMAC — لا نُعيد معرّف المستخدم الخام أبداً
+      token: signMobileToken(user.id),
     });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });

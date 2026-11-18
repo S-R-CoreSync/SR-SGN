@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-18T20:49:42.307Z",
+  "generatedAt": "2026-11-18T21:13:01.776Z",
   "files": {
     "app/[locale]/about/align/page.tsx": 35,
     "app/[locale]/courses/inburgering-quiz/page.tsx": 44,
@@ -65,7 +65,7 @@
     "app/api/board/upload/route.ts": 5,
     "app/api/chat/summarize/route.ts": 1,
     "app/api/dashboard/ai-briefing/route.ts": 28,
-    "app/api/dashboard/member-stats/route.ts": 39,
+    "app/api/dashboard/member-stats/route.ts": 23,
     "app/api/dashboard/mobile/route.ts": 2,
     "app/api/dashboard/stats/route.ts": 1,
     "app/api/documents/generate-ai/route.ts": 55,

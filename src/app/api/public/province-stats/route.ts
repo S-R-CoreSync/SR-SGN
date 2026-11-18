@@ -53,7 +53,7 @@ async function buildStats(): Promise<ProvinceStats> {
     .map(([name, count]) => ({ name, count }))
     .sort((a, b) => b.count - a.count);
 
-  return { total: total > 0 ? total : 425, provinceData };
+  return { total, provinceData };
 }
 
 export async function GET() {
@@ -73,7 +73,7 @@ export async function GET() {
   } catch (err) {
     console.error("[province-stats] error:", err);
     return NextResponse.json(
-      { total: 425, provinceData: [] },
+      { total: 0, provinceData: [] },
       { headers: { "Cache-Control": "no-store, max-age=0, must-revalidate" } }
     );
   }

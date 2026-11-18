@@ -2,6 +2,11 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { sendWhatsAppMessage } from "@/lib/whatsapp";
 import { getApiMessage } from "@/lib/api-messages";
+import { createRateLimiter } from "@/lib/rate-limit";
+import { clientKey, tooMany } from "@/lib/request-guard";
+
+// حماية من الإساءة: إرسال OTP مكلف (واتساب) — ٥ رسائل كل ١٠ دقائق لكل IP
+const otpLimiter = createRateLimiter({ maxRequests: 5, windowMs: 10 * 60_000, name: "otp-send" });
 
 function tReq(req: Request, key: string) {
   const locale = (req as any).cookies?.get?.('NEXT_LOCALE')?.value || 'ar';
@@ -9,6 +14,9 @@ function tReq(req: Request, key: string) {
 }
 
 export async function POST(req: Request) {
+  const limited = tooMany(otpLimiter, clientKey(req));
+  if (limited) return limited;
+
   try {
     const locale = (req as any).cookies?.get?.('NEXT_LOCALE')?.value || 'ar';
     const { identifier } = await req.json();

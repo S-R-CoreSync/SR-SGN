@@ -1,7 +1,15 @@
 import { NextResponse } from "next/server";
 import { ollamaGenerate } from "@/lib/ai/ollama";
+import { createRateLimiter } from "@/lib/rate-limit";
+import { clientKey, tooMany } from "@/lib/request-guard";
+
+// حماية من الإساءة: استخراج بيانات الهوية يستهلك موديل الرؤية
+const extractLimiter = createRateLimiter({ maxRequests: 10, windowMs: 60_000, name: "gemini-extract-id" });
 
 export async function POST(req: Request) {
+  const limited = tooMany(extractLimiter, clientKey(req));
+  if (limited) return limited;
+
   try {
     const { image, mimeType } = await req.json();
     if (!image || !mimeType) {

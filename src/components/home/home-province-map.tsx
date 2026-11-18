@@ -31,23 +31,13 @@ const PROVINCE_LABELS: Record<string, { ar: string; en: string; nl: string }> = 
   "Limburg":     { ar: "ليمبورخ",    en: "Limburg",      nl: "Limburg" },
 };
 
-// ─── Fallback data (same distribution as dashboard seed) ───────────────────
-const FALLBACK_DATA = {
-  total: 425,
-  provinceData: [
-    { name: "Zuid-Holland",  count: 163 },
-    { name: "Noord-Holland", count: 78  },
-    { name: "Noord-Brabant", count: 45  },
-    { name: "Limburg",       count: 32  },
-    { name: "Gelderland",    count: 31  },
-    { name: "Utrecht",       count: 21  },
-    { name: "Groningen",     count: 15  },
-    { name: "Overijssel",    count: 14  },
-    { name: "Friesland",     count: 8   },
-    { name: "Zeeland",       count: 8   },
-    { name: "Drenthe",       count: 7   },
-    { name: "Flevoland",     count: 3   },
-  ],
+// ─── بيانات احتياطية فارغة ────────────────────────────────────────────────
+// ⚠️ كان هنا ٤٢٥ عضواً وهمياً بتوزيع مصطنع على المقاطعات، وكانت تُعرض للزائر
+// حتى تصل البيانات الحقيقية (أو إذا فشل الطلب). أُزيلت: عرض أرقام غير حقيقية
+// للجالية أخطر من عرض صفر. الأرقام الآن تأتي من قاعدة البيانات فقط.
+const FALLBACK_DATA: StatsResponse = {
+  total: 0,
+  provinceData: [],
 };
 
 export function HomeProvinceMap() {
@@ -140,7 +130,7 @@ export function HomeProvinceMap() {
               className="text-4xl font-black text-gray-900 dark:text-white"
               style={{ fontFamily: locale === "ar" ? undefined : "system-ui, -apple-system, sans-serif" }}
             >
-              {loading ? "—" : (locale === "ar" ? formatLocalizedNumber(stats?.total || 425, "ar") : String(stats?.total || 425))}
+              {loading ? "—" : (locale === "ar" ? formatLocalizedNumber(stats?.total ?? 0, "ar") : String(stats?.total ?? 0))}
             </p>
           </div>
 

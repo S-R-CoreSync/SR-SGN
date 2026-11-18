@@ -1,7 +1,15 @@
 import { NextResponse } from "next/server";
 import { ollamaGenerate } from "@/lib/ai/ollama";
+import { createRateLimiter } from "@/lib/rate-limit";
+import { clientKey, tooMany } from "@/lib/request-guard";
+
+// حماية من الإساءة: تحسين/ترجمة النصوص عبر موديل لغوي
+const polishLimiter = createRateLimiter({ maxRequests: 20, windowMs: 60_000, name: "gemini-polish-text" });
 
 export async function POST(req: Request) {
+  const limited = tooMany(polishLimiter, clientKey(req));
+  if (limited) return limited;
+
   try {
     const { text, action } = await req.json();
     if (!text) {

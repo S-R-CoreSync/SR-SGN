@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "./auth";
 import { prisma } from "./db";
+import { verifyMobileToken } from "./mobile-token";
 
 export interface SessionUser {
   id: string;
@@ -26,11 +27,13 @@ export async function getSessionUser(req?: Request): Promise<SessionUser | null>
   }
 
   // 2. Try Authorization Bearer Token (for Mobile client)
+  //    التوكن موقّع بـ HMAC (راجع `@/lib/mobile-token`) — معرّف خام يُرفض.
   if (req) {
     try {
       const authHeader = req.headers.get("authorization");
       if (authHeader?.startsWith("Bearer ")) {
-        const userId = authHeader.substring(7).trim();
+        const raw = authHeader.substring(7).trim();
+        const userId = verifyMobileToken(raw);
         if (userId) {
           const user = await prisma.user.findUnique({
             where: { id: userId },
@@ -44,6 +47,8 @@ export async function getSessionUser(req?: Request): Promise<SessionUser | null>
               role: user.role || "member",
             };
           }
+        } else if (raw) {
+          console.warn("[getSessionUser] rejected unsigned/legacy bearer token — the user must sign in again");
         }
       }
     } catch (err) {

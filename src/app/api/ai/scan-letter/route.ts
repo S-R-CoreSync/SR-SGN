@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
 import { formatLocalizedDigits } from "@/lib/language-guard";
+import { createRateLimiter } from "@/lib/rate-limit";
+import { clientKey, tooMany } from "@/lib/request-guard";
+
+// حماية من الإساءة: تحليل الرسائل الرسمية خدمة عامة ومكلفة
+const scanLimiter = createRateLimiter({ maxRequests: 10, windowMs: 60_000, name: "scan-letter" });
 
 // Mock/Template knowledge base of common Dutch official letters for fast & reliable parsing
 const KNOWN_AUTHORITIES = [
@@ -14,6 +19,9 @@ const KNOWN_AUTHORITIES = [
 ];
 
 export async function POST(req: Request) {
+  const limited = tooMany(scanLimiter, clientKey(req));
+  if (limited) return limited;
+
   try {
     const body = await req.json();
     const { image, text, letterType, locale = "ar" } = body;

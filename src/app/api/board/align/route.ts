@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import fs from "fs";
 import path from "path";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +22,11 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user || (session.user as any).role !== "admin") {
+    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 403 });
+  }
+
   try {
     const { mapping } = await request.json();
     if (!mapping || typeof mapping !== "object") {
