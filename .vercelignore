@@ -1,0 +1,17 @@
+# ملفات لا تُرفع إلى Vercel إطلاقاً (أمان + حجم)
+# 🚨 مهم: أي ملف .env يُرفع مع النشر يقرأه Next.js في الإنتاج ويُفسد التشغيل
+#    (حدث فعلاً: .env.production بقيم [SENSITIVE] رُفع بالخطأ → 500 لكل الصفحات).
+.env
+.env.*
+!.env.example
+
+# قاعدة SQLite المحلية
+prisma/*.db
+prisma/*.db-*
+prisma/*.db-journal
+
+# مخرجات بناء غير مطلوبة
+mobile/node_modules
+mobile/android
+mobile/ios
+mobile/.expo
