@@ -295,6 +295,38 @@ curl -X POST http://localhost:3000/api/sync
 - إذا انتهى التوكن: استخدم `https://graph.facebook.com/v19.0/me/accounts?access_token={USER_TOKEN}` لاستخراج التوكن الجديد للصفحة
 - صلاحية يحتاجها التوكن: `pages_read_engagement`
 
+#### ⚠️ تطبيقان مختلفان (مصدر إرباك متكرر)
+| التطبيق | App ID | الاستخدام |
+|---|---|---|
+| **SGN Login** | `1378735874184374` | تسجيل الدخول بفيسبوك (OAuth) — سرّه موجود في `.env` |
+| **SGN Sync** | `987463880745316` | توكن قراءة منشورات الصفحة — **سرّه غير موجود عندنا** |
+
+**القاعدة:** توكن فيسبوك لا يمكن تمديده (`grant_type=fb_exchange_token`) إلا بسرّ **التطبيق الذي أصدره**.
+فإن وُلّد التوكن من «SGN Sync» بينما السرّ المتوفر يخصّ «SGN Login» → `Error validating client secret`،
+ويبقى التوكن قصير الأمد (ينتهي خلال ساعات).
+
+**للحصول على توكن صفحة دائم (لا ينتهي):**
+1. ولّد التوكن من تطبيق يملك سرّه عندنا (**SGN Login** في Graph API Explorer)، أو أحضر سرّ **SGN Sync**.
+2. حوّله لتوكن مستخدم طويل الأمد (٦٠ يوماً) عبر `grant_type=fb_exchange_token`.
+3. اسحب توكن الصفحة من `/me/accounts` — **هذا التوكن `expires_at = 0` أي دائم**.
+4. تحقّق: `GET /debug_token?input_token={PAGE_TOKEN}&access_token={PAGE_TOKEN}`.
+
+**بديل إنتاجي أفضل:** Meta Business Suite → Users → **System Users** → دور على الصفحة → Generate Token
+(لا ينتهي أبداً، ولا يعتمد على حساب شخصي).
+
+#### 🔍 مراقبة الصلاحية
+`GET /api/health?sources=true` يرجّع:
+| الحالة | المعنى |
+|---|---|
+| `ok` | سليم وأمامه > ٧ أيام |
+| `expiring` | أمامه ≤ ٧ أيام → الحالة العامة `degraded` |
+| `error` | منتهٍ/غير صالح → `degraded` |
+
+> 🚨 **درس مستفاد:** `extractFacebook` كانت تبتلع استثناء Graph API بـ `console.log` وترجّع مصفوفة فاضية،
+> فكانت المزامنة تُبلّغ «نجاح» مع `fetched=0 errors=0` لأشهر بينما التوكن ميت.
+> **لا تبتلع أخطاء المصادر** — ارمِ الاستثناء ليظهر في `errors[]` و`success=false`.
+
+
 ## 📌 When You See "OP:..." or Similar Prefixes
 
 The user may reference prior sessions. The `AGENTS.md` file is the authoritative source for project rules.
