@@ -512,6 +512,17 @@
     "health": "Healthcare System",
     "work": "Employment & Contracts",
     "housing": "Housing & Tenancy"
+  },
+  "membership": {
+    "activateTitle": "Activate your membership in one click",
+    "activateBody": "Sign in with Facebook or Google and your basic details are filled in automatically - no new password needed.",
+    "activateCta": "Continue with Facebook",
+    "activateGoogleCta": "Continue with Google",
+    "activatePrivacy": "We only ask for your name and email. We never post on your profile and never access your friends list.",
+    "activateOrManual": "Or fill in the form manually",
+    "activateLinkedTitle": "Your account is linked",
+    "activateLinkedBody": "Complete your details to activate your membership and receive a membership number.",
+    "activateAlreadyMember": "Your membership is already active.",
+    "activateLoginFailed": "Sign-in could not be completed. Please try again."
   }
 }
-

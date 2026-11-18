@@ -2,10 +2,12 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
+import { useSession } from "next-auth/react";
 import { useRouter } from "@/i18n/routing";
 import { CheckCircle, Camera, WandSparkles, Sparkles, Badge, Loader2, Check } from "lucide-react";
 import { FreeSyrianFlag, DutchFlag } from "@/components/flags";
 import { SgnLogo } from "@/components/sgn-logo";
+import ActivateCard from "./ActivateCard";
 
 interface FormData {
   nameAr: string;
@@ -69,6 +71,26 @@ export default function MembershipForm() {
   const [otpError, setOtpError] = useState("");
   const [settings, setSettings] = useState<Record<string, boolean> | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const { data: session } = useSession();
+
+  // ملء تلقائي من حساب فيسبوك/جوجل بعد التفعيل — يوفّر على المتابع كتابة بياناته
+  useEffect(() => {
+    const user = session?.user;
+    if (!user) return;
+    const display = (user.name || "").trim();
+    const isArabicName = /[\u0600-\u06FF]/.test(display);
+    setForm((prev) => {
+      const next = {
+        ...prev,
+        email: prev.email || user.email || "",
+        nameAr: prev.nameAr || (isArabicName ? display : ""),
+        nameNl: prev.nameNl || (isArabicName ? "" : display),
+      };
+      const unchanged =
+        next.email === prev.email && next.nameAr === prev.nameAr && next.nameNl === prev.nameNl;
+      return unchanged ? prev : next;
+    });
+  }, [session]);
 
   useEffect(() => {
     fetch("/api/settings/membership").then(r => r.json()).then(setSettings).catch(() => {});
@@ -360,6 +382,8 @@ export default function MembershipForm() {
               <div key={s} className={`h-2 rounded-full transition-all duration-500 ${s <= step ? "bg-emerald-800 w-20" : "bg-gray-200 w-10"}`} />
             ))}
           </div>
+
+          {step === 1 && <ActivateCard />}
 
           <form onSubmit={onSubmit} className="space-y-8">
             {step === 1 && (

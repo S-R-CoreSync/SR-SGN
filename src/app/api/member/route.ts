@@ -7,6 +7,11 @@ import { sendMemberConfirmationWhatsApp, sendAdminNewMemberWhatsApp } from "@/li
 import { sendTelegramNotification } from "@/lib/telegram";
 import { getApiMessage } from "@/lib/api-messages";
 import { SITE_URL } from "@/lib/site";
+import { createRateLimiter } from "@/lib/rate-limit";
+import { clientKey, tooMany } from "@/lib/request-guard";
+
+// حدّ معدّل لطلبات الانتساب: كان المسار بلا أي حدّ سوى تكرار رقم الواتساب
+const memberLimiter = createRateLimiter({ maxRequests: 5, windowMs: 60 * 60 * 1000, name: "member-apply" });
 
 function t(req: Request, key: string, vars?: Record<string, string>) {
   const locale = (req as any).cookies?.get?.('NEXT_LOCALE')?.value || 'ar';
@@ -15,6 +20,9 @@ function t(req: Request, key: string, vars?: Record<string, string>) {
 
 export async function POST(req: Request) {
   try {
+    const limited = tooMany(memberLimiter, clientKey(req));
+    if (limited) return limited;
+
     // rate limit: check duplicate whatsapp in last 24h
     const body = await req.json();
     const { nameAr, nameNl, birthYear, gender, originCity, whatsapp, email, nlProvincie, nlCity, expNl, expOutside, educationLevel, profession, skills, maritalStatus, agreed } = body;

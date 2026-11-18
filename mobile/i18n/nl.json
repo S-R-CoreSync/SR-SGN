@@ -512,6 +512,17 @@
     "health": "Gezondheidszorg",
     "work": "Werk & Contracten",
     "housing": "Wonen & Huren"
+  },
+  "membership": {
+    "activateTitle": "Activeer je lidmaatschap met één klik",
+    "activateBody": "Log in met Facebook of Google en je basisgegevens worden automatisch ingevuld - geen nieuw wachtwoord nodig.",
+    "activateCta": "Doorgaan met Facebook",
+    "activateGoogleCta": "Doorgaan met Google",
+    "activatePrivacy": "We vragen alleen je naam en e-mailadres. We plaatsen niets op je profiel en hebben geen toegang tot je vriendenlijst.",
+    "activateOrManual": "Of vul het formulier handmatig in",
+    "activateLinkedTitle": "Je account is gekoppeld",
+    "activateLinkedBody": "Vul je gegevens in om je lidmaatschap te activeren en een lidnummer te ontvangen.",
+    "activateAlreadyMember": "Je lidmaatschap is al actief.",
+    "activateLoginFailed": "Inloggen kon niet worden voltooid. Probeer het opnieuw."
   }
 }
-

@@ -236,7 +236,9 @@ export async function extractFacebook(
         await new Promise((r) => setTimeout(r, 300))
       }
     } catch (err) {
-      console.log(`Graph API failed: ${err instanceof Error ? err.message : err}`)
+      // كان الخطأ يُبتلع هنا، فكانت المزامنة تُبلّغ «نجاح» مع ٠ منشور
+      // (توهّمنا شهوراً أن فيسبوك يعمل بينما التوكن منتهٍ). الآن يظهر الخطأ صراحةً.
+      throw new Error(`Facebook Graph API: ${err instanceof Error ? err.message : String(err)}`)
     }
   }
 
