@@ -167,7 +167,7 @@ export const PLACEHOLDER_IMG = getPremiumPlaceholder(null, null);
 /** onError handler: يستبدل الصورة المكسورة بالصورة التحريرية المناسبة للموضوع فوراً */
 export function handleImgError(e: SyntheticEvent<HTMLImageElement>, title?: string | null, category?: string | null) {
   const img = e.currentTarget;
-  const fallback = (title || category) ? getEditorialFallback(title, category) : PLACEHOLDER_IMG;
+  const fallback = (title || category) ? getPremiumPlaceholder(title, category) : PLACEHOLDER_IMG;
   if (img.src !== fallback) {
     img.src = fallback;
   }
@@ -178,7 +178,8 @@ export function resolveImage(img?: string | null, title?: string | null, categor
   // روابط الفيسبوك الموقعة تنتهي تلقائياً وتسبب 403 Forbidden
   if (!img || img.includes("fbcdn.net") || img.trim() === "") {
     if (title || category) {
-      return getEditorialFallback(title, category);
+      // استخدام صورة تحريرية فريدة لكل خبر (SVG branded) لتجنب تكرار نفس الصورة
+      return getPremiumPlaceholder(title, category);
     }
     return PLACEHOLDER_IMG;
   }
@@ -186,7 +187,7 @@ export function resolveImage(img?: string | null, title?: string | null, categor
     return img;
   }
   if (title || category) {
-    return getEditorialFallback(title, category);
+    return getPremiumPlaceholder(title, category);
   }
   return PLACEHOLDER_IMG;
 }
