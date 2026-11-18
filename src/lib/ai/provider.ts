@@ -38,7 +38,7 @@ function getConfig(): AIConfig {
   if (configured === "openai") return { provider: "openai", model: getEnvVar("OPENAI_MODEL") || "gpt-4o-mini" };
   if (configured === "anthropic") return { provider: "anthropic", model: getEnvVar("ANTHROPIC_MODEL") || "claude-3-5-sonnet-20240620" };
   if (configured === "gemini") return { provider: "gemini", model: getEnvVar("GEMINI_MODEL") || "gemini-2.5-flash" };
-  if (configured === "groq") return { provider: "groq", model: getEnvVar("GROQ_MODEL") || "llama-3.3-70b-versatile" };
+  if (configured === "groq") return { provider: "groq", model: getEnvVar("GROQ_MODEL") || "qwen/qwen3.8-27b" };
   if (configured === "deepseek") return { provider: "deepseek", model: getEnvVar("DEEPSEEK_MODEL") || "deepseek-chat" };
   if (configured === "github") return { provider: "github", model: getEnvVar("GITHUB_MODEL") || "gpt-4o" };
   if (configured === "cerebras") return { provider: "cerebras", model: getEnvVar("CEREBRAS_MODEL") || "llama3.1-70b" };
