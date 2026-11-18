@@ -33,7 +33,7 @@ jobs:
           failed=0
           for src in $SOURCES; do
             echo "── مزامنة المصدر: $src"
-            code=$(curl -sS -o "/tmp/sync-$src.json" -w "%{http_code}" --max-time 55 \
+            code=$(curl -sS -o "/tmp/sync-$src.json" -w "%{http_code}" --max-time 75 \
               -X POST "https://sgn-drab.vercel.app/api/sync" \
               -H "Content-Type: application/json" \
               -H "x-cron-secret: $CRON_SECRET" \

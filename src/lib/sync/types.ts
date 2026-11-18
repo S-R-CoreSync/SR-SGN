@@ -35,6 +35,8 @@ export interface SyncResult {
   skipped: number
   errors: string[]
   duration: number
+  /** مقالات لم تُعالَج بعد بسبب الميزانية الزمنية — تُكمَل في التشغيل التالي */
+  deferred?: number
 }
 
 export interface SyncConfig {
@@ -47,6 +49,8 @@ export interface SyncConfig {
   limit?: number
   /** عدد المقالات المعالَجة بالتوازي (افتراضي ٤، أقصى ٨) */
   concurrency?: number
+  /** ميزانية الزمن لكل مصدر بالمللي ثانية (افتراضي ٤٥٠٠٠) */
+  timeBudgetMs?: number
 }
 
 export const CATEGORY_MAP: Record<string, string> = {

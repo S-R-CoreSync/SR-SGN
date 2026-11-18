@@ -76,6 +76,9 @@ export async function runSync(
   const concurrency = Math.max(1, Math.min(config?.concurrency ?? 3, 8))
   // توازي اللغات داخل المقال — يبقى منخفضاً لاحترام حدود المزوّد (RPM)
   const localeConcurrency = 2
+  // ⏱️ ميزانية زمنية: Vercel يقطع الدالة عند maxDuration (٦٠ ثانية على Hobby).
+  // نتوقف بأنفسنا قبل القطع فنُرجع نتيجة جزئية سليمة، وما تبقّى يُكمَل بالتشغيل التالي.
+  const timeBudgetMs = Math.max(5_000, Math.min(config?.timeBudgetMs ?? 38_000, 300_000))
 
   for (const source of targets) {
     if (!source.enabled) {
@@ -119,6 +122,12 @@ export async function runSync(
       const syncedLocales = await getSyncedLocales(source.name, sortedArticles)
 
       await mapLimit(sortedArticles, concurrency, async (article) => {
+        // احترام الميزانية الزمنية: لا نبدأ مقالاً جديداً إن اقترب القطع
+        if (Date.now() - start > timeBudgetMs) {
+          result.deferred = (result.deferred ?? 0) + 1
+          return
+        }
+
         const isCommunityNews = !source.translate
         const allLocales = isCommunityNews ? ["ar"] : ["ar", "nl", "en"]
         const already = syncedLocales.get(article.sourceUrl)

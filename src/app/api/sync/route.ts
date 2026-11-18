@@ -58,6 +58,7 @@ export async function POST(req: Request) {
       downloadMedia: body.downloadMedia !== false,
       limit: typeof body.limit === "number" ? body.limit : undefined,
       concurrency: typeof body.concurrency === "number" ? body.concurrency : undefined,
+      timeBudgetMs: typeof body.timeBudgetMs === "number" ? body.timeBudgetMs : undefined,
     })
 
     // كسر التخزين المؤقت لكي تظهر الأخبار الجديدة للعميل فوراً
