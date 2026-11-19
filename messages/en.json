@@ -1857,6 +1857,11 @@
     "health": "Healthcare System",
     "work": "Employment & Contracts",
     "housing": "Housing & Tenancy"
+  },
+  "announcement": {
+    "message": "Board members and staff: sign in with one click using Facebook or Google — no new password needed",
+    "cta": "Sign in",
+    "close": "Dismiss announcement"
   }
 }
 

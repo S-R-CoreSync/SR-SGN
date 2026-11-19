@@ -6,6 +6,7 @@ import { LocaleSync } from "@/components/locale-sync";
 import { ChatWidget } from "@/components/chat-widget";
 import { NotificationToaster } from "@/components/notification-toaster";
 import { RouteProgress } from "@/components/route-progress";
+import AnnouncementBar from "@/components/announcement-bar";
 
 const openGraphLocales: Record<string, string> = {
   ar: "ar_AR",
@@ -48,6 +49,7 @@ export default async function LocaleLayout({ children }: { children: React.React
     <NextIntlClientProvider locale={locale}>
       <RouteProgress />
       <LocaleSync />
+      <AnnouncementBar />
       {children}
       <SiteFooter />
       <ChatWidget />
