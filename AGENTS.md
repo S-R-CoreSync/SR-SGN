@@ -83,7 +83,7 @@ SGN/                          # ← Web app (Next.js 16 + i18n + Tailwind)
 | `NEXTAUTH_SECRET` | توقيع جلسات NextAuth. **لا يوجد سرّ افتراضي في الكود** (كان موجوداً ومنشوراً = ثغرة تزوير جلسات). إن غاب: الجلسات تُفقد عند كل إعادة تشغيل. |
 | `NEXTAUTH_URL` | `https://sgn-drab.vercel.app` — بدونه تحذيرات NextAuth وروابط دخول خاطئة. |
 | `TURSO_DATABASE_URL` + `TURSO_AUTH_TOKEN` | قاعدة الإنتاج. |
-| `CRON_SECRET` | `/api/sync` للمهمة المجدولة (`x-cron-secret` أو `Authorization: Bearer`). **يجب إضافته أيضاً في GitHub → Settings → Secrets → Actions** وإلا فالمزامنة المجدولة ترجع 403 بصمت. |
+| `CRON_SECRET` | `/api/sync` للمهمة المجدولة (`x-cron-secret` أو `Authorization: Bearer`). ✅ **مضاف في GitHub → Settings → Secrets → Actions منذ 19 نوفمبر 2026** — تم التحقق بتشغيل يدوي (run #178) رجع `HTTP 200` لكل المصادر السبعة. |
 | `SGN_ADMIN_SECRET` | مسارات `/api/admin/*`. |
 | `MOBILE_TOKEN_SECRET` | توقيع توكن الموبايل (HMAC). |
 | `GROQ_API_KEY` + `AI_PROVIDER=groq` | كل ميزات الذكاء الاصطناعي. |
