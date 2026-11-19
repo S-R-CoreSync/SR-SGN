@@ -279,6 +279,7 @@ curl -X POST http://localhost:3000/api/sync
 - **الدعوة:** `POST /api/board/[id]/invite` بجسم `{ channel: "email" | "whatsapp", locale }` — ترسل رابط `/login` وتسجّل `invitedAt`.
 - **🔒 الخصوصية:** `GET /api/board` عام، لكنه **يحذف** `email/phone/userId/role/invitedAt` للزائر؛ هذه الحقول تُرسل للمشرف فقط.
 - **مفاتيح i18n:** namespace `boardAdmin` في `messages/*.json` و`mobile/i18n/*.json` (قوالب الدعوة + نصوص اللوحة).
+- **أول دعوة فعلية (١٩ تشرين الثاني ٢٠٢٦):** `m.salim.aziza@gmail.com` ← محمد سليم عزيزة، أُرسلت بالبريد ✅ (`invitedAt` مسجّل). لا يملك حساباً بعد؛ الدور الحالي `member` قابل للترقية من لوحة المجلس.
 
 ## ⚠️ Prisma v7 API Changes (مهم)
 
