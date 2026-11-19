@@ -67,7 +67,8 @@ export default function AnnouncementBar() {
           </p>
           <Link
             href="/login"
-            className="hidden sm:inline-flex flex-shrink-0 items-center rounded-full bg-white px-3 py-1 text-[11px] font-extrabold text-emerald-800 hover:bg-emerald-50 transition-colors"
+            className="hidden sm:inline-flex flex-shrink-0 items-center rounded-full px-3 py-1 text-[11px] font-extrabold transition-colors hover:brightness-95"
+            style={{ backgroundColor: "#ffffff", color: "#065f46" }}
           >
             {t("cta")}
           </Link>
