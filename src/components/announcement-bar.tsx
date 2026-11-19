@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useSession } from "next-auth/react";
 import { Link } from "@/i18n/routing";
@@ -26,6 +27,7 @@ export default function AnnouncementBar() {
   const locale = useLocale();
   const isRtl = locale === "ar";
   const { status } = useSession();
+  const pathname = usePathname();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -46,6 +48,10 @@ export default function AnnouncementBar() {
       // لا شيء
     }
   };
+
+  // داخل صفحتَي الدخول/التسجيل الشريط بلا فائدة: ضغط زره يعيد تحميل نفس الصفحة
+  // فيبدو للمستخدم أنه «ما يعطي خيارات» — نخفيه هناك ونتركه في باقي الصفحات.
+  if (/\/login|\/signup/.test(pathname)) return null;
 
   // من سجّل دخوله لا يحتاج الرسالة — تُخفى فوراً
   if (status === "authenticated") return null;
