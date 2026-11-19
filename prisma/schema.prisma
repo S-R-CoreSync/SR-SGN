@@ -625,6 +625,14 @@ model BoardMember {
   bioPoints   String
   website     String?  @default("https://www.sy-nl.org/")
   kvkNumber   String   @default("96718943")
+  /// بيانات التواصل للدعوة المباشرة (لا تُعرض للعموم)
+  email       String?
+  phone       String?
+  /// حساب الموقع المرتبط بهذا العضو (User.id)
+  userId      String?
+  /// الدور الذي يُمنح للحساب عند الربط: admin | moderator | contributor | member
+  role        String   @default("member")
+  invitedAt   DateTime?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

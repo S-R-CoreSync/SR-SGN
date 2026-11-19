@@ -2,42 +2,68 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import {
+  autoLinkByEmail,
+  linkBoardMemberToUser,
+  sanitizeBoardInput,
+  type LinkedAccount,
+} from "@/lib/board-admin";
+
+function unauthorized() {
+  return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+}
+
+function parseLists(record: any) {
+  return {
+    ...record,
+    committees: (() => { try { return JSON.parse(record.committees || "[]"); } catch { return []; } })(),
+    bioPoints: (() => { try { return JSON.parse(record.bioPoints || "[]"); } catch { return []; } })(),
+  };
+}
 
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions);
-  if (!session?.user || (session.user as any).role !== "admin") {
-    return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
-  }
+  if (!session?.user || (session.user as any).role !== "admin") return unauthorized();
 
   const { id } = await params;
   try {
     const body = await req.json();
+    const data = sanitizeBoardInput(body);
+    const explicitLink = "userId" in data;
 
-    const updateData: Record<string, unknown> = { ...body };
-    delete updateData.id;
-    if (Array.isArray(body.committees)) {
-      updateData.committees = JSON.stringify(body.committees);
-    }
-    if (Array.isArray(body.bioPoints)) {
-      updateData.bioPoints = JSON.stringify(body.bioPoints);
-    }
+    // الربط اليدوي يتم بمنطق منفصل لضمان تحديث دور الحساب
+    const requestedUserId = data.userId as string | null | undefined;
+    delete data.userId;
 
     const updated = await (prisma as any).boardMember.update({
       where: { id },
-      data: updateData,
+      data,
     });
 
-    return NextResponse.json({
-      ...updated,
-      committees: JSON.parse(updated.committees || "[]"),
-      bioPoints: JSON.parse(updated.bioPoints || "[]"),
-    });
+    let account: LinkedAccount | null = null;
+    if (explicitLink) {
+      if (requestedUserId) {
+        account = await linkBoardMemberToUser(
+          id,
+          requestedUserId,
+          String(data.role || updated.role || "member")
+        );
+      } else {
+        // فك الربط: لا نغيّر دور الحساب، فقط نزيل الرابط
+        await (prisma as any).boardMember.update({ where: { id }, data: { userId: null } });
+      }
+    } else {
+      account = await autoLinkByEmail(id, data.email as string | null | undefined, String(data.role || updated.role || "member"));
+    }
+
+    const fresh = await (prisma as any).boardMember.findUnique({ where: { id } });
+    return NextResponse.json({ ...parseLists(fresh), account });
   } catch (error) {
     console.error("[Board PATCH] error:", error);
-    return NextResponse.json({ error: "فشل التحديث" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to update member" }, { status: 500 });
   }
 }
 
@@ -46,9 +72,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions);
-  if (!session?.user || (session.user as any).role !== "admin") {
-    return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
-  }
+  if (!session?.user || (session.user as any).role !== "admin") return unauthorized();
 
   const { id } = await params;
   try {
@@ -56,6 +80,6 @@ export async function DELETE(
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("[Board DELETE] error:", error);
-    return NextResponse.json({ error: "فشل الحذف" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to delete member" }, { status: 500 });
   }
 }

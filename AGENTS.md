@@ -267,6 +267,19 @@ curl -X POST http://localhost:3000/api/sync
 - **الإجمالي**: 69 خبر في قاعدة البيانات (تم حذف 10 مقالات وهمية)
 - قاعدة البيانات: `prisma/dev.db` (SQLite محلياً)
 
+### 👤 ربط حسابات أعضاء المجلس (19 نوفمبر 2026)
+
+> كان أعضاء المجلس الـ٢٤ **بلا حسابات أصلاً**، ولا بريد/جوال مسجّل للتواصل معهم.
+> أُضيفت حقول `email`, `phone`, `userId`, `role`, `invitedAt` إلى `board_members`
+> (محلياً عبر `prisma db push`، وعلى Turso عبر `ALTER TABLE`).
+
+- **اللوحة:** `/[locale]/dashboard/board` — حقول بريد/جوال/دور لكل عضو، زرّا دعوة (بريد/واتساب)، وقائمة لربط الحساب يدوياً.
+- **الربط التلقائي:** عند دخول أي حساب OAuth ببريد مطابق لبريد عضو المجلس، يُربط `User.id` بالسجل ويُمنح الدور المحدد (`src/lib/auth.ts` → `jwt`).
+- **الدور الافتراضي:** `member`؛ القيم المسموحة: `admin | moderator | contributor | member` (`src/lib/board-admin.ts`).
+- **الدعوة:** `POST /api/board/[id]/invite` بجسم `{ channel: "email" | "whatsapp", locale }` — ترسل رابط `/login` وتسجّل `invitedAt`.
+- **🔒 الخصوصية:** `GET /api/board` عام، لكنه **يحذف** `email/phone/userId/role/invitedAt` للزائر؛ هذه الحقول تُرسل للمشرف فقط.
+- **مفاتيح i18n:** namespace `boardAdmin` في `messages/*.json` و`mobile/i18n/*.json` (قوالب الدعوة + نصوص اللوحة).
+
 ## ⚠️ Prisma v7 API Changes (مهم)
 
 - **PrismaLibSql constructor** يأخذ `Config` مباشرة (ليس `Client`):

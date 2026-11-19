@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   Plus, Pencil, Trash2, Upload, X, Check, Loader2, UserCircle2,
-  ChevronUp, ChevronDown, Building2
+  ChevronUp, ChevronDown, Building2, Mail, MessageCircle, Link2, Link2Off
 } from "lucide-react";
 
 interface BoardMember {
@@ -18,6 +19,12 @@ interface BoardMember {
   kvkNumber: string;
   isFounder: boolean;
   isLicensing: boolean;
+  email?: string | null;
+  phone?: string | null;
+  userId?: string | null;
+  role?: string;
+  invitedAt?: string | null;
+  account?: { id: string; name: string | null; email: string; role: string } | null;
 }
 
 const EMPTY_MEMBER: Omit<BoardMember, "id"> = {
@@ -31,6 +38,10 @@ const EMPTY_MEMBER: Omit<BoardMember, "id"> = {
   kvkNumber: "96718943",
   isFounder: true,
   isLicensing: false,
+  email: "",
+  phone: "",
+  role: "member",
+  userId: null,
 };
 
 // ─── مكوّن بطاقة العضو ─────────────────────────────────────────────────────
@@ -296,6 +307,7 @@ function MemberForm({
   onSave: (data: typeof initial) => Promise<void>;
   onCancel: () => void;
 }) {
+  const tAdmin = useTranslations("boardAdmin");
   const [form, setForm] = useState(initial);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -371,6 +383,36 @@ function MemberForm({
           className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5632]" />
       </div>
 
+      {/* بيانات التواصل والصلاحيات — تُستخدم للربط والدعوة المباشرة */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t pt-5">
+        <div>
+          <label htmlFor="field-email" className="block text-sm font-semibold text-gray-700 mb-1">{tAdmin("email")}</label>
+          <input id="field-email" type="email" dir="ltr" value={form.email || ""}
+            onChange={(e) => set("email", e.target.value)}
+            placeholder={tAdmin("emailPlaceholder")}
+            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-start focus:outline-none focus:ring-2 focus:ring-[#1a5632]" />
+        </div>
+        <div>
+          <label htmlFor="field-phone" className="block text-sm font-semibold text-gray-700 mb-1">{tAdmin("phone")}</label>
+          <input id="field-phone" type="tel" dir="ltr" value={form.phone || ""}
+            onChange={(e) => set("phone", e.target.value)}
+            placeholder={tAdmin("phonePlaceholder")}
+            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-start focus:outline-none focus:ring-2 focus:ring-[#1a5632]" />
+        </div>
+        <div>
+          <label htmlFor="field-role" className="block text-sm font-semibold text-gray-700 mb-1">{tAdmin("role")}</label>
+          <select id="field-role" value={form.role || "member"}
+            onChange={(e) => set("role", e.target.value)}
+            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1a5632]">
+            <option value="member">{tAdmin("roleMember")}</option>
+            <option value="contributor">{tAdmin("roleContributor")}</option>
+            <option value="moderator">{tAdmin("roleModerator")}</option>
+            <option value="admin">{tAdmin("roleAdmin")}</option>
+          </select>
+        </div>
+        <p className="sm:col-span-3 text-xs text-gray-500 leading-relaxed">{tAdmin("inviteHint")}</p>
+      </div>
+
       {/* خانات الاختيار */}
       <div className="flex flex-wrap gap-6">
         <label className="flex items-center gap-2 cursor-pointer select-none">
@@ -425,11 +467,14 @@ function MemberForm({
 
 // ─── الصفحة الرئيسية ────────────────────────────────────────────────────────
 export default function DashboardBoardPage() {
+  const tAdmin = useTranslations("boardAdmin");
   const [members, setMembers] = useState<BoardMember[]>([]);
+  const [accounts, setAccounts] = useState<Array<{ id: string; name: string | null; email: string; role: string }>>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | "new" | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [invitingId, setInvitingId] = useState<string | null>(null);
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
 
   // جلب الأعضاء
@@ -438,6 +483,17 @@ export default function DashboardBoardPage() {
     const res = await fetch("/api/board");
     const data = await res.json();
     if (Array.isArray(data)) setMembers(data);
+
+    // قائمة الحسابات لربط أي عضو بحساب موجود
+    try {
+      const usersRes = await fetch("/api/users?limit=200");
+      if (usersRes.ok) {
+        const usersData = await usersRes.json();
+        setAccounts(Array.isArray(usersData.users) ? usersData.users : []);
+      }
+    } catch {
+      // لوحة المستخدمين غير متاحة — نترك القائمة فارغة
+    }
     setLoading(false);
   }
 
@@ -482,6 +538,46 @@ export default function DashboardBoardPage() {
     }
     setDeleteId(null);
     setDeleting(false);
+  }
+
+  // إرسال دعوة مباشرة بالبريد أو بالواتساب
+  async function handleInvite(member: BoardMember, channel: "email" | "whatsapp") {
+    if (channel === "email" && !member.email) return showToast(tAdmin("noEmail"), "error");
+    if (channel === "whatsapp" && !member.phone) return showToast(tAdmin("noPhone"), "error");
+
+    setInvitingId(member.id);
+    try {
+      const res = await fetch(`/api/board/${member.id}/invite`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ channel }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error);
+      }
+      showToast(channel === "email" ? tAdmin("sentEmail") : tAdmin("sentWhatsapp"));
+      await load();
+    } catch {
+      showToast(tAdmin("sendFailed"), "error");
+    } finally {
+      setInvitingId(null);
+    }
+  }
+
+  // ربط العضو بحساب موجود (أو فك الربط)
+  async function handleLink(member: BoardMember, userId: string) {
+    const res = await fetch(`/api/board/${member.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId }),
+    });
+    if (res.ok) {
+      showToast(userId ? tAdmin("linkedAccount") : tAdmin("unlink"));
+      await load();
+    } else {
+      showToast(tAdmin("sendFailed"), "error");
+    }
   }
 
   const editingMember = editingId === "new"
@@ -578,6 +674,54 @@ export default function DashboardBoardPage() {
                 <span className="text-xs bg-gray-50 text-gray-500 border px-2 py-0.5 rounded-full">
                   {m.committees.length} لجنة
                 </span>
+              </div>
+
+              {/* الربط والدعوة المباشرة */}
+              <div className="px-5 pb-3 space-y-2">
+                <div
+                  className={`flex items-center gap-1.5 text-xs px-2 py-1 rounded-lg w-fit ${m.account ? "bg-emerald-50 text-emerald-800" : "bg-gray-50 text-gray-500"}`}
+                  dir="ltr"
+                >
+                  {m.account ? <Link2 className="w-3.5 h-3.5" /> : <Link2Off className="w-3.5 h-3.5" />}
+                  <span>{m.account ? `${tAdmin("linkedAccount")}: ${m.account.email}` : tAdmin("notLinked")}</span>
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleInvite(m, "email")}
+                    disabled={invitingId === m.id || !m.email}
+                    title={tAdmin("inviteEmail")}
+                    className="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 text-xs font-medium text-emerald-800 bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-colors border border-emerald-200 disabled:opacity-40"
+                  >
+                    {invitingId === m.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Mail className="w-3.5 h-3.5" />}
+                    <span>{tAdmin("inviteEmail")}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleInvite(m, "whatsapp")}
+                    disabled={invitingId === m.id || !m.phone}
+                    title={tAdmin("inviteWhatsApp")}
+                    className="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 text-xs font-medium text-emerald-800 bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-colors border border-emerald-200 disabled:opacity-40"
+                  >
+                    <MessageCircle className="w-3.5 h-3.5" />
+                    <span>{tAdmin("inviteWhatsApp")}</span>
+                  </button>
+                </div>
+
+                <select
+                  value={m.userId || ""}
+                  onChange={(e) => handleLink(m, e.target.value)}
+                  aria-label={tAdmin("linkAccount")}
+                  className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-xs bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1a5632]"
+                >
+                  <option value="">{tAdmin("linkAccount")}</option>
+                  {accounts.map((a) => (
+                    <option key={a.id} value={a.id} dir="ltr">
+                      {a.name || a.email} — {a.email}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {/* أزرار الإجراءات */}

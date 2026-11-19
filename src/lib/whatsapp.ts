@@ -49,3 +49,12 @@ export async function sendPendingReminderWhatsApp(whatsapp: string, nameAr: stri
     + "\n\n" + getApiMessage(locale, 'whatsappMessages.contactPrompt');
   await sendWhatsAppMessage(whatsapp, msg);
 }
+
+/** دعوة عضو مجلس الإدارة لتفعيل حسابه — تُرسل من لوحة إدارة المجلس. */
+export async function sendBoardInviteWhatsApp(to: string, name: string, locale = 'ar') {
+  const base = (process.env.NEXT_PUBLIC_APP_URL || 'https://sgn-drab.vercel.app').replace(/\/+$/, '');
+  const url = `${base}/${locale === 'ar' ? 'login' : `${locale}/login`}`;
+  const message = getApiMessage(locale, 'boardAdmin.inviteWhatsApp', { name, url });
+  await sendWhatsAppMessage(to, message);
+  return !!process.env.WHATSAPP_INSTANCE_ID && !!process.env.WHATSAPP_TOKEN;
+}

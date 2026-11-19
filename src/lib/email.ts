@@ -115,3 +115,35 @@ export async function sendStatusChangeEmail(email: string, nameAr: string, statu
     `,
   });
 }
+
+/** دعوة عضو مجلس الإدارة لتفعيل حسابه — تُرسل من لوحة إدارة المجلس. */
+export async function sendBoardInviteEmail(email: string, name: string, locale = 'ar') {
+  if (!isConfigured()) return false;
+  const senderName = fromName || t(locale, 'emailTemplates.senderName');
+  const loginUrl = `${SITE_URL}/${locale === 'ar' ? 'login' : `${locale}/login`}`;
+  const step = (n: string, text: string) => `<li style="margin: 8px 0;">${n}. ${text}</li>`;
+
+  await transporter.sendMail({
+    from: `"${senderName}" <${fromAddr}>`,
+    to: email,
+    subject: t(locale, 'boardAdmin.inviteEmailSubject', { name }),
+    html: `
+      <div dir="${locale === 'ar' ? 'rtl' : 'ltr'}" style="font-family: Arial, sans-serif; max-width: 520px; margin: auto; padding: 24px; border: 1px solid #e5e7eb; border-radius: 12px;">
+        <img src="${SITE_URL}/logo.png" style="width: 48px; height: 48px;" alt="" />
+        <h2 style="color: #1a5632;">${t(locale, 'boardAdmin.inviteEmailHeading', { name })}</h2>
+        <p style="color: #374151; line-height: 1.8;">${t(locale, 'boardAdmin.inviteEmailIntro')}</p>
+        <ol style="color: #374151; line-height: 1.9; padding-inline-start: 20px;">
+          ${step(t(locale, 'boardAdmin.stepOne'), t(locale, 'boardAdmin.inviteEmailStep1'))}
+          ${step(t(locale, 'boardAdmin.stepTwo'), t(locale, 'boardAdmin.inviteEmailStep2'))}
+          ${step(t(locale, 'boardAdmin.stepThree'), t(locale, 'boardAdmin.inviteEmailStep3'))}
+        </ol>
+        <a href="${loginUrl}" style="display: inline-block; background: #1a5632; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin: 16px 0;">
+          ${t(locale, 'boardAdmin.inviteEmailButton')}
+        </a>
+        <p style="color: #6b7280; font-size: 12px; line-height: 1.7;">${t(locale, 'boardAdmin.inviteEmailPrivacy')}</p>
+        <p style="color: #6b7280; font-size: 12px; margin-top: 16px;">${t(locale, 'emailTemplates.footerTagline')}</p>
+      </div>
+    `,
+  });
+  return true;
+}

@@ -5,6 +5,7 @@ import FacebookProvider from "next-auth/providers/facebook";
 import AzureADProvider from "next-auth/providers/azure-ad";
 import AppleProvider from "next-auth/providers/apple";
 import { prisma } from "./db";
+import { autoLinkByEmail } from "./board-admin";
 import bcrypt from "bcryptjs";
 
 // Rate limiting helper
@@ -210,7 +211,29 @@ export const authOptions = {
     async jwt({ token, user, account }: any) {
       if (user) {
         token.id = user.id;
-        token.role = (user as any).role || "member";
+        let role = (user as any).role || "member";
+
+        // ربط تلقائي: إذا كان بريد العضو مطابقاً لبريد حساب دخل حديثاً،
+        // فيُمنح الدور المحدد في سجل مجلس الإدارة دون تدخل المشرف.
+        try {
+          if (user.email) {
+            const boardMember = await (prisma as any).boardMember.findFirst({
+              where: { email: String(user.email).toLowerCase() },
+            });
+            if (boardMember && (!boardMember.userId || boardMember.userId === user.id)) {
+              await autoLinkByEmail(boardMember.id, user.email, boardMember.role);
+              const linked = await prisma.user.findUnique({
+                where: { id: user.id },
+                select: { role: true },
+              });
+              role = linked?.role || role;
+            }
+          }
+        } catch (error) {
+          console.error("[Auth] board auto-link error:", error);
+        }
+
+        token.role = role;
         token.image = user.image;
       }
       if (account) {
