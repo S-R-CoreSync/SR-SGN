@@ -73,7 +73,9 @@ export const authOptions = {
     ...(process.env.GOOGLE_CLIENT_ID ? [GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      allowDangerousEmailAccountLinking: false,
+      // جوجل يوثّق البريد، ونحتاج ربط حساب العضو عند تغيّر Google sub
+      // (كما حدث مع itools.tr@gmail.com) بدل ظهور OAuthAccountNotLinked.
+      allowDangerousEmailAccountLinking: true,
       authorization: {
         params: {
           prompt: "consent",
