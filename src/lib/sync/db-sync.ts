@@ -71,10 +71,29 @@ export async function syncArticleToDb(
 
   const existing = existingByUrl || existingByHash
   if (existing) {
-    if (existing.category !== category) {
+    const updates: Record<string, unknown> = {}
+    if (existing.category !== category) updates.category = category
+
+    // article.image قد يكون محسوباً بعد تنزيل الوسائط، لذا نُحدّث الصورة
+    // هنا إذا كانت المقالة المخزّنة بلا صورة أو تحمل صورة عامة قديمة.
+    if (article.image) {
+      const current = await prisma.post.findUnique({
+        where: { id: existing.id },
+        select: { image: true },
+      })
+      if (
+        !current?.image ||
+        current.image.includes("images.unsplash.com/") ||
+        current.image.includes("fbcdn.net")
+      ) {
+        updates.image = article.image
+      }
+    }
+
+    if (Object.keys(updates).length > 0) {
       await prisma.post.update({
         where: { id: existing.id },
-        data: { category },
+        data: updates as any,
       })
       return { status: "updated", id: existing.id }
     }
