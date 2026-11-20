@@ -17,15 +17,17 @@ const socials = [
 
 export function SiteFooter() {
   const pathname = usePathname();
-  if (pathname && pathname.includes("/dashboard")) {
-    return null;
-  }
-
   const t = useTranslations("footer");
   const tNav = useTranslations("nav");
   const locale = useLocale();
   const isRtl = locale === "ar";
   const [copied, setCopied] = useState(false);
+
+  // يجب أن تُستدعى كل الـhooks قبل أي return مبكر، وإلا تغيّر عددها بين الصفحات
+  // (مثلاً الانتقال من /dashboard إلى الصفحة الرئيسية) وينشأ خطأ React.
+  if (pathname && pathname.includes("/dashboard")) {
+    return null;
+  }
 
   const handleCopy = () => {
     navigator.clipboard.writeText("NL90 ABNA 0148 7498 95");
