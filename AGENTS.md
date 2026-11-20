@@ -288,6 +288,13 @@ curl -X POST http://localhost:3000/api/sync
 - شاشة الموافقة `External` وحالة النشر `Testing`؛ المستخدمون المسموحون: `m.salim.aziza@gmail.com` و`sgn.media.management@gmail.com`. أي عضو جديد سيحتاج إضافته كـTest user أو نشر التطبيق.
 - الدخول بجوجل جُرّب فعلياً وأنشأ جلسة (`provider: google`) ✅.
 
+### 📇 بيانات تواصل المجلس (٢٠ تشرين الثاني ٢٠٢٦)
+- أُضيفت جوالات **١٤ عضواً** إلى `board_members` في المحلي وTurso بصيغة `+31...` (الجدول محفوظ في `C:\Users\msali\AppData\Local\Temp\opencode\board-contacts-collected.md`).
+- **لم تُرسل الدعوات:** بوابة `ultramsg` موقوفة (`Your instance has been Stopped due to non-payment`)؛ `invitedAt` مُبقى فارغاً عمداً بقرار من صاحب المشروع.
+- **ما زال ٩ أعضاء بلا بيانات:** رابعة الزريقات، فاتن رحال، حسن الحسن قطيني، نبيل حاج حسين، بلال الرفاعي، يوسف درويش، محمد ربيع الجنيدي، وسيم حسان، محمد أكرم الجنيدي.
+- ⚠️ **معرّفات `id` تختلف بين المحلي وTurso** — أي تحديث دفعات لازم يطابق بـ`nameAr` لا بـ`id`.
+- 🚨 خلل معروف: `sendWhatsAppMessage` يبتلع أخطاء Ultramsg، و`POST /api/board/[id]/invite` يسجّل `invitedAt` حتى لو فشل الإرسال — يجب إصلاحه قبل أول إرسال فعلي.
+
 ## ⚠️ Prisma v7 API Changes (مهم)
 
 - **PrismaLibSql constructor** يأخذ `Config` مباشرة (ليس `Client`):
