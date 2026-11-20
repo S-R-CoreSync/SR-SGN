@@ -15,8 +15,9 @@ const args = process.argv.slice(2);
 const limitArg = args.find((a) => a.startsWith("--limit="));
 const limit = limitArg ? parseInt(limitArg.split("=")[1], 10) : 0;
 const dryRun = args.includes("--dry-run");
-const CONCURRENCY = 5;
-const DELAY_MS = 150;
+const CONCURRENCY = 2;
+const DELAY_MS = 800;
+const RETRIES = 3;
 
 const url = process.env.TURSO_DATABASE_URL?.trim().replace(/^["']|["']$/g, "");
 const authToken = process.env.TURSO_AUTH_TOKEN?.trim().replace(/^["']|["']$/g, "");
@@ -59,27 +60,38 @@ function extractOgImage(html) {
 }
 
 async function fetchOgImage(link) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 20000);
-  try {
-    const res = await fetch(link, {
-      signal: controller.signal,
-      redirect: "follow",
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0 Safari/537.36",
-        Accept: "text/html,application/xhtml+xml",
-      },
-    });
-    if (!res.ok) return { error: `HTTP ${res.status}` };
-    const html = await res.text();
-    const image = extractOgImage(html);
-    return image ? { image } : { error: "no og:image" };
-  } catch (e) {
-    return { error: String(e?.message || e).slice(0, 120) };
-  } finally {
-    clearTimeout(timer);
+  // Euronews يرفض الطلبات المتكررة بـ406؛ نعيد المحاولة بفاصل متصاعد.
+  for (let attempt = 0; attempt <= RETRIES; attempt++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 20000);
+    try {
+      const res = await fetch(link, {
+        signal: controller.signal,
+        redirect: "follow",
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0 Safari/537.36",
+          Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+          "Accept-Language": "en-US,en;q=0.9",
+          Referer: "https://www.euronews.com/",
+        },
+      });
+      if (res.status === 406 && attempt < RETRIES) {
+        await sleep(1200 * (attempt + 1) + Math.floor(Math.random() * 600));
+        continue;
+      }
+      if (!res.ok) return { error: `HTTP ${res.status}` };
+      const html = await res.text();
+      const image = extractOgImage(html);
+      return image ? { image } : { error: "no og:image" };
+    } catch (e) {
+      if (attempt === RETRIES) return { error: String(e?.message || e).slice(0, 120) };
+      await sleep(800 * (attempt + 1));
+    } finally {
+      clearTimeout(timer);
+    }
   }
+  return { error: "retries exhausted" };
 }
 
 async function main() {
