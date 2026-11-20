@@ -62,7 +62,18 @@ export function HomePageClient({ posts, videoPosts }: HomePageClientProps) {
     videoId: p.videoId || undefined,
   }));
 
-  const latest = posts.slice(0, 4).map((p) => ({
+  const secondary = posts.slice(4, 6).map((p) => ({
+    title: p.title,
+    cat: p.category,
+    img: p.image,
+    excerpt: p.excerpt || "",
+    author: p.author?.name || t("site.shortTitle"),
+    time: timeAgo(p.createdAt),
+    slug: p.slug,
+    videoId: p.videoId || undefined,
+  }));
+
+  const latest = posts.slice(6, 10).map((p) => ({
     title: p.title,
     cat: p.category,
     img: p.image,
@@ -97,7 +108,7 @@ export function HomePageClient({ posts, videoPosts }: HomePageClientProps) {
             <HeroSection posts={featured} />
             <CategoryGrid />
             <div className="grid md:grid-cols-2 gap-6">
-              <FeaturedList posts={featured} />
+              <FeaturedList posts={secondary} />
             </div>
           </div>
           <div className="space-y-6">

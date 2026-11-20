@@ -117,15 +117,14 @@ function extractMediaHtml(post: FacebookPost, title: string): string {
  * استخراج صورة مصغرة للمنشور
  */
 function extractThumbnail(post: FacebookPost): string | undefined {
-  if (post.full_picture) return post.full_picture
-
   const att = post.attachments?.data?.[0]
-  if (!att) return undefined
+  // صورة المرفقassy أثبت من full_picture الذي قد يشير إلى صورة الغلاف أو رابط مؤقت.
+  if (att?.media?.image?.src) return att.media.image.src
 
-  if (att.media?.image?.src) return att.media.image.src
-
-  const subAtt = att.subattachments?.data?.[0]
+  const subAtt = att?.subattachments?.data?.[0]
   if (subAtt?.media?.image?.src) return subAtt.media.image.src
+
+  if (post.full_picture) return post.full_picture
 
   return undefined
 }

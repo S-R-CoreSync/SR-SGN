@@ -54,7 +54,7 @@ export function TopBar() {
           {session ? (
             <>
               <Link href="/messages" className="hover:text-[#c8a84e] transition-colors">{t("chat.title")}</Link>
-              <button onClick={() => signOut()} className="hover:text-[#c8a84e] transition-colors cursor-pointer">
+              <button onClick={() => signOut({ callbackUrl: "/login" })} className="hover:text-[#c8a84e] transition-colors cursor-pointer">
                 {t("auth.logout")}
               </button>
             </>

@@ -64,10 +64,8 @@ function extractImagesFromHtml(html: string, excludeYtThumbs = false): string[] 
     const lowerUrl = url.toLowerCase()
     if (
       url.startsWith("http") &&
-      !lowerUrl.includes("logo_sgn") &&
-      !lowerUrl.includes("/logo.png") &&
-      !lowerUrl.includes("/logo.svg") &&
-      !lowerUrl.includes("icon") &&
+      !/logo/i.test(lowerUrl) &&
+      !/icon/i.test(lowerUrl) &&
       !lowerUrl.includes("favicon") &&
       !lowerUrl.includes("sgn_02") &&
       !(excludeYtThumbs && lowerUrl.includes("ytimg.com")) &&

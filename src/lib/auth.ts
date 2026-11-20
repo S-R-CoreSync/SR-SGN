@@ -213,21 +213,25 @@ export const authOptions = {
         token.id = user.id;
         let role = (user as any).role || "member";
 
-        // ربط تلقائي: إذا كان بريد العضو مطابقاً لبريد حساب دخل حديثاً،
-        // فيُمنح الدور المحدد في سجل مجلس الإدارة دون تدخل المشرف.
+        // ربط تلقائي: نبحث عن عضو المجلس إمّا ببريد الدخول أو بحسابه المرتبط.
+        // المطابقة بـ userId مهمة لأن بريد Google قد يختلف عن البريد المسجّل
+        // للعضو (حساب أساسي + اسم مستعار)، وهو ما caused فقدان صلاحية admin.
         try {
-          if (user.email) {
-            const boardMember = await (prisma as any).boardMember.findFirst({
-              where: { email: String(user.email).toLowerCase() },
-            });
-            if (boardMember && (!boardMember.userId || boardMember.userId === user.id)) {
-              await autoLinkByEmail(boardMember.id, user.email, boardMember.role);
-              const linked = await prisma.user.findUnique({
-                where: { id: user.id },
-                select: { role: true },
-              });
-              role = linked?.role || role;
+          const email = user.email ? String(user.email).toLowerCase() : null;
+          const boardMember = await (prisma as any).boardMember.findFirst({
+            where: email
+              ? { OR: [{ email }, { userId: user.id }] }
+              : { userId: user.id },
+          });
+          if (boardMember) {
+            if (!boardMember.userId || boardMember.userId === user.id) {
+              await autoLinkByEmail(boardMember.id, email, boardMember.role);
             }
+            const linked = await prisma.user.findUnique({
+              where: { id: user.id },
+              select: { role: true },
+            });
+            role = linked?.role || role;
           }
         } catch (error) {
           console.error("[Auth] board auto-link error:", error);

@@ -175,10 +175,11 @@ export function handleImgError(e: SyntheticEvent<HTMLImageElement>, title?: stri
 
 /** تُرجع رابط الصورة الصحيح أو بديل تحريري مناسب عند انتهاء الرابط أو عدم وجوده */
 export function resolveImage(img?: string | null, title?: string | null, category?: string | null): string {
-  // روابط الفيسبوك الموقعة تنتهي تلقائياً وتسبب 403 Forbidden
-  if (!img || img.includes("fbcdn.net") || img.trim() === "") {
+  // لا نستبدل روابط fbcdn مسبقاً: كثير منها ما زال صالحاً، والبديل
+  // الفريد (SVG) يعمل عبر onError فقط عند فشل التحميل فعلياً.
+  if (!img || img.trim() === "") {
     if (title || category) {
-      // استخدام صورة تحريرية فريدة لكل خبر (SVG branded) لتجنب تكرار نفس الصورة
+      // صورة فريدة لكل خبر بدل صورة تصنيف عامة مكرّرة
       return getPremiumPlaceholder(title, category);
     }
     return PLACEHOLDER_IMG;

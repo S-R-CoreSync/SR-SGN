@@ -35,7 +35,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (status === "unauthenticated") {
       router.push("/login");
     } else if (status === "authenticated" && (session?.user as any)?.role !== "admin") {
-      router.push("/");
+      router.push("/login?error=NoPermission");
     }
   }, [status, session, router]);
 
@@ -212,7 +212,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             );
           })}
           <hr className="my-3" />
-          <button onClick={() => signOut()} className="flex items-center gap-3 px-3 py-2.5 text-red-600 hover:bg-red-50 rounded-xl text-sm w-full transition-colors font-medium">
+          <button onClick={() => signOut({ callbackUrl: "/login" })} className="flex items-center gap-3 px-3 py-2.5 text-red-600 hover:bg-red-50 rounded-xl text-sm w-full transition-colors font-medium">
             <LogOut className="w-4 h-4 shrink-0" />
             {t("logout")}
           </button>

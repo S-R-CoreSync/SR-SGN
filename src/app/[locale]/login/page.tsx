@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { signIn } from "next-auth/react";
 import { Link, useRouter } from "@/i18n/routing";
 import { Eye, EyeOff, Mail, Lock, ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
@@ -20,6 +20,16 @@ export default function LoginPage() {
   const [show, setShow] = useState(false);
   const [authError, setAuthError] = useState("");
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
+
+  // NextAuth يعيد التوجيه إلى /login?error=... عند فشل الدخول الاجتماعي.
+  // قراءة الرابط داخل useEffect تتجنّب متطلبات Suspense لـ useSearchParams.
+  useEffect(() => {
+    const code = new URLSearchParams(window.location.search).get("error");
+    if (!code) return;
+    if (code === "OAuthAccountNotLinked") setAuthError(t("oauthError"));
+    else if (code === "NoPermission") setAuthError(t("noPermissionError"));
+    else setAuthError(t("signupError"));
+  }, [t]);
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm();
 

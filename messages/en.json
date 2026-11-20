@@ -315,7 +315,9 @@
     "rememberMe": "Remember me",
     "forgotPassword": "Forgot password?",
     "loginTerms": "By logging in, you agree to the {privacy} and {terms}.",
-    "loginNoRich": "By logging in, you agree to the Privacy Policy and Terms of Service."
+    "loginNoRich": "By logging in, you agree to the Privacy Policy and Terms of Service.",
+    "oauthError": "You previously signed in with a different provider for this email. Use the same sign-in method, or contact the administration to link your account.",
+    "noPermissionError": "You are signed in but your account does not have dashboard access. Please contact the administration."
   },
   "common": {
     "backToHome": "Back to Home",
@@ -1444,7 +1446,7 @@
     "loginButton": "Login",
     "signupButton": "Sign Up",
     "translatePrompt": "This article is written in Arabic. You can translate it using AI.",
-    "translateBtn": "Translate with AI \u2728",
+    "translateBtn": "Translate with AI ✨",
     "translateBtnLoading": "Translating with AI...",
     "translateBtnRevert": "Show Original",
     "translateError": "Failed to translate article. Please try again.",
@@ -1907,18 +1909,44 @@
     "backHome": "Back to home",
     "lastUpdated": "Last updated: November 2026",
     "privacySections": [
-      { "title": "What we collect", "body": "We collect information you provide voluntarily when registering or getting in touch, such as your name, email address and phone number, along with sign-in details provided by the approved identity provider." },
-      { "title": "How we use it", "body": "We use the data to manage your account, apply your permissions, send the invitations and notifications you requested, and improve the service. We never sell your data or use it for advertising." },
-      { "title": "Sharing", "body": "We do not share your data with third parties except to run the service, such as the email or messaging provider, or when required by law." },
-      { "title": "Your rights", "body": "You may request access to your data, correction, or deletion through the Contact page on this website." },
-      { "title": "Contact", "body": "Any privacy question can be sent through the contact page available on the website." }
+      {
+        "title": "What we collect",
+        "body": "We collect information you provide voluntarily when registering or getting in touch, such as your name, email address and phone number, along with sign-in details provided by the approved identity provider."
+      },
+      {
+        "title": "How we use it",
+        "body": "We use the data to manage your account, apply your permissions, send the invitations and notifications you requested, and improve the service. We never sell your data or use it for advertising."
+      },
+      {
+        "title": "Sharing",
+        "body": "We do not share your data with third parties except to run the service, such as the email or messaging provider, or when required by law."
+      },
+      {
+        "title": "Your rights",
+        "body": "You may request access to your data, correction, or deletion through the Contact page on this website."
+      },
+      {
+        "title": "Contact",
+        "body": "Any privacy question can be sent through the contact page available on the website."
+      }
     ],
     "termsSections": [
-      { "title": "Account", "body": "You use your personal account and a trusted sign-in provider, and you are responsible for keeping your account details secure." },
-      { "title": "Content", "body": "Posts and opinions are those of their authors and do not necessarily represent the official position of the community." },
-      { "title": "Acceptable use", "body": "Publishing material that is illegal, hateful, or harmful to others is not allowed." },
-      { "title": "Changes", "body": "We may update these terms as the service develops, and the update date will be shown at the top of this page." }
+      {
+        "title": "Account",
+        "body": "You use your personal account and a trusted sign-in provider, and you are responsible for keeping your account details secure."
+      },
+      {
+        "title": "Content",
+        "body": "Posts and opinions are those of their authors and do not necessarily represent the official position of the community."
+      },
+      {
+        "title": "Acceptable use",
+        "body": "Publishing material that is illegal, hateful, or harmful to others is not allowed."
+      },
+      {
+        "title": "Changes",
+        "body": "We may update these terms as the service develops, and the update date will be shown at the top of this page."
+      }
     ]
   }
 }
-

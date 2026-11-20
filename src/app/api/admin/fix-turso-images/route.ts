@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@libsql/client";
-import { getEditorialFallback } from "@/lib/image-fallback";
 import { verifyAdminSecret } from "@/lib/admin-secret";
 
 export const dynamic = "force-dynamic";
@@ -21,35 +20,19 @@ export async function GET(req: NextRequest) {
     const cleanToken = tursoToken.replace(/^["']|["']$/g, "").trim();
     const client = createClient({ url: cleanUrl, authToken: cleanToken });
 
-    // Fetch all posts with broken or missing images in Turso
-    const postsRes = await client.execute("SELECT id, title, category, image FROM posts");
-    let updated = 0;
-
-    for (const row of postsRes.rows) {
-      const id = row.id as string;
-      const title = (row.title || "") as string;
-      const category = (row.category || "") as string;
-      const image = (row.image || "") as string;
-
-      const isBroken = !image || image.includes("fbcdn.net") || image.trim() === "";
-
-      if (isBroken) {
-        const fallback = getEditorialFallback(title, category);
-        await client.execute({
-          sql: "UPDATE posts SET image = ? WHERE id = ?",
-          args: [fallback, id],
-        });
-        updated++;
-      }
-    }
+    // تنظيف لمرة واحدة: الصور العامة (Unsplash) التي كتبها الإصدار القديم
+    // من هذا المسار تُزال ليُعاد جلب صورة المقال الحقيقية عند المزامنة.
+    // لم نعد نكتب صوراً حسب التصنيف لأنها كانت تظهر خطأً لعشرات المقالات.
+    const result = await client.execute({
+      sql: "UPDATE posts SET image = NULL WHERE image LIKE 'https://images.unsplash.com/%'",
+    });
 
     client.close();
 
     return NextResponse.json({
       success: true,
-      totalScanned: postsRes.rows.length,
-      updatedPosts: updated,
-      message: `Successfully updated ${updated} posts in Turso with high-resolution permanent editorial images!`,
+      cleanedPosts: result.rowsAffected,
+      message: `Removed ${result.rowsAffected} generic images not related to their articles.`,
     });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || String(error) }, { status: 500 });

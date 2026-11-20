@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 interface Props {
   src: string
@@ -10,6 +10,12 @@ interface Props {
 
 export default function SafeImage({ src, alt, fallbackSrc, className }: Props) {
   const [imgSrc, setImgSrc] = useState(src)
+
+  // عند التنقل بين المقالات في نفس المسار يتغيّر src دون إعادة تركيب المكوّن،
+  // فلا بد من مزامنته وإلا تظهر صورة المقال السابق.
+  useEffect(() => {
+    setImgSrc(src)
+  }, [src])
 
   return (
     <img
