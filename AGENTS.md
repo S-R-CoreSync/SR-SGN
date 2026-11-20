@@ -281,6 +281,13 @@ curl -X POST http://localhost:3000/api/sync
 - **مفاتيح i18n:** namespace `boardAdmin` في `messages/*.json` و`mobile/i18n/*.json` (قوالب الدعوة + نصوص اللوحة).
 - **أول دعوة فعلية (١٩ تشرين الثاني ٢٠٢٦):** `m.salim.aziza@gmail.com` ← محمد سليم عزيزة، أُرسلت بالبريد ✅ (`invitedAt` مسجّل). لا يملك حساباً بعد؛ **دوره `admin`** على Turso والمحلي، فيُمنح صلاحية إدارية كاملة تلقائياً عند أول دخول بجوجل/فيسبوك.
 
+### 🔑 Google OAuth (٢٠ تشرين الثاني ٢٠٢٦)
+- المشروع القديم `367735251306` ما زال بلا صلاحية لنا؛ استُبدل بمشروع **`argon-tractor-497310-h8`** («My First Project»).
+- Client ID الجديد: `773907384875-0r5bmct2c6je78gpqa1r6ee2sam2frfb.apps.googleusercontent.com` — والسرّ مخزّن **فقط** في `.env` ومتغيّرات Vercel (production + preview)، لا في الكود.
+- مسارات مسموحة: `https://sgn-drab.vercel.app/api/auth/callback/google` و`http://localhost:3000/api/auth/callback/google`.
+- شاشة الموافقة `External` وحالة النشر `Testing`؛ المستخدمون المسموحون: `m.salim.aziza@gmail.com` و`sgn.media.management@gmail.com`. أي عضو جديد سيحتاج إضافته كـTest user أو نشر التطبيق.
+- الدخول بجوجل جُرّب فعلياً وأنشأ جلسة (`provider: google`) ✅.
+
 ## ⚠️ Prisma v7 API Changes (مهم)
 
 - **PrismaLibSql constructor** يأخذ `Config` مباشرة (ليس `Client`):
