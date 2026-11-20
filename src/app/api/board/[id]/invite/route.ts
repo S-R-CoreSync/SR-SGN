@@ -40,6 +40,14 @@ export async function POST(
       delivered = await sendBoardInviteWhatsApp(member.phone, member.nameAr, locale);
     }
 
+    // لا نسجّل الدعوة إلا بعد تأكيد وصولها فعلياً — وإلا تبقى قابلة لإعادة الإرسال
+    if (!delivered) {
+      return NextResponse.json(
+        { error: channel === "email" ? "EMAIL_SEND_FAILED" : "WHATSAPP_SEND_FAILED" },
+        { status: 502 }
+      );
+    }
+
     await (prisma as any).boardMember.update({
       where: { id },
       data: { invitedAt: new Date() },

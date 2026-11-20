@@ -565,5 +565,53 @@
     "inviteEmailStep3": "Approve — your account is ready and your permissions are applied automatically",
     "inviteEmailButton": "Sign in",
     "inviteEmailPrivacy": "Note: we never ask for your password, post anything on your profile, or access your friends list."
+  },
+  "legal": {
+    "privacyShort": "Privacy",
+    "termsShort": "Terms",
+    "privacyTitle": "Privacy Policy",
+    "termsTitle": "Terms of Service",
+    "backHome": "Back to home",
+    "lastUpdated": "Last updated: November 2026",
+    "privacySections": [
+      {
+        "title": "What we collect",
+        "body": "We collect information you provide voluntarily when registering or getting in touch, such as your name, email address and phone number, along with sign-in details provided by the approved identity provider."
+      },
+      {
+        "title": "How we use it",
+        "body": "We use the data to manage your account, apply your permissions, send the invitations and notifications you requested, and improve the service. We never sell your data or use it for advertising."
+      },
+      {
+        "title": "Sharing",
+        "body": "We do not share your data with third parties except to run the service, such as the email or messaging provider, or when required by law."
+      },
+      {
+        "title": "Your rights",
+        "body": "You may request access to your data, correction, or deletion through the Contact page on this website."
+      },
+      {
+        "title": "Contact",
+        "body": "Any privacy question can be sent through the contact page available on the website."
+      }
+    ],
+    "termsSections": [
+      {
+        "title": "Account",
+        "body": "You use your personal account and a trusted sign-in provider, and you are responsible for keeping your account details secure."
+      },
+      {
+        "title": "Content",
+        "body": "Posts and opinions are those of their authors and do not necessarily represent the official position of the community."
+      },
+      {
+        "title": "Acceptable use",
+        "body": "Publishing material that is illegal, hateful, or harmful to others is not allowed."
+      },
+      {
+        "title": "Changes",
+        "body": "We may update these terms as the service develops, and the update date will be shown at the top of this page."
+      }
+    ]
   }
 }

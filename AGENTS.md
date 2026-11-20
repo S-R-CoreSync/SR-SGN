@@ -285,7 +285,8 @@ curl -X POST http://localhost:3000/api/sync
 - المشروع القديم `367735251306` ما زال بلا صلاحية لنا؛ استُبدل بمشروع **`argon-tractor-497310-h8`** («My First Project»).
 - Client ID الجديد: `773907384875-0r5bmct2c6je78gpqa1r6ee2sam2frfb.apps.googleusercontent.com` — والسرّ مخزّن **فقط** في `.env` ومتغيّرات Vercel (production + preview)، لا في الكود.
 - مسارات مسموحة: `https://sgn-drab.vercel.app/api/auth/callback/google` و`http://localhost:3000/api/auth/callback/google`.
-- شاشة الموافقة `External` وحالة النشر `Testing`؛ المستخدمون المسموحون: `m.salim.aziza@gmail.com` و`sgn.media.management@gmail.com`. أي عضو جديد سيحتاج إضافته كـTest user أو نشر التطبيق.
+- شاشة الموافقة `External`، وحالة النشر **«In production» منذ ٢٠ تشرين الثاني ٢٠٢٦** — التطبيق متاح لأي حساب جوجل بلا قائمة Test users (اُكملت صفحة Branding بالبيانات التالية: الاسم، البريد الداعم، رابط الرئيسية، ورابطي الخصوصية والشروط، ونطاق `sgn-drab.vercel.app`). لم تُطلب مراجعة verification لأن النطاق واحد، ولا يوجد شعار، والنطاقات `openid/email/profile` غير حساسة.
+- المستخدمون المسموحون سابقاً في وضع Testing: `m.salim.aziza@gmail.com` و`sgn.media.management@gmail.com` — لم يعودا قيد الحاجة الآن.
 - الدخول بجوجل جُرّب فعلياً وأنشأ جلسة (`provider: google`) ✅.
 
 ### 📇 بيانات تواصل المجلس (٢٠ تشرين الثاني ٢٠٢٦)
@@ -293,7 +294,9 @@ curl -X POST http://localhost:3000/api/sync
 - **لم تُرسل الدعوات:** بوابة `ultramsg` موقوفة (`Your instance has been Stopped due to non-payment`)؛ `invitedAt` مُبقى فارغاً عمداً بقرار من صاحب المشروع.
 - **ما زال ٩ أعضاء بلا بيانات:** رابعة الزريقات، فاتن رحال، حسن الحسن قطيني، نبيل حاج حسين، بلال الرفاعي، يوسف درويش، محمد ربيع الجنيدي، وسيم حسان، محمد أكرم الجنيدي.
 - ⚠️ **معرّفات `id` تختلف بين المحلي وTurso** — أي تحديث دفعات لازم يطابق بـ`nameAr` لا بـ`id`.
-- 🚨 خلل معروف: `sendWhatsAppMessage` يبتلع أخطاء Ultramsg، و`POST /api/board/[id]/invite` يسجّل `invitedAt` حتى لو فشل الإرسال — يجب إصلاحه قبل أول إرسال فعلي.
+- ✅ **إصلاح ٢٠ تشرين الثاني ٢٠٢٦:** `sendWhatsAppMessage` صار يتحقق من `sent` في استجابة Ultramsg ويرجّع `boolean`، و`POST /api/board/[id]/invite` لا يسجّل `invitedAt` إلا بعد نجاح الإرسال (وإلا `502`).
+- 📄 أُضيفت صفحتا `/[locale]/privacy` و`/[locale]/terms` (مفاتيح `legal` في web + mobile، مع روابط في الفوتر) — مطلوبتان لإتمام Branding ونشر تطبيق جوجل.
+- 🔓 حالة تطبيق جوجل صارت `In production` (لا قيود Test users)، فلا حاجة لبريدات الأعضاء لإتمام الدخول.
 
 ## ⚠️ Prisma v7 API Changes (مهم)
 

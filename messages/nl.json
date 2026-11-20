@@ -1898,6 +1898,27 @@
     "inviteEmailStep3": "Bevestig — je account is klaar en je rechten worden automatisch toegewezen",
     "inviteEmailButton": "Inloggen",
     "inviteEmailPrivacy": "Let op: we vragen nooit naar je wachtwoord, plaatsen niets op je profiel en hebben geen toegang tot je vriendenlijst."
+  },
+  "legal": {
+    "privacyShort": "Privacyverklaring",
+    "termsShort": "Voorwaarden",
+    "privacyTitle": "Privacyverklaring",
+    "termsTitle": "Servicevoorwaarden",
+    "backHome": "Terug naar de startpagina",
+    "lastUpdated": "Laatst bijgewerkt: november 2026",
+    "privacySections": [
+      { "title": "Wat we verzamelen", "body": "We verzamelen gegevens die je vrijwillig verstrekt bij registratie of contact, zoals je naam, e-mailadres en telefoonnummer, plus de inloggegevens van de erkende identiteitsaanbieder." },
+      { "title": "Hoe we ze gebruiken", "body": "We gebruiken de gegevens om je account te beheren, je rechten toe te wijzen, de gevraagde uitnodigingen en meldingen te versturen en de dienst te verbeteren. We verkopen je gegevens niet en gebruiken ze niet voor reclame." },
+      { "title": "Delen", "body": "We delen je gegevens niet met derden, behalve om de dienst uit te voeren, zoals de e-mail- of berichtenaanbieder, of wanneer de wet dit vereist." },
+      { "title": "Jouw rechten", "body": "Je kunt inzage, correctie of verwijdering van je gegevens aanvragen via de contactpagina op deze website." },
+      { "title": "Contact", "body": "Vragen over privacy kun je sturen via de contactpagina op de website." }
+    ],
+    "termsSections": [
+      { "title": "Account", "body": "Je gebruikt je persoonlijke account en een betrouwbare identiteitsaanbieder, en je bent verantwoordelijk voor de veiligheid van je accountgegevens." },
+      { "title": "Inhoud", "body": "Berichten en meningen zijn van hun auteurs en vertegenwoordigen niet noodzakelijk het officiële standpunt van de gemeenschap." },
+      { "title": "Toegestaan gebruik", "body": "Het publiceren van materiaal dat onwettig is, haat aanwakkert of anderen schaadt, is niet toegestaan." },
+      { "title": "Wijzigingen", "body": "We kunnen deze voorwaarden aanpassen naarmate de dienst zich ontwikkelt, en de datum van bijwerking staat bovenaan deze pagina." }
+    ]
   }
 }
 

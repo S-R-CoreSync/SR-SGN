@@ -19,6 +19,7 @@ export function SiteFooter() {
   const pathname = usePathname();
   const t = useTranslations("footer");
   const tNav = useTranslations("nav");
+  const tLegal = useTranslations("legal");
   const locale = useLocale();
   const isRtl = locale === "ar";
   const [copied, setCopied] = useState(false);
@@ -196,8 +197,10 @@ export function SiteFooter() {
 
         <div className="border-t border-gray-800 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-[11px] text-gray-500">
           <p>© {new Date().getFullYear()} {t("copyright")}</p>
-          <div className="flex gap-4">
+          <div className="flex flex-wrap justify-center gap-4">
             <span className="text-gray-400 font-light">{t("approvedStatute")}</span>
+            <Link href="/privacy" className="text-gray-400 hover:text-[#CCAA00] transition-colors">{tLegal("privacyShort")}</Link>
+            <Link href="/terms" className="text-gray-400 hover:text-[#CCAA00] transition-colors">{tLegal("termsShort")}</Link>
           </div>
         </div>
 

@@ -1,20 +1,27 @@
 import { getApiMessage } from './api-messages';
 
-export async function sendWhatsAppMessage(to: string, message: string) {
+export async function sendWhatsAppMessage(to: string, message: string): Promise<boolean> {
   const instanceId = process.env.WHATSAPP_INSTANCE_ID;
   const token = process.env.WHATSAPP_TOKEN;
-  if (!instanceId || !token) return;
+  if (!instanceId || !token) return false;
 
   const formatted = to.startsWith("+") ? to.slice(1) : to.replace(/\s/g, "");
 
   try {
-    await fetch(`https://api.ultramsg.com/${instanceId}/messages/chat`, {
+    const res = await fetch(`https://api.ultramsg.com/${instanceId}/messages/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({ token, to: formatted, body: message }),
     });
-  } catch {
-    // silently fail
+
+    let body: any = null;
+    try { body = await res.json(); } catch { /* استجابة غير JSON */ }
+    const sent = res.ok && (body?.sent === true || body?.sent === "true");
+    if (!sent) console.error("[WhatsApp] send failed:", res.status, body?.error ?? "");
+    return sent;
+  } catch (error) {
+    console.error("[WhatsApp] send error:", error);
+    return false;
   }
 }
 
@@ -55,6 +62,5 @@ export async function sendBoardInviteWhatsApp(to: string, name: string, locale =
   const base = (process.env.NEXT_PUBLIC_APP_URL || 'https://sgn-drab.vercel.app').replace(/\/+$/, '');
   const url = `${base}/${locale === 'ar' ? 'login' : `${locale}/login`}`;
   const message = getApiMessage(locale, 'boardAdmin.inviteWhatsApp', { name, url });
-  await sendWhatsAppMessage(to, message);
-  return !!process.env.WHATSAPP_INSTANCE_ID && !!process.env.WHATSAPP_TOKEN;
+  return sendWhatsAppMessage(to, message);
 }
