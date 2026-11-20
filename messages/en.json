@@ -305,7 +305,7 @@
     "strengthMedium": "Medium",
     "strengthGood": "Good",
     "strengthStrong": "Strong",
-    "agreeTerms": "By registering, you agree to the {privacy} and {terms}.",
+    "agreeTerms": "By registering, you agree to the <privacy>Privacy Policy</privacy> and <terms>Terms of Service</terms>.",
     "privacyPolicy": "Privacy Policy",
     "termsOfUse": "Terms of Use",
     "loginBannerDesc": "Your platform to connect and share with the Syrian community in the Kingdom of the Netherlands",

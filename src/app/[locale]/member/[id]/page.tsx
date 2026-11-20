@@ -41,6 +41,7 @@ function InfoCard({ icon: Icon, label, value }: { icon: React.ElementType; label
 export default function MemberPage() {
   const { id } = useParams<{ id: string }>();
   const t = useTranslations("memberPublic");
+  const tProfile = useTranslations("memberProfilePage");
   const locale = useLocale();
   const [member, setMember] = useState<MemberProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -137,7 +138,7 @@ export default function MemberPage() {
                   className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-700/80 hover:bg-emerald-700 border border-emerald-600/50 text-white rounded-xl text-sm font-bold transition-all hover:scale-105 cursor-pointer"
                 >
                   <FileText className="w-4 h-4" />
-                  {t('downloadCvPdf') || "Download CV (PDF)"}
+                  {tProfile('downloadCvPdf')}
                 </a>
               )}
             </div>

@@ -176,8 +176,8 @@ const serviceGroups: ServiceGroup[] = [
     titleKey: "nav.economicEmpowermentGroup",
     items: [
       {
-        key: "nav.zzp",
-        subKey: "nav.zzpSub",
+        key: "nav.zzpHub",
+        subKey: "nav.zzpHubSub",
         href: "/services/zzp",
         icon: Coins,
         badge: "ZZP",
@@ -200,8 +200,8 @@ const serviceGroups: ServiceGroup[] = [
         iconColor: "text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/50 border-rose-200/60 dark:border-rose-800/40",
       },
       {
-        key: "nav.b2b",
-        subKey: "nav.b2bSub",
+        key: "nav.b2bNetwork",
+        subKey: "nav.b2bNetworkSub",
         href: "/services/b2b",
         icon: Truck,
         badge: "B2B",
