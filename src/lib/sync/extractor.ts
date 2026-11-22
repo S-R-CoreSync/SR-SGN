@@ -78,6 +78,27 @@ function extractImagesFromHtml(html: string, excludeYtThumbs = false): string[] 
   return urls
 }
 
+/** Remove duplicate image URLs (same URL may be repeated across sections/pages) */
+function dedupeImages(urls: string[]): string[] {
+  const seen = new Set<string>()
+  const out: string[] = []
+  for (const u of urls) {
+    if (!seen.has(u)) {
+      seen.add(u)
+      out.push(u)
+    }
+  }
+  return out
+}
+
+/** Extract og:image from HTML (property or name first, both orders) */
+function extractOgImage(html: string): string {
+  const m =
+    html.match(/<meta[^>]+(?:property|name)=["']og:image["'][^>]+content=["']([^"']+)["']/i) ||
+    html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+(?:property|name)=["']og:image["']/i)
+  return (m && m[1]) || ""
+}
+
 function extractVideoIdsFromHtml(html: string): string[] {
   const ids = new Set<string>()
   const ytPatterns = [
@@ -157,7 +178,7 @@ function extractAllImagesAndText(html: string): ExtractedArticle[] {
     if (title.includes("إرسال الطلب الآن")) continue
     if (title === textBlocks[0] && BAD_TITLE_STARTS.some((b) => textBlocks[0].startsWith(b))) continue
 
-    const imgUrls = extractImagesFromHtml(sectionHtml, true)
+    const imgUrls = dedupeImages(extractImagesFromHtml(sectionHtml, true))
     const videoIds = extractVideoIdsFromHtml(sectionHtml)
 
     let firstImage = imgUrls[0]
@@ -165,6 +186,12 @@ function extractAllImagesAndText(html: string): ExtractedArticle[] {
 
     if (!firstImage && videoIds.length > 0) {
       firstImage = `https://i.ytimg.com/vi/${videoIds[0]}/hqdefault.jpg`
+    }
+
+    //eur.page og:image as fallback (e.g. sections without inline images)
+    if (!firstImage) {
+      const ogImage = extractOgImage(html)
+      if (ogImage) firstImage = ogImage
     }
 
     const contentParts: string[] = []
@@ -302,8 +329,9 @@ function extractAllImagesAndText(html: string): ExtractedArticle[] {
           if (title.includes("إرسال الطلب الآن")) continue
           if (BAD_TITLE_STARTS.some((b) => title.startsWith(b))) continue
           
-          let firstImage = blockData.images[0]
-          const remainingImages = blockData.images.slice(1)
+          const blockImages = dedupeImages(blockData.images)
+          let firstImage = blockImages[0]
+          const remainingImages = blockImages.slice(1)
           
           if (!firstImage && blockData.videoIds.length > 0) {
             firstImage = `https://i.ytimg.com/vi/${blockData.videoIds[0]}/hqdefault.jpg`
@@ -343,7 +371,7 @@ function extractAllImagesAndText(html: string): ExtractedArticle[] {
             sourceUrl: `https://www.sy-nl.org/nbdh-aljalyh#${encodeURIComponent(title.trim().slice(0, 40))}`,
             author: "الجالية السورية في هولندا",
             publishedAt: new Date(),
-            mediaUrls: blockData.images,
+            mediaUrls: blockImages,
             iframes: blockData.videoIds.map((id) => `https://www.youtube.com/embed/${id}`),
           })
         }

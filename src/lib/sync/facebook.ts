@@ -9,6 +9,7 @@
  */
 
 import type { SyncSource, ExtractedArticle } from "./types"
+import { downloadMedia } from "./media"
 
 const GRAPH_API = "https://graph.facebook.com/v19.0"
 const PAGE_NAME = "الجالية السورية في هولندا"
@@ -116,7 +117,29 @@ function extractMediaHtml(post: FacebookPost, title: string): string {
 /**
  * استخراج صورة مصغرة للمنشور
  */
-function extractThumbnail(post: FacebookPost): string | undefined {
+async function fetchPageText(url: string): Promise<string> {
+  const res = await fetch(url, {
+    signal: AbortSignal.timeout(15000),
+    headers: { "User-Agent": "SGN-SyncBot/1.0" },
+  })
+  if (!res.ok) throw new Error(`HTTP ${res.status} fetching ${url}`)
+  return res.text()
+}
+
+function extractOgImage(html: string): string {
+  const m =
+    html.match(/<meta[^>]+(?:property|name)=["']og:image["'][^>]+content=["']([^"']+)["']/i) ||
+    html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+(?:property|name)=["']og:image["']/i)
+  return (m && m[1]) || ""
+}
+
+/**
+ * استخراج صورة مصغرة للمنشور
+ */
+async function extractThumbnail(
+  post: FacebookPost,
+  sourceUrl?: string
+): Promise<string | undefined> {
   const att = post.attachments?.data?.[0]
   // صورة المرفقassy أثبت من full_picture الذي قد يشير إلى صورة الغلاف أو رابط مؤقت.
   if (att?.media?.image?.src) return att.media.image.src
@@ -126,13 +149,27 @@ function extractThumbnail(post: FacebookPost): string | undefined {
 
   if (post.full_picture) return post.full_picture
 
+  // fallback: og:image من عنوان الخبر
+  const link = post.permalink_url || sourceUrl
+  if (link) {
+    try {
+      const ogImage = extractOgImage(await fetchPageText(link))
+      if (ogImage) {
+        const downloaded = await downloadMedia(ogImage, link)
+        if (downloaded) return downloaded
+      }
+    } catch {
+      // ignore - fallback fetch failed
+    }
+  }
+
   return undefined
 }
 
 /**
  * تحويل منشور فيسبوك إلى مقالة
  */
-function postToArticle(post: FacebookPost, source: SyncSource): ExtractedArticle {
+async function postToArticle(post: FacebookPost, source: SyncSource): Promise<ExtractedArticle> {
   const rawText = post.message || post.story || ""
   const lines = rawText.split("\n").filter((l) => l.trim().length > 0)
 
@@ -161,7 +198,7 @@ function postToArticle(post: FacebookPost, source: SyncSource): ExtractedArticle
     .join("\n")
 
   const mediaHtml = extractMediaHtml(post, title)
-  const image = extractThumbnail(post)
+  const image = await extractThumbnail(post, source.url)
 
   const content = [mediaHtml, paragraphs].filter(Boolean).join("\n")
   const excerpt = rawText.replace(/\n+/g, " ").slice(0, 350)
@@ -222,7 +259,7 @@ export async function extractFacebook(
           if (since && postDate < since) continue
           const rawText = post.message || post.story || ""
           if (!rawText || rawText.trim().length < 10) continue
-          articles.push(postToArticle(post, source))
+          articles.push(await postToArticle(post, source))
         }
 
         const nextUrl = response.paging?.next
