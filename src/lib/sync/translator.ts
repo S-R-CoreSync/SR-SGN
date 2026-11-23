@@ -63,24 +63,32 @@ async function generateTextWithRetry(
  */
 const CHUNK_CHARS = 6000;
 
-async function translatePlainText(text: string, kind: "title" | "body"): Promise<string> {
+/** أسماء اللغات كما تُخاطَب بها النماذج في التعليمات. */
+const LANG_NAME: Record<string, string> = { ar: "Arabic", nl: "Dutch", en: "English" };
+
+async function translatePlainText(
+  text: string,
+  kind: "title" | "body",
+  targetLocale: string
+): Promise<string> {
+  const lang = LANG_NAME[targetLocale] || targetLocale;
   const system =
     kind === "title"
-      ? "You are a professional news translator. Translate Dutch/English headlines into Arabic. Output only the translated headline."
-      : "You are a professional media translator. Translate Dutch/English news into Arabic. Preserve ALL HTML tags, links, image tags and iframes exactly. Output only the translation.";
+      ? `You are a professional news translator. Translate the headline into ${lang}. Output only the translated headline.`
+      : `You are a professional media translator. Translate the article into ${lang}. Preserve ALL HTML tags, links, image tags and iframes exactly. Output only the translation.`;
 
   const prompt =
     kind === "title"
-      ? `Translate this news headline into professional Arabic. Output ONLY the Arabic headline:\n\n${text}`
-      : `Translate the following news article body into professional Arabic, keeping the HTML intact:\n\n${text}`;
+      ? `Translate this news headline into professional ${lang}. Output ONLY the ${lang} headline:\n\n${text}`
+      : `Translate the following news article body into professional ${lang}, keeping the HTML intact:\n\n${text}`;
 
   const out = await generateTextWithRetry(prompt, system, { responseFormat: "text" });
   return (out || "").trim().replace(/^["'«»]+|["'«»]+$/g, "").trim();
 }
 
 /** ترجمة جسم المقال على دفعات لتفادي الردود المبتورة. */
-async function translateBodyInChunks(content: string): Promise<string> {
-  if (content.length <= CHUNK_CHARS) return translatePlainText(content, "body");
+async function translateBodyInChunks(content: string, targetLocale: string): Promise<string> {
+  if (content.length <= CHUNK_CHARS) return translatePlainText(content, "body", targetLocale);
 
   const blocks = content.split(/(?<=<\/(?:p|div|h[1-6]|li|blockquote|figure)>)/i);
   const chunks: string[] = [];
@@ -97,14 +105,18 @@ async function translateBodyInChunks(content: string): Promise<string> {
 
   const translated: string[] = [];
   for (const chunk of chunks) {
-    translated.push(await translatePlainText(chunk, "body"));
+    translated.push(await translatePlainText(chunk, "body", targetLocale));
   }
   return translated.join("");
 }
 
-async function translateArticleFallback(article: ExtractedArticle): Promise<ExtractedArticle | null> {
-  const title = await translatePlainText(article.title, "title");
-  const content = await translateBodyInChunks(article.content);
+/** يترجم المقال (عنوان + جسم على دفعات) إلى اللغة الهدف. يُرجِع null عند نقص المخرجات. */
+async function translateArticleTo(
+  article: ExtractedArticle,
+  targetLocale: string
+): Promise<ExtractedArticle | null> {
+  const title = await translatePlainText(article.title, "title", targetLocale);
+  const content = await translateBodyInChunks(article.content, targetLocale);
   if (!title || !content) return null;
 
   const plain = content.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
@@ -126,7 +138,7 @@ export async function translateArticle(article: ExtractedArticle): Promise<Extra
   // كانت تُرجع JSON مبتوراً على المقالات الطويلة → فشل + إعادة محاولات + بطء،
   // وكان المقال يُفقد فيُعاد ترجمته في كل تشغيل.
   try {
-    const fallback = await translateArticleFallback(article);
+    const fallback = await translateArticleTo(article, "ar");
     if (fallback) return fallback;
   } catch (error) {
     logger.error("SyncAI", "AI translation failed for article:", article.title, error);
@@ -144,10 +156,19 @@ export async function translateArticleToLocale(
     return article;
   }
 
+  // الترجمة إلى العربية لها مسارها الخاص (فحص العزل اللغوي في index.ts).
   if (targetLocale === "ar") {
     return translateArticle(article);
   }
 
-  // Skip translating to English/Dutch to save API quota and prevent 429 rate limit blocks
+  // nl ↔ en: نُترجم نص المصدر إلى لغة الصف الهدف، حتى لا يظهر نص هولندي في
+  // القسم الإنجليزي (أو العكس) — كان هذا معطّلاً عمداً لتفادي حدّ المعدّل.
+  try {
+    const translated = await translateArticleTo(article, targetLocale);
+    if (translated) return translated;
+  } catch (error) {
+    logger.error("SyncAI", `AI translation to ${targetLocale} failed for article:`, article.title, error);
+  }
+
   return article;
 }
