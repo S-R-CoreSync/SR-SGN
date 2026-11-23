@@ -23,6 +23,8 @@ export default function GalleryPage() {
   const [loading, setLoading] = useState(true);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>("الكل");
+  // روابط ميتة (403/404) — تُخفى بدل عرض مكوّن صورة مكسور
+  const [failedUrls, setFailedUrls] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     setLoading(true);
@@ -63,6 +65,7 @@ export default function GalleryPage() {
 
   // Filtered images list
   const filteredImages = images.filter(img => {
+    if (failedUrls.has(img.url)) return false;
     if (activeCategory === "الكل") return true;
     if (activeCategory === "مرفوعة") return img.source === "upload";
     return img.category === activeCategory;
@@ -203,6 +206,7 @@ export default function GalleryPage() {
                   alt={img.title} 
                   loading="lazy" 
                   decoding="async" 
+                  onError={() => setFailedUrls(prev => new Set(prev).add(img.url))}
                   className="w-full h-auto object-cover group-hover:scale-[1.03] transition-transform duration-500" 
                 />
                 

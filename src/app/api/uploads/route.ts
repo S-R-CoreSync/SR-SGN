@@ -36,6 +36,8 @@ export async function GET(req: Request) {
       if (!p.image || !p.image.trim()) continue;
       
       const normalizedImg = p.image.trim();
+      // روابط فيسبوك (fbcdn.net) موقّعة وتنتهي صلاحيتها (HTTP 403)، فلا يمكن عرضها في المعرض.
+      if (normalizedImg.includes("fbcdn.net")) continue;
       // Deduplicate: each unique photo must only appear once in gallery
       if (seenUrls.has(normalizedImg)) continue;
 

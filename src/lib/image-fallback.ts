@@ -167,7 +167,8 @@ export const PLACEHOLDER_IMG = getPremiumPlaceholder(null, null);
 /** onError handler: يستبدل الصورة المكسورة بالصورة التحريرية المناسبة للموضوع فوراً */
 export function handleImgError(e: SyntheticEvent<HTMLImageElement>, title?: string | null, category?: string | null) {
   const img = e.currentTarget;
-  const fallback = (title || category) ? getPremiumPlaceholder(title, category) : PLACEHOLDER_IMG;
+  // نفضّل صورة تحريرية حقيقية (Unsplash) على SVG الخضراء عند فشل التحميل.
+  const fallback = (title || category) ? getEditorialFallback(title, category) : PLACEHOLDER_IMG;
   if (img.src !== fallback) {
     img.src = fallback;
   }
@@ -175,12 +176,14 @@ export function handleImgError(e: SyntheticEvent<HTMLImageElement>, title?: stri
 
 /** تُرجع رابط الصورة الصحيح أو بديل تحريري مناسب عند انتهاء الرابط أو عدم وجوده */
 export function resolveImage(img?: string | null, title?: string | null, category?: string | null): string {
-  // لا نستبدل روابط fbcdn مسبقاً: كثير منها ما زال صالحاً، والبديل
-  // الفريد (SVG) يعمل عبر onError فقط عند فشل التحميل فعلياً.
+  // روابط fbcdn تنتهي صلاحيتها بسرعة (HTTP 403 بعد أيام) — نستبدلها فوراً
+  // بصورة تحريرية حقيقية بدلاً من انتظار فشل التحميل وعرض SVG خضراء.
+  if (img && img.includes("fbcdn.net")) {
+    return getEditorialFallback(title, category);
+  }
   if (!img || img.trim() === "") {
     if (title || category) {
-      // صورة فريدة لكل خبر بدل صورة تصنيف عامة مكرّرة
-      return getPremiumPlaceholder(title, category);
+      return getEditorialFallback(title, category);
     }
     return PLACEHOLDER_IMG;
   }
@@ -188,7 +191,7 @@ export function resolveImage(img?: string | null, title?: string | null, categor
     return img;
   }
   if (title || category) {
-    return getPremiumPlaceholder(title, category);
+    return getEditorialFallback(title, category);
   }
   return PLACEHOLDER_IMG;
 }
