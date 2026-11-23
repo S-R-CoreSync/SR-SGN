@@ -456,6 +456,62 @@
     "promoDesc": "Get a free technical consultation for your website or mobile app from the studio that developed this platform.",
     "promoBtn": "View Developer Profile & Services"
   },
+  "liveStreams": {
+    "title": "Live Streams",
+    "subtitle": "Follow the live broadcasts and events of the Syrian community in the Netherlands",
+    "live": "Live",
+    "scheduled": "Scheduled",
+    "ended": "Ended",
+    "watchNow": "Watch Now",
+    "noStreams": "No live streams currently",
+    "anonymous": "Anonymous"
+  },
+  "courses": {
+    "title": "Educational Courses",
+    "subtitle": "Learn new skills with online courses tailored to the Syrian community",
+    "categories": {
+      "title": "Categories",
+      "language": "Language",
+      "integration": "Integration",
+      "employment": "Employment",
+      "health": "Health",
+      "culture": "Culture"
+    },
+    "allCourses": "All Courses",
+    "noCourses": "No courses available currently",
+    "featured": "Featured",
+    "free": "Free",
+    "instructor": "Instructor",
+    "lessons": "Lessons",
+    "enroll": "Enroll Now"
+  },
+  "jobs": {
+    "title": "Jobs Board",
+    "subtitle": "Find suitable job opportunities in the Netherlands",
+    "categories": {
+      "title": "Categories",
+      "technology": "Technology",
+      "healthcare": "Healthcare",
+      "education": "Education",
+      "construction": "Construction",
+      "retail": "Retail",
+      "hospitality": "Hospitality",
+      "general": "General"
+    },
+    "types": {
+      "title": "Job Types",
+      "fullTime": "Full-time",
+      "partTime": "Part-time",
+      "contract": "Contract",
+      "internship": "Internship"
+    },
+    "allJobs": "All Jobs",
+    "noJobs": "No jobs available currently",
+    "featured": "Featured",
+    "remote": "Remote",
+    "applications": "Applications",
+    "apply": "Apply Now"
+  },
   "servicesDirectory": {
     "title": "Professional Services Directory",
     "subtitle": "Find Syrian professionals and craftspeople in the Netherlands, from skilled trades to legal and technical consulting.",

@@ -456,6 +456,62 @@
     "promoDesc": "Krijg gratis technisch advies voor uw eigen website of mobiele app van de studio die dit platform heeft ontwikkeld.",
     "promoBtn": "Bekijk Ontwikkelaarsprofiel & Diensten"
   },
+  "liveStreams": {
+    "title": "Livestreams",
+    "subtitle": "Volg de livestreams en evenementen van de Syrische gemeenschap in Nederland",
+    "live": "Live",
+    "scheduled": "Gepland",
+    "ended": "Afgelopen",
+    "watchNow": "Nu kijken",
+    "noStreams": "Momenteel geen livestreams",
+    "anonymous": "Anoniem"
+  },
+  "courses": {
+    "title": "Educatieve cursussen",
+    "subtitle": "Leer nieuwe vaardigheden met online cursussen voor de Syrische gemeenschap",
+    "categories": {
+      "title": "Categorieën",
+      "language": "Taal",
+      "integration": "Integratie",
+      "employment": "Werk",
+      "health": "Gezondheid",
+      "culture": "Cultuur"
+    },
+    "allCourses": "Alle cursussen",
+    "noCourses": "Momenteel geen cursussen beschikbaar",
+    "featured": "Uitgelicht",
+    "free": "Gratis",
+    "instructor": "Docent",
+    "lessons": "Lessen",
+    "enroll": "Nu inschrijven"
+  },
+  "jobs": {
+    "title": "Vacaturebank",
+    "subtitle": "Vind passende banen in Nederland",
+    "categories": {
+      "title": "Categorieën",
+      "technology": "Technologie",
+      "healthcare": "Zorg",
+      "education": "Onderwijs",
+      "construction": "Bouw",
+      "retail": "Detailhandel",
+      "hospitality": "Horeca",
+      "general": "Algemeen"
+    },
+    "types": {
+      "title": "Dienstverband",
+      "fullTime": "Fulltime",
+      "partTime": "Parttime",
+      "contract": "Contract",
+      "internship": "Stage"
+    },
+    "allJobs": "Alle vacatures",
+    "noJobs": "Momenteel geen vacatures beschikbaar",
+    "featured": "Uitgelicht",
+    "remote": "Op afstand",
+    "applications": "Sollicitaties",
+    "apply": "Nu solliciteren"
+  },
   "servicesDirectory": {
     "title": "Gids voor Professionele Diensten",
     "subtitle": "Vind Syrische professionals en vakmensen in Nederland, van handwerk tot juridisch en technisch advies.",
