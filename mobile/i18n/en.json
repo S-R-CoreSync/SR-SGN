@@ -30,6 +30,11 @@
     "allServices": "Services & Tools",
     "profile": "My Account"
   },
+  "nav": {
+    "communityMap": "Community Map",
+    "communityMapSub": "Directory of headquarters, doctors, and discount partners across Dutch provinces.",
+    "services": "Services Directory"
+  },
   "home": {
     "searchPlaceholder": "Search news...",
     "all": "All",
@@ -97,7 +102,8 @@
     "arabic": "Arabic",
     "dutch": "Dutch",
     "english": "English",
-    "appInfo": "Syrian Community in the Netherlands App"
+    "appInfo": "Syrian Community in the Netherlands App",
+    "darkMode": "Dark Mode"
   },
   "chat": {
     "aiTitle": "AI Assistant",
@@ -142,7 +148,20 @@
     "cardCommunityNews": "Latest community news?",
     "promptCommunityNews": "What is the latest Syrian community news today?",
     "cardUpcomingEvents": "Upcoming events & volunteering?",
-    "promptUpcomingEvents": "Are there any upcoming social events or volunteering opportunities?"
+    "promptUpcomingEvents": "Are there any upcoming social events or volunteering opportunities?",
+    "justNow": "Just now",
+    "placeholder": "Type your message...",
+    "speak": "Speak",
+    "stopSpeaking": "Stop speaking",
+    "microphonePermissionRequired": "Microphone access must be allowed",
+    "recordingComplete": "Recording complete",
+    "sttRequiresBackend": "Speech-to-text requires server processing",
+    "recordingError": "Audio recording failed",
+    "permissionRequired": "You must allow access to the photo library to upload documents."
+  },
+  "directory": {
+    "search": "Search...",
+    "noResults": "No results found"
   },
   "common": {
     "ok": "OK",

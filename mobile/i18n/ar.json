@@ -30,6 +30,11 @@
     "allServices": "كافة الخدمات والميزات",
     "profile": "حسابي"
   },
+  "nav": {
+    "communityMap": "خريطة الجالية والمراكز",
+    "communityMapSub": "دليل المقرات، الأطباء، ومواقع شركاء الخصومات في مقاطعات هولندا.",
+    "services": "دليل الخدمات"
+  },
   "home": {
     "searchPlaceholder": "بحث عن أخبار...",
     "all": "الكل",
@@ -97,7 +102,8 @@
     "arabic": "العربية",
     "dutch": "الهولندية",
     "english": "الإنجليزية",
-    "appInfo": "تطبيق الجالية السورية في هولندا"
+    "appInfo": "تطبيق الجالية السورية في هولندا",
+    "darkMode": "الوضع الليلي"
   },
   "chat": {
     "aiTitle": "المساعد الذكي",
@@ -142,7 +148,20 @@
     "cardCommunityNews": "آخر أخبار الجالية اليوم؟",
     "promptCommunityNews": "ما هي أخبار الجالية السورية اليوم؟",
     "cardUpcomingEvents": "الفعاليات القادمة والتطوع؟",
-    "promptUpcomingEvents": "هل توجد فعاليات اجتماعية قادمة للجالية أو فرصة للتطوع؟"
+    "promptUpcomingEvents": "هل توجد فعاليات اجتماعية قادمة للجالية أو فرصة للتطوع؟",
+    "justNow": "الآن",
+    "placeholder": "اكتب رسالتك...",
+    "speak": "تحدث",
+    "stopSpeaking": "إيقاف التحدث",
+    "microphonePermissionRequired": "يجب السماح بالوصول للميكروفون",
+    "recordingComplete": "تم التسجيل",
+    "sttRequiresBackend": "تحويل الصوت إلى نص يتطلب معالجة من الخادم",
+    "recordingError": "فشل التسجيل الصوتي",
+    "permissionRequired": "يجب السماح بالوصول إلى استوديو الصور لرفع المستندات."
+  },
+  "directory": {
+    "search": "بحث...",
+    "noResults": "لا توجد نتائج"
   },
   "common": {
     "ok": "موافق",

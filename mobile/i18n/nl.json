@@ -30,6 +30,11 @@
     "allServices": "Diensten & Tools",
     "profile": "Mijn Account"
   },
+  "nav": {
+    "communityMap": "Gemeenschapskaart",
+    "communityMapSub": "Gids van hoofdkantoren, artsen en kortingspartners in Nederlandse provincies.",
+    "services": "Dienstenoverzicht"
+  },
   "home": {
     "searchPlaceholder": "Zoek nieuws...",
     "all": "Alles",
@@ -97,7 +102,8 @@
     "arabic": "Arabisch",
     "dutch": "Nederlands",
     "english": "Engels",
-    "appInfo": "Syrische Gemeenschap in Nederland App"
+    "appInfo": "Syrische Gemeenschap in Nederland App",
+    "darkMode": "Donkere modus"
   },
   "chat": {
     "aiTitle": "AI Assistent",
@@ -142,7 +148,20 @@
     "cardCommunityNews": "Laatste gemeenschapsnieuws?",
     "promptCommunityNews": "Wat is het laatste nieuws van de Syrische gemeenschap vandaag?",
     "cardUpcomingEvents": "Komende evenementen & vrijwilligerswerk?",
-    "promptUpcomingEvents": "Zijn er komende sociale evenementen of mogelijkheden voor vrijwilligerswerk?"
+    "promptUpcomingEvents": "Zijn er komende sociale evenementen of mogelijkheden voor vrijwilligerswerk?",
+    "justNow": "Zojuist",
+    "placeholder": "Typ uw bericht...",
+    "speak": "Voorlezen",
+    "stopSpeaking": "Stop met voorlezen",
+    "microphonePermissionRequired": "Microfoontoegang moet worden toegestaan",
+    "recordingComplete": "Opname voltooid",
+    "sttRequiresBackend": "Spraak-naar-tekst vereist serververwerking",
+    "recordingError": "Audio-opname mislukt",
+    "permissionRequired": "U moet toegang tot de fotobibliotheek toestaan om documenten te uploaden."
+  },
+  "directory": {
+    "search": "Zoeken...",
+    "noResults": "Geen resultaten gevonden"
   },
   "common": {
     "ok": "OK",
