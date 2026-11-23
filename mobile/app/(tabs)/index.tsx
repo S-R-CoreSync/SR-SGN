@@ -272,6 +272,11 @@ export default function HomeScreen() {
                     {locale === "ar" ? toArabicDigits(item.excerpt) : item.excerpt}
                   </Text>
                 )}
+                {item.summary && (
+                  <Text style={{ fontSize: 12, color: COLORS.primary, lineHeight: 18, marginBottom: 8 }} numberOfLines={2}>
+                    ✨ {locale === "ar" ? toArabicDigits(item.summary) : item.summary}
+                  </Text>
+                )}
                 <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between", alignItems: "center" }}>
                   <Text style={{ fontSize: 11, color: COLORS.textSecondary }}>
                     {item.author?.name} • {formatDate(item.createdAt, locale)}

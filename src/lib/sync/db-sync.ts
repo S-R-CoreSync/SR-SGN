@@ -19,6 +19,29 @@ function generateSlug(title: string): string {
     .replace(/^-|-$/g, "")
 }
 
+/**
+ * يولّد ملخّصاً عربياً موجزاً (٢-٣ جمل) عبر مزوّد الذكاء الاصطناعي.
+ * يُرجِع null عند أي فشل أو إن خرج الناتج عن العزل اللغوي العربي،
+ * حتى لا نُدخل نصاً غير عربي إلى القسم العربي ولا نُفشل المزامنة.
+ */
+async function generatePostSummary(
+  title: string,
+  content: string,
+  excerpt?: string | null
+): Promise<string | null> {
+  try {
+    // نلخّص العنوان + المقتطف (أو جسم المقال مُنزَّعاً من HTML) — لا نرسل HTML خاماً للمزوّد.
+    const plain = (excerpt || content.replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim()
+    if (plain.length < 300) return null
+    const { generateSummary } = await import("@/lib/ai/text")
+    const summary = (await generateSummary(title, plain.slice(0, 2000), "ar")).trim()
+    return /[\u0600-\u06FF]/.test(summary) ? summary : null
+  } catch (err) {
+    logger.warn("Sync", "AI summary failed:", err instanceof Error ? err.message : err)
+    return null
+  }
+}
+
 async function getOrCreateSyncUser(): Promise<string> {
   let user = await prisma.user.findFirst({
     where: { role: "admin" },
@@ -157,6 +180,15 @@ export async function syncArticleToDb(
       createdAt: article.publishedAt,
     },
   })
+
+  // 🤖 ملخّص ذكي (٢-٣ جمل) للخبر العربي — يُعرض في بطاقات قسم الأخبار.
+  // غير حرج: أي فشل هنا لا يجوز أن يُسقط المزامنة أو يمنع حفظ الخبر.
+  if (locale === "ar") {
+    const summary = await generatePostSummary(article.title, finalContent, article.excerpt)
+    if (summary) {
+      await prisma.post.update({ where: { id: post.id }, data: { summary } })
+    }
+  }
 
   return { status: "new", id: post.id }
 }
