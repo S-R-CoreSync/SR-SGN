@@ -1311,7 +1311,18 @@
     "cardCommunityNews": "Laatste gemeenschapsnieuws?",
     "promptCommunityNews": "Wat is het laatste nieuws van de Syrische gemeenschap vandaag?",
     "cardUpcomingEvents": "Komende evenementen & vrijwilligerswerk?",
-    "promptUpcomingEvents": "Zijn er komende sociale evenementen of mogelijkheden voor vrijwilligerswerk?"
+    "promptUpcomingEvents": "Zijn er komende sociale evenementen of mogelijkheden voor vrijwilligerswerk?",
+    "startRecording": "Spraakopname",
+    "recording": "Opnemen...",
+    "stopRecording": "Opname stoppen",
+    "voiceNotSupported": "Uw browser ondersteunt geen spraakopname",
+    "speak": "Voorlezen",
+    "stopSpeaking": "Stop met voorlezen",
+    "speechNotSupported": "Uw browser ondersteunt geen tekst-naar-spraak",
+    "microphonePermissionRequired": "Microfoontoegang moet worden toegestaan",
+    "recordingComplete": "Opname voltooid",
+    "sttRequiresBackend": "Spraak-naar-tekst vereist serververwerking",
+    "recordingError": "Audio-opname mislukt"
   },
   "comments": {
     "visitor": "Bezoeker",

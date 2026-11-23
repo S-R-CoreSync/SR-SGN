@@ -1311,7 +1311,18 @@
     "cardCommunityNews": "Latest community news?",
     "promptCommunityNews": "What is the latest Syrian community news today?",
     "cardUpcomingEvents": "Upcoming events & volunteering?",
-    "promptUpcomingEvents": "Are there any upcoming social events or volunteering opportunities?"
+    "promptUpcomingEvents": "Are there any upcoming social events or volunteering opportunities?",
+    "startRecording": "Voice recording",
+    "recording": "Recording...",
+    "stopRecording": "Stop recording",
+    "voiceNotSupported": "Your browser does not support voice recording",
+    "speak": "Speak",
+    "stopSpeaking": "Stop speaking",
+    "speechNotSupported": "Your browser does not support text-to-speech",
+    "microphonePermissionRequired": "Microphone access must be allowed",
+    "recordingComplete": "Recording complete",
+    "sttRequiresBackend": "Speech-to-text requires server processing",
+    "recordingError": "Audio recording failed"
   },
   "comments": {
     "visitor": "Visitor",
