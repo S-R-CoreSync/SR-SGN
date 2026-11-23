@@ -463,7 +463,10 @@
       "deleteUser": "حذف المستخدم",
       "deleteConfirm": "تأكيد حذف هذا المستخدم؟",
       "errorGeneric": "خطأ",
-      "search": "بحث..."
+      "search": "بحث...",
+      "previous": "السابق",
+      "next": "التالي",
+      "pageInfo": "صفحة {page} من {total}"
     },
     "pagesPage": {
       "title": "إدارة الصفحات",
@@ -925,7 +928,16 @@
     "otpSuccess": "✅ تم التحقق من رقم واتساب بنجاح",
     "otpError": "فشل التحقق. الرمز غير صحيح أو منتهي الصلاحية.",
     "otpRequired": "يرجى التحقق من رقم واتساب أولاً",
-    "sendOtpError": "فشل الإرسال"
+    "sendOtpError": "فشل الإرسال",
+    "educationLevel": "المستوى التعليمي",
+    "educationLevelPlaceholder": "اختر المستوى التعليمي...",
+    "maritalStatus": "الحالة الاجتماعية",
+    "maritalStatusPlaceholder": "اختر الحالة الاجتماعية...",
+    "profession": "المهنة",
+    "professionPlaceholder": "أدخل مهنتك...",
+    "skills": "المهارات",
+    "skillsPlaceholder": "أدخل مهاراتك...",
+    "otpVerified": "تم التحقق بنجاح"
   },
   "membersDashboard": {
     "title": "طلبات الانتساب",
@@ -1011,6 +1023,12 @@
     "settingsDesc": "فعّل أو عطّل الحقول التي تظهر في الاستمارة",
     "saved": "تم الحفظ",
     "saveSettings": "حفظ الإعدادات",
+    "previous": "السابق",
+    "next": "التالي",
+    "educationLevel": "المستوى التعليمي",
+    "profession": "المهنة",
+    "skills": "المهارات",
+    "maritalStatus": "الحالة الاجتماعية",
     "formField": {
       "nameAr": "الاسم بالعربية",
       "nameArEn": "Name (Arabic)",
@@ -1241,7 +1259,9 @@
     "recommendedTasks": "مهام تطوعية مقترحة لك",
     "noRecommendations": "لا توجد مهام مقترحة حالياً",
     "openVault": "فتح المخزن",
-    "selectToPreview": "اختر مستنداً لعرضه وتحليله"
+    "selectToPreview": "اختر مستنداً لعرضه وتحليله",
+    "title": "الملف الشخصي",
+    "viewDetails": "عرض التفاصيل"
   },
   "tasksPublic": {
     "backToHome": "العودة إلى الرئيسية",
@@ -1263,6 +1283,7 @@
   },
   "chat": {
     "title": "الرسائل",
+    "back": "رجوع",
     "newMessage": "رسالة جديدة",
     "placeholder": "اكتب رسالتك...",
     "send": "إرسال",

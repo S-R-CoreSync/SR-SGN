@@ -463,7 +463,10 @@
       "deleteUser": "Gebruiker verwijderen",
       "deleteConfirm": "Bevestig verwijdering van deze gebruiker?",
       "errorGeneric": "Fout",
-      "search": "Zoeken..."
+      "search": "Zoeken...",
+      "previous": "Vorige",
+      "next": "Volgende",
+      "pageInfo": "Pagina {page} van {total}"
     },
     "pagesPage": {
       "title": "Pagina's Beheren",
@@ -925,7 +928,16 @@
     "otpSuccess": "✅ WhatsApp-nummer succesvol geverifieerd",
     "otpError": "Verificatie mislukt. Ongeldige of verlopen code.",
     "otpRequired": "Verifieer eerst uw WhatsApp-nummer",
-    "sendOtpError": "Verzenden mislukt"
+    "sendOtpError": "Verzenden mislukt",
+    "educationLevel": "Opleidingsniveau",
+    "educationLevelPlaceholder": "Selecteer opleidingsniveau...",
+    "maritalStatus": "Burgerlijke Staat",
+    "maritalStatusPlaceholder": "Selecteer burgerlijke staat...",
+    "profession": "Beroep",
+    "professionPlaceholder": "Voer uw beroep in...",
+    "skills": "Vaardigheden",
+    "skillsPlaceholder": "Voer uw vaardigheden in...",
+    "otpVerified": "Succesvol geverifieerd"
   },
   "membersDashboard": {
     "title": "Aanmeldingen",
@@ -1011,6 +1023,12 @@
     "settingsDesc": "Schakel velden in of uit die in het formulier worden weergegeven",
     "saved": "Opgeslagen",
     "saveSettings": "Instellingen Opslaan",
+    "previous": "Vorige",
+    "next": "Volgende",
+    "educationLevel": "Opleidingsniveau",
+    "profession": "Beroep",
+    "skills": "Vaardigheden",
+    "maritalStatus": "Burgerlijke Staat",
     "formField": {
       "nameAr": "Naam (Arabisch)",
       "nameArEn": "Naam (Arabisch)",
@@ -1241,7 +1259,9 @@
     "recommendedTasks": "Aanbevolen taken voor jou",
     "noRecommendations": "Geen aanbevelingen op dit moment",
     "openVault": "Kluis openen",
-    "selectToPreview": "Selecteer een document om te bekijken en analyseren"
+    "selectToPreview": "Selecteer een document om te bekijken en analyseren",
+    "title": "Profiel",
+    "viewDetails": "Bekijk details"
   },
   "tasksPublic": {
     "backToHome": "Terug naar Home",
@@ -1263,6 +1283,7 @@
   },
   "chat": {
     "title": "Berichten",
+    "back": "Terug",
     "newMessage": "Nieuw bericht",
     "placeholder": "Typ uw bericht...",
     "send": "Verzenden",

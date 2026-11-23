@@ -463,7 +463,10 @@
       "deleteUser": "Delete user",
       "deleteConfirm": "Confirm deleting this user?",
       "errorGeneric": "Error",
-      "search": "Search..."
+      "search": "Search...",
+      "previous": "Previous",
+      "next": "Next",
+      "pageInfo": "Page {page} of {total}"
     },
     "pagesPage": {
       "title": "Manage Pages",
@@ -925,7 +928,16 @@
     "otpSuccess": "✅ WhatsApp number verified successfully",
     "otpError": "Verification failed. Invalid or expired code.",
     "otpRequired": "Please verify your WhatsApp number first",
-    "sendOtpError": "Failed to send"
+    "sendOtpError": "Failed to send",
+    "educationLevel": "Education Level",
+    "educationLevelPlaceholder": "Select education level...",
+    "maritalStatus": "Marital Status",
+    "maritalStatusPlaceholder": "Select marital status...",
+    "profession": "Profession",
+    "professionPlaceholder": "Enter your profession...",
+    "skills": "Skills",
+    "skillsPlaceholder": "Enter your skills...",
+    "otpVerified": "Verified successfully"
   },
   "membersDashboard": {
     "title": "Membership Applications",
@@ -1011,6 +1023,12 @@
     "settingsDesc": "Enable or disable fields shown in the membership form",
     "saved": "Saved",
     "saveSettings": "Save Settings",
+    "previous": "Previous",
+    "next": "Next",
+    "educationLevel": "Education Level",
+    "profession": "Profession",
+    "skills": "Skills",
+    "maritalStatus": "Marital Status",
     "formField": {
       "nameAr": "Name (Arabic)",
       "nameArEn": "Name (Arabic)",
@@ -1241,7 +1259,9 @@
     "recommendedTasks": "Recommended Tasks for You",
     "noRecommendations": "No recommendations at the moment",
     "openVault": "Open Vault",
-    "selectToPreview": "Select a document to preview and analyze"
+    "selectToPreview": "Select a document to preview and analyze",
+    "title": "Profile",
+    "viewDetails": "View details"
   },
   "tasksPublic": {
     "backToHome": "Back to Home",
@@ -1263,6 +1283,7 @@
   },
   "chat": {
     "title": "Messages",
+    "back": "Back",
     "newMessage": "New Message",
     "placeholder": "Type your message...",
     "send": "Send",

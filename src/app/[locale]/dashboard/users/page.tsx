@@ -153,7 +153,7 @@ export default function UsersPage() {
           <button onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0} className="px-4 py-2 border rounded-xl text-sm bg-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition">
             {t("previous") || "← السابق"}
           </button>
-          <span className="text-sm text-gray-500">{t("pageInfo") || `صفحة ${page + 1} من ${Math.ceil(total / PAGE_SIZE)}`}</span>
+          <span className="text-sm text-gray-500">{t("pageInfo", { page: page + 1, total: Math.ceil(total / PAGE_SIZE) })}</span>
           <button onClick={() => setPage(p => p + 1)} disabled={(page + 1) * PAGE_SIZE >= total} className="px-4 py-2 border rounded-xl text-sm bg-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition">
             {t("next") || "التالي →"}
           </button>
