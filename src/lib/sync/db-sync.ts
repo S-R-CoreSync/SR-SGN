@@ -30,8 +30,11 @@ async function generatePostSummary(
   excerpt?: string | null
 ): Promise<string | null> {
   try {
-    // نلخّص العنوان + المقتطف (أو جسم المقال مُنزَّعاً من HTML) — لا نرسل HTML خاماً للمزوّد.
-    const plain = (excerpt || content.replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim()
+    // نلخّص العنوان + النص المتاح — نأخذ الأطول بين المقتطف والجسم (مُنزَّعَين من HTML).
+    const strip = (s: string) => s.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim()
+    const ex = strip(excerpt || "")
+    const body = strip(content || "")
+    const plain = body.length > ex.length ? body : ex
     if (plain.length < 300) return null
     const { generateSummary } = await import("@/lib/ai/text")
     const summary = (await generateSummary(title, plain.slice(0, 2000), "ar")).trim()

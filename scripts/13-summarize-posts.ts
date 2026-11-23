@@ -25,8 +25,12 @@ async function main() {
   let done = 0;
   for (const p of posts) {
     try {
-      // نلخّص العنوان + المقتطف (أو الجسم مُنزَّعاً من HTML) لتفادي إرسال HTML خام للمزوّد.
-      const plain = (p.excerpt || p.content.replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
+      // نلخّص العنوان + النص المتاح. نأخذ الأطول بين المقتطف والجسم (مُنزَّعَين من HTML):
+      // بعض المقالات مقتطفها سطر قصير بينما جسمها طويل، والعكس.
+      const strip = (s: string) => s.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+      const ex = strip(p.excerpt || "");
+      const body = strip(p.content || "");
+      const plain = body.length > ex.length ? body : ex;
       if (plain.length < 300) continue;
 
       const summary = (await generateSummary(p.title, plain.slice(0, 2000), "ar")).trim();
