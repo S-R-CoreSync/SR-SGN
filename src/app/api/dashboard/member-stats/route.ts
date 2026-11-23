@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { getApiMessage } from "@/lib/api-messages";
+import { logger } from "@/lib/logger";
 
 function tReq(req: Request, key: string) {
   const locale = (req as any).cookies?.get?.('NEXT_LOCALE')?.value || 'ar';
@@ -191,7 +192,7 @@ export async function GET(req: Request) {
       ageGroupData,
     });
   } catch (error: any) {
-    console.error("Dashboard Member Stats API Error:", error);
+    logger.error("API/dashboard/member-stats", "Dashboard Member Stats API Error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

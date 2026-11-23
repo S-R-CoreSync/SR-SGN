@@ -3,6 +3,7 @@ import { generateText } from "@/lib/ai/provider";
 import { SGN_ORGANIZATION_INFO, BOARD_OFFICERS } from "@/lib/documents/templates";
 import { createRateLimiter } from "@/lib/rate-limit";
 import { clientKey, tooMany } from "@/lib/request-guard";
+import { logger } from "@/lib/logger";
 
 // حماية من الإساءة: توليد المستندات يستهلك موديل نصي مدفوع
 const docsLimiter = createRateLimiter({ maxRequests: 10, windowMs: 60_000, name: "generate-ai-doc" });
@@ -139,7 +140,7 @@ Draft all articles thoroughly with zero placeholders.
 
       generatedJson = JSON.parse(cleaned);
     } catch (aiErr) {
-      console.warn("AI generation fallback activated:", aiErr);
+      logger.warn("API/documents/generate-ai", "AI generation fallback activated:", aiErr);
       // Fallback deterministic generator
       generatedJson = createDeterministicLegalDocument({
         documentType,
@@ -159,7 +160,7 @@ Draft all articles thoroughly with zero placeholders.
 
     return NextResponse.json({ success: true, document: generatedJson });
   } catch (err: any) {
-    console.error("Document AI generation error:", err);
+    logger.error("API/documents/generate-ai", "Document AI generation error:", err);
     return NextResponse.json(
       { error: err.message || "Failed to generate document" },
       { status: 500 }

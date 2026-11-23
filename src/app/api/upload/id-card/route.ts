@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { encryptBuffer } from "@/lib/crypto";
 import fs from "fs/promises";
 import path from "path";
+import { logger } from "@/lib/logger";
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -36,7 +37,7 @@ export async function POST(req: NextRequest) {
     // Return the data URI
     return NextResponse.json({ url: dataUri });
   } catch (e: any) {
-    console.error("ID Card upload error:", e);
+    logger.error("API/upload/id-card", "ID Card upload error:", e);
     return NextResponse.json({ error: e.message || "Failed to upload ID" }, { status: 500 });
   }
 }

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { analyzeDocument } from "@/lib/ai/chat";
 import { getApiMessage } from "@/lib/api-messages";
 import { getSessionUser } from "@/lib/mobile-auth";
+import { logger } from "@/lib/logger";
 
 function t(req: Request, key: string) {
   const locale = (req as any).cookies?.get?.('NEXT_LOCALE')?.value || 'ar';
@@ -25,7 +26,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ analysis });
   } catch (error: any) {
-    console.error("[API/analyze-letter] Error:", error);
+    logger.error("API/chat/analyze-letter", "Error:", error);
     return NextResponse.json({ error: error.message || "Internal server error" }, { status: 500 });
   }
 }

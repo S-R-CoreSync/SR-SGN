@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { logger } from "@/lib/logger";
 
 // GET - جلب جميع البثوث المباشرة
 export async function GET(req: NextRequest) {
@@ -34,7 +35,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(streams);
   } catch (error) {
-    console.error('Error fetching live streams:', error);
+    logger.error("API/live-streams", 'Error fetching live streams:', error);
     return NextResponse.json({ error: 'Failed to fetch live streams' }, { status: 500 });
   }
 }
@@ -71,7 +72,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(stream);
   } catch (error) {
-    console.error('Error creating live stream:', error);
+    logger.error("API/live-streams", 'Error creating live stream:', error);
     return NextResponse.json({ error: 'Failed to create live stream' }, { status: 500 });
   }
 }

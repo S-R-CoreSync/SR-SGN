@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db";
 import { writeFile, mkdir, unlink } from "fs/promises";
 import path from "path";
 import { getApiMessage } from "@/lib/api-messages";
+import { logger } from "@/lib/logger";
 
 function t(req: Request, key: string) {
   const locale = (req as any).cookies?.get?.('NEXT_LOCALE')?.value || 'ar';
@@ -39,7 +40,7 @@ export async function POST(req: Request) {
     await prisma.member.update({ where: { id: member.id }, data: { avatar: url } });
     return NextResponse.json({ url });
   } catch (error: any) {
-    console.error("Avatar upload error:", error);
+    logger.error("API/member/avatar", "Avatar upload error:", error);
     return NextResponse.json({ error: t(req, 'api.internalError') }, { status: 500 });
   }
 }

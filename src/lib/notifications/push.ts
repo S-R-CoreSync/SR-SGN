@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { logger } from "@/lib/logger";
 
 interface PushMessage {
   title: string;
@@ -32,7 +33,7 @@ export async function sendPushNotifications(msg: PushMessage) {
     });
     return await res.json();
   } catch (error) {
-    console.error("Failed to send push notifications:", error);
+    logger.error("Push", "Failed to send push notifications:", error);
   }
 }
 
@@ -63,6 +64,6 @@ export async function sendPushToUser(userId: string, msg: PushMessage) {
     });
     return await res.json();
   } catch (error) {
-    console.error(`Failed to send push to user ${userId}:`, error);
+    logger.error("Push", `Failed to send push to user ${userId}:`, error);
   }
 }

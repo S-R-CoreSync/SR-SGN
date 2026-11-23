@@ -8,6 +8,7 @@ import {
   getLinkedAccounts,
   sanitizeBoardInput,
 } from '@/lib/board-admin';
+import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
 
@@ -120,7 +121,7 @@ export async function GET() {
 
     return NextResponse.json(parsedMembers, { status: 200 });
   } catch (error) {
-    console.error("[Board API] Error fetching members:", error);
+    logger.error("API/board", "Error fetching members:", error);
     return NextResponse.json({ error: "Failed to fetch members" }, { status: 500 });
   }
 }
@@ -145,7 +146,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(fresh, { status: 201 });
   } catch (error) {
-    console.error("[Board API] Error creating member:", error);
+    logger.error("API/board", "Error creating member:", error);
     return NextResponse.json({ error: "Failed to create member" }, { status: 500 });
   }
 }

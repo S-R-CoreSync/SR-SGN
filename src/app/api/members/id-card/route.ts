@@ -6,6 +6,7 @@ import { prisma } from "@/lib/db";
 import { decryptBuffer } from "@/lib/crypto";
 import fs from "fs/promises";
 import path from "path";
+import { logger } from "@/lib/logger";
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -74,7 +75,7 @@ export async function GET(req: NextRequest) {
       }
     });
   } catch (e: any) {
-    console.error("Failed to decrypt ID card:", e);
+    logger.error("API/members/id-card", "Failed to decrypt ID card:", e);
     return new NextResponse("Failed to retrieve and decrypt ID card", { status: 500 });
   }
 }

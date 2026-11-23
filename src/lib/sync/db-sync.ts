@@ -1,6 +1,7 @@
 import { prisma } from "../db"
 import type { ExtractedArticle } from "./types"
 import crypto from "crypto"
+import { logger } from "@/lib/logger"
 
 function generateContentHash(article: ExtractedArticle): string {
   const content = `${article.title}|${article.excerpt}|${article.sourceUrl}`
@@ -135,7 +136,7 @@ export async function syncArticleToDb(
       finalImage = mediaResult.thumbnail
     }
   } catch (err) {
-    console.error("Error downloading media in syncArticleToDb:", err)
+    logger.error("Sync", "Error downloading media in syncArticleToDb:", err)
   }
 
   const post = await prisma.post.create({

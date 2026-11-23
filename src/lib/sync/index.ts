@@ -5,6 +5,7 @@ import { categorizeByMapping, categorizeWithAI } from "./categorizer"
 import { processArticleMedia } from "./media"
 import { syncArticleToDb } from "./db-sync"
 import { prisma } from "../db"
+import { logger } from "@/lib/logger"
 
 export type { SyncSource, ExtractedArticle, SyncResult, SyncConfig }
 export { DEFAULT_SOURCES }
@@ -57,7 +58,7 @@ async function getSyncedLocales(sourceName: string, articles: ExtractedArticle[]
       }
     } catch (err) {
       // الفحص المسبق تحسين أداء فقط — لا يجوز أن يُفشل المزامنة
-      console.error("[Sync] pre-check failed:", err)
+      logger.error("Sync", "pre-check failed:", err)
     }
   }
   return byUrl
@@ -164,7 +165,7 @@ export async function runSync(
 
             // Never save untranslated non-Arabic text into Arabic locale
             if (targetLocale === "ar" && !/[\u0600-\u06FF]/.test(finalArticle.title)) {
-              console.warn(`[Sync] Skipping untranslated non-Arabic article for locale ar: "${finalArticle.title.slice(0, 40)}"`)
+              logger.warn("Sync", `Skipping untranslated non-Arabic article for locale ar: "${finalArticle.title.slice(0, 40)}"`)
               return
             }
 

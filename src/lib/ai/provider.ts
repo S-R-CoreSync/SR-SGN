@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { applyGuardrails } from "@/lib/guardrails";
+import { logger } from "@/lib/logger";
 
 type AIMessage = { role: "system" | "user" | "assistant"; content: string };
 
@@ -26,7 +27,7 @@ export function getEnvVar(key: string): string | undefined {
       if (match) return match[1];
     }
   } catch (e) {
-    console.error("Error reading .env directly:", e);
+    logger.error("AI", "Error reading .env directly:", e);
   }
   return undefined;
 }

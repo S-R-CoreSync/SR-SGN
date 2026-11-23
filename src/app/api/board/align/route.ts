@@ -4,6 +4,7 @@ import fs from "fs";
 import path from "path";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
 
@@ -64,7 +65,7 @@ export async function POST(request: Request) {
       mapping
     });
   } catch (error: any) {
-    console.error("[Align API Error]:", error);
+    logger.error("API/board/align", error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }

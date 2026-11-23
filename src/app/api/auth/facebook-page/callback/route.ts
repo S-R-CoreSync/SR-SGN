@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import fs from "fs";
 import path from "path";
+import { logger } from "@/lib/logger";
 
 /**
  * 🔐 إتمام ربط صفحة فيسبوك — للمشرفين فقط + تحقّق `state` (ضد CSRF).
@@ -48,7 +49,7 @@ export async function GET(request: Request) {
     const tokenData = await tokenRes.json();
 
     if (tokenData.error) {
-      console.error("Token exchange error:", tokenData.error);
+      logger.error("API/auth/facebook-page/callback", "Token exchange error:", tokenData.error);
       return NextResponse.redirect(new URL(`/dashboard/facebook-sync?error=${encodeURIComponent(tokenData.error.message)}`, request.url));
     }
 
@@ -61,7 +62,7 @@ export async function GET(request: Request) {
     const accountsData = await accountsRes.json();
 
     if (accountsData.error) {
-      console.error("Accounts fetch error:", accountsData.error);
+      logger.error("API/auth/facebook-page/callback", "Accounts fetch error:", accountsData.error);
       return NextResponse.redirect(new URL(`/dashboard/facebook-sync?error=${encodeURIComponent(accountsData.error.message)}`, request.url));
     }
 
@@ -93,7 +94,7 @@ export async function GET(request: Request) {
 
     return NextResponse.redirect(new URL("/dashboard/facebook-sync?success=token_saved", request.url));
   } catch (error) {
-    console.error("Callback error:", error);
+    logger.error("API/auth/facebook-page/callback", "Callback error:", error);
     return NextResponse.redirect(new URL("/dashboard/facebook-sync?error=internal_error", request.url));
   }
 }

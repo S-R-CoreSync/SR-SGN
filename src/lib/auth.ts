@@ -6,6 +6,7 @@ import AzureADProvider from "next-auth/providers/azure-ad";
 import AppleProvider from "next-auth/providers/apple";
 import { prisma } from "./db";
 import { autoLinkByEmail } from "./board-admin";
+import { logger } from "@/lib/logger";
 import bcrypt from "bcryptjs";
 
 // Rate limiting helper
@@ -51,11 +52,12 @@ function resolveAuthSecret(): string {
   // لا سرّ عام أبداً. في الإنتاج نُسجّل خطأً صريحاً ونستخدم سرّاً عشوائياً
   // لهذه العملية فقط (الجلسات تنتهي عند إعادة التشغيل) بدل كسر النشر كاملاً.
   if (process.env.NODE_ENV === "production") {
-    console.error(
-      "[auth] CRITICAL: NEXTAUTH_SECRET is missing. Set it in Vercel → Settings → Environment Variables."
+    logger.error(
+      "Auth",
+      "CRITICAL: NEXTAUTH_SECRET is missing. Set it in Vercel → Settings → Environment Variables."
     );
   } else {
-    console.warn("[auth] NEXTAUTH_SECRET is missing — using an ephemeral development secret.");
+    logger.warn("Auth", "NEXTAUTH_SECRET is missing — using an ephemeral development secret.");
   }
   return DEV_AUTH_SECRET;
 }
@@ -132,7 +134,7 @@ export const authOptions = {
               };
             }
           } catch (e) {
-            console.warn("[Auth] Using built-in admin fallback");
+            logger.warn("Auth", "Using built-in admin fallback");
           }
 
           return {
@@ -146,7 +148,7 @@ export const authOptions = {
 
         // Check rate limiting for other credentials
         if (isRateLimited(credentials.email)) {
-          console.warn(`[Auth] Rate limit exceeded for ${credentials.email}`);
+          logger.warn("Auth", `Rate limit exceeded for ${credentials.email}`);
           return null;
         }
 
@@ -174,7 +176,7 @@ export const authOptions = {
             image: user.image,
           };
         } catch (err) {
-          console.error("[Auth] Database authorize error:", err);
+          logger.error("Auth", "Database authorize error:", err);
           recordLoginAttempt(credentials.email);
           return null;
         }
@@ -204,7 +206,7 @@ export const authOptions = {
             }
           }
         } catch (error) {
-          console.error("[Auth] signIn callback error:", error);
+          logger.error("Auth", "signIn callback error:", error);
         }
       }
       return true;
@@ -236,7 +238,7 @@ export const authOptions = {
             role = linked?.role || role;
           }
         } catch (error) {
-          console.error("[Auth] board auto-link error:", error);
+          logger.error("Auth", "board auto-link error:", error);
         }
 
         token.role = role;

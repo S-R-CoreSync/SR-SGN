@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { generateChat } from "@/lib/ai/provider";
 import { createRateLimiter } from "@/lib/rate-limit";
 import { tooMany } from "@/lib/request-guard";
+import { logger } from "@/lib/logger";
 
 // حدّ استهلاك الذكاء الاصطناعي لكل مستخدم
 const briefingLimiter = createRateLimiter({ maxRequests: 10, windowMs: 60_000, name: "ai-briefing" });
@@ -135,7 +136,7 @@ export async function GET(req: Request) {
       },
     });
   } catch (error: any) {
-    console.error("[Dashboard AI Briefing Error]:", error);
+    logger.error("API/dashboard/ai-briefing", error);
     return NextResponse.json({ error: error.message || "Failed to generate briefing" }, { status: 500 });
   }
 }
@@ -192,7 +193,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true, result: parsed });
   } catch (error: any) {
-    console.error("[Dashboard AI Studio Error]:", error);
+    logger.error("API/dashboard/ai-briefing", error);
     return NextResponse.json({ error: error.message || "AI Studio generation failed" }, { status: 500 });
   }
 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { logger } from "@/lib/logger";
 
 // GET - جلب جميع الدورات
 export async function GET(req: NextRequest) {
@@ -47,7 +48,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(courses);
   } catch (error) {
-    console.error('Error fetching courses:', error);
+    logger.error("API/courses", 'Error fetching courses:', error);
     return NextResponse.json({ error: 'Failed to fetch courses' }, { status: 500 });
   }
 }
@@ -79,7 +80,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(course);
   } catch (error) {
-    console.error('Error creating course:', error);
+    logger.error("API/courses", 'Error creating course:', error);
     return NextResponse.json({ error: 'Failed to create course' }, { status: 500 });
   }
 }

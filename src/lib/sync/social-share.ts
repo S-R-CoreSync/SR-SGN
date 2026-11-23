@@ -4,6 +4,7 @@
  */
 
 import { SITE_URL } from "@/lib/site";
+import { logger } from "@/lib/logger";
 
 interface PostData {
   id: string;
@@ -20,7 +21,7 @@ export async function triggerSocialShare(post: PostData, platforms: string[]) {
   const webhookUrl = process.env.SOCIAL_PUBLISH_WEBHOOK_URL;
   
   if (!webhookUrl) {
-    console.warn("⚠️ SOCIAL_PUBLISH_WEBHOOK_URL is not defined in .env. Skipping social sharing.");
+    logger.warn("SocialShare", "SOCIAL_PUBLISH_WEBHOOK_URL is not defined in .env. Skipping social sharing.");
     return;
   }
 
@@ -62,11 +63,11 @@ export async function triggerSocialShare(post: PostData, platforms: string[]) {
     });
 
     if (!res.ok) {
-      console.error(`❌ Social Publish Webhook returned status ${res.status}: ${res.statusText}`);
+      logger.error("SocialShare", `Social Publish Webhook returned status ${res.status}: ${res.statusText}`);
     } else {
-      console.log(`✅ Social Publish Webhook sent successfully for platforms: ${platforms.join(", ")}`);
+      logger.info("SocialShare", `Social Publish Webhook sent successfully for platforms: ${platforms.join(", ")}`);
     }
   } catch (error) {
-    console.error("❌ Failed to send Social Publish Webhook:", error instanceof Error ? error.message : String(error));
+    logger.error("SocialShare", "Failed to send Social Publish Webhook:", error instanceof Error ? error.message : String(error));
   }
 }

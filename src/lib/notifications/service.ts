@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { generateText } from "@/lib/ai/provider";
 import { sendPushNotifications } from "./push";
+import { logger } from "@/lib/logger";
 
 interface SystemNotificationParams {
   type: "event" | "post" | "survey";
@@ -65,7 +66,7 @@ export async function createSystemNotification({
       }
     }
   } catch (err) {
-    console.warn("AI notification generation failed, using fallback:", err);
+    logger.warn("Notifications", "AI notification generation failed, using fallback:", err);
   }
 
   try {
@@ -93,8 +94,8 @@ export async function createSystemNotification({
       data: { link },
     });
 
-    console.log(`Successfully dispatched AI-powered system notification: "${finalTitle}" to ${users.length} users.`);
+    logger.info("Notifications", `Successfully dispatched AI-powered system notification: "${finalTitle}" to ${users.length} users.`);
   } catch (dbErr) {
-    console.error("Failed to save or broadcast system notification:", dbErr);
+    logger.error("Notifications", "Failed to save or broadcast system notification:", dbErr);
   }
 }

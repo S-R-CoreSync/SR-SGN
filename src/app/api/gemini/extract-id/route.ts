@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { ollamaGenerate } from "@/lib/ai/ollama";
 import { createRateLimiter } from "@/lib/rate-limit";
 import { clientKey, tooMany } from "@/lib/request-guard";
+import { logger } from "@/lib/logger";
 
 // حماية من الإساءة: استخراج بيانات الهوية يستهلك موديل الرؤية
 const extractLimiter = createRateLimiter({ maxRequests: 10, windowMs: 60_000, name: "gemini-extract-id" });
@@ -28,7 +29,7 @@ export async function POST(req: Request) {
     const data = JSON.parse(text);
     return NextResponse.json(data);
   } catch (e: any) {
-    console.error("AI extract-id error:", e);
+    logger.error("API/gemini/extract-id", "AI extract-id error:", e);
     return NextResponse.json({ error: e.message || "Extraction failed" }, { status: 500 });
   }
 }

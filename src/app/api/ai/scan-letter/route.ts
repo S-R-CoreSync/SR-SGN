@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { formatLocalizedDigits } from "@/lib/language-guard";
 import { createRateLimiter } from "@/lib/rate-limit";
 import { clientKey, tooMany } from "@/lib/request-guard";
+import { logger } from "@/lib/logger";
 
 // حماية من الإساءة: تحليل الرسائل الرسمية خدمة عامة ومكلفة
 const scanLimiter = createRateLimiter({ maxRequests: 10, windowMs: 60_000, name: "scan-letter" });
@@ -151,7 +152,7 @@ export async function POST(req: Request) {
         : "Always update your income if it rises, otherwise you will have to repay excess benefits next year.",
     });
   } catch (err: any) {
-    console.error("[scan-letter] error:", err);
+    logger.error("API/ai/scan-letter", "error:", err);
     return NextResponse.json({ error: "Failed to parse letter" }, { status: 500 });
   }
 }

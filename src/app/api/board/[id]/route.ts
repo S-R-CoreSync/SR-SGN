@@ -8,6 +8,7 @@ import {
   sanitizeBoardInput,
   type LinkedAccount,
 } from "@/lib/board-admin";
+import { logger } from "@/lib/logger";
 
 function unauthorized() {
   return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
@@ -62,7 +63,7 @@ export async function PATCH(
     const fresh = await (prisma as any).boardMember.findUnique({ where: { id } });
     return NextResponse.json({ ...parseLists(fresh), account });
   } catch (error) {
-    console.error("[Board PATCH] error:", error);
+    logger.error("API/board", "error:", error);
     return NextResponse.json({ error: "Failed to update member" }, { status: 500 });
   }
 }
@@ -79,7 +80,7 @@ export async function DELETE(
     await (prisma as any).boardMember.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("[Board DELETE] error:", error);
+    logger.error("API/board", "error:", error);
     return NextResponse.json({ error: "Failed to delete member" }, { status: 500 });
   }
 }

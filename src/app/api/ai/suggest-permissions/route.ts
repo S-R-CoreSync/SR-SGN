@@ -6,6 +6,7 @@ import { ALL_PERMISSIONS } from "@/lib/permissions";
 import { ollamaGenerate } from "@/lib/ai/ollama";
 import { createRateLimiter } from "@/lib/rate-limit";
 import { tooMany } from "@/lib/request-guard";
+import { logger } from "@/lib/logger";
 
 // حدّ استهلاك الذكاء الاصطناعي لكل مستخدم
 const permLimiter = createRateLimiter({ maxRequests: 10, windowMs: 60_000, name: "ai-suggest-permissions" });
@@ -64,7 +65,7 @@ Description: "${description || 'No description provided.'}"`;
 
     return NextResponse.json(parsed);
   } catch (e: any) {
-    console.error("AI Role suggestion error:", e);
+    logger.error("API/ai/suggest-permissions", "AI Role suggestion error:", e);
     return NextResponse.json({ error: e.message || "Failed to suggest permissions" }, { status: 500 });
   }
 }

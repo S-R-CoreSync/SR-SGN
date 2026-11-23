@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { SITE_URL } from "@/lib/site";
+import { logger } from "@/lib/logger";
 
 export async function POST(req: NextRequest) {
   try {
@@ -54,7 +55,7 @@ export async function POST(req: NextRequest) {
           });
         }
       } catch (e) {
-        console.error("Mollie API error, falling back to direct bank flow:", e);
+        logger.error("API/payments/create-checkout", "Mollie API error, falling back to direct bank flow:", e);
       }
     }
 
@@ -82,7 +83,7 @@ export async function POST(req: NextRequest) {
         : `Please include the reference (${paymentRef}) in your Dutch bank transfer for automated processing.`,
     });
   } catch (error: any) {
-    console.error("Payment creation error:", error);
+    logger.error("API/payments/create-checkout", "Payment creation error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to initiate payment session" },
       { status: 500 }

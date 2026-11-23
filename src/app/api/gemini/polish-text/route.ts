@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { ollamaGenerate } from "@/lib/ai/ollama";
 import { createRateLimiter } from "@/lib/rate-limit";
 import { clientKey, tooMany } from "@/lib/request-guard";
+import { logger } from "@/lib/logger";
 
 // حماية من الإساءة: تحسين/ترجمة النصوص عبر موديل لغوي
 const polishLimiter = createRateLimiter({ maxRequests: 20, windowMs: 60_000, name: "gemini-polish-text" });
@@ -28,7 +29,7 @@ export async function POST(req: Request) {
     const result = await ollamaGenerate([{ text }], systemPrompt);
     return NextResponse.json({ result });
   } catch (e: any) {
-    console.error("AI polish-text error:", e);
+    logger.error("API/gemini/polish-text", "AI polish-text error:", e);
     return NextResponse.json({ error: e.message || "AI processing failed" }, { status: 500 });
   }
 }

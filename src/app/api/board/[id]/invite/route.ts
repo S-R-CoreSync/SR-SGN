@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db";
 import { sendBoardInviteEmail } from "@/lib/email";
 import { sendBoardInviteWhatsApp } from "@/lib/whatsapp";
 import { autoLinkByEmail } from "@/lib/board-admin";
+import { logger } from "@/lib/logger";
 
 export async function POST(
   req: Request,
@@ -55,7 +56,7 @@ export async function POST(
 
     return NextResponse.json({ success: true, channel, delivered });
   } catch (error) {
-    console.error("[Board invite] error:", error);
+    logger.error("API/board/invite", "error:", error);
     return NextResponse.json({ error: "Failed to send invite" }, { status: 500 });
   }
 }

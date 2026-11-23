@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "./auth";
 import { prisma } from "./db";
 import { verifyMobileToken } from "./mobile-token";
+import { logger } from "@/lib/logger";
 
 export interface SessionUser {
   id: string;
@@ -23,7 +24,7 @@ export async function getSessionUser(req?: Request): Promise<SessionUser | null>
       };
     }
   } catch (err) {
-    console.error("[getSessionUser] NextAuth session lookup failed:", err);
+    logger.error("MobileAuth", "NextAuth session lookup failed:", err);
   }
 
   // 2. Try Authorization Bearer Token (for Mobile client)
@@ -48,11 +49,11 @@ export async function getSessionUser(req?: Request): Promise<SessionUser | null>
             };
           }
         } else if (raw) {
-          console.warn("[getSessionUser] rejected unsigned/legacy bearer token — the user must sign in again");
+          logger.warn("MobileAuth", "rejected unsigned/legacy bearer token — the user must sign in again");
         }
       }
     } catch (err) {
-      console.error("[getSessionUser] Bearer token lookup failed:", err);
+      logger.error("MobileAuth", "Bearer token lookup failed:", err);
     }
   }
 

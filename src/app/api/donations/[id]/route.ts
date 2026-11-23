@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { logActivity } from "@/lib/activity";
+import { logger } from "@/lib/logger";
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
@@ -29,7 +30,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
     return NextResponse.json({ success: true, donation });
   } catch (error) {
-    console.error("[DONATION_PATCH]", error);
+    logger.error("API/donations", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

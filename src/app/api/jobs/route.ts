@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { logger } from "@/lib/logger";
 
 // GET - جلب جميع الوظائف
 export async function GET(req: NextRequest) {
@@ -59,7 +60,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(jobs);
   } catch (error) {
-    console.error('Error fetching jobs:', error);
+    logger.error("API/jobs", 'Error fetching jobs:', error);
     return NextResponse.json({ error: 'Failed to fetch jobs' }, { status: 500 });
   }
 }
@@ -110,7 +111,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(job);
   } catch (error) {
-    console.error('Error creating job:', error);
+    logger.error("API/jobs", 'Error creating job:', error);
     return NextResponse.json({ error: 'Failed to create job' }, { status: 500 });
   }
 }

@@ -9,6 +9,7 @@ import { getApiMessage } from "@/lib/api-messages";
 import { SITE_URL } from "@/lib/site";
 import { createRateLimiter } from "@/lib/rate-limit";
 import { clientKey, tooMany } from "@/lib/request-guard";
+import { logger } from "@/lib/logger";
 
 // حدّ معدّل لطلبات الانتساب: كان المسار بلا أي حدّ سوى تكرار رقم الواتساب
 const memberLimiter = createRateLimiter({ maxRequests: 5, windowMs: 60 * 60 * 1000, name: "member-apply" });
@@ -84,7 +85,7 @@ export async function POST(req: Request) {
     );
     return NextResponse.json({ message: t(req, 'api.registrationSuccess'), id: member.id });
   } catch (e: any) {
-    console.error("Member registration error:", e?.message || e);
+    logger.error("API/member", "Member registration error:", e?.message || e);
     return NextResponse.json({ error: t(req, 'api.registrationError') }, { status: 500 });
   }
 }

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/mobile-auth";
 import { generateChat } from "@/lib/ai/provider";
+import { logger } from "@/lib/logger";
 
 export async function GET(req: Request) {
   const user = await getSessionUser(req);
@@ -76,7 +77,7 @@ ${tasks.map(t => `ID: ${t.id} | العنوان: ${t.title} | الوصف: ${t.des
 
     return NextResponse.json({ tasks: recommendedTasks });
   } catch (e) {
-    console.error("Task recommendation AI error:", e);
+    logger.error("API/member/recommendations", "Task recommendation AI error:", e);
     // Fallback: return first 3 tasks
     return NextResponse.json({ tasks: tasks.slice(0, 3) });
   }

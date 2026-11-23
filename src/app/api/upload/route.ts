@@ -4,6 +4,7 @@ import { getApiMessage } from "@/lib/api-messages";
 import { getSessionUser } from "@/lib/mobile-auth";
 import fs from "fs/promises";
 import path from "path";
+import { logger } from "@/lib/logger";
 
 function t(req: Request, key: string) {
   const locale = (req as any).cookies?.get?.('NEXT_LOCALE')?.value || 'ar';
@@ -34,7 +35,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ url: base64Data });
   } catch (error: any) {
-    console.error("Upload error:", error);
+    logger.error("API/upload", "Upload error:", error);
     return NextResponse.json({ error: t(req, 'api.internalError') }, { status: 500 });
   }
 }

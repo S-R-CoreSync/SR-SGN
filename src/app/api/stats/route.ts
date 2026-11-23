@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
 
@@ -32,7 +33,7 @@ export async function GET() {
       totalViews: viewsResult._sum.views || 0,
     });
   } catch (error) {
-    console.error("Failed to fetch public stats:", error);
+    logger.error("API/stats", "Failed to fetch public stats:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }

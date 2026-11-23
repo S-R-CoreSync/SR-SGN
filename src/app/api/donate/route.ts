@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { getApiMessage } from "@/lib/api-messages";
 import { createRateLimiter } from "@/lib/rate-limit";
 import { clientKey, tooMany } from "@/lib/request-guard";
+import { logger } from "@/lib/logger";
 
 // 🔐 حماية من إغراق جدول التبرعات بسجلات وهمية
 const donateLimiter = createRateLimiter({ maxRequests: 10, windowMs: 10 * 60_000, name: "donate" });
@@ -70,7 +71,7 @@ export async function POST(req: Request) {
       },
     });
   } catch (error) {
-    console.error("[DONATE_POST]", error);
+    logger.error("API/donate", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

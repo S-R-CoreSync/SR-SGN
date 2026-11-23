@@ -1,5 +1,6 @@
 import { generateText } from "@/lib/ai/provider";
 import type { ExtractedArticle } from "./types";
+import { logger } from "@/lib/logger";
 
 function detectLanguage(article: ExtractedArticle): "ar" | "nl" | "en" {
   if (/[\u0600-\u06FF]/.test(article.title)) {
@@ -38,12 +39,12 @@ async function generateTextWithRetry(
         // احترام retry-after من المزوّد إن كان مذكوراً بالرسالة
         const hinted = errMsg.match(/retry[- ]after["':\s]+(\d+)/i);
         const wait = hinted ? Math.min(Number(hinted[1]) * 1000, 60_000) : delayTime;
-        console.warn(`[Sync AI API] Rate limit (429). Retrying in ${Math.round(wait / 1000)}s (${retries - 1} left)`);
+        logger.warn("SyncAI", `Rate limit (429). Retrying in ${Math.round(wait / 1000)}s (${retries - 1} left)`);
         await new Promise((resolve) => setTimeout(resolve, wait));
         retries--;
         delayTime = Math.min(delayTime * 2, 60_000);
       } else if (isJsonError && retries > 1) {
-        console.warn(`[Sync AI API] JSON validation error. Retrying as plain text...`);
+        logger.warn("SyncAI", `JSON validation error. Retrying as plain text...`);
         await new Promise((resolve) => setTimeout(resolve, 2000));
         retries--;
         currentOptions = { responseFormat: "text" };
@@ -128,7 +129,7 @@ export async function translateArticle(article: ExtractedArticle): Promise<Extra
     const fallback = await translateArticleFallback(article);
     if (fallback) return fallback;
   } catch (error) {
-    console.error("AI translation failed for article:", article.title, error);
+    logger.error("SyncAI", "AI translation failed for article:", article.title, error);
   }
 
   return article;

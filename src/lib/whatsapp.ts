@@ -1,4 +1,5 @@
 import { getApiMessage } from './api-messages';
+import { logger } from "@/lib/logger";
 
 export async function sendWhatsAppMessage(to: string, message: string): Promise<boolean> {
   const instanceId = process.env.WHATSAPP_INSTANCE_ID;
@@ -17,10 +18,10 @@ export async function sendWhatsAppMessage(to: string, message: string): Promise<
     let body: any = null;
     try { body = await res.json(); } catch { /* استجابة غير JSON */ }
     const sent = res.ok && (body?.sent === true || body?.sent === "true");
-    if (!sent) console.error("[WhatsApp] send failed:", res.status, body?.error ?? "");
+    if (!sent) logger.error("WhatsApp", "send failed:", res.status, body?.error ?? "");
     return sent;
   } catch (error) {
-    console.error("[WhatsApp] send error:", error);
+    logger.error("WhatsApp", "send error:", error);
     return false;
   }
 }

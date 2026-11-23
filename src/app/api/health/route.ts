@@ -33,6 +33,13 @@ interface HealthCheckResponse {
       version: string;
     };
   };
+  /**
+   * جاهزية الميزات الاختيارية — قيم منطقية فقط بلا أي أسرار.
+   * السبب: غياب JINA/QDRANT كان يُسقط البحث الدلالي إلى البحث بالكلمات المفتاحية بصمت.
+   */
+  features: {
+    rag: boolean;
+  };
 }
 
 const startTime = Date.now();
@@ -156,6 +163,9 @@ export async function GET(request: NextRequest) {
     timestamp: new Date().toISOString(),
     uptime: Math.floor((Date.now() - startTime) / 1000),
     checks,
+    features: {
+      rag: Boolean(process.env.JINA_API_KEY && process.env.QDRANT_URL && process.env.QDRANT_API_KEY),
+    },
   };
   const statusCode = overallStatus === "error" ? 503 : 200;
 

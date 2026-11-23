@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { createRateLimiter } from "@/lib/rate-limit";
 import { clientKey, tooMany } from "@/lib/request-guard";
+import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
 
@@ -105,7 +106,7 @@ export async function GET(req: NextRequest) {
       }
     );
   } catch (error) {
-    console.error("[API/news]", error);
+    logger.error("API/news", error);
     return NextResponse.json({ error: "server error" }, { status: 500 });
   }
 }

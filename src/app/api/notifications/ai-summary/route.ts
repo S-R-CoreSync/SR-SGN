@@ -4,6 +4,7 @@ import { getSessionUser } from "@/lib/mobile-auth";
 import { generateText } from "@/lib/ai/provider";
 import { createRateLimiter } from "@/lib/rate-limit";
 import { tooMany } from "@/lib/request-guard";
+import { logger } from "@/lib/logger";
 
 // حدّ استهلاك الذكاء الاصطناعي لكل مستخدم
 const summaryLimiter = createRateLimiter({ maxRequests: 10, windowMs: 60_000, name: "ai-notif-summary" });
@@ -65,7 +66,7 @@ ${notificationsText}
 
     return NextResponse.json({ summary: summary || "حدث خطأ في صياغة الملخص." });
   } catch (error) {
-    console.error("[API/notifications/ai-summary]", error);
+    logger.error("API/notifications/ai-summary", error);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

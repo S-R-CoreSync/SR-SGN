@@ -3,6 +3,7 @@ import { readdir } from "fs/promises";
 import path from "path";
 import { prisma } from "@/lib/db";
 import { hasArabicCharacters } from "@/lib/language-guard";
+import { logger } from "@/lib/logger";
 
 export async function GET(req: Request) {
   try {
@@ -72,13 +73,13 @@ export async function GET(req: Request) {
           };
         });
     } catch (e) {
-      console.warn("Could not read public/uploads directory:", e);
+      logger.warn("API/uploads", "Could not read public/uploads directory:", e);
     }
 
     // Return deduplicated, locale-pure images
     return NextResponse.json([...postImages, ...staticImages]);
   } catch (error) {
-    console.error("[API/uploads] error:", error);
+    logger.error("API/uploads", "error:", error);
     return NextResponse.json([]);
   }
 }

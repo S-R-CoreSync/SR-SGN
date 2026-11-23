@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/mobile-auth";
 import { analyzeDocument } from "@/lib/ai/chat";
+import { logger } from "@/lib/logger";
 
 export async function GET(req: Request) {
   const user = await getSessionUser(req);
@@ -48,7 +49,7 @@ export async function POST(req: Request) {
         const locale = (req as any).cookies?.get?.('NEXT_LOCALE')?.value || 'ar';
         analysis = await analyzeDocument(fileUrl, locale);
       } catch (aiErr) {
-        console.error("AI Analysis error:", aiErr);
+        logger.error("API/member/vault", "AI Analysis error:", aiErr);
       }
     }
 

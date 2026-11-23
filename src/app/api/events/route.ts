@@ -7,6 +7,7 @@ import { requireAuthorize } from "@/lib/auth-helpers";
 export const dynamic = "force-dynamic";
 import { getApiMessage } from "@/lib/api-messages";
 import { createSystemNotification } from "@/lib/notifications/service";
+import { logger } from "@/lib/logger";
 
 function t(req: Request, key: string) {
   const locale = (req as any).cookies?.get?.('NEXT_LOCALE')?.value || 'ar';
@@ -54,7 +55,7 @@ export async function POST(req: Request) {
     title: event.title,
     descriptionOrContent: event.description || "",
     link: "/events",
-  }).catch(err => console.error("Error sending notification for event:", err));
+  }).catch(err => logger.error("API/events", "Error sending notification for event:", err));
 
   return NextResponse.json(event);
 }

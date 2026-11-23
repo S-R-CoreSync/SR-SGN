@@ -9,6 +9,7 @@ import fs from "fs/promises";
 import path from "path";
 import { createRateLimiter } from "@/lib/rate-limit";
 import { tooMany } from "@/lib/request-guard";
+import { logger } from "@/lib/logger";
 
 // حدّ استهلاك موديل الرؤية لكل مستخدم
 const verifyLimiter = createRateLimiter({ maxRequests: 15, windowMs: 60_000, name: "id-card-verify" });
@@ -117,7 +118,7 @@ You MUST output your response strictly as a JSON object:
     });
 
   } catch (e: any) {
-    console.error("AI ID verification error:", e);
+    logger.error("API/members/id-card/verify", "AI ID verification error:", e);
     return NextResponse.json({ error: e.message || "AI Verification failed" }, { status: 500 });
   }
 }

@@ -1,5 +1,6 @@
 import type { SyncSource, ExtractedArticle } from "./types"
 import { extractFacebook } from "./facebook"
+import { logger } from "@/lib/logger"
 
 async function fetchPage(url: string): Promise<string> {
   const res = await fetch(url, {
@@ -376,7 +377,7 @@ function extractAllImagesAndText(html: string): ExtractedArticle[] {
           })
         }
       } catch (err) {
-        console.error("Error parsing Zyro JSON props:", err)
+        logger.error("Sync", "Error parsing Zyro JSON props:", err)
       }
     }
   }

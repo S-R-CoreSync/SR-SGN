@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { embedText } from "@/lib/ai/embeddings";
 import { searchVectors } from "@/lib/ai/vector-search";
+import { logger } from "@/lib/logger";
 
 // Semantic news search (Jina + Qdrant). Returns null if unavailable.
 async function searchNewsSemantic(question: string, locale: string): Promise<{ title: string; excerpt: string; category: string; createdAt: Date }[] | null> {
@@ -19,7 +20,7 @@ async function searchNewsSemantic(question: string, locale: string): Promise<{ t
     const byId = new Map(posts.map((p) => [p.id, p]));
     return hits.map((h) => byId.get(h.id)).filter(Boolean) as any;
   } catch (e) {
-    console.warn("[RAG] semantic news search failed, falling back to keyword:", (e as Error).message);
+    logger.warn("RAG", "semantic news search failed, falling back to keyword:", (e as Error).message);
     return null;
   }
 }

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { logger } from "@/lib/logger";
 
 const PROVINCE_MAP: Record<string, string> = {
   "zuid-holland":  "Zuid-Holland",
@@ -71,7 +72,7 @@ export async function GET() {
       headers: { "Cache-Control": "no-store, max-age=0, must-revalidate" },
     });
   } catch (err) {
-    console.error("[province-stats] error:", err);
+    logger.error("API/public/province-stats", "error:", err);
     return NextResponse.json(
       { total: 0, provinceData: [] },
       { headers: { "Cache-Control": "no-store, max-age=0, must-revalidate" } }

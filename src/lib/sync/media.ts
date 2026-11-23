@@ -1,6 +1,7 @@
 import { writeFile, mkdir } from "fs/promises"
 import path from "path"
 import crypto from "crypto"
+import { logger } from "@/lib/logger"
 
 const MEDIA_DIR = path.join(process.cwd(), "public", "uploads", "sync")
 
@@ -99,7 +100,7 @@ export async function downloadMedia(
 
   // Detect YouTube "no thumbnail available" image (usually exactly 1097 bytes, always < 2000 bytes)
   if (absoluteUrl.includes("ytimg.com") && buffer.length <= 2000) {
-    console.log(`⚠️ Detected placeholder/unavailable YouTube thumbnail (size: ${buffer.length} bytes) for: ${absoluteUrl}`)
+    logger.info("Sync", `Detected placeholder/unavailable YouTube thumbnail (size: ${buffer.length} bytes) for: ${absoluteUrl}`)
     return null
   }
 

@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { requireAuthorize } from "@/lib/auth-helpers";
 import { createSystemNotification } from "@/lib/notifications/service";
+import { logger } from "@/lib/logger";
 
 function unauth() {
   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -62,7 +63,7 @@ export async function POST(req: Request) {
     title: survey.title,
     descriptionOrContent: survey.description || "",
     link: "/surveys",
-  }).catch(err => console.error("Error sending notification for survey:", err));
+  }).catch(err => logger.error("API/surveys", "Error sending notification for survey:", err));
 
   return NextResponse.json(survey);
 }

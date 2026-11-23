@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { getApiMessage } from "@/lib/api-messages";
 import { createRateLimiter } from "@/lib/rate-limit";
 import { clientKey, tooMany } from "@/lib/request-guard";
+import { logger } from "@/lib/logger";
 
 // 🔐 منع تضخيم عدّاد المشاهدات وجدول memberView بطلبات آلية
 const profileLimiter = createRateLimiter({ maxRequests: 60, windowMs: 60_000, name: "member-profile" });
@@ -52,7 +53,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
       data: { memberId: member.id }
     });
   } catch (e) {
-    console.error("View increment error:", e);
+    logger.error("API/member", "View increment error:", e);
   }
 
   return NextResponse.json(member);

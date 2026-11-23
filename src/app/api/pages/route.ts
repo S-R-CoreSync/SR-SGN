@@ -6,6 +6,7 @@ import { requireAuthorize } from "@/lib/auth-helpers";
 import { getApiMessage } from "@/lib/api-messages";
 import { triggerSocialShare } from "@/lib/sync/social-share";
 import { createSystemNotification } from "@/lib/notifications/service";
+import { logger } from "@/lib/logger";
 
 function t(req: Request, key: string) {
   const locale = (req as any).cookies?.get?.('NEXT_LOCALE')?.value || 'ar';
@@ -50,7 +51,7 @@ export async function POST(req: Request) {
     title: post.title,
     descriptionOrContent: post.excerpt || post.content || "",
     link: `/news/${post.slug}`,
-  }).catch(err => console.error("Error sending notification for post:", err));
+  }).catch(err => logger.error("API/pages", "Error sending notification for post:", err));
 
   return NextResponse.json(post);
 }

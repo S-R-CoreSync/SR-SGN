@@ -4,6 +4,7 @@ import { getOrCreateSession, sendAIMessage } from "@/lib/ai/chat";
 import { getSessionUser } from "@/lib/mobile-auth";
 import { createRateLimiter } from "@/lib/rate-limit";
 import { applyGuardrails } from "@/lib/guardrails";
+import { logger } from "@/lib/logger";
 
 const chatLimiter = createRateLimiter({ maxRequests: 30, windowMs: 60_000, name: "ai-chat" });
 
@@ -70,7 +71,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ reply, sessionId: sid, sources });
   } catch (e: any) {
-    console.error("AI chat error:", e);
+    logger.error("API/chat/ai", "AI chat error:", e);
     return NextResponse.json({ error: e.message || "Internal server error" }, { status: 500 });
   }
 }

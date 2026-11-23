@@ -1,4 +1,5 @@
 import { Redis } from "@upstash/redis";
+import { logger } from "@/lib/logger";
 
 /**
  * Redis client for caching and rate limiting
@@ -9,7 +10,7 @@ let redis: Redis | null = null;
 
 function getRedisClient(): Redis | null {
   if (!process.env.REDIS_URL) {
-    console.warn("[Redis] REDIS_URL not configured, skipping Redis");
+    logger.warn("Redis", "REDIS_URL not configured, skipping Redis");
     return null;
   }
 
@@ -46,7 +47,7 @@ export async function isRateLimited(
 
     return count > limit;
   } catch (error) {
-    console.error("[Redis] Rate limit error:", error);
+    logger.error("Redis", "Rate limit error:", error);
     return false; // Fail open
   }
 }
@@ -62,7 +63,7 @@ export async function getCache<T>(key: string): Promise<T | null> {
     const data = await client.get(key);
     return data ? JSON.parse(data as string) : null;
   } catch (error) {
-    console.error("[Redis] Cache get error:", error);
+    logger.error("Redis", "Cache get error:", error);
     return null;
   }
 }
@@ -78,7 +79,7 @@ export async function setCache<T>(
   try {
     await client.setex(key, ttl, JSON.stringify(value));
   } catch (error) {
-    console.error("[Redis] Cache set error:", error);
+    logger.error("Redis", "Cache set error:", error);
   }
 }
 
@@ -89,7 +90,7 @@ export async function deleteCache(key: string): Promise<void> {
   try {
     await client.del(key);
   } catch (error) {
-    console.error("[Redis] Cache delete error:", error);
+    logger.error("Redis", "Cache delete error:", error);
   }
 }
 
@@ -106,7 +107,7 @@ export async function invalidateCachePattern(pattern: string): Promise<void> {
       await client.del(...(keys as string[]));
     }
   } catch (error) {
-    console.error("[Redis] Cache invalidation error:", error);
+    logger.error("Redis", "Cache invalidation error:", error);
   }
 }
 
@@ -123,7 +124,7 @@ export async function trackApiUsage(userId: string): Promise<void> {
     await client.incr(key);
     await client.expire(key, 86400); // 24 hours
   } catch (error) {
-    console.error("[Redis] API usage tracking error:", error);
+    logger.error("Redis", "API usage tracking error:", error);
   }
 }
 
@@ -141,7 +142,7 @@ export async function setSession(
   try {
     await client.setex(`session:${sessionId}`, ttl, JSON.stringify(data));
   } catch (error) {
-    console.error("[Redis] Session set error:", error);
+    logger.error("Redis", "Session set error:", error);
   }
 }
 
@@ -155,7 +156,7 @@ export async function getSession(
     const data = await client.get(`session:${sessionId}`);
     return data ? JSON.parse(data as string) : null;
   } catch (error) {
-    console.error("[Redis] Session get error:", error);
+    logger.error("Redis", "Session get error:", error);
     return null;
   }
 }
@@ -167,6 +168,6 @@ export async function deleteSession(sessionId: string): Promise<void> {
   try {
     await client.del(`session:${sessionId}`);
   } catch (error) {
-    console.error("[Redis] Session delete error:", error);
+    logger.error("Redis", "Session delete error:", error);
   }
 }
