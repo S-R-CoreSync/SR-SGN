@@ -707,3 +707,114 @@ model ServiceReview {
   @@index([serviceId])
   @@index([reviewerId])
 }
+
+// ===== نماذج الخدمات الديناميكية =====
+
+/// شركاء الكاش باك والخصومات (شبكة المتاجر)
+model PartnerStore {
+  id           String   @id @default(cuid())
+  nameAr       String
+  nameNl       String
+  nameEn       String
+  category     String   // supermarket, restaurant, auto, services, fashion, sweets, home
+  discount     Int      // نسبة الخصم 5-20
+  city         String
+  address      String
+  cashbackType String   // instant | cashback
+  rating       Float    @default(0)
+  reviewCount  Int      @default(0)
+  isActive     Boolean  @default(true)
+  isFeatured   Boolean  @default(false)
+  phone        String?
+  whatsapp     String?
+  website      String?
+  logo         String?
+  highlightAr  String?
+  highlightNl  String?
+  highlightEn  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([category, isActive])
+  @@index([city, isActive])
+  @@index([isFeatured, isActive])
+}
+
+/// منتجات بازار الأسر المنتجة
+model BazaarItem {
+  id            String   @id @default(cuid())
+  titleAr       String
+  titleNl       String
+  titleEn       String
+  category      String   // food, sweets, crafts, sewing, other
+  producerName  String
+  city          String
+  province      String
+  price         Float
+  unit          String
+  descriptionAr String?
+  descriptionNl String?
+  descriptionEn String?
+  whatsapp      String
+  delivery      Boolean  @default(false)
+  image         String?
+  badgeAr       String?
+  badgeNl       String?
+  badgeEn       String?
+  isActive      Boolean  @default(true)
+  views         Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([category, isActive])
+  @@index([city, isActive])
+}
+
+/// موردو شبكة B2B والجملة
+model Supplier {
+  id           String   @id @default(cuid())
+  companyName  String
+  category     String   // food, equipment, packaging, meat, logistics, other
+  city         String
+  minOrder     String
+  description  String
+  kvk          String
+  verified     Boolean  @default(false)
+  contactEmail String?
+  contactPhone String?
+  contactWhatsapp String?
+  website      String?
+  logo         String?
+  badge        String?
+  isActive     Boolean  @default(true)
+  isFeatured   Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([category, isActive])
+  @@index([city, isActive])
+  @@index([verified, isActive])
+}
+
+/// عروض التوفير الجماعي (طاقة، تأمين صحي، إنترنت)
+model CollectiveDeal {
+  id             String    @id @default(cuid())
+  titleAr        String
+  titleNl        String
+  titleEn        String
+  category       String    // energy, health, internet, insurance
+  provider       String
+  badgeAr        String?
+  badgeNl        String?
+  badgeEn        String?
+  avgSavingYear  Float
+  perksAr        String?
+  perksNl        String?
+  perksEn        String?
+  deadline       String?
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([category, isActive])
+}
