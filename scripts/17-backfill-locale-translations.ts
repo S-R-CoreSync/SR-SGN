@@ -8,6 +8,9 @@
 //   BACKFILL_QUOTA_WAIT_MS (افتراضي 60000) — انتظار عند نفاد الحصة/حدّ المعدّل ثم إعادة المحاولة.
 //   BACKFILL_QUOTA_RETRIES (افتراضي 60) — أقصى عدد إعادات محاولة لنفس الصف عند نفاد الحصة.
 //   BACKFILL_MODELS — قائمة نماذج Groq مفصولة بفواصل للتدوير عند نفاد حصة أحدها.
+//     القائمة الافتراضية تضمّ ثلاثة نماذج، لكلٍّ حصته اليومية المجانية المنفصلة (TPD):
+//       openai/gpt-oss-120b + openai/gpt-oss-20b + qwen/qwen3.8-27b
+//     هذا يضاعف المتنفّس المجاني ثلاث مرات بلا أي تكلفة.
 //   BACKFILL_MAX_MS (افتراضي 0 = بلا حدّ) — سقف زمني للتشغيل (مفيد للتشغيل المجدول).
 // عند نفاد حصة Groq اليومية تتحرّر التوكنات تدريجياً (نافذة متدحرجة)، فيصبر السكربت ويعيد
 // المحاولة بدل أن يفشل ويتوقّف — هكذا يكمل الأرشيف على مدى ساعات بلا أي تكلفة.
@@ -27,8 +30,9 @@ const QUOTA_MAX_RETRIES = Number(process.env.BACKFILL_QUOTA_RETRIES) || 60;
  *  بنظافة بعد مدّة محدّدة ثم تستأنف الجدولة من حيث توقّف (النافذة التالية). */
 const MAX_MS = Number(process.env.BACKFILL_MAX_MS) || 0;
 
-/** نماذج Groq للتدوير عند نفاد حصة أحدها (لكل نموذج حصته اليومية المنفصلة). */
-const MODELS = (process.env.BACKFILL_MODELS || process.env.GROQ_MODEL || "")
+/** نماذج Groq للتدوير عند نفاد حصة أحدها (لكل نموذج حصته اليومية المنفصلة).
+ *  الافتراضي: ثلاثة نماذج = ثلاثة حصص مجانية منفصلة (TPD) بلا أي تكلفة. */
+const MODELS = (process.env.BACKFILL_MODELS || "openai/gpt-oss-120b,openai/gpt-oss-20b,qwen/qwen3.8-27b")
   .split(",")
   .map((m) => m.trim())
   .filter(Boolean);
@@ -108,6 +112,9 @@ async function main() {
     };
 
     let quotaRetries = 0;
+    // عدد النماذج التي جُرِّبت لهذا الصف منذ آخر نجاح — يمنع انتظاراً طويلاً
+    // ما دام هناك نموذج لم نجرّبه بعد (لكل نموذج حصته المنفصلة، فقد يكون متاحاً).
+    let rotatedModels = 0;
     while (true) {
       try {
         const translated = await translateArticleToLocale(article, targetLocale);
@@ -125,6 +132,7 @@ async function main() {
           });
           done++;
           consecutiveFails = 0;
+          rotatedModels = 0;
           console.log(`  [${done}] ${targetLocale} ← ${translated.title.slice(0, 55)}`);
         }
         break;
@@ -137,26 +145,33 @@ async function main() {
 
           // دوّر النموذج: لكل نموذج Groq حصته اليومية المنفصلة، فيعطي التدوير متنفّساً
           // مضاعفاً. getConfig يقرأ GROQ_MODEL من البيئة في كل نداء، فالتبديل يسري فوراً.
-          if (MODELS.length > 1) {
+          // ما دام هناك نموذج لم نجرّبه بعد ننتقل إليه فوراً بلا انتظار (قد تكون حصته متاحة).
+          let rotated = false;
+          if (MODELS.length > 1 && rotatedModels < MODELS.length - 1) {
             const current = process.env.GROQ_MODEL || MODELS[0];
             const idx = MODELS.indexOf(current);
             const next = MODELS[(idx + 1) % MODELS.length];
             if (next !== current) {
               process.env.GROQ_MODEL = next;
+              rotatedModels++;
+              rotated = true;
               console.warn(`  🔄 تبديل النموذج: ${current} → ${next}`);
             }
           }
 
           const hinted = parseQuotaWaitMs(msg);
-          const wait = Math.max(QUOTA_WAIT_MS, hinted ?? 0) + 2000;
+          // جرّبنا كل النماذج → لا مفرّ من انتظار انفتاح نافذة الحصة (كما يطلب المزوّد).
+          const wait = rotated ? 1500 : Math.max(QUOTA_WAIT_MS, hinted ?? 0) + 2000;
           // لا نبدأ انتظاراً يُخرجنا عن السقف الزمني — نتوقّف نظيفاً وتستأنف الجدولة التالية.
           if (MAX_MS > 0 && Date.now() - startedAt + wait >= MAX_MS) {
             console.warn(`  ⏱️ الانتظار (${Math.round(wait / 1000)}s) يتجاوز السقف الزمني — توقّف نظيف.`);
             break;
           }
-          console.warn(
-            `  ⏳ حصة منتهية — انتظار ${Math.round(wait / 1000)}s ثم إعادة المحاولة (${quotaRetries}/${QUOTA_MAX_RETRIES})`
-          );
+          if (!rotated) {
+            console.warn(
+              `  ⏳ حصة منتهية — انتظار ${Math.round(wait / 1000)}s ثم إعادة المحاولة (${quotaRetries}/${QUOTA_MAX_RETRIES})`
+            );
+          }
           await sleep(wait);
           continue;
         }
