@@ -7,7 +7,7 @@
 //   SUMMARY_QUOTA_WAIT_MS (افتراضي 60000) — انتظار عند نفاد الحصة/حدّ المعدّل ثم إعادة المحاولة.
 //   SUMMARY_QUOTA_RETRIES (افتراضي 60) — أقصى عدد إعادات محاولة لنفس الصف عند نفاد الحصة.
 //   SUMMARY_MODELS — نماذج Groq مفصولة بفواصل للتدوير (لكل نموذج حصته اليومية المنفصلة).
-//   SUMMARY_MIN_CHARS (افتراضي 150) — أقلّ طول نصّ مقبول للتلخيص (الأقصر منه يُتخطّى:
+//   SUMMARY_MIN_CHARS (افتراضي 100) — أقلّ طول نصّ مقبول للتلخيص (الأقصر منه يُتخطّى:
 //     الأخبار القصيرة/الفيديو لا يكفي نصّها لتلخيص ذي معنى).
 //   SUMMARY_MAX_MS (افتراضي 0 = بلا حدّ) — سقف زمني للتشغيل (مفيد للتشغيل المجدول).
 
@@ -21,7 +21,7 @@ const MAX_MS = Number(process.env.SUMMARY_MAX_MS) || 0; // سقف زمني (0 = 
 const QUOTA_WAIT_MS = Number(process.env.SUMMARY_QUOTA_WAIT_MS) || 60_000;
 const QUOTA_MAX_RETRIES = Number(process.env.SUMMARY_QUOTA_RETRIES) || 60;
 // أقلّ طول نصّ مقبول للتلخيص — الأقصر منه يُتخطّى (نصوص الفيديو/النشرات لا تكفي).
-const MIN_CHARS = Number(process.env.SUMMARY_MIN_CHARS) || 150;
+const MIN_CHARS = Number(process.env.SUMMARY_MIN_CHARS) || 100;
 
 /** نماذج Groq للتدوير عند نفاد حصة أحدها (لكل نموذج حصته اليومية المنفصلة).
  *  الافتراضي: ثلاثة نماذج = ثلاثة حصص مجانية منفصلة (TPD) بلا أي تكلفة. */
