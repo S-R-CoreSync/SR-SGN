@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useParams } from "next/navigation";
 import {
   Building2,
@@ -19,77 +19,26 @@ import {
   ExternalLink,
   ShieldCheck,
   ArrowRight,
+  Loader2,
 } from "lucide-react";
 import { formatLocalizedDigits } from "@/lib/language-guard";
 
 interface Supplier {
   id: string;
   companyName: string;
-  category: "food" | "equipment" | "packaging" | "meat" | "logistics";
+  category: string;
   city: string;
   minOrder: string;
   description: string;
   kvk: string;
   verified: boolean;
-  contactEmail: string;
-  contactPhone: string;
-  badge: string;
+  contactEmail: string | null;
+  contactPhone: string | null;
+  contactWhatsapp: string | null;
+  website: string | null;
+  badge: string | null;
+  isFeatured?: boolean;
 }
-
-const SUPPLIERS: Supplier[] = [
-  {
-    id: "sup-1",
-    companyName: "شركة الشام لتجارة المواد الغذائية بالجملة B.V.",
-    category: "food",
-    city: "Rotterdam",
-    minOrder: "€250",
-    description: "توريد جملة لجميع أصناف البقاليات السورية والشرقية: أرز، سمن حيواني، بهارات حلبية، معلبات، وزيوت مباشرة للمطاعم والمتاجر.",
-    kvk: "84729103",
-    verified: true,
-    contactEmail: "groothandel@sham-food.nl",
-    contactPhone: "+31 10 1234567",
-    badge: "مستورد رئيسي",
-  },
-  {
-    id: "sup-2",
-    companyName: "يوروتك لتجهيزات المطابخ والمطاعم الصناعية",
-    category: "equipment",
-    city: "Amsterdam",
-    minOrder: "€500",
-    description: "شوايات شاورما، أفران بيتزا وفطاير حجرية، قلايات صناعية، وثلاجات ستانلس ستيل مع كفالة سنتين وتركيب فوري.",
-    kvk: "76541298",
-    verified: true,
-    contactEmail: "info@eurotech-horeca.nl",
-    contactPhone: "+31 20 7654321",
-    badge: "كفالة وصيانة",
-  },
-  {
-    id: "sup-3",
-    companyName: "البركة لتوزيع اللحوم الحلال المعتمدة",
-    category: "meat",
-    city: "Utrecht",
-    minOrder: "€200",
-    description: "لحوم بقري، غنم ودجاج حلال طازجة ومذبوحة ومفرغة من الهواء وفق أعلى معايير السلامة الهولندية NVWA للمطاعم والملاحم.",
-    kvk: "91238475",
-    verified: true,
-    contactEmail: "bestel@baraka-halal.nl",
-    contactPhone: "+31 30 5544332",
-    badge: "معتمد NVWA",
-  },
-  {
-    id: "sup-4",
-    companyName: "إيكو باكينغ لعلب التغليف والطباعة المخصصة",
-    category: "packaging",
-    city: "Eindhoven",
-    minOrder: "€150",
-    description: "علب وجبات، أكياس كرافت صديقة للبيئة، ورق سندويش مخصص بشعار مطعمك، علب حلوى وأكواب حرارية بأسعار مصنع مباشرة.",
-    kvk: "65438291",
-    verified: true,
-    contactEmail: "sales@ecopack-nl.com",
-    contactPhone: "+31 40 3322110",
-    badge: "طباعة مخصصة",
-  },
-];
 
 export default function B2BPage() {
   const params = useParams();
@@ -99,6 +48,8 @@ export default function B2BPage() {
 
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [search, setSearch] = useState("");
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [loading, setLoading] = useState(false);
 
   // Offerte form state
   const [offerteSent, setOfferteSent] = useState(false);
@@ -121,8 +72,25 @@ export default function B2BPage() {
     { id: "packaging", label: isAr ? "تغليف وطباعة" : "Verpakking & Bedrukking" },
   ];
 
+  // جلب الموردين من API
+  useEffect(() => {
+    const fetchSuppliers = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch("/api/suppliers");
+        const data = await res.json();
+        setSuppliers(data.suppliers || []);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSuppliers();
+  }, []);
+
   const filteredSuppliers = useMemo(() => {
-    return SUPPLIERS.filter((s) => {
+    return suppliers.filter((s) => {
       const matchCat = activeCategory === "all" || s.category === activeCategory;
       const matchSearch =
         s.companyName.toLowerCase().includes(search.toLowerCase()) ||
@@ -130,7 +98,7 @@ export default function B2BPage() {
         s.city.toLowerCase().includes(search.toLowerCase());
       return matchCat && matchSearch;
     });
-  }, [activeCategory, search]);
+  }, [suppliers, activeCategory, search]);
 
   return (
     <div dir={isAr ? "rtl" : "ltr"} className="min-h-screen bg-slate-50 dark:bg-slate-950 py-10 px-4 sm:px-6 lg:px-8">
@@ -216,6 +184,20 @@ export default function B2BPage() {
           </div>
 
           {/* Suppliers Grid */}
+          {loading ? (
+            <div className="flex justify-center py-20">
+              <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+            </div>
+          ) : filteredSuppliers.length === 0 ? (
+            <div className="text-center py-16 space-y-3">
+              <Building2 className="w-12 h-12 mx-auto text-slate-300" />
+              <p className="text-slate-500">
+                {isAr
+                  ? "لا يوجد موردون في هذه الفئة حالياً — قريباً إن شاء الله"
+                  : "Geen leveranciers in deze categorie — binnenkort beschikbaar"}
+              </p>
+            </div>
+          ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {filteredSuppliers.map((sup) => (
               <div
@@ -234,9 +216,11 @@ export default function B2BPage() {
                       </span>
                     </div>
 
+                    {sup.badge && (
                     <span className="px-2.5 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 text-[10px] font-bold border border-indigo-200/50 shrink-0">
                       {sup.badge}
                     </span>
+                    )}
                   </div>
 
                   <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{sup.description}</p>
@@ -248,6 +232,7 @@ export default function B2BPage() {
                 </div>
 
                 <div className="flex items-center gap-3 pt-2 border-t border-slate-100 dark:border-slate-800 text-xs">
+                  {sup.contactPhone && (
                   <a
                     href={`tel:${sup.contactPhone}`}
                     className="flex-1 py-2 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-200 font-semibold flex items-center justify-center gap-1.5 transition-colors"
@@ -255,6 +240,8 @@ export default function B2BPage() {
                     <Phone className="w-3.5 h-3.5" />
                     <span>{sup.contactPhone}</span>
                   </a>
+                  )}
+                  {sup.contactEmail && (
                   <a
                     href={`mailto:${sup.contactEmail}`}
                     className="flex-1 py-2 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold flex items-center justify-center gap-1.5 transition-colors shadow-sm"
@@ -262,10 +249,12 @@ export default function B2BPage() {
                     <Mail className="w-3.5 h-3.5" />
                     <span>{isAr ? "مراسلة المورد" : "E-mail"}</span>
                   </a>
+                  )}
                 </div>
               </div>
             ))}
           </div>
+          )}
         </div>
 
         {/* OFFERTE REQUEST WIZARD */}
