@@ -76,10 +76,27 @@ export default function CashbackPage() {
     return { supermarketSaving, diningSaving, autoServicesSaving, total, netProfit };
   }, [monthlySupermarket, monthlyDining, yearlyAutoServices]);
 
+  // جلب شركاء الكاش باك من API
+  useEffect(() => {
+    const fetchPartners = async () => {
+      setLoadingPartners(true);
+      try {
+        const res = await fetch("/api/partners");
+        const data = await res.json();
+        setPartners(data.partners || []);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoadingPartners(false);
+      }
+    };
+    fetchPartners();
+  }, []);
+
   const filteredPartners = useMemo(() => {
-    if (selectedCategory === "all") return PARTNERS;
-    return PARTNERS.filter((p) => p.category === selectedCategory);
-  }, [selectedCategory]);
+    if (selectedCategory === "all") return partners;
+    return partners.filter((p) => p.category === selectedCategory);
+  }, [partners, selectedCategory]);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-10 px-4 sm:px-6 lg:px-8">
