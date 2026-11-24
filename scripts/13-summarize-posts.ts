@@ -7,6 +7,8 @@
 //   SUMMARY_QUOTA_WAIT_MS (افتراضي 60000) — انتظار عند نفاد الحصة/حدّ المعدّل ثم إعادة المحاولة.
 //   SUMMARY_QUOTA_RETRIES (افتراضي 60) — أقصى عدد إعادات محاولة لنفس الصف عند نفاد الحصة.
 //   SUMMARY_MODELS — نماذج Groq مفصولة بفواصل للتدوير (لكل نموذج حصته اليومية المنفصلة).
+//   SUMMARY_MIN_CHARS (افتراضي 150) — أقلّ طول نصّ مقبول للتلخيص (الأقصر منه يُتخطّى:
+//     الأخبار القصيرة/الفيديو لا يكفي نصّها لتلخيص ذي معنى).
 //   SUMMARY_MAX_MS (افتراضي 0 = بلا حدّ) — سقف زمني للتشغيل (مفيد للتشغيل المجدول).
 
 import "dotenv/config";
@@ -18,6 +20,8 @@ const BATCH = Number(process.env.SUMMARY_BATCH) || 400; // سقف لكل تشغ�
 const MAX_MS = Number(process.env.SUMMARY_MAX_MS) || 0; // سقف زمني (0 = بلا حدّ)
 const QUOTA_WAIT_MS = Number(process.env.SUMMARY_QUOTA_WAIT_MS) || 60_000;
 const QUOTA_MAX_RETRIES = Number(process.env.SUMMARY_QUOTA_RETRIES) || 60;
+// أقلّ طول نصّ مقبول للتلخيص — الأقصر منه يُتخطّى (نصوص الفيديو/النشرات لا تكفي).
+const MIN_CHARS = Number(process.env.SUMMARY_MIN_CHARS) || 150;
 
 /** نماذج Groq للتدوير عند نفاد حصة أحدها (لكل نموذج حصته اليومية المنفصلة).
  *  الافتراضي: ثلاثة نماذج = ثلاثة حصص مجانية منفصلة (TPD) بلا أي تكلفة. */
@@ -47,7 +51,7 @@ function parseQuotaWaitMs(message: string): number | null {
   return Math.round((mins * 60 + secs) * 1000);
 }
 
-const where = { published: true, locale: "ar", OR: [{ summary: null }, { summary: "" }] } as const;
+const where = { published: true, locale: "ar", OR: [{ summary: null }, { summary: "" }] };
 
 async function main() {
   const startedAt = Date.now();
@@ -62,6 +66,7 @@ async function main() {
   console.log(`Found ${posts.length} Arabic posts without a summary.`);
 
   let done = 0;
+  let skippedShort = 0;
   for (const p of posts) {
     if (overBudget()) {
       console.warn(`\n⏱️ انتهى السقف الزمني — توقّف نظيف، تستأنف الجولة التالية.`);
@@ -73,7 +78,10 @@ async function main() {
     const ex = strip(p.excerpt || "");
     const body = strip(p.content || "");
     const plain = body.length > ex.length ? body : ex;
-    if (plain.length < 300) continue;
+    if (plain.length < MIN_CHARS) {
+      skippedShort++;
+      continue;
+    }
 
     let quotaRetries = 0;
     // عدد النماذج التي جُرِّبت لهذا الصف منذ آخر نجاح — يمنع انتظاراً طويلاً ما دام هناك
