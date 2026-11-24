@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -22,6 +22,8 @@ import {
   ArrowRight,
   ExternalLink,
   Sparkles,
+  Loader2,
+  Star,
 } from "lucide-react";
 import { formatLocalizedDigits } from "@/lib/language-guard";
 
@@ -35,97 +37,18 @@ interface LineItem {
 
 interface ZZPProfile {
   id: string;
-  name: string;
-  trade: string;
-  province: string;
-  city: string;
-  kvk: string;
-  phone: string;
+  nameAr: string;
+  nameNl: string;
+  profession: string | null;
+  skills: string | null;
+  nlCity: string;
+  serviceDescription: string | null;
+  avatar: string | null;
   whatsapp: string;
-  rating: number;
-  reviewsCount: number;
-  verified: boolean;
-  description: string;
-  tags: string[];
+  isPremiumService: boolean;
+  avgRating: number;
+  reviewCount: number;
 }
-
-const SAMPLE_ZZP: ZZPProfile[] = [
-  {
-    id: "zzp-1",
-    name: "م. أحمد الشامي",
-    trade: "كهرباء وتمديدات منزلية وطاقة شمسية",
-    province: "Zuid-Holland",
-    city: "Rotterdam",
-    kvk: "84729103",
-    phone: "+31 6 12345678",
-    whatsapp: "31612345678",
-    rating: 4.9,
-    reviewsCount: 38,
-    verified: true,
-    description: "فني كهربائي معتمد (NEN 1010/3140)، خبرة ٨ سنوات بهولندا في تمديدات المنازل والمطاعم وتركيب ألواح الطاقة الشمسية.",
-    tags: ["NEN 1010", "طاقة شمسية", "صيانة طوارئ"],
-  },
-  {
-    id: "zzp-2",
-    name: "سامر كعدان",
-    trade: "أعمال دهان وتشطيبات وديكور",
-    province: "Noord-Holland",
-    city: "Amsterdam",
-    kvk: "76541298",
-    phone: "+31 6 87654321",
-    whatsapp: "31687654321",
-    rating: 4.8,
-    reviewsCount: 29,
-    verified: true,
-    description: "معلم دهان داخلي وخارجي، ورق جدران، وعزل رطوبة بأحدث الأجهزة الهولندية، دقة بالمواعيد ونظافة تامة.",
-    tags: ["دهان داخلي", "ورق جدران", "تشطيب فاخر"],
-  },
-  {
-    id: "zzp-3",
-    name: "أ. ليلى الحلبي",
-    trade: "ترجمة محلفة واستشارات إدارية",
-    province: "Utrecht",
-    city: "Utrecht",
-    kvk: "91238475",
-    phone: "+31 6 55443322",
-    whatsapp: "31655443322",
-    rating: 5.0,
-    reviewsCount: 54,
-    verified: true,
-    description: "مترجمة محلفة معتمدة لدى المحاكم الهولندية ووزارة العدل (Wbtv). ترجمة وثائق رسمية وحضور جلسات البلدية والـ IND.",
-    tags: ["مترجم محلف", "Wbtv معتمد", "بلدية ومحاكم"],
-  },
-  {
-    id: "zzp-4",
-    name: "رامي العلي",
-    trade: "سباكة وتدفئة مركزية (CV-Ketel)",
-    province: "Gelderland",
-    city: "Arnhem",
-    kvk: "83920174",
-    phone: "+31 6 99887766",
-    whatsapp: "31699887766",
-    rating: 4.9,
-    reviewsCount: 42,
-    verified: true,
-    description: "صيانة وتركيب شبكات التدفئة الحديثة والمضخات الحرارية (Warmtepomp)، تسليك مجاري وفحص التسريبات بدون تكسير.",
-    tags: ["تدفئة CV", "Warmtepomp", "كشف تسريبات"],
-  },
-  {
-    id: "zzp-5",
-    name: "طارق المصري",
-    trade: "نقل عفش وخدمات لوجستية",
-    province: "Noord-Brabant",
-    city: "Eindhoven",
-    kvk: "65438291",
-    phone: "+31 6 33221100",
-    whatsapp: "31633221100",
-    rating: 4.7,
-    reviewsCount: 31,
-    verified: true,
-    description: "شاحنة مجهزة مع مصعد هيدروليكي خارجي (Verhuislift). نقل آمن للعفش والأثاث بين كافة المدن الهولندية وبلجيكا وألمانيا.",
-    tags: ["ونش خارجي", "تفكيك وتركيب", "بين المقاطعات"],
-  },
-];
 
 const PROVINCES = [
   "All",
@@ -154,6 +77,8 @@ export default function ZZPHubPage() {
   // Filters
   const [search, setSearch] = useState("");
   const [selectedProvince, setSelectedProvince] = useState("All");
+  const [providers, setProviders] = useState<ZZPProfile[]>([]);
+  const [loading, setLoading] = useState(false);
 
   // Factuur Generator State
   const [invoiceNumber, setInvoiceNumber] = useState("2026-001");
@@ -211,18 +136,36 @@ export default function ZZPHubPage() {
 
   const grandTotal = subtotal + vatTotal;
 
+  // جلب مقدمي الخدمات (رواد الأعمال ZZP) من API
+  useEffect(() => {
+    const fetchProviders = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch("/api/members/services");
+        const data = await res.json();
+        setProviders(data.members || []);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProviders();
+  }, []);
+
   // Filtered ZZP
   const filteredZZP = useMemo(() => {
-    return SAMPLE_ZZP.filter((p) => {
+    return providers.filter((p) => {
+      const name = isAr ? p.nameAr : p.nameNl;
+      const skills = p.skills || "";
       const matchSearch =
-        p.name.toLowerCase().includes(search.toLowerCase()) ||
-        p.trade.toLowerCase().includes(search.toLowerCase()) ||
-        p.city.toLowerCase().includes(search.toLowerCase()) ||
-        p.tags.some((t) => t.toLowerCase().includes(search.toLowerCase()));
-      const matchProv = selectedProvince === "All" || p.province === selectedProvince;
-      return matchSearch && matchProv;
+        name.toLowerCase().includes(search.toLowerCase()) ||
+        (p.profession || "").toLowerCase().includes(search.toLowerCase()) ||
+        p.nlCity.toLowerCase().includes(search.toLowerCase()) ||
+        skills.toLowerCase().includes(search.toLowerCase());
+      return matchSearch;
     });
-  }, [search, selectedProvince]);
+  }, [providers, search, isAr]);
 
   return (
     <div dir={isAr ? "rtl" : "ltr"} className="min-h-screen bg-slate-50 dark:bg-slate-950 py-10 px-4 sm:px-6 lg:px-8">
