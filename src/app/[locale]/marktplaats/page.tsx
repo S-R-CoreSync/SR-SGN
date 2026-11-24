@@ -5,8 +5,8 @@ import { useLocale } from "next-intl";
 import Link from "next/link";
 import { 
   ShoppingBag, Gift, Wrench, Search, MapPin, Tag, Plus, 
-  Phone, MessageSquare, CheckCircle2, ShieldCheck, Heart, 
-  ArrowLeft, ArrowRight, Sparkles, Filter, X, ExternalLink, Loader2
+  Phone, MessageSquare, CheckCircle2, ShieldCheck,
+  ArrowLeft, ArrowRight, X, Loader2
 } from "lucide-react";
 import { formatLocalizedDigits } from "@/lib/language-guard";
 
