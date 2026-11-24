@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useParams } from "next/navigation";
 import {
   CreditCard,
@@ -23,137 +23,26 @@ import {
   Building2,
   Star,
   Coins,
+  Loader2,
 } from "lucide-react";
 import { formatLocalizedDigits } from "@/lib/language-guard";
 
 interface PartnerStore {
   id: string;
-  name: { ar: string; nl: string; en: string };
-  category: "supermarket" | "restaurant" | "auto" | "services" | "fashion";
-  discount: number; // percentage
+  nameAr: string;
+  nameNl: string;
+  nameEn: string;
+  category: string;
+  discount: number;
   city: string;
   address: string;
-  cashbackType: "instant" | "cashback";
+  cashbackType: string;
   rating: number;
-  highlight: { ar: string; nl: string; en: string };
+  isFeatured?: boolean;
+  highlightAr?: string | null;
+  highlightNl?: string | null;
+  highlightEn?: string | null;
 }
-
-const PARTNERS: PartnerStore[] = [
-  {
-    id: "p-1",
-    name: {
-      ar: "سوبرماركت الشام والبركة",
-      nl: "Supermarkt Al-Sham & Al-Baraka",
-      en: "Al-Sham & Al-Baraka Supermarket",
-    },
-    category: "supermarket",
-    discount: 10,
-    city: "Utrecht",
-    address: "Kanaalstraat 142, 3531 CR Utrecht",
-    cashbackType: "instant",
-    rating: 4.9,
-    highlight: {
-      ar: "خصم ١٠٪ فوري على كافة المواد الغذائية والتموينية واللحوم الطازجة",
-      nl: "10% directe korting op alle levensmiddelen en vers vlees",
-      en: "10% instant discount on all groceries and fresh meat",
-    },
-  },
-  {
-    id: "p-2",
-    name: {
-      ar: "مطعم ومشاوي الياسمين الدمشقي",
-      nl: "Damascus Yasmin Restaurant & Grill",
-      en: "Damascus Jasmine Restaurant & Grill",
-    },
-    category: "restaurant",
-    discount: 15,
-    city: "Rotterdam",
-    address: "West-Kruiskade 88, 3014 AP Rotterdam",
-    cashbackType: "instant",
-    rating: 4.8,
-    highlight: {
-      ar: "خصم ١٥٪ على الفاتورة الإجمالية وضيافة مجانية لحاملي البطاقة",
-      nl: "15% korting op de totale rekening + gratis dessert",
-      en: "15% off the total bill + complimentary treat for members",
-    },
-  },
-  {
-    id: "p-3",
-    name: {
-      ar: "كراج ونظام فحص السيارات السريع (APK)",
-      nl: "Auto Garage & APK Service West",
-      en: "Auto Garage & APK Fast Service",
-    },
-    category: "auto",
-    discount: 20,
-    city: "Amsterdam",
-    address: "Basisweg 32, 1043 AP Amsterdam",
-    cashbackType: "instant",
-    rating: 4.9,
-    highlight: {
-      ar: "خصم ٢٠٪ على أجور الصيانة الدورية وفحص APK بـ ٢٥ يورو فقط",
-      nl: "20% korting op onderhoud en APK keuring voor slechts €25",
-      en: "20% off periodic maintenance and APK inspection for €25 only",
-    },
-  },
-  {
-    id: "p-4",
-    name: {
-      ar: "مكتب المترجم المحلف والخدمات القانونية",
-      nl: "Beëdigd Vertaler & Juridisch Adviesbureau",
-      en: "Sworn Translator & Legal Consultancy",
-    },
-    category: "services",
-    discount: 15,
-    city: "Den Haag",
-    address: "Theresiastraat 95, 2593 AC Den Haag",
-    cashbackType: "cashback",
-    rating: 5.0,
-    highlight: {
-      ar: "استرداد ١٥٪ كاش باك على ترجمة الوثائق الرسمية والشهادات الجامعية",
-      nl: "15% cashback op beëdigde vertalingen van officiële documenten",
-      en: "15% cashback on sworn translations of official documents",
-    },
-  },
-  {
-    id: "p-5",
-    name: {
-      ar: "مفروشات وأقمشة الشرق الراقية",
-      nl: "Orient Woonmode & Gordijnen",
-      en: "Orient Home Furnishings & Curtains",
-    },
-    category: "fashion",
-    discount: 12,
-    city: "Arnhem",
-    address: "Steenstraat 54, 6828 CM Arnhem",
-    cashbackType: "instant",
-    rating: 4.7,
-    highlight: {
-      ar: "خصم ١٢٪ على الأقمشة، السجاد، وتفصيل الستائر لفرش المنازل الجديدة",
-      nl: "12% korting op stoffen, tapijten en maatwerk gordijnen",
-      en: "12% discount on home fabrics, carpets, and custom curtains",
-    },
-  },
-  {
-    id: "p-6",
-    name: {
-      ar: "حلويات الشام الأصيلة وقوالب الكيك",
-      nl: "Patisserie Sham Sweets & Cakes",
-      en: "Traditional Sham Sweets & Pastry",
-    },
-    category: "restaurant",
-    discount: 10,
-    city: "Eindhoven",
-    address: "Kruisstraat 67, 5612 CD Eindhoven",
-    cashbackType: "instant",
-    rating: 4.9,
-    highlight: {
-      ar: "خصم ١٠٪ على الحلويات العربية الفاخرة وتواصي المناسبات الخاصة",
-      nl: "10% korting op luxe Oosterse zoetigheden en feestbestellingen",
-      en: "10% discount on gourmet Arabic sweets and party catering",
-    },
-  },
-];
 
 export default function CashbackPage() {
   const params = useParams();
@@ -163,6 +52,8 @@ export default function CashbackPage() {
 
   const [activeTab, setActiveTab] = useState<"pass" | "partners" | "calculator" | "join">("pass");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [partners, setPartners] = useState<PartnerStore[]>([]);
+  const [loadingPartners, setLoadingPartners] = useState(false);
 
   // Member card personal details for preview
   const [memberName, setMemberName] = useState("محمد سليم عزيزة");
