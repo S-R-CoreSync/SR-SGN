@@ -110,6 +110,12 @@ async function translateBodyInChunks(content: string, targetLocale: string): Pro
   return translated.join("");
 }
 
+/** ترجمة نصّ خام (بلا عنوان) إلى العربية على دفعات.
+ *  تُستخدم لتعبئة أجسام المقالات التي لا تملك نسخة عربية أصلية في المصدر. */
+export async function translateTextToArabic(text: string): Promise<string> {
+  return translateBodyInChunks(text, "ar");
+}
+
 /** يترجم المقال (عنوان + جسم على دفعات) إلى اللغة الهدف. يُرجِع null عند نقص المخرجات. */
 async function translateArticleTo(
   article: ExtractedArticle,
