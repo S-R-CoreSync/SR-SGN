@@ -13,8 +13,10 @@
 //   BODY_MAX_MS  (افتراضي 0)       — سقف زمني للتشغيل (0 = بلا حدّ).
 //   BODY_DRY     ("1")             — معاينة فقط بلا كتابة في قاعدة البيانات.
 //   BODY_NO_TRANSLATE ("1")        — تعطيل مسار الترجمة الاحتياطي (تخطّي بلا نسخة عربية).
-// ملاحظة: عند نفاد حصة Groq يتوقّف مسار الترجمة تلقائياً لآخر الجولة (deferred) بدل إهدار
-//   ~٦٠ ثانية إعادة محاولة على كل صف؛ تُستأنف الصفوف المؤجّلة في الجولة التالية.
+//   BODY_MODELS — نماذج Groq للتدوير عند نفاد حصة أحدها (مفصولة بفواصل).
+// ملاحظة: عند نفاد حصة نموذج نبدّل لنموذج آخر فوراً، وبعد استنفاد كل النماذج يتوقّف مسار
+//   الترجمة لآخر الجولة (deferred) بدل إهدار ~٦٠ ثانية إعادة محاولة على كل صف؛
+//   تُستأنف الصفوف المؤجّلة في الجولة التالية. روابط /video/ تُتخطّى (VideoObject بلا articleBody).
 // التشغيل: NODE_ENV=production npm run ai:fill-bodies
 
 import "dotenv/config";
@@ -29,6 +31,11 @@ const DRY = process.env.BODY_DRY === "1";
 const NO_TRANSLATE = process.env.BODY_NO_TRANSLATE === "1";
 const JINA = process.env.JINA_API_KEY;
 const RETRIES = 4;
+/** نماذج Groq للتدوير عند نفاد حصة أحدها (لكل نموذج حصته اليومية المنفصلة). */
+const MODELS = (process.env.BODY_MODELS || "qwen/qwen3.8-27b,openai/gpt-oss-120b,openai/gpt-oss-20b")
+  .split(",")
+  .map((m) => m.trim())
+  .filter(Boolean);
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const strip = (s: string) => (s || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
@@ -112,7 +119,11 @@ async function main() {
   const targets = rows.filter((r) => {
     const plain = strip(r.content || "");
     const ex = strip(r.excerpt || "");
-    return Math.max(plain.length, ex.length) < MIN_CHARS && sourceLink(r.tags);
+    if (Math.max(plain.length, ex.length) >= MIN_CHARS) return false;
+    const link = sourceLink(r.tags);
+    if (!link) return false;
+    // صفحات الفيديو (VideoObject في JSON-LD) بلا articleBody — لا فائدة من جلبها.
+    return !/\/video\//.test(link);
   });
   console.log(`euronews ar posts=${rows.length} | short(needs body)=${targets.length}`);
   const work = targets.slice(0, LIMIT);
@@ -124,6 +135,7 @@ async function main() {
   let deferred = 0;
   // أول ما تنفد حصة Groq نوقف مسار الترجمة لآخر الجولة (وإلا يضيع ~٦٠ ثانية على كل صف).
   let translationBlocked = false;
+  const triedModels: string[] = [];
   const errors: Record<string, number> = {};
   const fail = (key: string) => {
     failed++;
@@ -159,9 +171,19 @@ async function main() {
         } catch (e) {
           const msg = String((e as Error)?.message || e);
           if (/429|[Rr]ate limit/i.test(msg)) {
-            translationBlocked = true;
+            // حصة منتهية: نجرّب نموذجاً آخر أولاً (لكل نموذج حصته اليومية المنفصلة)،
+            // وبعد استنفاد كل النماذج نوقف الترجمة لآخر الجولة (توفيراً للوقت).
+            const tried = process.env.GROQ_MODEL || MODELS[0];
+            const nextModel = MODELS.find((m) => m !== tried && !triedModels.includes(m));
+            if (nextModel) {
+              triedModels.push(tried);
+              process.env.GROQ_MODEL = nextModel;
+              console.warn(`  🔄 تبديل نموذج الترجمة → ${nextModel}`);
+            } else {
+              translationBlocked = true;
+              console.warn(`  ⏸️ نفدت حصة كل نماذج الترجمة — تعطيل الترجمة لآخر الجولة (تُستأنف لاحقاً)`);
+            }
             deferred++;
-            console.warn(`  ⏸️ نفدت حصة Groq — تعطيل الترجمة لآخر الجولة (تُستأنف الجولة التالية)`);
           } else {
             fail("translate-failed");
             console.warn(`  ⚠️ ${p.title.slice(0, 45)} → فشل الترجمة: ${msg.slice(0, 80)}`);
