@@ -364,7 +364,7 @@ export default function MarktplaatsPage() {
                     </h3>
                     <button
                       type="button"
-                      onClick={() => setShowAddModal(false)}
+                      onClick={closeModal}
                       className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 flex items-center justify-center hover:bg-slate-200 cursor-pointer"
                     >
                       <X className="w-4 h-4" />
