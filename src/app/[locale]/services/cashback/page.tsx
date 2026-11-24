@@ -407,6 +407,22 @@ export default function CashbackPage() {
             </div>
 
             {/* Partner Cards Grid */}
+            {loadingPartners ? (
+              <div className="flex justify-center py-20">
+                <Loader2 className="w-8 h-8 animate-spin text-amber-600" />
+              </div>
+            ) : filteredPartners.length === 0 ? (
+              <div className="text-center py-16 space-y-3">
+                <Building2 className="w-12 h-12 mx-auto text-slate-300" />
+                <p className="text-slate-500">
+                  {isAr
+                    ? "لا يوجد شركاء في هذه الفئة حالياً — قريباً إن شاء الله"
+                    : isNl
+                    ? "Geen partners in deze categorie — binnenkort beschikbaar"
+                    : "No partners in this category yet — coming soon"}
+                </p>
+              </div>
+            ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredPartners.map((partner) => (
                 <div
@@ -431,13 +447,13 @@ export default function CashbackPage() {
 
                     <div>
                       <h4 className="text-lg font-bold text-slate-900 dark:text-white">
-                        {isAr ? partner.name.ar : isNl ? partner.name.nl : partner.name.en}
+                        {isAr ? partner.nameAr : isNl ? partner.nameNl : partner.nameEn}
                       </h4>
                       <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{partner.address}</p>
                     </div>
 
                     <p className="text-sm text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
-                      {isAr ? partner.highlight.ar : isNl ? partner.highlight.nl : partner.highlight.en}
+                      {isAr ? partner.highlightAr : isNl ? partner.highlightNl : partner.highlightEn}
                     </p>
                   </div>
 
@@ -468,6 +484,7 @@ export default function CashbackPage() {
                 </div>
               ))}
             </div>
+            )}
           </div>
         )}
 

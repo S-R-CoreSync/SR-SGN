@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useParams } from "next/navigation";
 import {
   ShoppingBag,
@@ -18,117 +18,31 @@ import {
   Tag,
   Clock,
   Truck,
+  Loader2,
 } from "lucide-react";
 import { formatLocalizedDigits } from "@/lib/language-guard";
 
 interface BazaarItem {
   id: string;
-  title: string;
-  category: "food" | "crafts" | "sewing" | "sweets";
+  titleAr: string;
+  titleNl: string;
+  titleEn: string;
+  category: string;
   producerName: string;
   city: string;
   province: string;
   price: number;
   unit: string;
-  description: string;
+  descriptionAr: string | null;
+  descriptionNl: string | null;
+  descriptionEn: string | null;
   whatsapp: string;
-  badge?: string;
+  badgeAr: string | null;
+  badgeNl: string | null;
+  badgeEn: string | null;
   delivery: boolean;
-  imageColor: string;
+  image: string | null;
 }
-
-const SAMPLE_ITEMS: BazaarItem[] = [
-  {
-    id: "baz-1",
-    title: "مكدوس سوري بلدي بالجوز والزيت الأصلي",
-    category: "food",
-    producerName: "أم عمر السورية",
-    city: "Utrecht",
-    province: "Utrecht",
-    price: 18,
-    unit: "مرطبان 1 كغ",
-    description: "شغل يدوي منزلي نظيف، باذنجان حموي فاخر محشو بالجوز البلدي والفليفلة والشطة الحلبية وزيت الزيتون البكر الممتاز.",
-    whatsapp: "31611223344",
-    badge: "مونة الموسم",
-    delivery: true,
-    imageColor: "from-amber-700 to-red-900",
-  },
-  {
-    id: "baz-2",
-    title: "معمول مشكل بالفستق الحلبي والجوز والتمر",
-    category: "sweets",
-    producerName: "حلويات الشام المنزلية",
-    city: "Rotterdam",
-    province: "Zuid-Holland",
-    price: 24,
-    unit: "علبة 1 كغ مشكل",
-    description: "معمول طازج بالسمن الحيواني الأصلي، فستق حلبي فاخر، وجوز متبل بماء الزهر ومحضر يومياً حسب الطلب.",
-    whatsapp: "31622334455",
-    badge: "طازج يومياً",
-    delivery: true,
-    imageColor: "from-amber-600 to-yellow-800",
-  },
-  {
-    id: "baz-3",
-    title: "كبة شامية مقلية ومفرزة (لحم بلدي وجوز)",
-    category: "food",
-    producerName: "مطبخ ورد الشام",
-    city: "Amsterdam",
-    province: "Noord-Holland",
-    price: 22,
-    unit: "طبق ٢٠ حبة",
-    description: "كبة دراويش مقرمشة بحشوة لحم بقر حلال مع رمان وجوز، مفرزة وجاهزة للقلي المباشر أو مشوية.",
-    whatsapp: "31633445566",
-    badge: "حلال 100%",
-    delivery: false,
-    imageColor: "from-stone-700 to-amber-950",
-  },
-  {
-    id: "baz-4",
-    title: "تفصيل وتعديل فساتين وعبايات شرقية",
-    category: "sewing",
-    producerName: "مشغل الخياطة الدمشقية",
-    city: "Den Haag",
-    province: "Zuid-Holland",
-    price: 35,
-    unit: "تبدأ من",
-    description: "خياطة نسائية احترافية، تضييق وتقصير وتعديل قياسات الملابس السواريه والعبايات اليومية بدقة وسرعة.",
-    whatsapp: "31644556677",
-    badge: "خياطة نسائية",
-    delivery: false,
-    imageColor: "from-rose-700 to-purple-950",
-  },
-  {
-    id: "baz-5",
-    title: "تطريز يدوي صوف وتوزيعات مواليد ومناسبات",
-    category: "crafts",
-    producerName: "لمسات يدوية (فاطمة)",
-    city: "Eindhoven",
-    province: "Noord-Brabant",
-    price: 15,
-    unit: "للقطعة",
-    description: "لوحات تطريز إيتامين بالأسماء وتوزيعات هدايا راقية للمناسبات والأعراس وأعياد الميلاد بتصاميم حسب الطلب.",
-    whatsapp: "31655667788",
-    badge: "شغل يدوي",
-    delivery: true,
-    imageColor: "from-pink-700 to-indigo-950",
-  },
-  {
-    id: "baz-6",
-    title: "جبنة حلوم وبلدية سورية مغلية بحبة البركة",
-    category: "food",
-    producerName: "ألبان وأجبان الياسمين",
-    city: "Arnhem",
-    province: "Gelderland",
-    price: 14,
-    unit: "قالب 800 غرام",
-    description: "حليب بقري هولندي طازج 100%، محضر على الطريقة السورية التقليدية مع المستكة والمحلب وحبة البركة.",
-    whatsapp: "31666778899",
-    badge: "حليب طازج",
-    delivery: true,
-    imageColor: "from-emerald-700 to-teal-950",
-  },
-];
 
 export default function BazaarPage() {
   const params = useParams();
@@ -140,6 +54,24 @@ export default function BazaarPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedProvince, setSelectedProvince] = useState<string>("all");
   const [showAddModal, setShowAddModal] = useState(false);
+  const [items, setItems] = useState<BazaarItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  // نموذج إضافة المنتج
+  const [formData, setFormData] = useState({
+    titleAr: "",
+    titleNl: "",
+    category: "food",
+    producerName: "",
+    city: "",
+    province: "",
+    price: "",
+    unit: "",
+    descriptionAr: "",
+    whatsapp: "",
+    delivery: false,
+  });
 
   const categories = [
     { id: "all", label: isAr ? "الكل" : "Alles", icon: ShoppingBag },
@@ -149,18 +81,73 @@ export default function BazaarPage() {
     { id: "crafts", label: isAr ? "أشغال وهدايا" : "Handwerk & Cadeaus", icon: Heart },
   ];
 
+  // جلب المنتجات من API
+  useEffect(() => {
+    const fetchItems = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch("/api/bazaar");
+        const data = await res.json();
+        setItems(data.items || []);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchItems();
+  }, []);
+
   const filteredItems = useMemo(() => {
-    return SAMPLE_ITEMS.filter((item) => {
+    const title = isAr ? "titleAr" : isNl ? "titleNl" : "titleEn";
+    const desc = isAr ? "descriptionAr" : isNl ? "descriptionNl" : "descriptionEn";
+    return items.filter((item) => {
       const matchSearch =
-        item.title.toLowerCase().includes(search.toLowerCase()) ||
+        (item[title] || "").toLowerCase().includes(search.toLowerCase()) ||
         item.producerName.toLowerCase().includes(search.toLowerCase()) ||
-        item.description.toLowerCase().includes(search.toLowerCase()) ||
+        (item[desc] || "").toLowerCase().includes(search.toLowerCase()) ||
         item.city.toLowerCase().includes(search.toLowerCase());
       const matchCat = selectedCategory === "all" || item.category === selectedCategory;
       const matchProv = selectedProvince === "all" || item.province === selectedProvince;
       return matchSearch && matchCat && matchProv;
     });
-  }, [search, selectedCategory, selectedProvince]);
+  }, [items, search, selectedCategory, selectedProvince, isAr, isNl]);
+
+  // إرسال منتج جديد
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/bazaar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...formData,
+          titleEn: formData.titleNl || formData.titleAr,
+          price: Number(formData.price),
+          province: formData.province || formData.city,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setItems((prev) => [data.item, ...prev]);
+        setFormData({
+          titleAr: "", titleNl: "", category: "food", producerName: "",
+          city: "", province: "", price: "", unit: "",
+          descriptionAr: "", whatsapp: "", delivery: false,
+        });
+        setShowAddModal(false);
+        alert(isAr ? "تم نشر منتجك في البازار بنجاح!" : "Product geplaatst!");
+      } else {
+        alert(isAr ? "تعذر النشر، حاول مجدداً." : "Publicatie mislukt.");
+      }
+    } catch (e) {
+      console.error(e);
+      alert(isAr ? "خطأ في الاتصال." : "Verbindingsfout.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div dir={isAr ? "rtl" : "ltr"} className="min-h-screen bg-slate-50 dark:bg-slate-950 py-10 px-4 sm:px-6 lg:px-8">
@@ -249,19 +236,37 @@ export default function BazaarPage() {
         </div>
 
         {/* Product Cards Grid */}
+        {loading ? (
+          <div className="flex justify-center py-20">
+            <Loader2 className="w-8 h-8 animate-spin text-amber-600" />
+          </div>
+        ) : filteredItems.length === 0 ? (
+          <div className="text-center py-16 space-y-3">
+            <ShoppingBag className="w-12 h-12 mx-auto text-slate-300" />
+            <p className="text-slate-500">
+              {isAr
+                ? "لا توجد منتجات مطابقة. أضيفي منتجكِ المنزلي مجاناً!"
+                : "Geen producten gevonden. Voeg gratis je thuisproduct toe!"}
+            </p>
+          </div>
+        ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredItems.map((item) => (
+          {filteredItems.map((item) => {
+            const title = isAr ? item.titleAr : isNl ? item.titleNl : item.titleEn;
+            const desc = isAr ? item.descriptionAr : isNl ? item.descriptionNl : item.descriptionEn;
+            const badge = isAr ? item.badgeAr : isNl ? item.badgeNl : item.badgeEn;
+            return (
             <div
               key={item.id}
               className="bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-sm hover:shadow-md border border-slate-200 dark:border-slate-800 transition-all flex flex-col justify-between group"
             >
               <div>
                 {/* Visual Header */}
-                <div className={`h-36 bg-gradient-to-br ${item.imageColor} relative p-4 flex flex-col justify-between text-white`}>
+                <div className={`h-36 bg-gradient-to-br from-amber-700 to-stone-900 relative p-4 flex flex-col justify-between text-white`}>
                   <div className="flex justify-between items-start">
-                    {item.badge && (
+                    {badge && (
                       <span className="px-2.5 py-1 rounded-full bg-black/30 backdrop-blur-md text-[10px] font-bold border border-white/20">
-                        {item.badge}
+                        {badge}
                       </span>
                     )}
                     <span className="px-2 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-[10px] flex items-center gap-1">
@@ -281,7 +286,7 @@ export default function BazaarPage() {
                 <div className="p-5 space-y-3">
                   <div className="flex items-center justify-between gap-2">
                     <h3 className="font-bold text-slate-900 dark:text-white text-base group-hover:text-amber-600 transition-colors">
-                      {item.title}
+                      {title}
                     </h3>
                   </div>
 
@@ -290,7 +295,7 @@ export default function BazaarPage() {
                   </span>
 
                   <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-3 leading-relaxed">
-                    {item.description}
+                    {desc}
                   </p>
 
                   <div className="flex items-center gap-2 pt-2 text-[11px] text-slate-400">
@@ -313,8 +318,8 @@ export default function BazaarPage() {
                 <a
                   href={`https://wa.me/${item.whatsapp}?text=${encodeURIComponent(
                     isAr
-                      ? `مرحباً، أود الاستفسار والطلب بخصوص منتجكِ المعروض في بازار الجالية السورية: "${item.title}"`
-                      : `Hallo, ik wil graag bestellen: ${item.title}`
+                      ? `مرحباً، أود الاستفسار والطلب بخصوص منتجكِ المعروض في بازار الجالية السورية: "${title}"`
+                      : `Hallo, ik wil graag bestellen: ${title}`
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -325,8 +330,10 @@ export default function BazaarPage() {
                 </a>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
+        )}
 
         {/* ADD PRODUCT MODAL */}
         {showAddModal && (
