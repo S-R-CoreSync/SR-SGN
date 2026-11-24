@@ -147,6 +147,13 @@ export async function translateArticle(article: ExtractedArticle): Promise<Extra
   return article;
 }
 
+/** أخطاء الحصة/حدّ المعدّل: يجب أن تصل إلى المُستدعي ليصبر ويعيد المحاولة،
+ *  ولا تُبتلع فيُحفظ نصّ بلغة المصدر في القسم الخطأ — وهذا أصل صفوف الأرشيف المعطوبة. */
+function isRateLimitError(error: unknown): boolean {
+  const msg = error instanceof Error ? error.message : String(error);
+  return /\b429\b|rate.?limit|tokens per (day|minute)|Request too large|\bTPD\b|\bOTPM\b/i.test(msg);
+}
+
 export async function translateArticleToLocale(
   article: ExtractedArticle,
   targetLocale: string
@@ -167,6 +174,8 @@ export async function translateArticleToLocale(
     const translated = await translateArticleTo(article, targetLocale);
     if (translated) return translated;
   } catch (error) {
+    // أخطاء الحصة تُعاد للأعلى (لا تُبتلع) ليتعامل معها المُستدعي بإعادة المحاولة/الانتظار.
+    if (isRateLimitError(error)) throw error;
     logger.error("SyncAI", `AI translation to ${targetLocale} failed for article:`, article.title, error);
   }
 

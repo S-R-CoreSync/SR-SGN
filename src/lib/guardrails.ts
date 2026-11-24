@@ -12,7 +12,9 @@ const INJECTION_PATTERNS: { regex: RegExp; severity: number }[] = [
   { regex: /ignore\s+(?:all\s+)?(?:previous|above|prior)\s+instructions/i, severity: 3 },
   { regex: /system\s*:\s*override/i, severity: 3 },
   { regex: /you\s+(?:are\s+)?(?:now|will\s+now)\s+(?:act\s+as|pretend|behave)/i, severity: 2 },
-  { regex: /forget|disregard|ignore\s+(?:your\s+)?(?:instructions|prompt|rules)/i, severity: 3 },
+  // يجب أن يتبع الفعل مفعوله (instructions/prompt/rules) وإلا صار أي نصّ إخباري
+  // يحتوي كلمة "forget" أو "disregard" وحدها «حقن أوامر» ويُمنع بلا سبب.
+  { regex: /(?:forget|disregard|ignore)\s+(?:all\s+)?(?:your\s+|the\s+)?(?:previous\s+|prior\s+|above\s+)?(?:instructions|prompt|rules|commands)/i, severity: 3 },
   { regex: /do\s+(?:not\s+)?(?:follow|obey)\s+(?:your\s+)?(?:instructions|prompt)/i, severity: 3 },
   { regex: /```[\s\S]*?(?:system|user|assistant)[\s\S]*?```/i, severity: 2 },
   { regex: /role\s*:\s*(?:system|assistant|user)/i, severity: 1 },
