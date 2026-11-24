@@ -8,7 +8,6 @@ import {
   Phone, MessageSquare, CheckCircle2, ShieldCheck,
   ArrowLeft, ArrowRight, X, Loader2
 } from "lucide-react";
-import { formatLocalizedDigits } from "@/lib/language-guard";
 
 type TabType = "all" | "gratis" | "marketplace" | "services";
 
@@ -45,7 +44,6 @@ export default function MarktplaatsPage() {
   const [activeTab, setActiveTab] = useState<TabType>("all");
   const [selectedProvince, setSelectedProvince] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedItem, setSelectedItem] = useState<ListingItem | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [addSubmitted, setAddSubmitted] = useState(false);
   const [items, setItems] = useState<ListingItem[]>([]);
