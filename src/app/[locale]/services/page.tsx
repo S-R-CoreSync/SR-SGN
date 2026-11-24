@@ -4,7 +4,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { 
   Search, MapPin, Briefcase, Star, MessageCircle, Loader2, User, 
   Map as MapIcon, LayoutGrid, Sparkles, FileText, GraduationCap, 
-  HeartHandshake, Tag, QrCode, Calculator, Scale, ShoppingBag,
+  Tag, Calculator, Scale, ShoppingBag,
   Coins, TrendingDown, ChefHat, Truck, Award, CreditCard,
   Crown, Users, ShieldAlert, Moon, Building2, IdCard
 } from "lucide-react";
