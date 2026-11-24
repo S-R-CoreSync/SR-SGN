@@ -351,43 +351,67 @@ export default function BazaarPage() {
                 </button>
               </div>
 
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  alert(isAr ? "تم إرسال منتجك بنجاح! سيتم مراجعته وعرضه في البازار مجاناً." : "Product succesvol ingediend!");
-                  setShowAddModal(false);
-                }}
-                className="space-y-3"
-              >
+              <form onSubmit={handleSubmit} className="space-y-3">
                 <div>
                   <label className="font-bold block mb-1">{isAr ? "اسم المنتج:" : "Productnaam:"}</label>
                   <input
                     type="text"
                     required
+                    value={formData.titleAr}
+                    onChange={(e) => setFormData({ ...formData, titleAr: e.target.value })}
                     placeholder={isAr ? "مثال: معمول بالجوز، كبة مفرزة..." : "bijv. Mouna, Koekjes..."}
                     className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none"
                   />
                 </div>
 
+                <div>
+                  <label className="font-bold block mb-1">{isAr ? "الصنف:" : "Categorie:"}</label>
+                  <select
+                    value={formData.category}
+                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none"
+                  >
+                    <option value="food">{isAr ? "مونة وأطباق" : "Gerechten & Mouna"}</option>
+                    <option value="sweets">{isAr ? "حلويات شرقية" : "Snoep & Gebak"}</option>
+                    <option value="sewing">{isAr ? "خياطة وتطريز" : "Kleding & Naaiwerk"}</option>
+                    <option value="crafts">{isAr ? "أشغال وهدايا" : "Handwerk & Cadeaus"}</option>
+                  </select>
+                </div>
+
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="font-bold block mb-1">{isAr ? "السعر التقريبي باليورو (€):" : "Prijs (€):"}</label>
+                    <label className="font-bold block mb-1">{isAr ? "السعر (€):" : "Prijs (€):"}</label>
                     <input
                       type="number"
                       required
+                      value={formData.price}
+                      onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                       placeholder="15"
                       className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none font-mono"
                     />
                   </div>
                   <div>
-                    <label className="font-bold block mb-1">{isAr ? "الكمية / العبوة:" : "Verpakking:"}</label>
+                    <label className="font-bold block mb-1">{isAr ? "العبوة:" : "Verpakking:"}</label>
                     <input
                       type="text"
                       required
-                      placeholder={isAr ? "1 كغ، علبة، طبق..." : "per kg, per stuk"}
+                      value={formData.unit}
+                      onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
+                      placeholder={isAr ? "1 كغ، علبة..." : "per kg"}
                       className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none"
                     />
                   </div>
+                </div>
+
+                <div>
+                  <label className="font-bold block mb-1">{isAr ? "اسم المنتجة/المنتج:" : "Naam aanbieder:"}</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.producerName}
+                    onChange={(e) => setFormData({ ...formData, producerName: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none"
+                  />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
@@ -396,15 +420,19 @@ export default function BazaarPage() {
                     <input
                       type="text"
                       required
+                      value={formData.city}
+                      onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                       placeholder="Rotterdam"
                       className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none"
                     />
                   </div>
                   <div>
-                    <label className="font-bold block mb-1">{isAr ? "رقم واتساب للتواصل:" : "WhatsApp nummer:"}</label>
+                    <label className="font-bold block mb-1">{isAr ? "واتساب:" : "WhatsApp:"}</label>
                     <input
                       type="tel"
                       required
+                      value={formData.whatsapp}
+                      onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
                       placeholder="+31 6 ..."
                       className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none font-mono"
                     />
@@ -412,19 +440,33 @@ export default function BazaarPage() {
                 </div>
 
                 <div>
-                  <label className="font-bold block mb-1">{isAr ? "وصف المنتج وطريقة الطلب:" : "Beschrijving:"}</label>
+                  <label className="font-bold block mb-1">{isAr ? "وصف المنتج:" : "Beschrijving:"}</label>
                   <textarea
                     rows={2}
+                    value={formData.descriptionAr}
+                    onChange={(e) => setFormData({ ...formData, descriptionAr: e.target.value })}
                     placeholder={isAr ? "المكونات، طريقة الحفظ والتوصيل..." : "Ingrediënten en bereiding..."}
                     className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none"
                   ></textarea>
                 </div>
 
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.delivery}
+                    onChange={(e) => setFormData({ ...formData, delivery: e.target.checked })}
+                    className="w-4 h-4 accent-amber-600"
+                  />
+                  <span>{isAr ? "متوفر شحن وتوصيل" : "Bezorging beschikbaar"}</span>
+                </label>
+
                 <button
                   type="submit"
-                  className="w-full py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-md transition-colors"
+                  disabled={submitting}
+                  className="w-full py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-md transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                 >
-                  {isAr ? "إرسال ونشر في البازار مجاناً" : "Plaatsen in de bazaar"}
+                  {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
+                  {isAr ? "نشر في البازار مجاناً" : "Plaatsen in de bazaar"}
                 </button>
               </form>
             </div>
