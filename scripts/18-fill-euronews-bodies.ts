@@ -13,6 +13,8 @@
 //   BODY_MAX_MS  (افتراضي 0)       — سقف زمني للتشغيل (0 = بلا حدّ).
 //   BODY_DRY     ("1")             — معاينة فقط بلا كتابة في قاعدة البيانات.
 //   BODY_NO_TRANSLATE ("1")        — تعطيل مسار الترجمة الاحتياطي (تخطّي بلا نسخة عربية).
+// ملاحظة: عند نفاد حصة Groq يتوقّف مسار الترجمة تلقائياً لآخر الجولة (deferred) بدل إهدار
+//   ~٦٠ ثانية إعادة محاولة على كل صف؛ تُستأنف الصفوف المؤجّلة في الجولة التالية.
 // التشغيل: NODE_ENV=production npm run ai:fill-bodies
 
 import "dotenv/config";
@@ -119,6 +121,9 @@ async function main() {
   let failed = 0;
   let fromArabic = 0;
   let fromTranslation = 0;
+  let deferred = 0;
+  // أول ما تنفد حصة Groq نوقف مسار الترجمة لآخر الجولة (وإلا يضيع ~٦٠ ثانية على كل صف).
+  let translationBlocked = false;
   const errors: Record<string, number> = {};
   const fail = (key: string) => {
     failed++;
@@ -140,14 +145,27 @@ async function main() {
 
     // ٢) احتياطي: الجسم الإنجليزي + ترجمة للعربية
     if (!body && !NO_TRANSLATE) {
-      via = "translate";
       const enBody = await fetchJsonLdBody(link);
       if (enBody && enBody.length >= 400) {
+        if (translationBlocked) {
+          deferred++;
+          console.warn(`  ⏸️ ${p.title.slice(0, 45)} → مؤجّل (حصة الترجمة منتهية)`);
+          await sleep(DELAY_MS);
+          continue;
+        }
+        via = "translate";
         try {
           body = strip(await translateTextToArabic(enBody));
         } catch (e) {
-          fail("translate-failed");
-          console.warn(`  ⚠️ ${p.title.slice(0, 45)} → فشل الترجمة: ${String((e as Error)?.message || e).slice(0, 80)}`);
+          const msg = String((e as Error)?.message || e);
+          if (/429|[Rr]ate limit/i.test(msg)) {
+            translationBlocked = true;
+            deferred++;
+            console.warn(`  ⏸️ نفدت حصة Groq — تعطيل الترجمة لآخر الجولة (تُستأنف الجولة التالية)`);
+          } else {
+            fail("translate-failed");
+            console.warn(`  ⚠️ ${p.title.slice(0, 45)} → فشل الترجمة: ${msg.slice(0, 80)}`);
+          }
           await sleep(DELAY_MS);
           continue;
         }
@@ -182,7 +200,7 @@ async function main() {
   }
 
   console.log(
-    `\n✅ filled=${done} (ar=${fromArabic}, translate=${fromTranslation}) | failed=${failed} | errors=${JSON.stringify(errors)}${DRY ? " (dry-run)" : ""}`
+    `\n✅ filled=${done} (ar=${fromArabic}, translate=${fromTranslation}) | failed=${failed} | deferred=${deferred} | errors=${JSON.stringify(errors)}${DRY ? " (dry-run)" : ""}`
   );
   await prisma.$disconnect();
 }
