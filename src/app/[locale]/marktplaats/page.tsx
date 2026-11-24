@@ -6,7 +6,7 @@ import Link from "next/link";
 import { 
   ShoppingBag, Gift, Wrench, Search, MapPin, Tag, Plus, 
   Phone, MessageSquare, CheckCircle2, ShieldCheck,
-  ArrowLeft, ArrowRight, X, Loader2
+  ArrowLeft, ArrowRight, X, Loader2, Image as ImageIcon, Trash2
 } from "lucide-react";
 
 type TabType = "all" | "gratis" | "marketplace" | "services";
@@ -49,6 +49,8 @@ export default function MarktplaatsPage() {
   const [items, setItems] = useState<ListingItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string>("");
+  const [imageUploading, setImageUploading] = useState(false);
 
   // جلب الإعلانات من الـ API
   useEffect(() => {
@@ -74,6 +76,31 @@ export default function MarktplaatsPage() {
     fetchItems();
   }, [activeTab, selectedProvince, searchQuery]);
 
+  // رفع صورة الإعلان
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      alert(isAr ? "حجم الصورة يجب أن يكون أقل من ٥ ميجابايت" : "Image must be less than 5MB");
+      return;
+    }
+    setImageUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      setImageUrl(data.url);
+    } catch (err) {
+      console.error("Image upload failed:", err);
+      alert(isAr ? "فشل رفع الصورة" : "Image upload failed");
+    } finally {
+      setImageUploading(false);
+      e.target.value = "";
+    }
+  };
+
   // إضافة إعلان جديد
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -94,7 +121,7 @@ export default function MarktplaatsPage() {
         province: fd.get("province") as string,
         conditionAr: fd.get("conditionAr") as string,
         conditionNl: fd.get("conditionNl") as string,
-        image: fd.get("image") as string,
+        image: imageUrl || null,
         descriptionAr: fd.get("descriptionAr") as string,
         descriptionNl: fd.get("descriptionNl") as string,
         descriptionEn: fd.get("descriptionEn") as string,
@@ -114,12 +141,20 @@ export default function MarktplaatsPage() {
       }
       const data = await res.json();
       setItems((prev) => [data.item as ListingItem, ...prev]);
+      setImageUrl("");
       setAddSubmitted(true);
     } catch (err: any) {
       alert(err?.message || "حدث خطأ أثناء نشر الإعلان");
     } finally {
       setSubmitting(false);
     }
+  };
+
+  // إعادة تعيين النموذج عند إغلاق النافذة
+  const closeModal = () => {
+    setShowAddModal(false);
+    setAddSubmitted(false);
+    setImageUrl("");
   };
 
   return (
