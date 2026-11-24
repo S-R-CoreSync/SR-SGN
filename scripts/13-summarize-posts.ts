@@ -141,7 +141,7 @@ async function main() {
   }
 
   const left = await prisma.post.count({ where });
-  console.log(`\n✅ Summarized ${done} | remaining=${left}`);
+  console.log(`\n✅ Summarized ${done} | skipped(short<${MIN_CHARS})=${skippedShort} | remaining=${left}`);
   await prisma.$disconnect();
 }
 
