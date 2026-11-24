@@ -24,6 +24,7 @@
     "ai:embed": "node node_modules/tsx/dist/cli.mjs scripts/12-generate-embeddings.ts",
     "ai:summarize": "node node_modules/tsx/dist/cli.mjs scripts/13-summarize-posts.ts",
     "ai:backfill-translations": "node node_modules/tsx/dist/cli.mjs scripts/17-backfill-locale-translations.ts",
+    "ai:fill-bodies": "node node_modules/tsx/dist/cli.mjs scripts/18-fill-euronews-bodies.ts",
     "sync": "node node_modules/tsx/dist/cli.mjs scripts/01-sync-facebook.ts",
     "sync:once": "node node_modules/tsx/dist/cli.mjs scripts/01-sync-facebook.ts",
     "reclassify": "node node_modules/tsx/dist/cli.mjs scripts/03-reclassify-posts.ts",
