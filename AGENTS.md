@@ -340,6 +340,11 @@ curl -X POST http://localhost:3000/api/sync
 - **التوكن**: موجود في `.env` كـ `FACEBOOK_PAGE_TOKEN` (مأخوذ من `/me/accounts` تجديد كل 60 يوم)
 - إذا انتهى التوكن: استخدم `https://graph.facebook.com/v19.0/me/accounts?access_token={USER_TOKEN}` لاستخراج التوكن الجديد للصفحة
 - صلاحية يحتاجها التوكن: `pages_read_engagement`
+- 🛠️ **تجديد مضمون (System User دائم):** Meta Business Suite → https://business.facebook.com/settings/system-users → إضافة System User بدور Admin للصفحة → Generate Token بصلاحية `pages_read_engagement` (وتحقق منه بـ https://developers.facebook.com/tools/debug/accesstoken/). ثم ضع التوكن في ملف محلي (مثلاً `%TEMP%\opencode\fb-token.txt`) وشغّل:
+  ```bat
+  node --env-file=.env scripts/20-renew-facebook-token.mjs "C:\Users\msali\AppData\Local\Temp\opencode\fb-token.txt"
+  ```
+  السكربت يتحقق من الصلاحية والصفحة و`feed`، ثم يحدّث `.env` وكل متغيرات `FACEBOOK_PAGE_TOKEN` على Vercel تلقائياً. لا تضع التوكن داخل الكود ولا في سجل الأوامر.
 
 #### ⚠️ تطبيقان مختلفان (مصدر إرباك متكرر)
 | التطبيق | App ID | الاستخدام |
