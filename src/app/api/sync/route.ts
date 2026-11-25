@@ -64,7 +64,17 @@ export async function POST(req: Request) {
     // كسر التخزين المؤقت لكي تظهر الأخبار الجديدة للعميل فوراً
     revalidatePath("/", "layout")
 
-    return NextResponse.json({ success: true, results })
+    // نفاد حصة الذكاء الاصطناعي سبب خارجي وليس عطل كود — نُعلنه صراحةً
+    // (429) بدل إخفائه داخل 200، حتى لا يظل المطوّر ينتظر مزامنة لم تحدث.
+    const allErrors = results.flatMap((r) => r.errors ?? [])
+    const quotaExhausted = allErrors.some((e) =>
+      /\bTPD\b|\bOTPM\b|tokens per (day|minute)|quota|rate_limit_exceeded/i.test(e)
+    )
+
+    return NextResponse.json(
+      { success: !quotaExhausted, quotaExhausted, results },
+      { status: quotaExhausted ? 429 : 200 }
+    )
   } catch (err) {
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Sync failed" },

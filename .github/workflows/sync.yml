@@ -56,9 +56,11 @@ jobs:
           fi
 
           failed=0
+          quota_blocked=0
           for src in $sources; do
             echo "── [$SHARD] مزامنة المصدر: $src"
             code=000
+            quota_hit=0
             # دفعات صغيرة + ميزانية زمنية أقل من maxDuration على Vercel (60 ثانية).
             # 504 يعني أن الدالة قطعت قبل أن تنهي الترجمة — نعيد المحاولة بعد تهدئة.
             for attempt in 1 2 3; do
@@ -71,6 +73,14 @@ jobs:
 
               echo "  المحاولة $attempt: HTTP $code"
               if [ "$code" = "200" ]; then break; fi
+
+              # نفاد حصة Groq اليومية (TPD): إعادة المحاولة بلا جدوى حتى إعادة التعيين.
+              if [ "$code" = "429" ] && grep -q '"quotaExhausted":true' "/tmp/sync-$src.json" 2>/dev/null; then
+                echo "::warning::حصة Groq اليومية مستنفدة — يتابع التشغيل التالي بعد إعادة التعيين"
+                quota_hit=1
+                quota_blocked=$((quota_blocked + 1))
+                break
+              fi
               if [ "$code" != "504" ] && [ "$code" != "429" ] && [ "$code" != "000" ]; then break; fi
               sleep 10
             done
@@ -78,7 +88,7 @@ jobs:
             head -c 600 "/tmp/sync-$src.json" 2>/dev/null || true
             echo
 
-            if [ "$code" != "200" ]; then
+            if [ "$code" != "200" ] && [ "$quota_hit" -eq 0 ]; then
               echo "::warning::المصدر $src رجع $code"
               failed=$((failed + 1))
             fi
@@ -89,4 +99,4 @@ jobs:
             echo "::error::فشل $failed مصدر/مصادر في المجموعة $SHARD"
             exit 1
           fi
-          echo "تمّت مزامنة مجموعة $SHARD بنجاح"
+          echo "تمّت مزامنة مجموعة $SHARD بنجاح (حصة مستنفدة: $quota_blocked)"

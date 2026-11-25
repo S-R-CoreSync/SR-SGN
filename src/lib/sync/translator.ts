@@ -14,38 +14,50 @@ function detectLanguage(article: ExtractedArticle): "ar" | "nl" | "en" {
   return "en";
 }
 
+/** نفاد الحصة اليومية/الدقائقية: إعادة المحاولة هنا مضيعة للوقت (حتى reset) وتسبّب 504. */
+function isQuotaError(msg: string): boolean {
+  return /\bTPD\b|\bOTPM\b|tokens per (day|minute)|quota|rate_limit_exceeded|Rate limit reached/i.test(msg);
+}
+
 async function generateTextWithRetry(
   prompt: string,
   systemPrompt: string,
-  options: { responseFormat: "text" | "json" }
+  options: { responseFormat: "text" | "json" },
+  deadline?: number
 ): Promise<string> {
-  // كانت هنا مهلة ٤.٥ ثانية قبل كل نداء (موروثة من حدود Gemini/GitHub 15 RPM).
-  // مع Groq صارت مجرد إبطاء: ١٥ مقالاً × ٣ لغات = ٦٧ ثانية نوم فقط.
-  // الآن مهلة قصيرة + تراجع تصاعدي حقيقي عند 429 (نحترم Retry-After إن وُجد).
-  let retries = 5;
-  let delayTime = 4000;
+  // 🚨 سقف زمني صارم: Vercel يقطع الدالة عند ٦٠ ثانية. التراجع القديم
+  // (٤+٨+١٦+٣٢ ثانية) كان يستهلك المهلة كلها ويُرجِع 504 بدل نتيجة جزئية.
+  // الآن: محاولتان فقط، بانتظار قصير، وتوقف فوري عند نفاد الحصة.
+  const effectiveDeadline = typeof deadline === "number" ? deadline : Date.now() + 15_000;
+  let retries = 3;
+  let delayTime = 800;
   let currentOptions = { ...options };
 
   while (retries > 0) {
+    if (Date.now() + 2_000 > effectiveDeadline) {
+      throw new Error("AI time budget exhausted before translation call");
+    }
     try {
-      await new Promise((resolve) => setTimeout(resolve, 700));
       return await generateText(prompt, systemPrompt, currentOptions);
     } catch (error) {
       const errMsg = error instanceof Error ? error.message : String(error);
-      const isRateLimit = errMsg.includes("429") || errMsg.includes("rate limit") || errMsg.includes("Too many requests");
-      const isJsonError = errMsg.includes("400") && errMsg.includes("json_validate_failed");
 
-      if (isRateLimit && retries > 1) {
-        // احترام retry-after من المزوّد إن كان مذكوراً بالرسالة
-        const hinted = errMsg.match(/retry[- ]after["':\s]+(\d+)/i);
-        const wait = hinted ? Math.min(Number(hinted[1]) * 1000, 60_000) : delayTime;
-        logger.warn("SyncAI", `Rate limit (429). Retrying in ${Math.round(wait / 1000)}s (${retries - 1} left)`);
-        await new Promise((resolve) => setTimeout(resolve, wait));
+      // حصةGroq اليومية نفدت → لا فائدة من النوم دقيقة كاملة داخل دالة Vercel.
+      // نُمرّر الخطأ للأعلى ليُسجَّل صراحةً ويُعاد المحاولة في التشغيل التالي.
+      if (isQuotaError(errMsg)) throw error;
+
+      const isRateLimit = /\b429\b|rate.?limit|Too many requests/i.test(errMsg);
+      const isJsonError = errMsg.includes("400") && errMsg.includes("json_validate_failed");
+      const canWait = Date.now() + delayTime + 2_000 <= effectiveDeadline;
+
+      if (isRateLimit && retries > 1 && canWait) {
+        logger.warn("SyncAI", `Rate limit (429). Retrying in ${delayTime}ms (${retries - 1} left)`);
+        await new Promise((resolve) => setTimeout(resolve, delayTime));
         retries--;
-        delayTime = Math.min(delayTime * 2, 60_000);
-      } else if (isJsonError && retries > 1) {
+        delayTime = Math.min(delayTime * 2, 4_000);
+      } else if (isJsonError && retries > 1 && canWait) {
         logger.warn("SyncAI", `JSON validation error. Retrying as plain text...`);
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+        await new Promise((resolve) => setTimeout(resolve, delayTime));
         retries--;
         currentOptions = { responseFormat: "text" };
       } else {
@@ -69,7 +81,8 @@ const LANG_NAME: Record<string, string> = { ar: "Arabic", nl: "Dutch", en: "Engl
 async function translatePlainText(
   text: string,
   kind: "title" | "body",
-  targetLocale: string
+  targetLocale: string,
+  deadline?: number
 ): Promise<string> {
   const lang = LANG_NAME[targetLocale] || targetLocale;
   const system =
@@ -82,13 +95,13 @@ async function translatePlainText(
       ? `Translate this news headline into professional ${lang}. Output ONLY the ${lang} headline:\n\n${text}`
       : `Translate the following news article body into professional ${lang}, keeping the HTML intact:\n\n${text}`;
 
-  const out = await generateTextWithRetry(prompt, system, { responseFormat: "text" });
+  const out = await generateTextWithRetry(prompt, system, { responseFormat: "text" }, deadline);
   return (out || "").trim().replace(/^["'«»]+|["'«»]+$/g, "").trim();
 }
 
 /** ترجمة جسم المقال على دفعات لتفادي الردود المبتورة. */
-async function translateBodyInChunks(content: string, targetLocale: string): Promise<string> {
-  if (content.length <= CHUNK_CHARS) return translatePlainText(content, "body", targetLocale);
+async function translateBodyInChunks(content: string, targetLocale: string, deadline?: number): Promise<string> {
+  if (content.length <= CHUNK_CHARS) return translatePlainText(content, "body", targetLocale, deadline);
 
   const blocks = content.split(/(?<=<\/(?:p|div|h[1-6]|li|blockquote|figure)>)/i);
   const chunks: string[] = [];
@@ -105,7 +118,11 @@ async function translateBodyInChunks(content: string, targetLocale: string): Pro
 
   const translated: string[] = [];
   for (const chunk of chunks) {
-    translated.push(await translatePlainText(chunk, "body", targetLocale));
+    // لا نبدأ دفعة جديدة إن كان الوقت على وشك النفاد — الباقي يُكمله التشغيل التالي.
+    if (typeof deadline === "number" && Date.now() + 2_000 > deadline) {
+      throw new Error("AI time budget exhausted before body chunk");
+    }
+    translated.push(await translatePlainText(chunk, "body", targetLocale, deadline));
   }
   return translated.join("");
 }
@@ -119,10 +136,11 @@ export async function translateTextToArabic(text: string): Promise<string> {
 /** يترجم المقال (عنوان + جسم على دفعات) إلى اللغة الهدف. يُرجِع null عند نقص المخرجات. */
 async function translateArticleTo(
   article: ExtractedArticle,
-  targetLocale: string
+  targetLocale: string,
+  deadline?: number
 ): Promise<ExtractedArticle | null> {
-  const title = await translatePlainText(article.title, "title", targetLocale);
-  const content = await translateBodyInChunks(article.content, targetLocale);
+  const title = await translatePlainText(article.title, "title", targetLocale, deadline);
+  const content = await translateBodyInChunks(article.content, targetLocale, deadline);
   if (!title || !content) return null;
 
   const plain = content.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
@@ -134,7 +152,7 @@ async function translateArticleTo(
   };
 }
 
-export async function translateArticle(article: ExtractedArticle): Promise<ExtractedArticle> {
+export async function translateArticle(article: ExtractedArticle, deadline?: number): Promise<ExtractedArticle> {
   const isArabic = /[\u0600-\u06FF]/.test(article.title);
   if (isArabic) {
     return article;
@@ -144,9 +162,11 @@ export async function translateArticle(article: ExtractedArticle): Promise<Extra
   // كانت تُرجع JSON مبتوراً على المقالات الطويلة → فشل + إعادة محاولات + بطء،
   // وكان المقال يُفقد فيُعاد ترجمته في كل تشغيل.
   try {
-    const fallback = await translateArticleTo(article, "ar");
+    const fallback = await translateArticleTo(article, "ar", deadline);
     if (fallback) return fallback;
   } catch (error) {
+    // لا نبتلع خطأ الحصة — وإلا يُحفظ نص إنجليزي في القسم العربي ويُعدّ «ناجحاً».
+    if (isRateLimitError(error)) throw error;
     logger.error("SyncAI", "AI translation failed for article:", article.title, error);
   }
 
@@ -162,7 +182,8 @@ function isRateLimitError(error: unknown): boolean {
 
 export async function translateArticleToLocale(
   article: ExtractedArticle,
-  targetLocale: string
+  targetLocale: string,
+  deadline?: number
 ): Promise<ExtractedArticle> {
   const sourceLang = detectLanguage(article);
   if (sourceLang === targetLocale) {
@@ -171,13 +192,13 @@ export async function translateArticleToLocale(
 
   // الترجمة إلى العربية لها مسارها الخاص (فحص العزل اللغوي في index.ts).
   if (targetLocale === "ar") {
-    return translateArticle(article);
+    return translateArticle(article, deadline);
   }
 
   // nl ↔ en: نُترجم نص المصدر إلى لغة الصف الهدف، حتى لا يظهر نص هولندي في
   // القسم الإنجليزي (أو العكس) — كان هذا معطّلاً عمداً لتفادي حدّ المعدّل.
   try {
-    const translated = await translateArticleTo(article, targetLocale);
+    const translated = await translateArticleTo(article, targetLocale, deadline);
     if (translated) return translated;
   } catch (error) {
     // أخطاء الحصة تُعاد للأعلى (لا تُبتلع) ليتعامل معها المُستدعي بإعادة المحاولة/الانتظار.

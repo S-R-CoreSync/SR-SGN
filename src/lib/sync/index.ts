@@ -97,6 +97,8 @@ export async function runSync(
     }
 
     const start = Date.now()
+    // موعد إيقاف صارم لكل مصدر: يُمرَّر لكل نداء ترجمة حتى لا يتجاوز الدالة الـ ٦٠ ثانية.
+    const deadline = start + timeBudgetMs
     const result: SyncResult = {
       success: true,
       source: source.name,
@@ -124,7 +126,7 @@ export async function runSync(
 
       await mapLimit(sortedArticles, concurrency, async (article) => {
         // احترام الميزانية الزمنية: لا نبدأ مقالاً جديداً إن اقترب القطع
-        if (Date.now() - start > timeBudgetMs) {
+        if (Date.now() + 2_000 > deadline) {
           result.deferred = (result.deferred ?? 0) + 1
           return
         }
@@ -147,7 +149,7 @@ export async function runSync(
             let finalArticle = { ...article }
             if (source.translate) {
               const { translateArticleToLocale } = await import("./translator")
-              finalArticle = await translateArticleToLocale(article, targetLocale)
+              finalArticle = await translateArticleToLocale(article, targetLocale, deadline)
             }
 
             let category: string
