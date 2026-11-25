@@ -128,17 +128,21 @@ export async function GET(request: NextRequest) {
         data?: { is_valid?: boolean; expires_at?: number; scopes?: string[] };
         error?: { message?: string };
       } = {};
+      // نحتفظ بأول خطأ (من التوكن نفسه): بديل تطبيق الدخول قد يُرجِع رسالة
+      // «App_id mismatch» المضلّلة فتخفي السبب الحقيقي مثل انتهاء الجلسة (190).
+      let firstError: string | undefined;
       for (const accessToken of [token, `${process.env.FACEBOOK_CLIENT_ID}|${process.env.FACEBOOK_CLIENT_SECRET}`]) {
         const res = await fetch(debugUrl(accessToken), { signal: controller.signal, cache: "no-store" });
         json = await res.json();
         if (json.data) break;
+        if (json.error?.message && !firstError) firstError = json.error.message;
       }
       clearTimeout(timer);
       const data = json.data;
       if (!data?.is_valid) {
         checks.facebook = {
           status: "error",
-          error: json.error?.message || "Facebook token is not valid",
+          error: firstError || json.error?.message || "Facebook token is not valid",
         };
         overallStatus = "degraded";
       } else {
