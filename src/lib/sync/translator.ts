@@ -1,4 +1,4 @@
-import { generateText } from "@/lib/ai/provider";
+import { generateText, getEnvVar } from "@/lib/ai/provider";
 import type { ExtractedArticle } from "./types";
 import { logger } from "@/lib/logger";
 
@@ -13,6 +13,9 @@ function detectLanguage(article: ExtractedArticle): "ar" | "nl" | "en" {
   }
   return "en";
 }
+
+/** مزوّد مستقل لترجمة المزامنة فقط (غالباً الأعلى حصةً من مزوّد الشات/RAG). */
+const SYNC_PROVIDER = getEnvVar("SYNC_TRANSLATE_PROVIDER") || undefined;
 
 /** نفاد الحصة اليومية/الدقائقية: إعادة المحاولة هنا مضيعة للوقت (حتى reset) وتسبّب 504. */
 function isQuotaError(msg: string): boolean {
@@ -38,7 +41,7 @@ async function generateTextWithRetry(
       throw new Error("AI time budget exhausted before translation call");
     }
     try {
-      return await generateText(prompt, systemPrompt, currentOptions);
+      return await generateText(prompt, systemPrompt, { ...currentOptions, provider: SYNC_PROVIDER });
     } catch (error) {
       const errMsg = error instanceof Error ? error.message : String(error);
 

@@ -32,8 +32,10 @@ export function getEnvVar(key: string): string | undefined {
   return undefined;
 }
 
-function getConfig(): AIConfig {
-  const configured = getEnvVar("AI_PROVIDER") || "auto";
+function getConfig(overrideProvider?: string): AIConfig {
+  // SYNC_TRANSLATE_PROVIDER يسمح باختيار مزوّد للترجمة فقط، دون تغيير مزوّد
+  // الشات/RAG — حصة مزوّد الترجمة كانت تُنفد يومياً بينما الباقي يعمل.
+  const configured = overrideProvider || getEnvVar("AI_PROVIDER") || "auto";
 
   if (configured === "ollama") return { provider: "ollama" };
   if (configured === "openai") return { provider: "openai", model: getEnvVar("OPENAI_MODEL") || "gpt-4o-mini" };
@@ -83,7 +85,7 @@ function getConfig(): AIConfig {
 export async function generateText(
   content: string,
   systemPrompt?: string,
-  options?: { model?: string; responseFormat?: "text" | "json" }
+  options?: { model?: string; responseFormat?: "text" | "json"; provider?: string }
 ): Promise<string> {
   return generateChat(
     [{ role: "user", content }],
@@ -95,9 +97,9 @@ export async function generateText(
 export async function generateChat(
   messages: AIMessage[],
   systemPrompt?: string,
-  options?: { model?: string; responseFormat?: "text" | "json" }
+  options?: { model?: string; responseFormat?: "text" | "json"; provider?: string }
 ): Promise<string> {
-  const config = getConfig();
+  const config = getConfig(options?.provider);
 
   const guarded = applyGuardrails({ messages, systemPrompt });
   if (guarded.blocked) {
