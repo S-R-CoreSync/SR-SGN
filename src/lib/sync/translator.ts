@@ -32,6 +32,15 @@ function isQuotaError(msg: string): boolean {
   return /\bTPD\b|\bOTPM\b|tokens per (day|minute)|quota|rate_limit_exceeded|Rate limit reached/i.test(msg);
 }
 
+/** المدة التي يطلبها المزوّد بعد 429 (مثلاً 360ms أو 2s أو 1m2.208s). */
+function rateLimitWaitMs(msg: string): number | null {
+  const m = msg.match(/try again in\s+(?:(\d+)m)?([\d.]+)\s*(ms|s)\b/i);
+  if (!m) return null;
+  const unitMs = m[3].toLowerCase() === "ms" ? 1 : 1000;
+  const total = (Number(m[1] || 0) * 60_000) + Number(m[2]) * unitMs;
+  return Number.isFinite(total) ? Math.ceil(total) : null;
+}
+
 async function generateTextWithRetry(
   prompt: string,
   systemPrompt: string,
@@ -42,7 +51,7 @@ async function generateTextWithRetry(
   // (٤+٨+١٦+٣٢ ثانية) كان يستهلك المهلة كلها ويُرجِع 504 بدل نتيجة جزئية.
   // الآن: محاولتان فقط، بانتظار قصير، وتوقف فوري عند نفاد الحصة.
   const effectiveDeadline = typeof deadline === "number" ? deadline : Date.now() + 15_000;
-  let retries = 3;
+  let retries = 4;
   let delayTime = 800;
   let currentOptions = { ...options };
 
@@ -59,8 +68,22 @@ async function generateTextWithRetry(
     } catch (error) {
       const errMsg = error instanceof Error ? error.message : String(error);
 
-      // حصةGroq اليومية نفدت → لا فائدة من النوم دقيقة كاملة داخل دالة Vercel.
-      // نُمرّر الخطأ للأعلى ليُسجَّل صراحةً ويُعاد المحاولة في التشغيل التالي.
+      // حدود الدقيقة (OTPM/RPM) تطلب ثوانٍ قليلة — انتظارها داخل الميزانية
+      // ينهي الترجمة ويمنع 429 ناقص. أما نفاد الحصة اليومية (دقائق/ساعات)
+      // فالنوم فيها يقطع دالة Vercel عند 60ث → نُمرّر الخطأ فوراً.
+      const hintedWait = rateLimitWaitMs(errMsg);
+      if (
+        isQuotaError(errMsg) &&
+        hintedWait !== null &&
+        hintedWait <= 5_000 &&
+        retries > 1 &&
+        Date.now() + hintedWait + 2_000 <= effectiveDeadline
+      ) {
+        logger.warn("SyncAI", `Rate limit (${hintedWait}ms). Retrying within budget (${retries - 1} left)`);
+        await new Promise((resolve) => setTimeout(resolve, hintedWait + 150));
+        retries--;
+        continue;
+      }
       if (isQuotaError(errMsg)) throw error;
 
       const isRateLimit = /\b429\b|rate.?limit|Too many requests/i.test(errMsg);
