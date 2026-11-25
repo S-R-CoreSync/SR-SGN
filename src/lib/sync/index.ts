@@ -77,7 +77,9 @@ export async function runSync(
   const limitPerSource = Math.max(1, Math.min(config?.limit ?? 25, 100))
   const concurrency = Math.max(1, Math.min(config?.concurrency ?? 3, 8))
   // توازي اللغات داخل المقال — يبقى منخفضاً لاحترام حدود المزوّد (RPM)
-  const localeConcurrency = 2
+  // طلب ترجمة واحد في كل لحظة لكل مصدر: أربع مجموعات متوازية × طلبين سابقاً
+  // كانت تضرب حد output-tokens/دقيقة في Groq المجاني فتُرجِع 429 وتترك ترجمات ناقصة.
+  const localeConcurrency = 1
   // ⏱️ ميزانية زمنية: Vercel يقطع الدالة عند maxDuration (٦٠ ثانية على Hobby).
   // نتوقف بأنفسنا قبل القطع فنُرجع نتيجة جزئية سليمة، وما تبقّى يُكمَل بالتشغيل التالي.
   const timeBudgetMs = Math.max(5_000, Math.min(config?.timeBudgetMs ?? 38_000, 300_000))

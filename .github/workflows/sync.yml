@@ -70,7 +70,7 @@ jobs:
                 -H "Content-Type: application/json" \
                 -H "Cache-Control: no-cache" \
                 -H "x-cron-secret: $CRON_SECRET" \
-                -d "{\"source\":\"$src\",\"limit\":6,\"concurrency\":2,\"timeBudgetMs\":25000,\"autoCategorize\":false}") || code=000
+                -d "{\"source\":\"$src\",\"limit\":6,\"concurrency\":1,\"timeBudgetMs\":30000,\"autoCategorize\":false}") || code=000
 
               echo "  المحاولة $attempt: HTTP $code"
               if [ "$code" = "200" ]; then break; fi

@@ -332,8 +332,8 @@ curl -X POST http://localhost:3000/api/sync
 - **تفعيل:** ضع `GROQ_API_KEY` في `.env` (احصل عليه من https://console.groq.com/keys)
 - **الاستخدام:** `AI_PROVIDER=groq` في `.env` — يُكتشف تلقائياً قبل OpenAI
 - **النموذج الافتراضي:** `qwen/qwen3.8-27b` (متاح فعلياً على الحساب؛ `llama-3.3-70b-versatile` يعطي 404 الآن)
-- **ترجمة المزامنة فقط:** `SYNC_TRANSLATE_PROVIDER=groq` + `SYNC_TRANSLATE_MODEL=qwen/qwen3.8-27b` في `.env` وعلى Vercel. موديل reasoning (`openai/gpt-oss-120b`) كان يستهلك حصة TPD (200k/يوم) في ساعتين فيُرجِع 504؛ الموديل الأخف له حصة مستقلة واستهلاك أقل بكثير. الشات/RAG يبقيان على `AI_PROVIDER` الخاص بهما.
-- 🚨 **متغيران منفصلان، لا سطر واحد:** على Vercel يجب أن يكون `SYNC_TRANSLATE_PROVIDER=groq` متغيّراً و`SYNC_TRANSLATE_MODEL=qwen/qwen3.8-27b` متغيّراً آخر (Production + Preview). كتابتهما في متغيّر واحد يجعل المزوّد قيمة غير صالحة والموديل غير معرَّف، فتعود مشكلة 429. بعد تعديل المتغيرات لازم Redeploy.
+- **ترجمة المزامنة فقط:** `SYNC_TRANSLATE_PROVIDER=groq` + `SYNC_TRANSLATE_MODEL=openai/gpt-oss-20b` في `.env` وعلى Vercel. `openai/gpt-oss-120b` كان يستهلك حصة TPD (200k/يوم) في ساعتين فيُرجِع 504؛ و`qwen/qwen3.8-27b` رغم خفّته يتجاوز حد output-tokens/دقيقة (1000) عند مزامنة عدة مصادر فيُرجِع 429. `gpt-oss-20b` حصته أعلى بكثير (8000 tokens تُجدَّد كل ~ثانية) وجودته جيدة في ترجمة nl↔en↔ar. الشات/RAG يبقيان على `AI_PROVIDER` الخاص بهما.
+- 🚨 **متغيران منفصلان، لا سطر واحد:** على Vercel يجب أن يكون `SYNC_TRANSLATE_PROVIDER=groq` متغيّراً و`SYNC_TRANSLATE_MODEL=openai/gpt-oss-20b` متغيّراً آخر (Production + Preview). كتابتهما في متغيّر واحد يجعل المزوّد قيمة غير صالحة والموديل غير معرَّف، فتعود مشكلة 429. بعد تعديل المتغيرات لازم Redeploy.
 
 ### Facebook — معلومات مهمة
 - **Page ID**: `943115162210802` (من `/me/accounts`)
