@@ -75,7 +75,7 @@ async function generateTextWithRetry(
       if (
         isQuotaError(errMsg) &&
         hintedWait !== null &&
-        hintedWait <= 5_000 &&
+        hintedWait <= 12_000 &&
         retries > 1 &&
         Date.now() + hintedWait + 2_000 <= effectiveDeadline
       ) {
