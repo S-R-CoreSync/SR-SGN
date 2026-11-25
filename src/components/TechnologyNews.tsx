@@ -26,6 +26,7 @@ const TECH_CATEGORY = "\u062a\u0643\u0646\u0648\u0644\u0648\u062c\u064a\u0627";
 export default function TechnologyNews() {
   const t = useTranslations("newsCategory");
   const tc = useTranslations("categories");
+  const th = useTranslations("common");
   const locale = useLocale();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
@@ -59,8 +60,8 @@ export default function TechnologyNews() {
     <div dir={dir}>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <Link href="/news" className="text-sm text-[#1a5632] hover:underline flex items-center gap-1 mb-2">
-            <ArrowLeft className="w-3 h-3" /> {t("backToNews")}
+          <Link href="/" className="text-sm text-[#1a5632] hover:underline flex items-center gap-1 mb-2">
+            <ArrowLeft className="w-3 h-3" /> {th("backToHome")}
           </Link>
           <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
             <Newspaper className="w-5 h-5 text-[#1a5632]" /> {tc("tech")}

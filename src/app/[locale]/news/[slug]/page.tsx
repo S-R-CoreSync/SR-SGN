@@ -40,6 +40,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ArticlePage({ params }: Props) {
   const t = await getTranslations('newsDetail');
+  const th = await getTranslations('common');
   const { locale, slug } = await params;
   const decodedSlug = decodeURIComponent(slug);
   const session = await getServerSession(authOptions);
@@ -56,7 +57,7 @@ export default async function ArticlePage({ params }: Props) {
     <div dir={dir} className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="text-center">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('notFound')}</h2>
-        <Link href="/news" className="text-[#1a5632] hover:underline">{t('backToNews')}</Link>
+        <Link href="/" className="text-[#1a5632] hover:underline">{th('backToHome')}</Link>
       </div>
     </div>
   );
@@ -93,9 +94,9 @@ export default async function ArticlePage({ params }: Props) {
     <div dir={dir} className="min-h-screen bg-gray-50">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="max-w-4xl mx-auto px-4 py-8">
-        <Link href="/news" className="inline-flex items-center gap-2 text-[#1a5632] hover:text-[#0f3d23] mb-6 text-sm">
+        <Link href="/" className="inline-flex items-center gap-2 text-[#1a5632] hover:text-[#0f3d23] mb-6 text-sm">
           <ArrowLeft className="w-4 h-4" />
-          <span>{t('backToNews')}</span>
+          <span>{th('backToHome')}</span>
         </Link>
 
         <article className="bg-white rounded-2xl overflow-hidden border shadow-sm">

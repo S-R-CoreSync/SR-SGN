@@ -49,6 +49,7 @@ const CATEGORY_KEYS: Record<string, string> = {
 export default function CategoryPage() {
   const t = useTranslations('newsCategory');
   const tc = useTranslations('categories');
+  const th = useTranslations('common');
   const locale = useLocale();
   const { slug } = useParams();
   const [posts, setPosts] = useState<Post[]>([]);
@@ -100,8 +101,8 @@ export default function CategoryPage() {
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <Link href="/news" className="text-sm text-[#1a5632] hover:underline flex items-center gap-1 mb-2">
-              <ArrowLeft className="w-3 h-3" /> {t('backToNews')}
+            <Link href="/" className="text-sm text-[#1a5632] hover:underline flex items-center gap-1 mb-2">
+              <ArrowLeft className="w-3 h-3" /> {th('backToHome')}
             </Link>
             <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
               <Newspaper className="w-6 h-6 text-[#1a5632]" /> {catName}
