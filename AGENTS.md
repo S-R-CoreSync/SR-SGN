@@ -331,7 +331,8 @@ curl -X POST http://localhost:3000/api/sync
 - **30 RPM** (request per minute) — كافي للاستخدام العادي
 - **تفعيل:** ضع `GROQ_API_KEY` في `.env` (احصل عليه من https://console.groq.com/keys)
 - **الاستخدام:** `AI_PROVIDER=groq` في `.env` — يُكتشف تلقائياً قبل OpenAI
-- **النموذج الافتراضي:** `llama-3.3-70b-versatile` — ممتاز للعربية
+- **النموذج الافتراضي:** `qwen/qwen3.8-27b` (متاح فعلياً على الحساب؛ `llama-3.3-70b-versatile` يعطي 404 الآن)
+- **ترجمة المزامنة فقط:** `SYNC_TRANSLATE_PROVIDER=groq` + `SYNC_TRANSLATE_MODEL=qwen/qwen3.8-27b` في `.env` وعلى Vercel. موديل reasoning (`openai/gpt-oss-120b`) كان يستهلك حصة TPD (200k/يوم) في ساعتين فيُرجِع 504؛ الموديل الأخف له حصة مستقلة واستهلاك أقل بكثير. الشات/RAG يبقيان على `AI_PROVIDER` الخاص بهما.
 
 ### Facebook — معلومات مهمة
 - **Page ID**: `943115162210802` (من `/me/accounts`)
