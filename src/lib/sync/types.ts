@@ -150,7 +150,7 @@ export const DEFAULT_SOURCES: SyncSource[] = [
     type: "rss",
     url: "https://tweakers.net/feeds/nieuws.xml",
     enabled: true,
-    category: "تكنولوجيا",
+    category: "تكنولوجيا", // i18n-ignore — قيمة تصنيف مخزّنة في Post، ليست نص واجهة
     translate: true,
   },
   {
@@ -158,7 +158,7 @@ export const DEFAULT_SOURCES: SyncSource[] = [
     type: "rss",
     url: "https://www.nu.nl/rss/Tech",
     enabled: true,
-    category: "تكنولوجيا",
+    category: "تكنولوجيا", // i18n-ignore — قيمة تصنيف مخزّنة في Post، ليست نص واجهة
     translate: true,
   },
   {
@@ -166,7 +166,7 @@ export const DEFAULT_SOURCES: SyncSource[] = [
     type: "rss",
     url: "https://techcrunch.com/feed/",
     enabled: true,
-    category: "تكنولوجيا",
+    category: "تكنولوجيا", // i18n-ignore — قيمة تصنيف مخزّنة في Post، ليست نص واجهة
     translate: true,
   },
   {
@@ -174,7 +174,7 @@ export const DEFAULT_SOURCES: SyncSource[] = [
     type: "rss",
     url: "https://feeds.arstechnica.com/arstechnica/index",
     enabled: true,
-    category: "تكنولوجيا",
+    category: "تكنولوجيا", // i18n-ignore — قيمة تصنيف مخزّنة في Post، ليست نص واجهة
     translate: true,
   },
   {
@@ -182,7 +182,7 @@ export const DEFAULT_SOURCES: SyncSource[] = [
     type: "rss",
     url: "https://www.wired.com/feed/rss",
     enabled: true,
-    category: "تكنولوجيا",
+    category: "تكنولوجيا", // i18n-ignore — قيمة تصنيف مخزّنة في Post، ليست نص واجهة
     translate: true,
   },
 ]

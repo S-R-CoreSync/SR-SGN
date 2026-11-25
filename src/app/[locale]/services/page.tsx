@@ -191,49 +191,49 @@ export default function ServicesDirectoryPage() {
           color: "text-teal-400 bg-teal-500/10 border-teal-500/20",
         },
         {
-          title: isRtl ? "جلسات الاستشارة الشخصية (Spreekuur)" : isNl ? "Persoonlijk Spreekuur" : "Personal Consultation (Spreekuur)",
-          desc: isRtl ? "استشارات مباشرة مع خبراء قانونيين ومحاسبين ومعلمين ومعتمدين" : isNl ? "Juridisch & sociaal spreekuur" : "Legal & social consultation",
+          title: ts("spreekuurTitle"),
+          desc: ts("spreekuurDesc"),
           href: "/spreekuur", icon: Scale, badge: "CONSULT",
           color: "text-blue-400 bg-blue-500/10 border-blue-500/20",
         },
       ],
     },
     {
-      title: isRtl ? "خدمات العضوية والدعم" : isNl ? "Lidmaatschap & Ondersteuning" : "Membership & Support Services",
+      title: ts("membershipSupportTitle"),
       items: [
         {
-          title: isRtl ? "دليل الخدمات والأعمال" : isNl ? "Diensten & Bedrijven Gids" : "Services & Business Directory",
-          desc: isRtl ? "شبكة شاملة للأطباء، المحامين، المهندسين، والخدمات المهنية في هولندا" : isNl ? "Gids van professionals" : "Directory of community professionals",
+          title: ts("directoryTitle"),
+          desc: ts("directoryDesc"),
           href: "/services", icon: Building2,
           color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
         },
         {
-          title: isRtl ? "أعضاء الجالية" : isNl ? "Leden van de Gemeenschap" : "Community Members",
-          desc: isRtl ? "تصفح أعضاء الجالية المسجلين وتواصل معهم مباشرة" : isNl ? "Bekijk alle leden" : "Browse all community members",
+          title: ts("membersTitle"),
+          desc: ts("membersDesc"),
           href: "/members", icon: Users,
           color: "text-blue-400 bg-blue-500/10 border-blue-500/20",
         },
         {
-          title: isRtl ? "بطاقة العضوية والخصومات الرقمية" : isNl ? "Digitale Ledenpas & Korting" : "Digital Membership & Discounts",
-          desc: isRtl ? "بطاقتك الرقمية للحصول على خصومات حصرية لدى شركاء الجالية" : isNl ? "Digitale ledenpas met korting" : "Digital pass with exclusive discounts",
+          title: ts("membershipCardTitle"),
+          desc: ts("membershipCardDesc"),
           href: "/membership-card", icon: IdCard,
           color: "text-amber-400 bg-amber-500/10 border-amber-500/20",
         },
         {
-          title: isRtl ? "التحقق من بطاقة العضوية" : isNl ? "Verifieer Ledenpas" : "Verify Membership Pass",
-          desc: isRtl ? "فحص فوري لصلاحية بطاقة العضوية العضو للاستفادة من خصومات الشركاء" : isNl ? "Directe verificatie van de ledenpas" : "Instant pass verification for partners",
+          title: ts("verifyPassTitle"),
+          desc: ts("verifyPassDesc"),
           href: "/verify-pass", icon: ShieldAlert, badge: "PARTNER",
           color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
         },
         {
-          title: isRtl ? "دليل الطوارئ (SOS)" : isNl ? "Nood Gids (SOS)" : "Emergency Guide (SOS)",
-          desc: isRtl ? "أرقام الطوارئ وخط الإغاثة السريع وصندوق نقل الجثامين" : isNl ? "Alarmnummers & noodhulp" : "Emergency numbers & rapid relief",
+          title: ts("sosTitle"),
+          desc: ts("sosDesc"),
           href: "/emergency", icon: ShieldAlert, badge: "SOS",
           color: "text-rose-400 bg-rose-500/10 border-rose-500/20",
         },
         {
-          title: isRtl ? "مواقيت الصلاة" : isNl ? "Gebedstijden" : "Prayer Times",
-          desc: isRtl ? "مواقيت الصلاة الدقيقة والتقويم الهجري لمدن هولندا" : isNl ? "Nauwkeurige gebedstijden" : "Accurate prayer times & Hijri calendar",
+          title: ts("prayersTitle"),
+          desc: ts("prayersDesc"),
           href: "/prayers", icon: Moon, badge: "PRAYERS",
           color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
         },
@@ -424,7 +424,7 @@ export default function ServicesDirectoryPage() {
                           <h4 className="text-sm font-bold text-slate-900 dark:text-white truncate">{locale === "ar" ? m.nameAr : (m.nameNl || m.nameAr)}</h4>
                           {m.isPremiumService && (
                             <span className="px-1.5 py-0.5 bg-amber-500 text-white rounded text-[8px] font-black uppercase shrink-0 tracking-wider scale-95">
-                              {locale === "ar" ? "تميز" : "PRO"}
+                              {ts("premiumBadge")}
                             </span>
                           )}
                         </div>
@@ -449,7 +449,7 @@ export default function ServicesDirectoryPage() {
               <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-2xl shadow-slate-200/50 dark:shadow-none p-8 h-full min-h-[600px] flex flex-col">
                 <div className="flex items-center justify-between mb-8">
                   <h2 className="text-2xl font-black text-slate-900 dark:text-white">
-                    {locale === "ar" ? "توزع الخدمات في هولندا" : (locale === "nl" ? "Dienstenverdeling in Nederland" : "Services distribution in the Netherlands")}
+                    {ts("distributionTitle")}
                   </h2>
                   {province && <span className="px-4 py-1.5 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 rounded-full text-xs font-black border border-emerald-100 dark:border-emerald-900/50">{province}</span>}
                 </div>
@@ -500,7 +500,7 @@ export default function ServicesDirectoryPage() {
                             </div>
                             {member.isPremiumService ? (
                               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-black rounded-lg text-[9px] uppercase tracking-wider shadow-sm animate-pulse shrink-0">
-                                {locale === "ar" ? "إعلان مميز 🚀" : (locale === "nl" ? "Uitgelicht 🚀" : "Featured 🚀")}
+                                {ts("featuredBadge")}
                               </span>
                             ) : (
                               <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 rounded-lg text-[9px] font-bold uppercase tracking-wider border border-emerald-100 dark:border-emerald-900/50 shrink-0">
