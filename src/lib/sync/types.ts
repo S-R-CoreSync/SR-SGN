@@ -162,6 +162,14 @@ export const DEFAULT_SOURCES: SyncSource[] = [
     translate: true,
   },
   {
+    name: "nu-sport",
+    type: "rss",
+    url: "https://www.nu.nl/rss/Sport",
+    enabled: true,
+    category: "رياضة", // i18n-ignore — قيمة تصنيف مخزّنة في Post، ليست نص واجهة
+    translate: true,
+  },
+  {
     name: "techcrunch-tech",
     type: "rss",
     url: "https://techcrunch.com/feed/",
