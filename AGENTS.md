@@ -129,6 +129,15 @@ This changes `mobile/constants/config.ts` to use `https://sgn-drab.vercel.app`.
 3. `npm run i18n:check` — يمنع إضافة نصوص عربية جديدة (خط أساس + ratchet)
 4. Verify new pages have nav links in `top-bar.tsx`, `site-header.tsx`, `footer`
 
+## 🚀 النقل بلا تأخير (SHIP)
+
+- `npm run ship -- "وصف التعديل"` = فحوصات (i18n + typecheck + build) ← commit/push ← انتظار نجاح نشر Vercel ← فحص الرابط الحي.
+- `npm run ship:fast -- "..."` يخطي الـ build المحلي (CI وVercel يبنيان).
+- **مصدر البيانات واحد هو Turso**: `.env` المحلي فيه `USE_TURSO=1`، فيقرأ المطوّر ويكتب في نفس قاعدة الإنتاج. `src/lib/db.ts` يدعم هذا العلم صراحةً.
+- `npm run data:push` ينسخ `dev.db` إلى Turso بـ **UPSERT بعد تأكيد**، و `--dry-run` للمعاينة. **ممنوع `scripts/copy-local-to-turso.ts`** لأنه يمسح الجداول (أُضيف حاجز `--force`).
+- المزامنة تعمل كل **ساعة** (`sync.yml`) وأيضاً بعد كل CI ناجح (`workflow_run`).
+- `/api/news` و `/api/health` يرجّعان `Cache-Control: no-store` حتى لا يظهر كاش قديم كأنه تأخير في النشر.
+
 > ⚠️ **Node.js version**: المشروع يتطلب **Node 22 LTS**. `.nvmrc` يحتوي `22`. على Windows (nvm-windows): `nvm use 22.22.3` (أو `nvm use 22`). **لا تستخدم** Node v27 alpha (موجود في `C:\Program Files\nodejs`) — يسبب فشل build. CI يستخدم Node 22 (`.github/workflows/ci.yml`).
 
 > ⚠️ **مهم — مسار المشروع يحتوي على الرمز `&`:**

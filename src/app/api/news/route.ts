@@ -6,6 +6,9 @@ import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
 
+// البيانات تتغيّر بعد كل مزامنة — أي كاش هنا يعطي انطباعاً كاذباً بتأخر النشر.
+const NO_STORE = { "Cache-Control": "no-store, max-age=0" };
+
 // 🔐 منع تضخيم عدّاد مشاهدات الأخبار بطلبات آلية (الحد سخي ليكفي التصفح الطبيعي)
 const newsLimiter = createRateLimiter({ maxRequests: 120, windowMs: 60_000, name: "news-list" });
 
@@ -59,7 +62,7 @@ export async function GET(req: NextRequest) {
       };
       // تحديث المشاهدات بشكل غير متزامن (لا يحجب الاستجابة)
       prisma.post.update({ where: { id: post.id }, data: { views: { increment: 1 } } }).catch(() => {});
-      return NextResponse.json(resolvedPost);
+      return NextResponse.json(resolvedPost, { headers: NO_STORE });
     }
     // فلترة حسب اللغة
     const where: any = {
@@ -100,9 +103,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(
       { posts, total: Math.min(rawTotal, posts.length < limit ? posts.length : rawTotal), limit, offset },
       {
-        headers: {
-          "Cache-Control": "public, s-maxage=1, stale-while-revalidate=5",
-        },
+        headers: NO_STORE,
       }
     );
   } catch (error) {

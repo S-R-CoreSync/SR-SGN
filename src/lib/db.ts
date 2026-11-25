@@ -23,11 +23,14 @@ function getPrismaInstance(): PrismaInstance {
   if (globalForPrisma.prisma) return globalForPrisma.prisma;
 
   const isProd = process.env.NODE_ENV === "production" || process.env.VERCEL === "1";
+  // Opt in to the production database from local dev with USE_TURSO=1 in .env.
+  // Without it dev.db stays the dev source, which is what causes local/prod drift.
+  const optIntoTurso = process.env.USE_TURSO === "1" || process.env.USE_TURSO === "true";
   const rawTursoUrl = cleanEnv(process.env.TURSO_DATABASE_URL);
   const tursoToken = cleanEnv(process.env.TURSO_AUTH_TOKEN);
   const tursoUrl = rawTursoUrl && !/^[a-z]+:\/\//i.test(rawTursoUrl) ? `libsql://${rawTursoUrl}` : rawTursoUrl;
 
-  const useTurso = isProd && 
+  const useTurso = (isProd || optIntoTurso) && 
     tursoUrl && 
     tursoUrl !== "undefined" && 
     !tursoUrl.includes("mydb-user") && 

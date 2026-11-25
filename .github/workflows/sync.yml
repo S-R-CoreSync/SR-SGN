@@ -2,16 +2,21 @@ name: مزامنة الأخبار المجدولة
 
 on:
   schedule:
-    - cron: "0 */6 * * *"
+    - cron: "0 * * * *"
   workflow_dispatch:
     inputs:
       source:
         description: "اسم مصدر واحد فقط (اتركه فارغاً لمزامنة الكل)"
         required: false
         type: string
+  # يعمل بعد كل نشر ناجح حتى تظهر البيانات الجديدة دون انتظار الدورة الساعية
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
 
 jobs:
   sync:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:

@@ -1,6 +1,14 @@
 import { createClient } from "@libsql/client";
 import "dotenv/config";
 
+// ⚠️ سكربت قديم وخطير: يمسح كل جدول في Turso ويستبدله بنسخة dev.db المحلية.
+// استخدم `npm run data:push` بدلاً منه (UPSERT بلا حذف).
+// إن أردت القديم فعلاً مرّر --force صريحاً: npx tsx scripts/copy-local-to-turso.ts --force
+if (!process.argv.includes("--force")) {
+  console.error("❌ محجوب: هذا السكربت يمسح بيانات الإنتاج. استخدم npm run data:push.");
+  process.exit(1);
+}
+
 const local = createClient({ url: "file:./prisma/dev.db" });
 const turso = createClient({
   url: process.env.TURSO_DATABASE_URL!,

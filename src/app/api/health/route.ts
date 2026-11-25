@@ -3,6 +3,9 @@ import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
+// صحة النظام تُقرأ بعد كل نشر — لا كاش حتى لا تظهر حالة قديمة.
+const NO_STORE = { "Cache-Control": "no-store, max-age=0" };
+
 interface HealthCheckResponse {
   status: "ok" | "degraded" | "error";
   timestamp: string;
@@ -169,7 +172,7 @@ export async function GET(request: NextRequest) {
   };
   const statusCode = overallStatus === "error" ? 503 : 200;
 
-  return NextResponse.json(response, { status: statusCode });
+  return NextResponse.json(response, { status: statusCode, headers: NO_STORE });
 }
 
 /**
@@ -179,8 +182,8 @@ export async function GET(request: NextRequest) {
 export async function HEAD(request: NextRequest) {
   try {
     await prisma.user.count({ take: 1 });
-    return new NextResponse(null, { status: 200 });
+    return new NextResponse(null, { status: 200, headers: NO_STORE });
   } catch {
-    return new NextResponse(null, { status: 503 });
+    return new NextResponse(null, { status: 503, headers: NO_STORE });
   }
 }
