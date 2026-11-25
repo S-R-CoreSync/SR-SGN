@@ -21,6 +21,7 @@
  */
 
 import { spawn, execFileSync } from "node:child_process";
+import { existsSync, readFileSync } from "node:fs";
 
 const REPO = "S-R-CoreSync/SR-SGN";
 const SITE = "https://sgn-drab.vercel.app";
@@ -69,6 +70,14 @@ async function check(step, ok) {
 }
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// فحص حالة Vercel يحتاج GitHub API. بدون توكن ينفد حد الزائرين (60/ساعة)
+// فيُرجِع 403 ويفشل الشحن مع أن النشر نجح فعلاً. نقرأ المتغيّر وحده من .env
+// (لا نحمّل بقية الأسرار ولا نعتمد على حزمة dotenv غير مُعلَنة).
+if (!process.env.GITHUB_TOKEN && existsSync(".env")) {
+  const line = readFileSync(".env", "utf8").match(/^GITHUB_TOKEN=(.*)$/m);
+  if (line) process.env.GITHUB_TOKEN = line[1].trim().replace(/^["']|["']$/g, "");
+}
 
 async function waitForVercel(sha) {
   const headers = {
