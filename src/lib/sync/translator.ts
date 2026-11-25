@@ -14,8 +14,10 @@ function detectLanguage(article: ExtractedArticle): "ar" | "nl" | "en" {
   return "en";
 }
 
-/** مزوّد مستقل لترجمة المزامنة فقط (غالباً الأعلى حصةً من مزوّد الشات/RAG). */
+/** مزوّد وموديل مستقلان لترجمة المزامنة فقط، دون لمس الشات/RAG.
+ *  موديل أخف (غير reasoning) يستهلك tokens أقل بكثير ويمنع نفاد الحصة اليومية. */
 const SYNC_PROVIDER = getEnvVar("SYNC_TRANSLATE_PROVIDER") || undefined;
+const SYNC_MODEL = getEnvVar("SYNC_TRANSLATE_MODEL") || undefined;
 
 /** نفاد الحصة اليومية/الدقائقية: إعادة المحاولة هنا مضيعة للوقت (حتى reset) وتسبّب 504. */
 function isQuotaError(msg: string): boolean {
@@ -41,7 +43,11 @@ async function generateTextWithRetry(
       throw new Error("AI time budget exhausted before translation call");
     }
     try {
-      return await generateText(prompt, systemPrompt, { ...currentOptions, provider: SYNC_PROVIDER });
+      return await generateText(prompt, systemPrompt, {
+        ...currentOptions,
+        provider: SYNC_PROVIDER,
+        model: SYNC_MODEL,
+      });
     } catch (error) {
       const errMsg = error instanceof Error ? error.message : String(error);
 
