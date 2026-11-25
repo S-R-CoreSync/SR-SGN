@@ -2036,5 +2036,10 @@
         "body": "We may update these terms as the service develops, and the update date will be shown at the top of this page."
       }
     ]
+  },
+  "technology": {
+    "title": "Technology",
+    "subtitle": "Latest tech and technology news from NL News and global sites",
+    "noNews": "No news found"
   }
 }

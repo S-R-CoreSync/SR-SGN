@@ -2036,5 +2036,10 @@
         "body": "We kunnen deze voorwaarden aanpassen naarmate de dienst zich ontwikkelt, en de datum van bijwerking staat bovenaan deze pagina."
       }
     ]
+  },
+  "technology": {
+    "title": "Technologie",
+    "subtitle": "Laatste technologie nieuws van NL News en wereldwijde sites",
+    "noNews": "Geen nieuws gevonden"
   }
 }
