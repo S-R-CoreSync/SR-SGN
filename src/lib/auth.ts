@@ -14,6 +14,47 @@ const loginAttempts = new Map<string, { count: number; resetTime: number }>();
 const MAX_ATTEMPTS = 5;
 const LOCKOUT_DURATION = 15 * 60 * 1000; // 15 minutes
 
+/**
+ * مع جلسات JWT لا يقوم NextAuth بتحديث جدول Account عند كل دخول OAuth
+ * (يرجع مبكراً عندما يكون الحساب مرتبطاً أصلاً). نخزّن توكن فيسبوك الطازج
+ * صراحةً لاستخدامه في استخراج توكن الصفحة الدائم لمزامنة المنشورات.
+ */
+async function persistFacebookToken(account: any, email?: string | null) {
+  if (account?.provider !== "facebook" || !account?.access_token || !email) return;
+  try {
+    const dbUser = await prisma.user.findUnique({
+      where: { email: String(email).toLowerCase() },
+      select: { id: true },
+    });
+    if (!dbUser) return;
+
+    const providerAccountId = String(account.providerAccountId);
+    const data = {
+      access_token: account.access_token,
+      refresh_token: account.refresh_token ?? null,
+      expires_at: typeof account.expires_at === "number" ? account.expires_at : null,
+      token_type: account.token_type ?? null,
+      scope: account.scope ?? null,
+      id_token: account.id_token ?? null,
+    };
+
+    await prisma.account.upsert({
+      where: { provider_providerAccountId: { provider: "facebook", providerAccountId } },
+      create: {
+        userId: dbUser.id,
+        type: account.type ?? "oauth",
+        provider: "facebook",
+        providerAccountId,
+        ...data,
+      },
+      update: data,
+    });
+    logger.info("Auth", `facebook token refreshed (user=${dbUser.id}, scopes=${data.scope ?? "(none)"})`);
+  } catch (error) {
+    logger.error("Auth", "facebook token persist error:", error);
+  }
+}
+
 const isRateLimited = (identifier: string): boolean => {
   const attempt = loginAttempts.get(identifier);
   if (!attempt) return false;
@@ -213,6 +254,9 @@ export const authOptions = {
           logger.error("Auth", "signIn callback error:", error);
         }
       }
+      // نخزّن توكن فيسبوك الطازج قبل إصدار جلسة JWT، لأن NextAuth لا يحدّث
+      // Account تلقائياً في وضع jwt عندما يكون الحساب مرتبطاً مسبقاً.
+      await persistFacebookToken(account, user?.email);
       return true;
     },
 
