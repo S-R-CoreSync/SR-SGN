@@ -18,12 +18,29 @@ jobs:
   sync:
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 20
+    # أربع مجموعات متوازية (٣ مصادر لكل مجموعة). التشغيل التسلسلي لكل المصادر
+    # كان يصل إلى حدّ الـ ٢٥ دقيقة ويلغى قبل أن ينتهي.
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - shard: community
+            sources: "sy-nl.org youtube facebook-sgn"
+          - shard: nl-euronews
+            sources: "nos-netherlands euronews-europe euronews-business"
+          - shard: culture-tech-nl
+            sources: "euronews-culture tweakers-tech nu-tech"
+          - shard: tech-world
+            sources: "techcrunch-tech arstechnica-tech wired-tech"
     steps:
-      - name: مزامنة المصادر (كل مصدر بطلب منفصل)
+      - name: مزامنة المصادر
+        if: github.event_name != 'workflow_dispatch' || inputs.source == '' || contains(matrix.sources, inputs.source)
         env:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
-          ONLY_SOURCE: ${{ inputs.source }}
+          SHARD: ${{ matrix.shard }}
+          SELECTED_SOURCE: ${{ inputs.source }}
+          SOURCES: ${{ matrix.sources }}
         run: |
           set -u
 
@@ -32,15 +49,18 @@ jobs:
             exit 1
           fi
 
-          ALL_SOURCES="sy-nl.org youtube facebook-sgn nos-netherlands euronews-europe euronews-business euronews-culture tweakers-tech nu-tech techcrunch-tech arstechnica-tech wired-tech"
-          SOURCES="${ONLY_SOURCE:-$ALL_SOURCES}"
+          if [ -n "${SELECTED_SOURCE:-}" ]; then
+            sources="$SELECTED_SOURCE"
+          else
+            sources="$SOURCES"
+          fi
 
           failed=0
-          for src in $SOURCES; do
-            echo "── مزامنة المصدر: $src"
+          for src in $sources; do
+            echo "── [$SHARD] مزامنة المصدر: $src"
             code=000
             # دفعات صغيرة + ميزانية زمنية أقل من maxDuration على Vercel (60 ثانية).
-            # 504 يعني أن الدالة قطعت قبل أن تنهي الترجمة — نعيد المحاولة مرة بعد تهدئة.
+            # 504 يعني أن الدالة قطعت قبل أن تنهي الترجمة — نعيد المحاولة بعد تهدئة.
             for attempt in 1 2 3; do
               code=$(curl -sS -o "/tmp/sync-$src.json" -w "%{http_code}" --max-time 75 \
                 -X POST "https://sgn-drab.vercel.app/api/sync" \
@@ -62,12 +82,11 @@ jobs:
               echo "::warning::المصدر $src رجع $code"
               failed=$((failed + 1))
             fi
-            # تهدئة بين المصادر حتى لا نضرب مزوّد الذكاء الاصطناعي دفعة واحدة
             sleep 3
           done
 
           if [ "$failed" -gt 0 ]; then
-            echo "::error::فشل $failed مصدر/مصادر"
+            echo "::error::فشل $failed مصدر/مصادر في المجموعة $SHARD"
             exit 1
           fi
-          echo "تمّت مزامنة كل المصادر بنجاح"
+          echo "تمّت مزامنة مجموعة $SHARD بنجاح"
