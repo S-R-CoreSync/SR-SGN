@@ -91,6 +91,11 @@ export const authOptions = {
       clientId: process.env.FACEBOOK_CLIENT_ID!,
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
       allowDangerousEmailAccountLinking: false,
+      // نطلب صلاحيات قراءة الصفحة عند الدخول، ليُخزَّن access_token في Account
+      // ويُستخدم لاحقاً لاستخراج page token دائم بدون الرجوع لواجهة Meta.
+      authorization: {
+        params: { scope: "email,public_profile,pages_show_list,pages_read_engagement" },
+      },
     })] : []),
 
     ...(process.env.AZURE_AD_CLIENT_ID ? [AzureADProvider({
