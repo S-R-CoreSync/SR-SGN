@@ -4,6 +4,7 @@ import { extractArticles } from "./extractor"
 import { categorizeByMapping, categorizeWithAI } from "./categorizer"
 import { processArticleMedia } from "./media"
 import { syncArticleToDb } from "./db-sync"
+import { detectSourceLanguage } from "./translator"
 import { prisma } from "../db"
 import { logger } from "@/lib/logger"
 
@@ -147,9 +148,25 @@ export async function runSync(
         await mapLimit(targetLocales, localeConcurrency, async (targetLocale) => {
           try {
             let finalArticle = { ...article }
+            const sourceLang = source.sourceLanguage || detectSourceLanguage(article)
             if (source.translate) {
               const { translateArticleToLocale } = await import("./translator")
-              finalArticle = await translateArticleToLocale(article, targetLocale, deadline)
+              finalArticle = await translateArticleToLocale(article, targetLocale, deadline, sourceLang)
+            }
+
+            // 🚨 منع خرق العزل اللغوي: إن كانت لغة المصدر مختلفة عن لغة القسم
+            // ولم تتغيّر النصوص، فالترجمة فشلت صامتة — لا نحفظ نصاً أجنبياً.
+            if (
+              source.translate &&
+              sourceLang !== targetLocale &&
+              finalArticle.title === article.title &&
+              finalArticle.content === article.content
+            ) {
+              logger.warn(
+                "Sync",
+                `Skipping untranslated article for locale ${targetLocale}: "${article.title.slice(0, 50)}"`
+              )
+              return
             }
 
             let category: string

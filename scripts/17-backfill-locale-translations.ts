@@ -66,6 +66,10 @@ const where = {
   NOT: { tags: { contains: "__translated:" } },
   OR: [
     { locale: "en", source: { contains: "nos-netherlands" } },
+    // مصادر هولندية أخرى كانت تُحفظ في en بنصها الأصلي بسبب كشف لغة خاطئ.
+    { locale: "en", source: { contains: "nu-tech" } },
+    { locale: "en", source: { contains: "tweakers-tech" } },
+    { locale: "en", source: { contains: "nu-sport" } },
     { locale: "nl", source: { contains: "euronews" } },
   ],
 } as const;
@@ -153,6 +157,9 @@ async function main() {
             const next = MODELS[(idx + 1) % MODELS.length];
             if (next !== current) {
               process.env.GROQ_MODEL = next;
+              // translator يقرأ SYNC_TRANSLATE_MODEL في كل نداء — حدّثه أيضاً
+              // وإلا سيبقى التدوير على الورق فقط.
+              process.env.SYNC_TRANSLATE_MODEL = next;
               rotatedModels++;
               rotated = true;
               console.warn(`  🔄 تبديل النموذج: ${current} → ${next}`);

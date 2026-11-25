@@ -2,13 +2,19 @@ import { generateText, getEnvVar } from "@/lib/ai/provider";
 import type { ExtractedArticle } from "./types";
 import { logger } from "@/lib/logger";
 
-function detectLanguage(article: ExtractedArticle): "ar" | "nl" | "en" {
+export function detectSourceLanguage(article: ExtractedArticle): "ar" | "nl" | "en" {
   if (/[\u0600-\u06FF]/.test(article.title)) {
     return "ar";
   }
   const url = (article.sourceUrl || "").toLowerCase();
   const sourceName = (article.source || "").toLowerCase();
-  if (url.includes("nos.nl") || url.includes("netherlands") || sourceName.includes("nos")) {
+  // مصادر هولندية صرفة: كان كشف اللغة يعرف nos فقط، فكانت مقالات nu.nl
+  // وتويكرز تُحفظ في القسم الإنجليزي بالنص الهولندي (خرق لقاعدة العزل اللغوي).
+  if (
+    /nos\.nl|nu\.nl|tweakers\.net|netherlands/.test(url) ||
+    /^(nos|nu|tweakers)(-|_|$)/.test(sourceName) ||
+    sourceName.includes("netherlands")
+  ) {
     return "nl";
   }
   return "en";
@@ -16,8 +22,10 @@ function detectLanguage(article: ExtractedArticle): "ar" | "nl" | "en" {
 
 /** مزوّد وموديل مستقلان لترجمة المزامنة فقط، دون لمس الشات/RAG.
  *  موديل أخف (غير reasoning) يستهلك tokens أقل بكثير ويمنع نفاد الحصة اليومية. */
-const SYNC_PROVIDER = getEnvVar("SYNC_TRANSLATE_PROVIDER") || undefined;
-const SYNC_MODEL = getEnvVar("SYNC_TRANSLATE_MODEL") || undefined;
+// تُقرأ في كل نداء (لا مرة واحدة عند التحميل) حتى يتمكن سكربت الأرشيف من
+// تدوير النماذج عند نفاد حصة أحدها دون إعادة تشغيل العملية.
+const syncProvider = () => getEnvVar("SYNC_TRANSLATE_PROVIDER") || undefined;
+const syncModel = () => getEnvVar("SYNC_TRANSLATE_MODEL") || undefined;
 
 /** نفاد الحصة اليومية/الدقائقية: إعادة المحاولة هنا مضيعة للوقت (حتى reset) وتسبّب 504. */
 function isQuotaError(msg: string): boolean {
@@ -45,8 +53,8 @@ async function generateTextWithRetry(
     try {
       return await generateText(prompt, systemPrompt, {
         ...currentOptions,
-        provider: SYNC_PROVIDER,
-        model: SYNC_MODEL,
+        provider: syncProvider(),
+        model: syncModel(),
       });
     } catch (error) {
       const errMsg = error instanceof Error ? error.message : String(error);
@@ -105,7 +113,13 @@ async function translatePlainText(
       : `Translate the following news article body into professional ${lang}, keeping the HTML intact:\n\n${text}`;
 
   const out = await generateTextWithRetry(prompt, system, { responseFormat: "text" }, deadline);
-  return (out || "").trim().replace(/^["'«»]+|["'«»]+$/g, "").trim();
+  // بعض النماذج تُجيب بتعليق من قبيل «العنوان مترجم بالفعل: ...» بدل الترجمة —
+  // كان يُحفظ كعنوان ويُخرق العزل اللغوي (إنجليزي داخل قسم هولندي).
+  const withoutMeta = (out || "").trim().replace(
+    /^(?:the\s+)?(?:headline|article|text|translation)\s+is\s+already[^:\n]*:\s*|^translation\s*:\s*|^here\s+is\s+(?:the|your)\s+translation\s*:\s*/i,
+    ""
+  );
+  return withoutMeta.trim().replace(/^["'«»]+|["'«»]+$/g, "").trim();
 }
 
 /** ترجمة جسم المقال على دفعات لتفادي الردود المبتورة. */
@@ -192,9 +206,10 @@ function isRateLimitError(error: unknown): boolean {
 export async function translateArticleToLocale(
   article: ExtractedArticle,
   targetLocale: string,
-  deadline?: number
+  deadline?: number,
+  sourceLanguage?: "ar" | "nl" | "en"
 ): Promise<ExtractedArticle> {
-  const sourceLang = detectLanguage(article);
+  const sourceLang = sourceLanguage || detectSourceLanguage(article);
   if (sourceLang === targetLocale) {
     return article;
   }

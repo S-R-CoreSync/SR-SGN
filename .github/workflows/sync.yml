@@ -19,7 +19,7 @@ jobs:
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    # أربع مجموعات متوازية (٣ مصادر لكل مجموعة). التشغيل التسلسلي لكل المصادر
+    # أربع مجموعات متوازية (٣-٤ مصادر لكل مجموعة). التشغيل التسلسلي لكل المصادر
     # كان يصل إلى حدّ الـ ٢٥ دقيقة ويلغى قبل أن ينتهي.
     strategy:
       fail-fast: false
@@ -30,7 +30,7 @@ jobs:
           - shard: nl-euronews
             sources: "nos-netherlands euronews-europe euronews-business"
           - shard: culture-tech-nl
-            sources: "euronews-culture tweakers-tech nu-tech"
+            sources: "euronews-culture tweakers-tech nu-tech nu-sport"
           - shard: tech-world
             sources: "techcrunch-tech arstechnica-tech wired-tech"
     steps:

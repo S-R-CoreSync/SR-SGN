@@ -8,6 +8,8 @@ export interface SyncSource {
   since?: string
   /** تفعيل الترجمة التلقائية إلى العربية عن طريق الذكاء الاصطناعي */
   translate?: boolean
+  /** لغة المادة الأصلية — صريحة حتى لا يُخزَّن نص هولندي في القسم الإنجليزي */
+  sourceLanguage?: "ar" | "nl" | "en"
 }
 
 export interface ExtractedArticle {
@@ -119,6 +121,7 @@ export const DEFAULT_SOURCES: SyncSource[] = [
     enabled: true,
     category: "أخبار هولندا",
     translate: true,
+    sourceLanguage: "nl",
   },
   {
     name: "euronews-europe",
@@ -152,6 +155,7 @@ export const DEFAULT_SOURCES: SyncSource[] = [
     enabled: true,
     category: "تكنولوجيا", // i18n-ignore — قيمة تصنيف مخزّنة في Post، ليست نص واجهة
     translate: true,
+    sourceLanguage: "nl",
   },
   {
     name: "nu-tech",
@@ -160,6 +164,7 @@ export const DEFAULT_SOURCES: SyncSource[] = [
     enabled: true,
     category: "تكنولوجيا", // i18n-ignore — قيمة تصنيف مخزّنة في Post، ليست نص واجهة
     translate: true,
+    sourceLanguage: "nl",
   },
   {
     name: "nu-sport",
@@ -168,6 +173,7 @@ export const DEFAULT_SOURCES: SyncSource[] = [
     enabled: true,
     category: "رياضة", // i18n-ignore — قيمة تصنيف مخزّنة في Post، ليست نص واجهة
     translate: true,
+    sourceLanguage: "nl",
   },
   {
     name: "techcrunch-tech",
