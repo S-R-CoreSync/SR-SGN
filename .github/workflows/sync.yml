@@ -57,6 +57,7 @@ jobs:
 
           failed=0
           quota_blocked=0
+          source_failed=0
           for src in $sources; do
             echo "── [$SHARD] مزامنة المصدر: $src"
             code=000
@@ -92,6 +93,13 @@ jobs:
               echo "::warning::المصدر $src رجع $code"
               failed=$((failed + 1))
             fi
+
+            # 🚨 HTTP 200 لا يعني نجاح المصدر: /api/sync يُرجِع success:false داخل
+            # results عند فشل مصدر (مثل توكن فيسبوك المنتهي). كنا نعدّه نجاحاً بصمت.
+            if [ "$code" = "200" ] && grep -q '"success":false' "/tmp/sync-$src.json" 2>/dev/null; then
+              echo "::warning::المصدر $src رجع HTTP 200 لكن success=false — راجع errors في الاستجابة"
+              source_failed=$((source_failed + 1))
+            fi
             sleep 3
           done
 
@@ -99,4 +107,4 @@ jobs:
             echo "::error::فشل $failed مصدر/مصادر في المجموعة $SHARD"
             exit 1
           fi
-          echo "تمّت مزامنة مجموعة $SHARD بنجاح (حصة مستنفدة: $quota_blocked)"
+          echo "تمّت مزامنة مجموعة $SHARD (حصة مستنفدة: $quota_blocked، مصادر فاشلة داخلياً: $source_failed)"
