@@ -16,6 +16,7 @@ export interface AuditReport {
   missingKey: AuditPost[];
   duplicateKeys: Array<{ key: string; posts: AuditPost[] }>;
   sharedImages: Array<{ image: string; owners: number; samples: string[] }>;
+  imageCoverage: { localFiles: number; remote: number; placeholder: number; empty: number };
   problems: number;
 }
 
@@ -54,8 +55,16 @@ export async function runDuplicateAudit(): Promise<AuditReport> {
     const missingKey: AuditPost[] = [];
     const keyGroups = new Map<string, AuditPost[]>();
     const imageOwners = new Map<string, Map<string, AuditPost[]>>();
+    const imageCoverage = { localFiles: 0, remote: 0, placeholder: 0, empty: 0 };
 
     for (const row of rows) {
+      const imageForCount = String(row.image || "").trim();
+      if (imageForCount.startsWith("/api/placeholder")) imageCoverage.placeholder += 1;
+      else if (!imageForCount || isGenericImage(imageForCount)) imageCoverage.empty += 1;
+      else if (imageForCount.startsWith("/")) imageCoverage.localFiles += 1;
+      else if (/^https?:\/\//i.test(imageForCount)) imageCoverage.remote += 1;
+      else imageCoverage.placeholder += 1;
+
       const key = tagValue(row.tags, "__key:");
       const locale = String(row.locale || "");
       if (!key) {
@@ -93,6 +102,7 @@ export async function runDuplicateAudit(): Promise<AuditReport> {
       missingKey,
       duplicateKeys,
       sharedImages,
+      imageCoverage,
       problems: missingKey.length + duplicateKeys.length + sharedImages.length,
     };
   } finally {
@@ -108,6 +118,7 @@ export function formatAuditMarkdown(report: AuditReport): string {
     `- بلا هوية ثابتة: **${report.missingKey.length}**`, // i18n-ignore
     `- هويات مكررة لنفس اللغة: **${report.duplicateKeys.length}**`, // i18n-ignore
     `- صور مشتركة بين أخبار مختلفة: **${report.sharedImages.length}**`, // i18n-ignore
+    `- صور محلية: **${report.imageCoverage.localFiles}** · صور مصادر: **${report.imageCoverage.remote}** · بلا صورة: **${report.imageCoverage.empty}**`, // i18n-ignore
     "",
   ];
 
