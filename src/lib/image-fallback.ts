@@ -180,13 +180,38 @@ const COLOR_BY_EDITORIAL_IMAGE: Record<string, [string, string]> = {
   [CATEGORY_EDITORIAL_IMAGES.general]: ["113d22", "c8a84e"],
 };
 
+/** هاش ثابت للعنوان الكامل — النص المعروض يُقتطع لكن الهوية لا تُقتطع */
+function stableHash(value: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < value.length; i++) {
+    h ^= value.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+function shiftColor(hex: string, seed: number): string {
+  const channel = (offset: number, delta: number) =>
+    Math.max(0, Math.min(255, parseInt(hex.slice(offset, offset + 2), 16) + delta))
+      .toString(16)
+      .padStart(2, "0");
+  return (
+    channel(0, (seed & 31) - 16) +
+    channel(2, ((seed >>> 5) & 31) - 16) +
+    channel(4, ((seed >>> 10) & 31) - 16)
+  );
+}
+
 /**
  * صورة فريدة لكل خبر تُستخدم في استجابات API (الموبايل)، لأن React Native
- * لا يعرض SVG من data-uri بشكل موثوق. الرابط مختلف لكل عنوان، فلا تتكرر صورة
- * بين أخبار مختلفة حتى لو كانت كلها بلا صورة أصلية.
+ * لا يعرض SVG من data-uri بشكل موثوق. اللون مشتق من هاش العنوان الكامل،
+ * فلا تتكرر صورة بين خبرين يتشاركان أول ١٨ حرفاً من العنوان.
  */
 export function getUniqueImageUrl(title?: string | null, category?: string | null): string {
-  const [bg, fg] = COLOR_BY_EDITORIAL_IMAGE[getEditorialFallback(title, category)] || ["113d22", "c8a84e"];
+  const hash = stableHash(`${category || ""}|${title || "SGN"}`);
+  const [baseBg, baseFg] = COLOR_BY_EDITORIAL_IMAGE[getEditorialFallback(title, category)] || ["113d22", "c8a84e"];
+  const bg = shiftColor(baseBg, hash);
+  const fg = shiftColor(baseFg, hash >>> 15);
   const label = (title || "SGN").slice(0, 18);
   return `https://placehold.co/800x450/${bg}/${fg}/png?text=${encodeURIComponent(label)}`;
 }

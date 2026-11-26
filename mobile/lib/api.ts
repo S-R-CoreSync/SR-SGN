@@ -90,12 +90,30 @@ const UNIQUE_PALETTE: Array<[string, string]> = [
   ["1e3a8a", "bfdbfe"],
 ];
 
-/** صورة فريدة لكل عنوان — بدل صورة عامة واحدة تتكرر في كل الأخبار بلا صورة */
+/** إزاحة لونية صغيرة حول لون التصنيف حتى يبقى التباين مقروءاً */
+function shiftColor(hex: string, seed: number): string {
+  const channel = (offset: number, delta: number) =>
+    Math.max(0, Math.min(255, parseInt(hex.slice(offset, offset + 2), 16) + delta))
+      .toString(16)
+      .padStart(2, "0");
+  return (
+    channel(0, (seed & 31) - 16) +
+    channel(2, ((seed >>> 5) & 31) - 16) +
+    channel(4, ((seed >>> 10) & 31) - 16)
+  );
+}
+
+/** صورة فريدة لكل عنوان — الهاش من العنوان الكامل لا من نصّه المقتطع */
 function uniquePlaceholder(title?: string, category?: string): string {
-  const seed = `${category || "news"}${title || "SGN"}`;
-  let hash = 0;
-  for (let i = 0; i < seed.length; i++) hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
-  const [bg, fg] = UNIQUE_PALETTE[hash % UNIQUE_PALETTE.length];
+  const seed = `${category || "news"}|${title || "SGN"}`;
+  let hash = 2166136261;
+  for (let i = 0; i < seed.length; i++) {
+    hash ^= seed.charCodeAt(i);
+    hash = Math.imul(hash, 16777619) >>> 0;
+  }
+  const [baseBg, baseFg] = UNIQUE_PALETTE[hash % UNIQUE_PALETTE.length];
+  const bg = shiftColor(baseBg, hash);
+  const fg = shiftColor(baseFg, hash >>> 15);
   const label = (title || "SGN").slice(0, 18);
   return `https://placehold.co/600x338/${bg}/${fg}/png?text=${encodeURIComponent(label)}`;
 }
