@@ -3,6 +3,7 @@
  * SVG محلي خفيف الوزن لا يعتمد على شبكة خارجية
  */
 import type { SyntheticEvent } from "react";
+import { isGenericImageUrl } from "./post-dedup";
 
 /** Helper to wrap text in SVG placeholders */
 function splitTextIntoLines(text: string, maxCharPerLine: number = 30): string[] {
@@ -161,37 +162,61 @@ export function getEditorialFallback(title?: string | null, category?: string | 
   return CATEGORY_EDITORIAL_IMAGES.general;
 }
 
+/**
+ * ألوان الصورة الفريدة لكل تصنيف — مشتقة من روابط الصور التحريرية القديمة،
+ * فلا نضيف أي نص عربي جديد هنا (قاعدة العزل اللغوي).
+ */
+const COLOR_BY_EDITORIAL_IMAGE: Record<string, [string, string]> = {
+  [CATEGORY_EDITORIAL_IMAGES.law]: ["0d2b18", "c8a84e"],
+  [CATEGORY_EDITORIAL_IMAGES.netherlands]: ["113d22", "c8a84e"],
+  [CATEGORY_EDITORIAL_IMAGES.community]: ["14532d", "c8a84e"],
+  [CATEGORY_EDITORIAL_IMAGES.culture]: ["451a03", "fde047"],
+  [CATEGORY_EDITORIAL_IMAGES.economy]: ["111827", "fbbf24"],
+  [CATEGORY_EDITORIAL_IMAGES.islamic]: ["3b2f0b", "fde047"],
+  [CATEGORY_EDITORIAL_IMAGES.sports]: ["064e3b", "a7f3d0"],
+  [CATEGORY_EDITORIAL_IMAGES.health]: ["0f3d3e", "99f6e4"],
+  [CATEGORY_EDITORIAL_IMAGES.education]: ["1e3a8a", "bfdbfe"],
+  [CATEGORY_EDITORIAL_IMAGES.europe]: ["0b2545", "8da9c4"],
+  [CATEGORY_EDITORIAL_IMAGES.general]: ["113d22", "c8a84e"],
+};
+
+/**
+ * صورة فريدة لكل خبر تُستخدم في استجابات API (الموبايل)، لأن React Native
+ * لا يعرض SVG من data-uri بشكل موثوق. الرابط مختلف لكل عنوان، فلا تتكرر صورة
+ * بين أخبار مختلفة حتى لو كانت كلها بلا صورة أصلية.
+ */
+export function getUniqueImageUrl(title?: string | null, category?: string | null): string {
+  const [bg, fg] = COLOR_BY_EDITORIAL_IMAGE[getEditorialFallback(title, category)] || ["113d22", "c8a84e"];
+  const label = (title || "SGN").slice(0, 18);
+  return `https://placehold.co/800x450/${bg}/${fg}/png?text=${encodeURIComponent(label)}`;
+}
+
 /** Placeholder SVG خضراء بتصميم الجالية — تُستخدم كاحتياطي افتراضي ثابت */
 export const PLACEHOLDER_IMG = getPremiumPlaceholder(null, null);
 
-/** onError handler: يستبدل الصورة المكسورة بالصورة التحريرية المناسبة للموضوع فوراً */
+/** onError handler: صورة فريدة بعنوان المقال بدل صورة عامة تتكرر في عشرات الأخبار */
 export function handleImgError(e: SyntheticEvent<HTMLImageElement>, title?: string | null, category?: string | null) {
   const img = e.currentTarget;
-  // نفضّل صورة تحريرية حقيقية (Unsplash) على SVG الخضراء عند فشل التحميل.
-  const fallback = (title || category) ? getEditorialFallback(title, category) : PLACEHOLDER_IMG;
+  const fallback = (title || category) ? getPremiumPlaceholder(title, category) : PLACEHOLDER_IMG;
   if (img.src !== fallback) {
     img.src = fallback;
   }
 }
 
-/** تُرجع رابط الصورة الصحيح أو بديل تحريري مناسب عند انتهاء الرابط أو عدم وجوده */
+/** رابط صورة صالح للمتصفح — الصور العامة تُعتبر كأنها غير موجودة */
+function hasUsableImage(img?: string | null): boolean {
+  if (!img || isGenericImageUrl(img)) return false;
+  return img.startsWith("http") || img.startsWith("/") || img.startsWith("data:");
+}
+
+/** للويب: بديل فريد بعنوان المقال (SVG محلي بلا شبكة خارجية) */
 export function resolveImage(img?: string | null, title?: string | null, category?: string | null): string {
-  // روابط fbcdn تنتهي صلاحيتها بسرعة (HTTP 403 بعد أيام) — نستبدلها فوراً
-  // بصورة تحريرية حقيقية بدلاً من انتظار فشل التحميل وعرض SVG خضراء.
-  if (img && img.includes("fbcdn.net")) {
-    return getEditorialFallback(title, category);
-  }
-  if (!img || img.trim() === "") {
-    if (title || category) {
-      return getEditorialFallback(title, category);
-    }
-    return PLACEHOLDER_IMG;
-  }
-  if (img.startsWith("http") || img.startsWith("/") || img.startsWith("data:")) {
-    return img;
-  }
-  if (title || category) {
-    return getEditorialFallback(title, category);
-  }
-  return PLACEHOLDER_IMG;
+  if (hasUsableImage(img)) return img!;
+  return (title || category) ? getPremiumPlaceholder(title, category) : PLACEHOLDER_IMG;
+}
+
+/** لـ API والموبايل: بديل فريد برابط حقيقي (React لا يعرض SVG من data-uri) */
+export function resolveApiImage(img?: string | null, title?: string | null, category?: string | null): string {
+  if (hasUsableImage(img)) return img!;
+  return getUniqueImageUrl(title, category);
 }

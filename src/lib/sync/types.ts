@@ -18,6 +18,8 @@ export interface ExtractedArticle {
   excerpt: string
   image?: string
   videoId?: string   // YouTube video ID extracted at sync time
+  /** معرّف خارجي ثابت (guid / post id / video id) يُستخدم لمنع التكرار قبل الترجمة */
+  stableId?: string
   category: string
   tags: string[]
   source: string

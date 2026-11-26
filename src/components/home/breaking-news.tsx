@@ -13,24 +13,31 @@ interface TickerPost {
   category: string;
 }
 
-export function BreakingNews() {
+interface BreakingNewsProps {
+  /** أخبار ظاهرة بالفعل في أقسام الرئيسية — لا نكررها في الشريط */
+  excludeSlugs?: string[];
+}
+
+export function BreakingNews({ excludeSlugs = [] }: BreakingNewsProps) {
   const t = useTranslations();
   const locale = useLocale();
   const isRtl = locale === "ar";
   const [posts, setPosts] = useState<TickerPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const excludeKey = excludeSlugs.join("\u0001");
 
   useEffect(() => {
+    const excluded = new Set(excludeKey ? excludeKey.split("\u0001") : []);
     fetch(`/api/news?limit=15&locale=${locale}`)
       .then(r => r.json())
       .then(data => {
-        setPosts(data.posts || []);
+        setPosts(((data.posts || []) as TickerPost[]).filter(p => !excluded.has(p.slug)));
         setLoading(false);
       })
       .catch(() => {
         setLoading(false);
       });
-  }, [locale]);
+  }, [locale, excludeKey]);
 
   if (loading) {
     return (

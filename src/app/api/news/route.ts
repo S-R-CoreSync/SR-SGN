@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { createRateLimiter } from "@/lib/rate-limit";
 import { clientKey, tooMany } from "@/lib/request-guard";
 import { logger } from "@/lib/logger";
+import { dedupePosts } from "@/lib/post-dedup";
 
 export const dynamic = "force-dynamic";
 
@@ -55,10 +56,10 @@ export async function GET(req: NextRequest) {
         include: { author: { select: { name: true } } },
       });
       if (!post) return NextResponse.json({ error: "not found" }, { status: 404 });
-      const { resolveImage } = await import("@/lib/image-fallback");
+      const { resolveApiImage } = await import("@/lib/image-fallback");
       const resolvedPost = {
         ...post,
-        image: resolveImage(post.image, post.title, post.category),
+        image: resolveApiImage(post.image, post.title, post.category),
       };
       // تحديث المشاهدات بشكل غير متزامن (لا يحجب الاستجابة)
       prisma.post.update({ where: { id: post.id }, data: { views: { increment: 1 } } }).catch(() => {});
@@ -77,34 +78,37 @@ export async function GET(req: NextRequest) {
       { excerpt: { contains: search } },
     ];
 
-    // جلب القائمة والعدد الإجمالي معاً
+    // نجلب نافذة أوسع لأن الفلترة اللغوية وإزالة التكرار تأتي بعد الاستعلام.
+    // النافذة محدودة بـ 500 صف كي لا نثقل الاستجابة مع آلاف الأخبار.
+    const fetchSize = Math.min(Math.max(limit * 3, 60), 500);
     const [rawPosts, rawTotal] = await Promise.all([
       prisma.post.findMany({
         where,
         orderBy: { createdAt: "desc" },
-        take: limit * 2, // fetch slightly more to allow pure language filter
         skip: offset,
+        take: fetchSize,
         select: LIST_SELECT,
       }),
       prisma.post.count({ where }),
     ]);
 
     const { isPureLocaleText, localizeCategory } = await import("@/lib/language-guard");
-    const { resolveImage } = await import("@/lib/image-fallback");
-    const posts = rawPosts
-      .filter((p) => isPureLocaleText(p.title, locale))
-      .map((p) => ({
-        ...p,
-        image: resolveImage(p.image, p.title, p.category),
-        category: localizeCategory(p.category, locale),
-      }))
-      .slice(0, limit);
+    const { resolveApiImage } = await import("@/lib/image-fallback");
+    const uniquePosts = dedupePosts(rawPosts.filter((p) => isPureLocaleText(p.title, locale)));
+    // الـ skip صار في استعلام قاعدة البيانات، فلا نخطيه مرة ثانية هنا.
+    const posts = uniquePosts.slice(0, limit).map((p) => ({
+      ...p,
+      image: resolveApiImage(p.image, p.title, p.category),
+      category: localizeCategory(p.category || "", locale),
+    }));
+
+    // إن استوعبت النافذة كل النتائج المتبقية فالعدد بعد الفلترة وإزالة التكرار دقيق،
+    // وإلا نبقي على الحد الأعلى الخام بدل رقم pagination خاطئ.
+    const total = rawPosts.length < fetchSize ? offset + uniquePosts.length : rawTotal;
 
     return NextResponse.json(
-      { posts, total: Math.min(rawTotal, posts.length < limit ? posts.length : rawTotal), limit, offset },
-      {
-        headers: NO_STORE,
-      }
+      { posts, total, limit, offset },
+      { headers: NO_STORE }
     );
   } catch (error) {
     logger.error("API/news", error);

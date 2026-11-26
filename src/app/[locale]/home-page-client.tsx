@@ -73,7 +73,8 @@ export function HomePageClient({ posts, videoPosts }: HomePageClientProps) {
     videoId: p.videoId || undefined,
   }));
 
-  const latest = posts.slice(6, 10).map((p) => ({
+  // كل قسم يأخذ نافذة مختلفة — كان Sidebar و MoreNews يعرضان نفس الأربع أخبار
+  const sidebarNews = posts.slice(6, 10).map((p) => ({
     title: p.title,
     cat: p.category,
     img: p.image,
@@ -81,6 +82,17 @@ export function HomePageClient({ posts, videoPosts }: HomePageClientProps) {
     slug: p.slug,
     videoId: p.videoId || undefined,
   }));
+
+  const moreNews = posts.slice(10, 16).map((p) => ({
+    title: p.title,
+    cat: p.category,
+    img: p.image,
+    time: timeAgo(p.createdAt),
+    slug: p.slug,
+    videoId: p.videoId || undefined,
+  }));
+
+  const usedSlugs = [...featured, ...secondary, ...sidebarNews, ...moreNews].map((p) => p.slug);
 
   const videos = videoPosts.map((p) => ({
     title: p.title,
@@ -98,7 +110,7 @@ export function HomePageClient({ posts, videoPosts }: HomePageClientProps) {
     <div dir="auto" className="min-h-screen bg-background text-foreground">
       <TopBar />
       <SiteHeader />
-      <BreakingNews />
+      <BreakingNews excludeSlugs={usedSlugs} />
       <CommunityStats />
       <HomeProvinceMap />
 
@@ -112,11 +124,11 @@ export function HomePageClient({ posts, videoPosts }: HomePageClientProps) {
             </div>
           </div>
           <div className="space-y-6">
-            <Sidebar latest={latest} />
+            <Sidebar latest={sidebarNews} />
             <Ads position="sidebar" />
           </div>
         </div>
-        <MoreNews posts={latest} />
+        <MoreNews posts={moreNews} />
         <LatestVideos posts={videos} />
         <Ads position="banner" className="my-6" />
         <Newsletter />

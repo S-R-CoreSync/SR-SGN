@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { HomePageClient } from "./home-page-client";
 import { isPureLocaleText, localizeCategory } from "@/lib/language-guard";
+import { dedupePosts } from "@/lib/post-dedup";
 
 export const revalidate = 60;
 
@@ -15,6 +16,8 @@ const LIST_SELECT = {
   source: true,
   featured: true,
   views: true,
+  locale: true,
+  tags: true,
   createdAt: true,
   author: { select: { name: true } },
 } as const;
@@ -27,7 +30,8 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
   try {
     const [rawPosts, rawVideoPosts] = await Promise.all([
       prisma.post.findMany({
-        where: { published: true, locale },
+        // الفيديو يُعرض في قسم مستقل — استبعاده هنا يمنع ظهوره مرتين في الرئيسية
+        where: { published: true, locale, source: { not: "youtube" } },
         orderBy: { createdAt: "desc" },
         take: 100,
         select: LIST_SELECT,
@@ -43,21 +47,20 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
     const { resolveImage } = await import("@/lib/image-fallback");
 
     // Enforce strict language isolation: Arabic must have Arabic chars, En/Nl must NOT
-    posts = rawPosts
-      .filter((p) => isPureLocaleText(p.title, locale))
-      .map((p) => ({ 
-        ...p, 
+    // ثم إزالة النسخ المكررة قبل أي تقطيع — لا نعرض نفس الخبر في قسمين.
+    posts = dedupePosts(rawPosts.filter((p) => isPureLocaleText(p.title, locale)))
+      .map((p) => ({
+        ...p,
         image: resolveImage(p.image, p.title, p.category),
-        category: localizeCategory(p.category, locale) 
+        category: localizeCategory(p.category || "", locale),
       }))
       .slice(0, 20);
 
-    videoPosts = rawVideoPosts
-      .filter((p) => isPureLocaleText(p.title, locale))
-      .map((p) => ({ 
-        ...p, 
+    videoPosts = dedupePosts(rawVideoPosts.filter((p) => isPureLocaleText(p.title, locale)))
+      .map((p) => ({
+        ...p,
         image: resolveImage(p.image, p.title, p.category),
-        category: localizeCategory(p.category, locale) 
+        category: localizeCategory(p.category || "", locale),
       }))
       .slice(0, 6);
   } catch (e) {

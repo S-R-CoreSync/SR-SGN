@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { isPureLocaleText, localizeCategory } from "@/lib/language-guard";
+import { dedupePosts } from "@/lib/post-dedup";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -13,10 +14,13 @@ export async function GET(req: NextRequest) {
     const where: Record<string, unknown> = { published: true, locale };
     if (category) where.category = category;
 
-    const posts = await prisma.post.findMany({
+    // نافذة أوسع لأن الفلترة اللغوية وإزالة التكرار تأتي بعد الاستعلام،
+    // و الكورسر يُحسب بعدهما حتى لا يإشير إلى خبر محذوف من النتيجة.
+    const fetchSize = Math.min(Math.max(limit * 3, 30), 200);
+    const rawPosts = await prisma.post.findMany({
       where,
       orderBy: { createdAt: "desc" },
-      take: limit + 1,
+      take: fetchSize,
       ...(cursor ? { skip: 1, cursor: { id: cursor } } : {}),
       select: {
         id: true,
@@ -25,26 +29,26 @@ export async function GET(req: NextRequest) {
         excerpt: true,
         image: true,
         category: true,
+        locale: true,
+        tags: true,
         createdAt: true,
         views: true,
         author: { select: { name: true } },
       },
     });
 
-    let nextCursor: string | null = null;
-    if (posts.length > limit) {
-      const next = posts.pop();
-      nextCursor = next!.id;
-    }
+    const { resolveApiImage } = await import("@/lib/image-fallback");
+    const uniquePosts = dedupePosts(rawPosts.filter((p) => isPureLocaleText(p.title, locale)));
+    const filteredPosts = uniquePosts.slice(0, limit).map((p) => ({
+      ...p,
+      image: resolveApiImage(p.image, p.title, p.category),
+      category: localizeCategory(p.category || "", locale),
+    }));
 
-    const { resolveImage } = await import("@/lib/image-fallback");
-    const filteredPosts = posts
-      .filter((p) => isPureLocaleText(p.title, locale))
-      .map((p) => ({
-        ...p,
-        image: resolveImage(p.image, p.title, p.category),
-        category: localizeCategory(p.category, locale),
-      }));
+    const hasMore = uniquePosts.length > limit || rawPosts.length === fetchSize;
+    const nextCursor = hasMore
+      ? (filteredPosts[filteredPosts.length - 1]?.id || rawPosts[rawPosts.length - 1]?.id || null)
+      : null;
 
     return NextResponse.json({ posts: filteredPosts, nextCursor });
   } catch (e: any) {

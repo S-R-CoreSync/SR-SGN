@@ -210,6 +210,8 @@ async function postToArticle(post: FacebookPost, source: SyncSource): Promise<Ex
     content: content || `<p>${rawText}</p>`,
     excerpt,
     image,
+    // Graph API يرجع id بصيغة <pageId>_<postId> — نأخذ الجزء الأخير ليطابق معرّف الرابط
+    stableId: post.id ? `fb:${post.id.split("_").pop() || post.id}` : undefined,
     category: "أخبار الجالية",
     tags: ["فيسبوك", "الجالية السورية"],
     source: "facebook-sgn",

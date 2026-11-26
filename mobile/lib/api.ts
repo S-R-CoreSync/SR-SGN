@@ -80,25 +80,29 @@ export async function logout() {
   await removeToken();
 }
 
-const EDITORIAL_FALLBACKS: Record<string, string> = {
-  law: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80",
-  netherlands: "https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?auto=format&fit=crop&w=800&q=80",
-  community: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=800&q=80",
-  culture: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80",
-  economy: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80",
-  islamic: "https://images.unsplash.com/photo-1564769625905-50e93615e769?auto=format&fit=crop&w=800&q=80",
-  general: "https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=800&q=80",
-};
+const UNIQUE_PALETTE: Array<[string, string]> = [
+  ["113d22", "c8a84e"],
+  ["0b2545", "8da9c4"],
+  ["451a03", "fde047"],
+  ["111827", "fbbf24"],
+  ["064e3b", "a7f3d0"],
+  ["0f3d3e", "99f6e4"],
+  ["1e3a8a", "bfdbfe"],
+];
+
+/** صورة فريدة لكل عنوان — بدل صورة عامة واحدة تتكرر في كل الأخبار بلا صورة */
+function uniquePlaceholder(title?: string, category?: string): string {
+  const seed = `${category || "news"}${title || "SGN"}`;
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
+  const [bg, fg] = UNIQUE_PALETTE[hash % UNIQUE_PALETTE.length];
+  const label = (title || "SGN").slice(0, 18);
+  return `https://placehold.co/600x338/${bg}/${fg}/png?text=${encodeURIComponent(label)}`;
+}
 
 export function getImageUrl(imagePath: string | null | undefined, title?: string, category?: string): string {
   if (!imagePath || imagePath.includes("fbcdn.net") || imagePath.trim() === "") {
-    const combined = `${title || ""} ${category || ""}`.toLowerCase();
-    if (/حج|سفارة|بروكسل|إسلام|عيد|رمضان|مبارك/.test(combined)) return EDITORIAL_FALLBACKS.islamic;
-    if (/لجوء|إقامة|ind|محكمة|قانون|حقوق|جواز|شمل/.test(combined)) return EDITORIAL_FALLBACKS.law;
-    if (/هولندا|لاهاي|أمستردام|شيوخ|برلمان/.test(combined)) return EDITORIAL_FALLBACKS.netherlands;
-    if (/اقتصاد|أعمال|مال|عمل|وظائف/.test(combined)) return EDITORIAL_FALLBACKS.economy;
-    if (/ثقافة|فن|معرض|موسيقى/.test(combined)) return EDITORIAL_FALLBACKS.culture;
-    return EDITORIAL_FALLBACKS.community;
+    return uniquePlaceholder(title, category);
   }
   if (imagePath.startsWith("http://") || imagePath.startsWith("https://") || imagePath.startsWith("data:")) {
     return imagePath;

@@ -396,6 +396,9 @@ function extractRSS(xml: string, source: SyncSource): ExtractedArticle[] {
     const c = item.match(/<(?:content:encoded|content|description)>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/(?:content:encoded|content|description)>/)
     const content = c?.[1]?.trim() || ""
     const pubDate = item.match(/<pubDate>([^<]+)<\/pubDate>/)?.[1]?.trim()
+    const guid = cleanText(
+      item.match(/<guid[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/guid>/)?.[1] || ""
+    )
     const creator = cleanText(item.match(/<(?:author|dc:creator)>([^<]+)<\/(?:author|dc:creator)>/)?.[1] || "")
     if (!title || title.length < 5) continue
     
@@ -413,6 +416,7 @@ function extractRSS(xml: string, source: SyncSource): ExtractedArticle[] {
       content,
       excerpt: textContent.slice(0, 300),
       image: mediaUrls[0] || undefined,
+      stableId: guid ? `rss:${guid}` : undefined,
       category: source.category || "أخبار الجالية",
       tags: [],
       source: source.name,

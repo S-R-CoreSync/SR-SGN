@@ -2,6 +2,8 @@ import { prisma } from "../db"
 import type { ExtractedArticle } from "./types"
 import crypto from "crypto"
 import { logger } from "@/lib/logger"
+import { computeSourceKey, keyTag, appendKeyTag } from "./source-key"
+import { isGenericImageUrl, tagValue } from "@/lib/post-dedup"
 
 function generateContentHash(article: ExtractedArticle): string {
   const content = `${article.title}|${article.excerpt}|${article.sourceUrl}`
@@ -74,15 +76,55 @@ async function getOrCreateSyncUser(): Promise<string> {
 async function findExistingBySourceInfo(source: string, url: string, locale: string) {
   return await prisma.post.findFirst({
     where: { tags: { contains: `__source:${source}:${url}` }, locale },
-    select: { id: true, category: true }
+    select: { id: true, category: true, tags: true, image: true }
   })
 }
 
 async function findExistingByContentHash(hash: string, locale: string) {
   return await prisma.post.findFirst({
     where: { tags: { contains: `__hash:${hash}` }, locale },
-    select: { id: true, category: true }
+    select: { id: true, category: true, tags: true, image: true }
   })
+}
+
+async function findExistingByStableKey(sourceKey: string, locale: string) {
+  return await prisma.post.findFirst({
+    where: { tags: { contains: keyTag(sourceKey) }, locale },
+    select: { id: true, category: true, tags: true, image: true }
+  })
+}
+
+/**
+ * صورة قناة/موقع عامة تُستخدم لعدة أخبار مختلفة ليست صورة للخبر.
+ * نكتشفها بمقارنة الوسوم: إن كانت مستخدمة من خبر آخر (مفتاح مختلف)
+ * فهي صورة مشتركة ولا يجوز حفظها كصورة لهذا الخبر.
+ */
+async function isSharedImage(
+  image: string,
+  sourceKey: string,
+  sourceTag: string
+): Promise<boolean> {
+  if (isGenericImageUrl(image)) return true
+  try {
+    const rows = await prisma.post.findMany({
+      where: { image },
+      select: { tags: true },
+      take: 60,
+    })
+    for (const row of rows) {
+      const key = tagValue(row.tags, "__key:")
+      if (key) {
+        if (key !== sourceKey) return true
+        continue
+      }
+      // صف قديم بلا مفتاح: نفس الخبر له وسم مصدر مطابق تماماً
+      const otherSource = tagValue(row.tags, "__source:")
+      if (otherSource && otherSource !== sourceTag) return true
+    }
+  } catch (err) {
+    logger.warn("Sync", "image ownership check failed:", err instanceof Error ? err.message : err)
+  }
+  return false
 }
 
 export async function syncArticleToDb(
@@ -93,28 +135,33 @@ export async function syncArticleToDb(
   const contentHash = generateContentHash(article)
 
   const sourceInfo = `${article.source || "unknown"}:${article.sourceUrl}`
+  const sourceKey = computeSourceKey({
+    source: article.source || "unknown",
+    sourceUrl: article.sourceUrl,
+    stableId: article.stableId,
+    videoId: article.videoId,
+  })
+  const existingByKey = await findExistingByStableKey(sourceKey, locale)
   const existingByUrl = await findExistingBySourceInfo(article.source || "unknown", article.sourceUrl, locale)
   const existingByHash = await findExistingByContentHash(contentHash, locale)
 
-  const existing = existingByUrl || existingByHash
+  const existing = existingByKey || existingByUrl || existingByHash
   if (existing) {
     const updates: Record<string, unknown> = {}
     if (existing.category !== category) updates.category = category
 
-    // article.image قد يكون محسوباً بعد تنزيل الوسائط، لذا نُحدّث الصورة
-    // هنا إذا كانت المقالة المخزّنة بلا صورة أو تحمل صورة عامة قديمة.
-    if (article.image) {
-      const current = await prisma.post.findUnique({
-        where: { id: existing.id },
-        select: { image: true },
-      })
-      if (
-        !current?.image ||
-        current.image.includes("images.unsplash.com/") ||
-        current.image.includes("fbcdn.net")
-      ) {
-        updates.image = article.image
-      }
+    // نمنح الصفوف القديمة هوية ثابتة حتى تتوقف إعادة المزامنة عن تكرارها
+    if (!tagValue(existing.tags, "__key:")) {
+      updates.tags = appendKeyTag(existing.tags, sourceKey)
+    }
+
+    // لا نكتب صورة عامة/مشتركة فوق صورة موجودة، ولا نستبدل صورة حقيقية بصورة قناة
+    if (
+      article.image &&
+      isGenericImageUrl(existing.image) &&
+      !(await isSharedImage(article.image, sourceKey, sourceInfo))
+    ) {
+      updates.image = article.image
     }
 
     if (Object.keys(updates).length > 0) {
@@ -137,11 +184,14 @@ export async function syncArticleToDb(
 
   const authorId = await getOrCreateSyncUser()
 
-  const tags = [
-    ...article.tags,
-    `__hash:${contentHash}`,
-    `__source:${article.source || "unknown"}:${article.sourceUrl}`,
-  ].join(",")
+  const tags = appendKeyTag(
+    [
+      ...article.tags,
+      `__hash:${contentHash}`,
+      `__source:${sourceInfo}`,
+    ].join(","),
+    sourceKey
+  )
 
   let finalContent = article.content
   let finalImage = article.image || null
@@ -163,6 +213,12 @@ export async function syncArticleToDb(
     }
   } catch (err) {
     logger.error("Sync", "Error downloading media in syncArticleToDb:", err)
+  }
+
+  // صورة مشتركة بين أخبار مختلفة = صورة قناة/شعار، ليست صورة هذا الخبر.
+  // نتركها فارغة ليعرض الواجهةPlaceholder فريداً بعنوان المقال.
+  if (finalImage && (await isSharedImage(finalImage, sourceKey, sourceInfo))) {
+    finalImage = null
   }
 
   const post = await prisma.post.create({
