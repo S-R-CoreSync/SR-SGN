@@ -24,9 +24,13 @@ function splitTextIntoLines(text: string, maxCharPerLine: number = 30): string[]
 
 /** Generates a premium, dynamic branded SVG background as a placeholder */
 export function getPremiumPlaceholder(title?: string | null, category?: string | null): string {
-  const cat = category || "أخبار الجالية";
+  // لا نكتب أي نص ثابت هنا: التصنيف قد يصل غير مترجم من قاعدة البيانات،
+  // فيظهر عربياً داخل صفحات /en و /nl. نستخدمه للألوان فقط، والنص المعروض
+  // هو عنوان المقال المُفلتر لغوياً.
+  const cat = category || "";
   const cleanTitle = title ? title.trim() : "";
   const lines = cleanTitle ? splitTextIntoLines(cleanTitle, 35).slice(0, 3) : [];
+  const direction = /[\u0600-\u06FF]/.test(cleanTitle) ? "rtl" : "ltr";
   
   // Decide colors based on category to make them look distinct and premium
   let fromColor = "#113d22";
@@ -70,10 +74,8 @@ export function getPremiumPlaceholder(title?: string | null, category?: string |
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&apos;");
-    return `<text x="200" y="${yPos}" fill="#ffffff" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="600" text-anchor="middle" direction="rtl">${escapedLine}</text>`;
+    return `<text x="200" y="${yPos}" fill="#ffffff" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="600" text-anchor="middle" direction="${direction}">${escapedLine}</text>`;
   }).join("\n");
-
-  const categoryText = `<text x="200" y="55" fill="${accentColor}" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="800" letter-spacing="1.5" text-anchor="middle" direction="rtl">${cat.toUpperCase()}</text>`;
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="240" viewBox="0 0 400 240">
     <defs>
@@ -99,10 +101,9 @@ export function getPremiumPlaceholder(title?: string | null, category?: string |
     
     <!-- Branded Badge -->
     <rect x="140" y="38" width="120" height="24" rx="12" fill="white" fill-opacity="0.07" stroke="white" stroke-opacity="0.1" stroke-width="1" />
-    ${categoryText}
 
-    <!-- Dynamic Title text lines or fallback brand name -->
-    ${svgTextLines ? svgTextLines : `<text x="200" y="125" fill="#ffffff" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="700" text-anchor="middle" direction="rtl">الجالية السورية في هولندا</text>`}
+    <!-- Dynamic Title text lines (locale-filtered, no fixed strings) -->
+    ${svgTextLines}
     
     <!-- Bottom Monogram/Watermark -->
     <text x="200" y="195" fill="white" fill-opacity="0.25" font-family="system-ui, -apple-system, sans-serif" font-size="9" font-weight="700" letter-spacing="2" text-anchor="middle">SGN • SY-NL.ORG</text>
