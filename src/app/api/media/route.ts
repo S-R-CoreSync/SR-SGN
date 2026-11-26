@@ -9,29 +9,24 @@ export const dynamic = "force-dynamic";
  * ويستفيد من كاش Vercel (Cache-Control طويل للرد الناجح فقط).
  * القائمة البيضاء تمنع تحويل السيرفر إلى بروكسي مفتوح.
  */
-const ALLOWED_HOSTS = new Set([
-  "images.euronews.com",
-  "images.cdn.nos.nl",
-  "cdn.nos.nl",
-  "images.nu.nl",
+const ALLOWED_DOMAINS = [
+  "euronews.com",
+  "nos.nl",
+  "nu.nl",
   "tweakers.net",
   "techcrunch.com",
-  "media.wired.com",
-  "cdn.arstechnica.net",
+  "wired.com",
   "arstechnica.com",
-  "assets.zyrosite.com",
-  "www.sy-nl.org",
-  "img.youtube.com",
-  "i.ytimg.com",
-  "i1.ytimg.com",
-  "i2.ytimg.com",
-  "i3.ytimg.com",
-  "i4.ytimg.com",
-]);
+  "zyrosite.com",
+  "youtube.com",
+  "ytimg.com",
+  "fbcdn.net",
+  "sy-nl.org",
+];
 
 function isAllowed(host: string): boolean {
-  const value = host.toLowerCase();
-  return ALLOWED_HOSTS.has(value) || /^scontent-[a-z0-9-]+\.xx\.fbcdn\.net$/.test(value);
+  const value = host.toLowerCase().replace(/^www\./, "");
+  return ALLOWED_DOMAINS.some((domain) => value === domain || value.endsWith(`.${domain}`));
 }
 
 function placeholderRedirect(req: NextRequest, title: string, category: string) {
