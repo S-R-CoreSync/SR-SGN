@@ -132,10 +132,11 @@ export const authOptions = {
       clientId: process.env.FACEBOOK_CLIENT_ID!,
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
       allowDangerousEmailAccountLinking: false,
-      // ملاحظة: لا نطلب pages_show_list/pages_read_engagement هنا — التطبيق لم يحصل
-      // على App Review/Business Verification، وطلبها يكسر الدخول بـ Invalid Scopes.
-      // توكن المزامنة يُولَّد من Meta Business Suite (System User) ويُحدَّث عبر
-      // scripts/20-renew-facebook-token.mjs.
+      // الصلاحيات مضافة على مستوى Standard Access في لوحة التطبيق، فتُطلب هنا
+      // ليُخزَّن توكن صالح لقراءة صفحة الجالية (يُستخدم لاستخراج page token).
+      authorization: {
+        params: { scope: "email,public_profile,pages_show_list,pages_read_engagement" },
+      },
     })] : []),
 
     ...(process.env.AZURE_AD_CLIENT_ID ? [AzureADProvider({
