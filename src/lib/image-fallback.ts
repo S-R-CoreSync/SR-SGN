@@ -212,14 +212,36 @@ function hasUsableImage(img?: string | null): boolean {
   return img.startsWith("http") || img.startsWith("/") || img.startsWith("data:");
 }
 
+/**
+ * كل صورة خارجية تمرّ من بروكسي الموقع (/api/media) بدل طلبها مباشرة،
+ * فيتحمّلها كاش Vercel ويحوّلها WebP محلياً — بلا حاجة لكتابة ملفات على السيرفر.
+ * الصور المحلية (/images/news, /uploads) تمرّ كما هي.
+ */
+export function remoteMediaUrl(
+  img?: string | null,
+  title?: string | null,
+  category?: string | null
+): string | null {
+  if (!img || !/^https?:\/\//i.test(img.trim()) || isGenericImageUrl(img)) return null;
+  const params = new URLSearchParams();
+  params.set("u", img.trim());
+  if (title) params.set("t", String(title).slice(0, 120));
+  if (category) params.set("c", String(category).slice(0, 60));
+  return `/api/media?${params.toString()}`;
+}
+
 /** للويب: بديل فريد بعنوان المقال (SVG محلي بلا شبكة خارجية) */
 export function resolveImage(img?: string | null, title?: string | null, category?: string | null): string {
+  const proxied = remoteMediaUrl(img, title, category);
+  if (proxied) return proxied;
   if (hasUsableImage(img)) return img!;
   return (title || category) ? getPremiumPlaceholder(title, category) : PLACEHOLDER_IMG;
 }
 
 /** لـ API والموبايل: بديل فريد برابط حقيقي (React لا يعرض SVG من data-uri) */
 export function resolveApiImage(img?: string | null, title?: string | null, category?: string | null): string {
+  const proxied = remoteMediaUrl(img, title, category);
+  if (proxied) return proxied;
   if (hasUsableImage(img)) return img!;
   return getUniqueImageUrl(title, category);
 }

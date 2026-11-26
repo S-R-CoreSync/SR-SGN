@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { PLACEHOLDER_IMG, resolveImage, getUniqueImageUrl, getPremiumPlaceholder } from "../image-fallback";
+import { PLACEHOLDER_IMG, resolveImage, getUniqueImageUrl, getPremiumPlaceholder, remoteMediaUrl } from "../image-fallback";
 
 describe("PLACEHOLDER_IMG", () => {
   it("is a data URL", () => {
@@ -25,14 +25,16 @@ describe("resolveImage", () => {
     expect(resolveImage(undefined)).toBe(PLACEHOLDER_IMG);
   });
 
-  it("returns http URL as-is", () => {
+  it("يمرّر رابط http عبر البروكسي المحلي بدل طلبه مباشرة", () => {
     const url = "http://example.com/image.jpg";
-    expect(resolveImage(url)).toBe(url);
+    expect(resolveImage(url)).toMatch(/^\/api\/media\?u=/);
+    expect(decodeURIComponent(resolveImage(url))).toContain(url);
   });
 
-  it("returns https URL as-is", () => {
+  it("يمرّر رابط https عبر البروكسي المحلي", () => {
     const url = "https://cdn.example.com/img.png";
-    expect(resolveImage(url)).toBe(url);
+    expect(resolveImage(url)).toMatch(/^\/api\/media\?u=/);
+    expect(decodeURIComponent(resolveImage(url))).toContain(url);
   });
 
   it("returns relative path as-is", () => {
@@ -51,6 +53,22 @@ describe("resolveImage", () => {
     expect(svg).not.toMatch(/[\u0600-\u06FF]/);
     expect(svg).toContain('direction="ltr"');
     expect(svg).toContain("English headline");
+  });
+});
+
+describe("remoteMediaUrl", () => {
+  it("يرفض الروابط المحلية والصور العامة", () => {
+    expect(remoteMediaUrl("/images/news/a.webp")).toBeNull();
+    expect(remoteMediaUrl("https://images.unsplash.com/photo-1")).toBeNull();
+    expect(remoteMediaUrl("https://placehold.co/400x240")).toBeNull();
+  });
+
+  it("يحتفظ بالعنوان والتصنيف للصورة البديلة عند الفشل", () => {
+    const url = remoteMediaUrl("https://images.nu.nl/a.jpg", "خبر", "تقنية");
+    expect(url).toMatch(/^\/api\/media\?/);
+    expect(url).toContain("t=");
+    expect(url).toContain("c=");
+    expect(decodeURIComponent(url!)).toContain("خبر");
   });
 });
 

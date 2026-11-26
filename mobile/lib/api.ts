@@ -94,12 +94,24 @@ function uniquePlaceholder(title?: string, category?: string): string {
   return `${API_BASE}/api/placeholder${query ? `?${query}` : ""}`;
 }
 
+/** نفس بوكسي الويب: أي صورة خارجية تُطلب من موقعنا فيُخزَّن في الكاش. */
+function proxiedRemoteImage(imagePath: string, title?: string, category?: string): string {
+  const params = new URLSearchParams();
+  params.set("u", imagePath);
+  if (title) params.set("t", title.slice(0, 120));
+  if (category) params.set("c", category.slice(0, 60));
+  return `${API_BASE}/api/media?${params.toString()}`;
+}
+
 export function getImageUrl(imagePath: string | null | undefined, title?: string, category?: string): string {
-  if (!imagePath || imagePath.includes("fbcdn.net") || imagePath.trim() === "") {
+  if (!imagePath || imagePath.trim() === "") {
     return uniquePlaceholder(title, category);
   }
-  if (imagePath.startsWith("http://") || imagePath.startsWith("https://") || imagePath.startsWith("data:")) {
-    return imagePath;
+  if (imagePath.startsWith("data:")) return imagePath;
+  if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
+    // روابط فيسبوك المنتهية لا تُطلب أصلاً — البديل المحلي أسرع وأضمن.
+    if (imagePath.includes("fbcdn.net")) return uniquePlaceholder(title, category);
+    return proxiedRemoteImage(imagePath, title, category);
   }
   const cleanPath = imagePath.startsWith("/") ? imagePath : `/${imagePath}`;
   return `${API_BASE}${cleanPath}`;
