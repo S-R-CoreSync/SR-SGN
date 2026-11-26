@@ -76,21 +76,26 @@ async function getOrCreateSyncUser(): Promise<string> {
 async function findExistingBySourceInfo(source: string, url: string, locale: string) {
   return await prisma.post.findFirst({
     where: { tags: { contains: `__source:${source}:${url}` }, locale },
-    select: { id: true, category: true, tags: true, image: true }
+    select: { id: true, category: true, tags: true, image: true, sourceKey: true }
   })
 }
 
 async function findExistingByContentHash(hash: string, locale: string) {
   return await prisma.post.findFirst({
     where: { tags: { contains: `__hash:${hash}` }, locale },
-    select: { id: true, category: true, tags: true, image: true }
+    select: { id: true, category: true, tags: true, image: true, sourceKey: true }
   })
 }
 
 async function findExistingByStableKey(sourceKey: string, locale: string) {
   return await prisma.post.findFirst({
-    where: { tags: { contains: keyTag(sourceKey) }, locale },
-    select: { id: true, category: true, tags: true, image: true }
+    where: {
+      OR: [
+        { sourceKey, locale },
+        { tags: { contains: keyTag(sourceKey) }, locale },
+      ],
+    },
+    select: { id: true, category: true, tags: true, image: true, sourceKey: true }
   })
 }
 
@@ -150,9 +155,13 @@ export async function syncArticleToDb(
     const updates: Record<string, unknown> = {}
     if (existing.category !== category) updates.category = category
 
-    // نمنح الصفوف القديمة هوية ثابتة حتى تتوقف إعادة المزامنة عن تكرارها
+    // نمنح الصفوف القديمة هوية ثابتة حتى تتوقف إعادة المزامنة عن تكرارها،
+    // ونملأ العمود الجديد حتى إن كان الوسم موجوداً من قبل (صفوف ما قبل الترحيل).
     if (!tagValue(existing.tags, "__key:")) {
       updates.tags = appendKeyTag(existing.tags, sourceKey)
+    }
+    if (existing.sourceKey !== sourceKey) {
+      updates.sourceKey = sourceKey
     }
 
     // لا نكتب صورة عامة/مشتركة فوق صورة موجودة، ولا نستبدل صورة حقيقية بصورة قناة
@@ -228,6 +237,7 @@ export async function syncArticleToDb(
       excerpt: article.excerpt || null,
       image: finalImage,
       videoId: article.videoId || null,
+      sourceKey,
       category,
       tags,
       source: article.source || article.sourceUrl,

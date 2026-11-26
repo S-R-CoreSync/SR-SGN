@@ -90,6 +90,7 @@ model Post {
   city           String?
   relatedEventId String?
   relatedTaskId  String?
+  sourceKey      String?
   locale         String     @default("ar")
   titleNl        String?
   titleEn        String?
@@ -105,6 +106,7 @@ model Post {
   @@index([source, published])
   @@index([featured, published])
   @@index([locale, published, createdAt])
+  @@unique([sourceKey, locale])
 }
 
 model LiveStream {

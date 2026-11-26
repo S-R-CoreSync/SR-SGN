@@ -13,6 +13,7 @@ export interface DedupablePost {
   title: string
   locale?: string | null
   tags?: string | null
+  sourceKey?: string | null
   image?: string | null
   category?: string | null
   source?: string | null
@@ -57,7 +58,7 @@ function normalizeTitle(title: string): string {
 /** مفتاح التجميع: اللغة + هوية ثابتة، مع توافق كامل مع البيانات القديمة. */
 export function postDedupKey(post: DedupablePost): string {
   const locale = post.locale || ""
-  const stableKey = tagValue(post.tags, "__key:")
+  const stableKey = post.sourceKey || tagValue(post.tags, "__key:")
   if (stableKey) return `${locale}|key:${stableKey}`
 
   const sourceTag = tagValue(post.tags, "__source:")

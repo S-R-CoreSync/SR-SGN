@@ -35,6 +35,7 @@
     "db:reset-sync": "node node_modules/tsx/dist/cli.mjs scripts/04-reset-and-sync.ts",
     "check-db": "node node_modules/tsx/dist/cli.mjs scripts/06-check-database.ts",
     "audit:dedup": "node node_modules/tsx/dist/cli.mjs scripts/23-audit-duplicates.ts",
+    "db:source-key": "node scripts/27-add-source-key.mjs",
     "check:svg": "node scripts/25-check-svg-language.mjs",
     "diagnose-fb": "node node_modules/tsx/dist/cli.mjs scripts/07-diagnose-facebook.ts",
     "sync:cron": "pm2 start ecosystem.config.js --only sy-nl-sync",
