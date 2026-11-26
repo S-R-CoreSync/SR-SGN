@@ -128,4 +128,18 @@ jobs:
         env:
           TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
           TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
-        run: node scripts/23-audit-duplicates.mjs
+        run: node node_modules/tsx/dist/cli.mjs scripts/23-audit-duplicates.ts
+
+      # التقرير يُرسل من Vercel (SMTP_* موجود هناك)، فلا نحتاج أسرار بريد جديدة في GitHub.
+      - name: إرسال التقرير بالبريد
+        if: always()
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "::notice::CRON_SECRET غير متوفر — تم تخطي البريد"
+            exit 0
+          fi
+          curl -fsS -X POST \
+            -H "x-cron-secret: $CRON_SECRET" \
+            "https://sgn-drab.vercel.app/api/cron/audit"

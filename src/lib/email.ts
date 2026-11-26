@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer";
 import { getApiMessage } from './api-messages';
 import { SITE_URL } from './site';
+import type { AuditReport } from './audit-duplicates';
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || "smtp.hostinger.com",
@@ -142,6 +143,78 @@ export async function sendBoardInviteEmail(email: string, name: string, locale =
         </a>
         <p style="color: #6b7280; font-size: 12px; line-height: 1.7;">${t(locale, 'boardAdmin.inviteEmailPrivacy')}</p>
         <p style="color: #6b7280; font-size: 12px; margin-top: 16px;">${t(locale, 'emailTemplates.footerTagline')}</p>
+      </div>
+    `,
+  });
+  return true;
+}
+
+/** Internal admin report — intentionally English so it never touches the /ar, /en and /nl language isolation. */
+export async function sendAuditReportEmail(report: AuditReport): Promise<boolean> {
+  const to = (process.env.AUDIT_EMAIL_TO || fromAddr || "").trim();
+  if (!isConfigured() || !to) return false;
+
+  const esc = (value: string) =>
+    String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  const clean = report.problems === 0;
+  const subject = clean
+    ? "SGN duplicate audit: clean"
+    : `SGN duplicate audit: ${report.problems} problem(s)`;
+  const row = (label: string, value: number) =>
+    `<tr><td style="padding:8px;border-bottom:1px solid #e5e7eb;color:#6b7280;">${label}</td>` +
+    `<td style="padding:8px;border-bottom:1px solid #e5e7eb;font-weight:600;">${value}</td></tr>`;
+
+  const details: string[] = [];
+  if (report.missingKey.length) {
+    details.push("<h3>Posts without a stable key</h3><ul>");
+    for (const post of report.missingKey.slice(0, 10)) {
+      details.push(`<li>${esc(post.locale)} — ${esc(String(post.title).slice(0, 80))}</li>`);
+    }
+    details.push("</ul>");
+  }
+  if (report.duplicateKeys.length) {
+    details.push("<h3>Duplicate identities</h3><ul>");
+    for (const { key, posts } of report.duplicateKeys.slice(0, 10)) {
+      details.push(`<li><code>${esc(key)}</code> x ${posts.length}: ${esc(posts.map((p) => String(p.title).slice(0, 45)).join(" | "))}</li>`);
+    }
+    details.push("</ul>");
+  }
+  if (report.sharedImages.length) {
+    details.push("<h3>Images shared by different posts</h3><ul>");
+    for (const { image, owners, samples } of report.sharedImages.slice(0, 10)) {
+      details.push(`<li>${esc(image.slice(0, 100))} — ${owners}: ${esc(samples.join(" | "))}</li>`);
+    }
+    details.push("</ul>");
+  }
+
+  const text = [
+    subject,
+    `Total posts: ${report.total}`,
+    `Without stable key: ${report.missingKey.length}`,
+    `Duplicate identities: ${report.duplicateKeys.length}`,
+    `Shared images: ${report.sharedImages.length}`,
+  ].join("\n");
+
+  await transporter.sendMail({
+    from: `"${fromName || "SGN Audit"}" <${fromAddr}>`,
+    to,
+    subject,
+    text,
+    html: `
+      <div dir="ltr" style="font-family:Arial,sans-serif;max-width:560px;margin:auto;padding:24px;border:1px solid #e5e7eb;border-radius:12px;">
+        <h2 style="color:#1a5632;">${esc(subject)}</h2>
+        <table style="width:100%;border-collapse:collapse;margin:16px 0;">
+          ${row("Total posts", report.total)}
+          ${row("Without stable key", report.missingKey.length)}
+          ${row("Duplicate identities", report.duplicateKeys.length)}
+          ${row("Shared images", report.sharedImages.length)}
+        </table>
+        ${clean ? '<p style="color:#15803d;">No problems found.</p>' : details.join("")}
+        <p style="color:#6b7280;font-size:12px;">Automated weekly report — SGN production database.</p>
       </div>
     `,
   });

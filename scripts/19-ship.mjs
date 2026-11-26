@@ -140,7 +140,9 @@ async function smokeTest(sha) {
       ok = false;
     }
   }
-  return ok;
+  const svgOk = (await run(process.execPath, ["scripts/25-check-svg-language.mjs", SITE])) === 0;
+  console.log(`  ${svgOk ? "✅" : "❌"} svg language check`);
+  return ok && svgOk;
 }
 
 async function main() {
