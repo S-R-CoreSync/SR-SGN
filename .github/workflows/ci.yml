@@ -70,36 +70,32 @@ jobs:
         run: npm run test:run
 
   # ── ١ب) تدقيق التكرار في قاعدة الإنتاج عند كل دفع ──
-  # يمنع رجوع المشكلة قبل وصولها لرابط الزبون؛ لا يكتب في قاعدة البيانات.
+  # يمرّ عبر /api/cron/audit على Vercel: أسرار Turso موجودة هناك، وفي GitHub
+  # لا يوجد سوى CRON_SECRET (نفس سرّ المزامنة). لا يكتب في قاعدة البيانات.
   dedup-audit:
     name: تدقيق التكرار (Production)
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: جلب الكود
-        uses: actions/checkout@v4
-
-      - name: تهيئة Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-          cache-dependency-path: package-lock.json
-
-      - name: تثبيت الحزم
-        run: npm ci --legacy-peer-deps || npm install --legacy-peer-deps --force
-
       - name: تدقيق الهويات والصور
         env:
-          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
-          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
-          if [ -z "$TURSO_DATABASE_URL" ] || [ -z "$TURSO_AUTH_TOKEN" ]; then
-            echo "::notice::أسرار Turso غير متوفرة في هذا السياق — تم تخطي التدقيق"
+          if [ -z "$CRON_SECRET" ]; then
+            echo "::notice::CRON_SECRET غير متوفر — تم تخطي التدقيق"
             exit 0
           fi
-          node node_modules/tsx/dist/cli.mjs scripts/23-audit-duplicates.ts
+          curl -fsS -X POST \
+            -H "x-cron-secret: $CRON_SECRET" \
+            "https://sgn-drab.vercel.app/api/cron/audit" -o /tmp/sgn-audit.json
+          problems=$(jq -r '.problems' /tmp/sgn-audit.json)
+          echo "نتائج التدقيق: problems=$problems"
+          if [ "$problems" != "0" ]; then
+            jq -r '.report' /tmp/sgn-audit.json
+            echo "::error::تدقيق التكرار: $problems مشكلة تحتاج مراجعة"
+            exit 1
+          fi
 
   # ── ٢) اختبارات E2E (Playwright) ──
   e2e:

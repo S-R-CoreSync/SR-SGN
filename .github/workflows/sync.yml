@@ -124,22 +124,27 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - name: تدقيق التكرار
-        env:
-          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
-          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
-        run: node node_modules/tsx/dist/cli.mjs scripts/23-audit-duplicates.ts
-
-      # التقرير يُرسل من Vercel (SMTP_* موجود هناك)، فلا نحتاج أسرار بريد جديدة في GitHub.
-      - name: إرسال التقرير بالبريد
-        if: always()
+      # التدقيق والإرسال يتمّان داخل Vercel: أسرار Turso وSMTP_* موجودة هناك،
+      # وفي GitHub لا نحتاج إلا CRON_SECRET (نفس سرّ المزامنة).
+      - name: تدقيق التكرار + إرسال التقرير بالبريد
         env:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
           if [ -z "$CRON_SECRET" ]; then
-            echo "::notice::CRON_SECRET غير متوفر — تم تخطي البريد"
-            exit 0
+            echo "::error::CRON_SECRET غير متوفر في أسرار المستودع"
+            exit 1
           fi
           curl -fsS -X POST \
             -H "x-cron-secret: $CRON_SECRET" \
-            "https://sgn-drab.vercel.app/api/cron/audit"
+            "https://sgn-drab.vercel.app/api/cron/audit" -o /tmp/sgn-audit.json
+          jq -r '.report' /tmp/sgn-audit.json >> "$GITHUB_STEP_SUMMARY"
+          problems=$(jq -r '.problems' /tmp/sgn-audit.json)
+          emailed=$(jq -r '.emailed' /tmp/sgn-audit.json)
+          echo "problems=$problems emailed=$emailed"
+          if [ "$emailed" != "true" ]; then
+            echo "::warning::لم يُرسل البريد — تحقق من SMTP_* على Vercel"
+          fi
+          if [ "$problems" != "0" ]; then
+            echo "::error::تدقيق التكرار: $problems مشكلة تحتاج مراجعة"
+            exit 1
+          fi
