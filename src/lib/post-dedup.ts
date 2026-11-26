@@ -40,7 +40,8 @@ export function isGenericImageUrl(image?: string | null): boolean {
   return (
     value.includes("images.unsplash.com/") ||
     value.includes("source.unsplash.com/") ||
-    value.includes("placehold.co/")
+    value.includes("placehold.co/") ||
+    value.includes("/api/placeholder")
   )
 }
 

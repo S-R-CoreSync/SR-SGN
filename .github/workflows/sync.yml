@@ -3,6 +3,8 @@ name: مزامنة الأخبار المجدولة
 on:
   schedule:
     - cron: "0 * * * *"
+    # تدقيق أسبوعي للتكرار (الأحد 03:00 UTC) — ضمن نفس جدول المزامنة
+    - cron: "0 3 * * 0"
   workflow_dispatch:
     inputs:
       source:
@@ -108,3 +110,22 @@ jobs:
             exit 1
           fi
           echo "تمّت مزامنة مجموعة $SHARD (حصة مستنفدة: $quota_blocked، مصادر فاشلة داخلياً: $source_failed)"
+
+  # تدقيق أسبوعي: يفحص الهوية الثابتة والصور المشتركة ويكتب التقرير في Summary.
+  # أي مشكلة تُظهر ::error:: فتصل تنبيهات GitHub دون إرسال أسرار أو بريد خارجي.
+  audit-dedup:
+    if: github.event_name == 'schedule' && github.event.schedule == '0 3 * * 0'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: جلب الكود
+        uses: actions/checkout@v4
+      - name: إعداد Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: تدقيق التكرار
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+        run: node scripts/23-audit-duplicates.mjs

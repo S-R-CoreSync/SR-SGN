@@ -385,9 +385,42 @@ function extractAllImagesAndText(html: string): ExtractedArticle[] {
   return articles
 }
 
+/**
+ * صور RSS المسموح بها: ما جاء داخل العنصر نفسه فقط (enclosure / media:content /
+ * media:thumbnail / img داخل المحتوى). صورة <image><url> على مستوى القناة
+ * تُستبعد صراحةً لأنها شعار الموقع لا صورة الخبر.
+ */
+export function extractRssImageUrls(item: string, content: string, channelImage: string | null): string[] {
+  const candidates: string[] = []
+  const tagPattern = /<(?:enclosure|media:content|media:thumbnail)\b([^>]*)>/gi
+  let tag: RegExpExecArray | null
+  while ((tag = tagPattern.exec(item)) !== null) {
+    const attrs = tag[1]
+    const url = attrs.match(/\burl=["']([^"']+)["']/i)?.[1]
+    const type = attrs.match(/\btype=["']([^"']+)["']/i)?.[1] || ""
+    const medium = attrs.match(/\bmedium=["']([^"']+)["']/i)?.[1] || ""
+    if (!url) continue
+    if (type && !type.toLowerCase().startsWith("image/")) continue
+    if (medium && medium.toLowerCase() !== "image") continue
+    candidates.push(url.trim())
+  }
+  for (const url of extractImagesFromHtml(content, true)) candidates.push(url)
+
+  const blocked = channelImage ? [channelImage.trim()] : []
+  return dedupeImages(candidates).filter((raw) => {
+    const url = raw.trim()
+    if (!/^https?:\/\//i.test(url)) return false
+    if (blocked.includes(url)) return false
+    return !/(?:logo|icon|favicon|placeholder|default|avatar|share|sgn_02)/i.test(url)
+  })
+}
+
 function extractRSS(xml: string, source: SyncSource): ExtractedArticle[] {
   const articles: ExtractedArticle[] = []
   const itemPattern = /<item>([\s\S]*?)<\/item>/g
+  // شعار القناة (خارج <item>) — يُمرَّر للاستبعاد حتى لو تكرر داخل عنصر ما.
+  const channelImage =
+    xml.match(/<image>[\s\S]*?<url>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/url>[\s\S]*?<\/image>/i)?.[1]?.trim() || null
   let m: RegExpExecArray | null
   while ((m = itemPattern.exec(xml)) !== null) {
     const item = m[1]
@@ -402,12 +435,8 @@ function extractRSS(xml: string, source: SyncSource): ExtractedArticle[] {
     const creator = cleanText(item.match(/<(?:author|dc:creator)>([^<]+)<\/(?:author|dc:creator)>/)?.[1] || "")
     if (!title || title.length < 5) continue
     
-    // Extract standard enclosures or media elements
-    const enclosureUrl = item.match(/<(?:enclosure|media:content|media:thumbnail)[^>]+url=["']([^"']+)["']/)?.[1] || ""
-    const mediaUrls = extractImagesFromHtml(content, true)
-    if (enclosureUrl && !mediaUrls.includes(enclosureUrl)) {
-      mediaUrls.unshift(enclosureUrl)
-    }
+    // صور العنصر فقط — لا صورة القناة ولا شعار الموقع
+    const mediaUrls = extractRssImageUrls(item, content, channelImage)
 
     const videoIds = extractVideoIdsFromHtml(content)
     const textContent = content.replace(/<[^>]+>/g, "").trim()
@@ -420,7 +449,7 @@ function extractRSS(xml: string, source: SyncSource): ExtractedArticle[] {
       category: source.category || "أخبار الجالية",
       tags: [],
       source: source.name,
-      sourceUrl: link || source.url,
+      sourceUrl: link || guid || source.url,
       author: creator || "الجالية السورية في هولندا",
       publishedAt: pubDate ? new Date(pubDate) : new Date(),
       mediaUrls,

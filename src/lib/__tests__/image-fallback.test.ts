@@ -55,9 +55,12 @@ describe("resolveImage", () => {
 });
 
 describe("getUniqueImageUrl", () => {
-  it("gives different images to titles sharing the same truncated prefix", () => {
+  it("gives different local images to titles sharing the same truncated prefix", () => {
     const a = getUniqueImageUrl(null, "DIVD Suspects AI Tool Artex Was Used in Hack of Collective");
     const b = getUniqueImageUrl(null, "DIVD Suspects AI Tool Artex Was Used in Its Own Hack");
+    expect(a).toMatch(/^\/api\/placeholder\?/);
+    expect(b).toMatch(/^\/api\/placeholder\?/);
     expect(a).not.toBe(b);
+    expect(a + b).not.toContain("placehold.co");
   });
 });

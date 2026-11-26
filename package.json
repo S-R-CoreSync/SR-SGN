@@ -34,6 +34,7 @@
     "reclassify": "node node_modules/tsx/dist/cli.mjs scripts/03-reclassify-posts.ts",
     "db:reset-sync": "node node_modules/tsx/dist/cli.mjs scripts/04-reset-and-sync.ts",
     "check-db": "node node_modules/tsx/dist/cli.mjs scripts/06-check-database.ts",
+    "audit:dedup": "node scripts/23-audit-duplicates.mjs",
     "diagnose-fb": "node node_modules/tsx/dist/cli.mjs scripts/07-diagnose-facebook.ts",
     "sync:cron": "pm2 start ecosystem.config.js --only sy-nl-sync",
     "import:facebook": "node node_modules/tsx/dist/cli.mjs scripts/02-import-facebook.ts",

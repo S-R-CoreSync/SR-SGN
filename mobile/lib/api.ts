@@ -80,42 +80,18 @@ export async function logout() {
   await removeToken();
 }
 
-const UNIQUE_PALETTE: Array<[string, string]> = [
-  ["113d22", "c8a84e"],
-  ["0b2545", "8da9c4"],
-  ["451a03", "fde047"],
-  ["111827", "fbbf24"],
-  ["064e3b", "a7f3d0"],
-  ["0f3d3e", "99f6e4"],
-  ["1e3a8a", "bfdbfe"],
-];
+const API_BASE = API_URL.replace(/\/api$/, "");
 
-/** إزاحة لونية صغيرة حول لون التصنيف حتى يبقى التباين مقروءاً */
-function shiftColor(hex: string, seed: number): string {
-  const channel = (offset: number, delta: number) =>
-    Math.max(0, Math.min(255, parseInt(hex.slice(offset, offset + 2), 16) + delta))
-      .toString(16)
-      .padStart(2, "0");
-  return (
-    channel(0, (seed & 31) - 16) +
-    channel(2, ((seed >>> 5) & 31) - 16) +
-    channel(4, ((seed >>> 10) & 31) - 16)
-  );
-}
-
-/** صورة فريدة لكل عنوان — الهاش من العنوان الكامل لا من نصّه المقتطع */
+/**
+ * مسار محلي موحّد للصورة الاحتياطية — نفس المصدر المستخدم في الويب،
+ * والخادم يحوّله إلى PNG عبر /api/placeholder. بلا خدمة خارجية.
+ */
 function uniquePlaceholder(title?: string, category?: string): string {
-  const seed = `${category || "news"}|${title || "SGN"}`;
-  let hash = 2166136261;
-  for (let i = 0; i < seed.length; i++) {
-    hash ^= seed.charCodeAt(i);
-    hash = Math.imul(hash, 16777619) >>> 0;
-  }
-  const [baseBg, baseFg] = UNIQUE_PALETTE[hash % UNIQUE_PALETTE.length];
-  const bg = shiftColor(baseBg, hash);
-  const fg = shiftColor(baseFg, hash >>> 15);
-  const label = (title || "SGN").slice(0, 18);
-  return `https://placehold.co/600x338/${bg}/${fg}/png?text=${encodeURIComponent(label)}`;
+  const params = new URLSearchParams();
+  if (title) params.set("title", title.slice(0, 120));
+  if (category) params.set("category", category.slice(0, 60));
+  const query = params.toString();
+  return `${API_BASE}/api/placeholder${query ? `?${query}` : ""}`;
 }
 
 export function getImageUrl(imagePath: string | null | undefined, title?: string, category?: string): string {
@@ -125,7 +101,6 @@ export function getImageUrl(imagePath: string | null | undefined, title?: string
   if (imagePath.startsWith("http://") || imagePath.startsWith("https://") || imagePath.startsWith("data:")) {
     return imagePath;
   }
-  const baseUrl = API_URL.replace(/\/api$/, "");
   const cleanPath = imagePath.startsWith("/") ? imagePath : `/${imagePath}`;
-  return `${baseUrl}${cleanPath}`;
+  return `${API_BASE}${cleanPath}`;
 }
