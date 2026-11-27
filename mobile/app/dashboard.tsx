@@ -1,5 +1,6 @@
 import { View, Text, ActivityIndicator, ScrollView, TouchableOpacity } from "react-native";
 import { useEffect, useState } from "react";
+import { useRouter } from "expo-router";
 import { COLORS } from "../constants/colors";
 import { getStats } from "../lib/stats";
 import { Ionicons } from "@expo/vector-icons";
@@ -7,6 +8,7 @@ import { useI18n } from "../lib/i18n-context";
 import { toArabicDigits } from "../lib/prayers";
 
 export default function DashboardScreen() {
+  const router = useRouter();
   const { t, locale, isRTL } = useI18n();
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -38,15 +40,15 @@ export default function DashboardScreen() {
     return <ActivityIndicator size="large" color={COLORS.primary} style={{ marginTop: 40 }} />;
   }
 
-  const vitality = stats?.vitalityScore || 92;
+  // كل القيم أدناه قادمة من /api/stats — لا أرقام تقديرية في الواجهة.
+  const coverage = stats?.contentCoverage ?? 0;
 
   const cards = [
-    { icon: "people" as const, label: locale === "nl" ? "Geregistreerde Leden" : locale === "en" ? "Registered Members" : "الأعضاء والمستفيدين", value: stats?.users ?? 0, color: "#1a5632", sub: "+14%" },
-    { icon: "eye" as const, label: locale === "nl" ? "Contentweergaven" : locale === "en" ? "Total Views" : "مشاهدات المنصة", value: stats?.totalViews ?? 0, color: "#dc2626", sub: "+24.5%" },
-    { icon: "newspaper" as const, label: locale === "nl" ? "Artikelen & Nieuws" : locale === "en" ? "News & Articles" : "المقالات والتقارير", value: stats?.posts ?? 0, color: "#2563eb", sub: "Live" },
-    { icon: "calendar" as const, label: locale === "nl" ? "Evenementen" : locale === "en" ? "Upcoming Events" : "الفعاليات القادمة", value: stats?.events ?? 0, color: "#c8a84e", sub: "Actief" },
-    { icon: "heart" as const, label: locale === "nl" ? "Vrijwilligers" : locale === "en" ? "Volunteers" : "الكوادر والمتطوعين", value: stats?.volunteers ?? 18, color: "#9333ea", sub: "12 Prov." },
-    { icon: "shield-checkmark" as const, label: locale === "nl" ? "Status Systeem" : locale === "en" ? "System Health" : "حالة المنظومة", value: "100%", color: "#059669", sub: "Optimal" },
+    { icon: "people" as const, label: t("dashboard.users"), value: stats?.users ?? 0, color: "#1a5632" },
+    { icon: "eye" as const, label: t("dashboard.totalViews"), value: stats?.totalViews ?? 0, color: "#dc2626" },
+    { icon: "newspaper" as const, label: t("dashboard.posts"), value: stats?.posts ?? 0, color: "#2563eb" },
+    { icon: "calendar" as const, label: t("dashboard.events"), value: stats?.events ?? 0, color: "#c8a84e" },
+    { icon: "heart" as const, label: t("dashboard.volunteers"), value: stats?.volunteers ?? 0, color: "#9333ea" },
   ];
 
   return (
@@ -57,7 +59,7 @@ export default function DashboardScreen() {
           <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6 }}>
             <Ionicons name="sparkles" size={16} color="#c8a84e" />
             <Text style={{ color: "#edd28a", fontSize: 12, fontWeight: "bold" }}>
-              {locale === "nl" ? "Directie Dashboard" : locale === "en" ? "Executive Command" : "لوحة القيادة التنفيذية"}
+              {t("dashboard.centralAdmin")}
             </Text>
           </View>
           <TouchableOpacity onPress={loadStats} disabled={refreshing}>
@@ -66,22 +68,22 @@ export default function DashboardScreen() {
         </View>
 
         <Text style={{ fontSize: 18, fontWeight: "bold", color: "#ffffff", textAlign: isRTL ? "right" : "left" }}>
-          {locale === "nl" ? "Syrische Gemeenschap in Nederland" : locale === "en" ? "Syrian Community in Netherlands" : "الجالية السورية في هولندا (SGN)"}
+          {t("dashboard.shortTitle")}
         </Text>
 
-        {/* Vitality Gauge Strip */}
+        {/* Real content coverage */}
         <View style={{ backgroundColor: "rgba(255,255,255,0.08)", borderRadius: 16, padding: 12, flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between", alignItems: "center" }}>
           <View style={{ gap: 2 }}>
             <Text style={{ fontSize: 11, color: "#edd28a", fontWeight: "bold" }}>
-              {locale === "nl" ? "Platformvitaliteit" : locale === "en" ? "Platform Vitality" : "مؤشر حيوية ونشاط المنصة"}
+              {t("dashboard.coverageTitle")}
             </Text>
             <Text style={{ fontSize: 10, color: "rgba(255,255,255,0.8)" }}>
-              {locale === "nl" ? "Optimale interactie & stabiele sync" : locale === "en" ? "Optimal engagement & healthy sync" : "تفاعل نوعي ومزامنة سحابية مستمرة"}
+              {t("dashboard.coverageNote")}
             </Text>
           </View>
           <View style={{ backgroundColor: "#c8a84e", borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4 }}>
             <Text style={{ fontSize: 14, fontWeight: "bold", color: "#0c2e17" }}>
-              {formatDigits(vitality)}%
+              {formatDigits(coverage)}%
             </Text>
           </View>
         </View>
@@ -91,17 +93,12 @@ export default function DashboardScreen() {
       <View style={{ flexDirection: isRTL ? "row-reverse" : "row", flexWrap: "wrap", justifyContent: "space-between", gap: 12 }}>
         {cards.map((card, index) => (
           <View key={index} style={{ width: "48%", backgroundColor: COLORS.card, borderRadius: 20, padding: 16, gap: 10, borderWidth: 1, borderColor: "rgba(0,0,0,0.05)" }}>
-            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between", alignItems: "center" }}>
-              <View style={{ width: 40, height: 40, borderRadius: 14, backgroundColor: `${card.color}15`, justifyContent: "center", alignItems: "center" }}>
-                <Ionicons name={card.icon} size={20} color={card.color} />
-              </View>
-              <Text style={{ fontSize: 10, fontWeight: "bold", color: COLORS.primary, backgroundColor: `${COLORS.primary}10`, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 8 }}>
-                {card.sub}
-              </Text>
+            <View style={{ width: 40, height: 40, borderRadius: 14, backgroundColor: `${card.color}15`, justifyContent: "center", alignItems: "center" }}>
+              <Ionicons name={card.icon} size={20} color={card.color} />
             </View>
             <View style={{ gap: 2 }}>
               <Text style={{ fontSize: 22, fontWeight: "bold", color: COLORS.text, textAlign: isRTL ? "right" : "left" }}>
-                {typeof card.value === "number" ? formatDigits(card.value) : card.value}
+                {formatDigits(card.value)}
               </Text>
               <Text style={{ fontSize: 11, color: COLORS.textSecondary, textAlign: isRTL ? "right" : "left" }} numberOfLines={1}>
                 {card.label}
@@ -110,6 +107,14 @@ export default function DashboardScreen() {
           </View>
         ))}
       </View>
+
+      <TouchableOpacity
+        onPress={() => router.push("/ai-ops")}
+        style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", justifyContent: "center", gap: 8, backgroundColor: "#1a5632", borderRadius: 16, paddingVertical: 14 }}
+      >
+        <Ionicons name="sparkles" size={16} color="#ffffff" />
+        <Text style={{ color: "#ffffff", fontSize: 13, fontWeight: "bold" }}>{t("dashboard.aiOpsLink")}</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 }

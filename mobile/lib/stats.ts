@@ -5,7 +5,7 @@ export async function getStats(): Promise<{
   users: number;
   events: number;
   volunteers?: number;
-  vitalityScore?: number;
+  contentCoverage?: number;
   totalViews: number;
 }> {
   return apiFetch("/stats");

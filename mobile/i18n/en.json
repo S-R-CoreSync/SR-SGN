@@ -700,7 +700,10 @@
       "tasks": "Tasks",
       "ads": "Ads",
       "clicks": "Ad Clicks"
-    }
+    },
+    "coverageTitle": "News image coverage",
+    "coverageNote": "Share of published articles that have a real image",
+    "aiOpsLink": "AI operations center"
   },
   "memberProfilePage": {
     "noApplication": "No membership application submitted yet",

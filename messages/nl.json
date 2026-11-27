@@ -802,7 +802,10 @@
       "tasks": "Taken",
       "ads": "Advertenties",
       "clicks": "Advertentieklikken"
-    }
+    },
+    "coverageTitle": "Dekking nieuwsafbeeldingen",
+    "coverageNote": "Aandeel gepubliceerde artikelen met een echte afbeelding",
+    "aiOpsLink": "AI-operatiecentrum"
   },
   "mobileControl": {
     "pageTitle": "Mobiele & iPad App-beheerpaneel",
@@ -2090,7 +2093,6 @@
     "subtitle": "Laatste technologie nieuws van NL News en wereldwijde sites",
     "noNews": "Geen nieuws gevonden"
   },
-
   "dashboardReport": {
     "toolbarTitle": "Officieel directieverslag",
     "printSave": "Afdrukken / opslaan als PDF",
@@ -2128,7 +2130,6 @@
     "signer3Role": "Technisch verantwoordelijke",
     "signer3Name": "Mohammed Salim Aziza"
   },
-
   "dashboardDocs": {
     "aiUpdatedArticles": "Contractartikelen succesvol gegenereerd en bijgewerkt via AI ✓",
     "aiAddedArticle": "Extra bepaling succesvol toegevoegd aan het contract ✓",
@@ -2183,7 +2184,6 @@
     "cancel": "Annuleren",
     "saveToContract": "Opslaan in Contract"
   },
-
   "dashboardRevenue": {
     "title": "Financiële rapporten & donaties",
     "subtitle": "Volg donaties die daadwerkelijk in het platform zijn geregistreerd — geen geschatte cijfers.",
@@ -2206,7 +2206,6 @@
     "noDonations": "Nog geen donaties geregistreerd",
     "noDonationsDesc": "Betaalde transacties verschijnen hier zodra een donatie in het platform is vastgelegd."
   },
-
   "dashboardBoard": {
     "uploadFailed": "Uploaden mislukt",
     "chooseMemberPhoto": "Foto van het lid kiezen",
@@ -2263,7 +2262,6 @@
     "deleting": "Bezig met verwijderen...",
     "delete": "Verwijderen"
   },
-
   "dashboardRegulations": {
     "saved": "✅ Opgeslagen",
     "saveFailed": "❌ Opslaan mislukt: {message}",
@@ -2279,7 +2277,6 @@
     "kilobytes": "KB",
     "versionLabel": "Versie: v{version}"
   },
-
   "aiCitations": {
     "title": "Bronnen uit de database"
   },

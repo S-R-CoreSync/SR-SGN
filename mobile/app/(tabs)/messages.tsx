@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import { COLORS } from "../../constants/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useI18n } from "../../lib/i18n-context";
-import { sendAIMessage, translateMessage, summarizeConversation, type AIMessage } from "../../lib/chat";
+import { streamAIMessage, translateMessage, summarizeConversation, type AIMessage } from "../../lib/chat";
 import * as ImagePicker from "expo-image-picker";
 import * as Speech from "expo-speech";
 import { Audio } from "expo-av";
@@ -51,18 +51,37 @@ export default function MessagesScreen() {
     setShowSuggestions(false);
     setSummary(null);
     const userMsg: AIMessage = { role: "user", content: text };
-    setMessages((prev) => [...prev, userMsg]);
+    setMessages((prev) => [...prev, userMsg, { role: "assistant", content: "" }]);
     setInput("");
     setLoading(true);
 
     const activePersona = forcedPersona || persona;
 
     try {
-      const data = await sendAIMessage(text, sessionId || undefined, locale, activePersona);
+      const data = await streamAIMessage(text, sessionId || undefined, locale, activePersona, (_delta, accumulated) => {
+        setMessages((prev) => {
+          const copy = [...prev];
+          const last = copy[copy.length - 1];
+          if (last?.role === "assistant") copy[copy.length - 1] = { ...last, content: accumulated };
+          return copy;
+        });
+      });
       setSessionId(data.sessionId);
-      setMessages((prev) => [...prev, { role: "assistant", content: data.reply, sources: data.sources }]);
+      setMessages((prev) => {
+        const copy = [...prev];
+        const last = copy[copy.length - 1];
+        if (last?.role === "assistant") {
+          copy[copy.length - 1] = { ...last, content: data.reply, sources: data.sources };
+        }
+        return copy;
+      });
     } catch {
-      setMessages((prev) => [...prev, { role: "assistant", content: t("chat.aiError") }]);
+      setMessages((prev) => {
+        const copy = [...prev];
+        const last = copy[copy.length - 1];
+        if (last?.role === "assistant") copy[copy.length - 1] = { ...last, content: t("chat.aiError") };
+        return copy;
+      });
     }
     setLoading(false);
   }

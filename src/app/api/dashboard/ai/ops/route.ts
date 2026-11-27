@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getSessionUser } from "@/lib/mobile-auth";
 import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { createRateLimiter } from "@/lib/rate-limit";
@@ -12,15 +11,16 @@ export const runtime = "nodejs";
 
 const opsLimiter = createRateLimiter({ maxRequests: 30, windowMs: 60_000, name: "ai-ops" });
 
-async function requireAdmin() {
-  const session = await getServerSession(authOptions);
-  if (!session) return { error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
-  if (session.user?.role !== "admin") return { error: NextResponse.json({ error: "Forbidden" }, { status: 403 }) };
-  return { userId: String(session.user?.id || "") };
+async function requireAdmin(req: Request) {
+  // Supports both NextAuth cookies (web) and signed bearer tokens (mobile).
+  const user = await getSessionUser(req);
+  if (!user) return { error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
+  if (user.role !== "admin") return { error: NextResponse.json({ error: "Forbidden" }, { status: 403 }) };
+  return { userId: user.id };
 }
 
-export async function GET() {
-  const auth = await requireAdmin();
+export async function GET(req: Request) {
+  const auth = await requireAdmin(req);
   if (auth.error) return auth.error;
   try {
     return NextResponse.json({ success: true, ...(await getAIOpsSummary()) });
@@ -31,7 +31,7 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const auth = await requireAdmin();
+  const auth = await requireAdmin(req);
   if (auth.error) return auth.error;
 
   const limited = tooMany(opsLimiter, auth.userId || "anon");

@@ -802,7 +802,10 @@
       "tasks": "Tasks",
       "ads": "Ads",
       "clicks": "Ad Clicks"
-    }
+    },
+    "coverageTitle": "News image coverage",
+    "coverageNote": "Share of published articles that have a real image",
+    "aiOpsLink": "AI operations center"
   },
   "mobileControl": {
     "pageTitle": "Mobile & iPad App Control Panel",
@@ -2090,7 +2093,6 @@
     "subtitle": "Latest tech and technology news from NL News and global sites",
     "noNews": "No news found"
   },
-
   "dashboardReport": {
     "toolbarTitle": "Official Executive Report",
     "printSave": "Print / Save as PDF",
@@ -2128,7 +2130,6 @@
     "signer3Role": "Technical lead",
     "signer3Name": "Mohammed Salim Aziza"
   },
-
   "dashboardDocs": {
     "aiUpdatedArticles": "Contract articles successfully generated and updated with AI ✓",
     "aiAddedArticle": "Specialized clause successfully added to the contract ✓",
@@ -2183,7 +2184,6 @@
     "cancel": "Cancel",
     "saveToContract": "Save signature to contract"
   },
-
   "dashboardRevenue": {
     "title": "Financial reports & donations",
     "subtitle": "Track donations actually recorded in the platform — no estimated figures.",
@@ -2206,7 +2206,6 @@
     "noDonations": "No donations recorded yet",
     "noDonationsDesc": "Paid transactions will appear here as soon as a donation is recorded in the platform."
   },
-
   "dashboardBoard": {
     "uploadFailed": "Upload failed",
     "chooseMemberPhoto": "Choose member photo",
@@ -2263,7 +2262,6 @@
     "deleting": "Deleting...",
     "delete": "Delete"
   },
-
   "dashboardRegulations": {
     "saved": "✅ Saved",
     "saveFailed": "❌ Save failed: {message}",
@@ -2279,7 +2277,6 @@
     "kilobytes": "KB",
     "versionLabel": "Version: v{version}"
   },
-
   "aiCitations": {
     "title": "Sources from the database"
   },

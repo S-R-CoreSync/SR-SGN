@@ -6,8 +6,9 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const [postsCount, membersCount, usersCount, eventsCount, volunteersCount] = await Promise.all([
+    const [postsCount, postsWithImage, membersCount, usersCount, eventsCount, volunteersCount] = await Promise.all([
       prisma.post.count({ where: { published: true } }),
+      prisma.post.count({ where: { published: true, NOT: { image: null } } }),
       prisma.member.count(),
       prisma.user.count(),
       prisma.event.count({ where: { published: true } }),
@@ -29,7 +30,7 @@ export async function GET() {
       users: members,
       events: eventsCount,
       volunteers: volunteersCount,
-      vitalityScore: 92,
+      contentCoverage: postsCount > 0 ? Math.round((postsWithImage / postsCount) * 100) : 0,
       totalViews: viewsResult._sum.views || 0,
     });
   } catch (error) {
