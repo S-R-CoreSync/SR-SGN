@@ -103,13 +103,13 @@ export default function DashboardV2Page() {
     { key: "members", value: stats?.users ?? 0, daily: stats?.usersByDay, color: "#1a5632", icon: Users, href: "/dashboard/v2/members" },
     { key: "views", value: stats?.totalViews ?? 0, daily: stats?.commentsByDay, color: "#b8892c", icon: ArrowUpRight, href: "/news" },
     { key: "volunteers", value: stats?.volunteers ?? 0, daily: undefined, color: "#2f6b4f", icon: Users, href: "/dashboard/volunteers" },
-    { key: "posts", value: stats?.posts ?? 0, daily: undefined, color: "#8a6a1f", icon: FileText, href: "/dashboard/pages" },
+    { key: "posts", value: stats?.posts ?? 0, daily: undefined, color: "#8a6a1f", icon: FileText, href: "/dashboard/v2/content" },
   ];
 
   const actions = [
     { key: "approvals", value: pending, href: "/dashboard/v2/members", icon: CheckSquare },
     { key: "messages", value: stats?.messages ?? 0, href: "/dashboard/v2/messages", icon: Mail },
-    { key: "posts", value: stats?.posts ?? 0, href: "/dashboard/pages", icon: FileText },
+    { key: "posts", value: stats?.posts ?? 0, href: "/dashboard/v2/content", icon: FileText },
   ];
 
   const activity = (stats?.usersByDay ?? []).slice(-7);

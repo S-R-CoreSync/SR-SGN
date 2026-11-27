@@ -1378,7 +1378,8 @@
     "groups": {
       "today": "Vandaag",
       "community": "Gemeenschap",
-      "system": "Systeem"
+      "system": "Systeem",
+      "finance": "Financiën"
     },
     "nav": {
       "overview": "Overzicht",
@@ -1389,7 +1390,9 @@
       "pages": "Berichten",
       "sync": "Synchronisatie",
       "settings": "Instellingen",
-      "system": "Systeemstatus"
+      "system": "Systeemstatus",
+      "content": "Inhoud",
+      "finance": "Financiën"
     },
     "tasksTitle": "Vraagt uw aandacht",
     "tasksNote": "Echte items uit platformgegevens, gesorteerd op belangrijkheid",
@@ -1492,7 +1495,62 @@
         "days": "dagen",
         "uptime": "Uptime",
         "seconds": "seconden"
+      },
+      "events": {
+        "title": "Evenementen",
+        "note": "Alle geregistreerde evenementen — komend en afgelopen, met zichtbaarheidscontrole",
+        "tabs": {
+          "all": "Alle",
+          "upcoming": "Komend"
+        },
+        "published": "Gepubliceerd",
+        "hidden": "Verborgen",
+        "upcoming": "Komend",
+        "past": "Afgelopen",
+        "hide": "Verbergen",
+        "publish": "Publiceren",
+        "empty": "Geen evenementen hier"
+      },
+      "content": {
+        "title": "Inhoud",
+        "note": "Gepubliceerde en opgeslagen berichten, met weergaven en publicatiestatus",
+        "searchPlaceholder": "Zoek berichten...",
+        "stats": {
+          "total": "Totaal berichten",
+          "published": "Gepubliceerd",
+          "views": "Totaal weergaven"
+        },
+        "featured": "Uitgelicht",
+        "published": "Gepubliceerd",
+        "hidden": "Verborgen",
+        "hide": "Verbergen",
+        "publish": "Publiceren",
+        "empty": "Geen passende berichten"
+      },
+      "finance": {
+        "title": "Financiën",
+        "note": "Donaties en financiële cijfers direct uit platformgegevens",
+        "stats": {
+          "total": "Totaal donaties",
+          "paid": "Ontvangen",
+          "count": "Aantal donaties"
+        },
+        "euro": "EUR",
+        "monthlyTitle": "Donaties per maand",
+        "monthlyNote": "Laatste zes maanden geregistreerde gegevens",
+        "emptyChart": "Niet genoeg maandgegevens",
+        "recentTitle": "Recente donaties",
+        "recentNote": "Laatst ontvangen bijdragen",
+        "empty": "Er zijn geen donaties",
+        "status": {
+          "success": "Ontvangen",
+          "pending": "Wachtend",
+          "failed": "Mislukt"
+        }
       }
-    }
+    },
+    "breadcrumbEvents": "Evenementen",
+    "breadcrumbContent": "Inhoud",
+    "breadcrumbFinance": "Financiën"
   }
 }

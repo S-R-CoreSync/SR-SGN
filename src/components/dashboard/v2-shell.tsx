@@ -7,7 +7,7 @@ import { Link, useRouter } from "@/i18n/routing";
 import { useLocale, useTranslations } from "next-intl";
 import { formatLocalizedDigits } from "@/lib/language-guard";
 import {
-  ArrowLeft, CheckSquare, Database, LayoutDashboard, Mail, Search, Users, X,
+  ArrowLeft, Calendar, CheckSquare, Database, FileText, LayoutDashboard, Mail, Search, Users, Wallet, X,
 } from "lucide-react";
 
 type NavItem = { key: string; href: string; icon: typeof Users };
@@ -25,11 +25,17 @@ const groups: { key: string; items: NavItem[] }[] = [
     items: [
       { key: "members", href: "/dashboard/v2/members", icon: Users },
       { key: "messages", href: "/dashboard/v2/messages", icon: Mail },
+      { key: "events", href: "/dashboard/v2/events", icon: Calendar },
+      { key: "content", href: "/dashboard/v2/content", icon: FileText },
     ],
   },
   {
     key: "system",
     items: [{ key: "system", href: "/dashboard/v2/system", icon: Database }],
+  },
+  {
+    key: "finance",
+    items: [{ key: "finance", href: "/dashboard/v2/finance", icon: Wallet }],
   },
 ];
 

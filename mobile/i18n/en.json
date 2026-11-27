@@ -1378,7 +1378,8 @@
     "groups": {
       "today": "Today",
       "community": "Community",
-      "system": "System"
+      "system": "System",
+      "finance": "Finance"
     },
     "nav": {
       "overview": "Overview",
@@ -1389,7 +1390,9 @@
       "pages": "Posts",
       "sync": "Sync",
       "settings": "Settings",
-      "system": "System status"
+      "system": "System status",
+      "content": "Content",
+      "finance": "Finance"
     },
     "tasksTitle": "Needs your attention",
     "tasksNote": "Real items from platform data, ordered by importance",
@@ -1492,7 +1495,62 @@
         "days": "days",
         "uptime": "Uptime",
         "seconds": "seconds"
+      },
+      "events": {
+        "title": "Events",
+        "note": "All registered events — upcoming and past, with visibility control",
+        "tabs": {
+          "all": "All",
+          "upcoming": "Upcoming"
+        },
+        "published": "Published",
+        "hidden": "Hidden",
+        "upcoming": "Upcoming",
+        "past": "Past",
+        "hide": "Hide",
+        "publish": "Publish",
+        "empty": "No events here"
+      },
+      "content": {
+        "title": "Content",
+        "note": "Published and saved posts, with views and publication status",
+        "searchPlaceholder": "Search posts...",
+        "stats": {
+          "total": "Total posts",
+          "published": "Published",
+          "views": "Total views"
+        },
+        "featured": "Featured",
+        "published": "Published",
+        "hidden": "Hidden",
+        "hide": "Hide",
+        "publish": "Publish",
+        "empty": "No matching posts"
+      },
+      "finance": {
+        "title": "Finance",
+        "note": "Donations and financial figures straight from platform data",
+        "stats": {
+          "total": "Total donations",
+          "paid": "Received",
+          "count": "Donation count"
+        },
+        "euro": "EUR",
+        "monthlyTitle": "Donations by month",
+        "monthlyNote": "Last six months of recorded data",
+        "emptyChart": "Not enough monthly data",
+        "recentTitle": "Recent donations",
+        "recentNote": "Latest contributions received",
+        "empty": "No donations right now",
+        "status": {
+          "success": "Received",
+          "pending": "Pending",
+          "failed": "Failed"
+        }
       }
-    }
+    },
+    "breadcrumbEvents": "Events",
+    "breadcrumbContent": "Content",
+    "breadcrumbFinance": "Finance"
   }
 }
