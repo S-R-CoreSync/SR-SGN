@@ -1361,5 +1361,58 @@
     "statusSuccess": "Success",
     "statusError": "Error",
     "errorGeneric": "An error occurred"
+  },
+  "dashboardV2": {
+    "prototype": "Prototype",
+    "prototypeNote": "Separate preview - the current dashboard is unchanged",
+    "backToClassic": "Back to current dashboard",
+    "searchPlaceholder": "Search the dashboard...",
+    "searchTitle": "Quick search",
+    "close": "Close",
+    "greeting": "Good morning, {name}",
+    "subtitle": "A concise view of the community today",
+    "todayLabel": "Today",
+    "groups": {
+      "today": "Today",
+      "community": "Community",
+      "system": "System"
+    },
+    "nav": {
+      "overview": "Overview",
+      "briefing": "AI briefing",
+      "tasks": "Tasks",
+      "members": "Members",
+      "messages": "Messages",
+      "events": "Events",
+      "sync": "Sync",
+      "aiOps": "AI center",
+      "settings": "Settings"
+    },
+    "briefingTitle": "Today's briefing",
+    "briefingSource": "Based on live platform data",
+    "briefingOpen": "AI center",
+    "noBriefing": "Briefing is unavailable right now",
+    "priorities": "Needs your decision today",
+    "prioritiesNote": "Actions ordered by data priority",
+    "view": "Open",
+    "kpi": {
+      "members": "Registered members",
+      "views": "Content views",
+      "pending": "Pending approvals",
+      "messages": "Messages and inquiries"
+    },
+    "noData": "Not enough data",
+    "trendNote": "Compared with the previous 7 days",
+    "activity": "Community activity",
+    "activityNote": "Real registrations and interactions from the database",
+    "systemPulse": "System pulse",
+    "sync": "Sync",
+    "latency": "Database latency",
+    "engine": "AI engine",
+    "syncActive": "Active",
+    "syncIdle": "Idle",
+    "error": "Could not load data",
+    "retry": "Retry",
+    "loading": "Loading..."
   }
 }

@@ -66,6 +66,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
   if (!session || (session.user as any)?.role !== "admin") return null;
 
+  // The v2 prototype renders its own shell so the current dashboard stays untouched.
+  if (pathname.includes("/dashboard/v2")) {
+    return <div className="min-h-screen bg-[#f6f7f4]">{children}</div>;
+  }
+
   const role = (session.user as any)?.role || "member";
 
   function canAccess(item: { admin?: boolean; editor?: boolean }) {

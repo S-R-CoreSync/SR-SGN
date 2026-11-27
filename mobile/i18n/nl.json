@@ -1361,5 +1361,58 @@
     "statusSuccess": "Succes",
     "statusError": "Fout",
     "errorGeneric": "Er is een fout opgetreden"
+  },
+  "dashboardV2": {
+    "prototype": "Prototype",
+    "prototypeNote": "Losse voorvertoning - het huidige dashboard is niet gewijzigd",
+    "backToClassic": "Terug naar huidig dashboard",
+    "searchPlaceholder": "Zoek in het dashboard...",
+    "searchTitle": "Snel zoeken",
+    "close": "Sluiten",
+    "greeting": "Goedemorgen, {name}",
+    "subtitle": "Een beknopt overzicht van de gemeenschap vandaag",
+    "todayLabel": "Vandaag",
+    "groups": {
+      "today": "Vandaag",
+      "community": "Gemeenschap",
+      "system": "Systeem"
+    },
+    "nav": {
+      "overview": "Overzicht",
+      "briefing": "AI-briefing",
+      "tasks": "Taken",
+      "members": "Leden",
+      "messages": "Berichten",
+      "events": "Evenementen",
+      "sync": "Synchronisatie",
+      "aiOps": "AI-centrum",
+      "settings": "Instellingen"
+    },
+    "briefingTitle": "Briefing van vandaag",
+    "briefingSource": "Gebaseerd op live platformgegevens",
+    "briefingOpen": "AI-centrum",
+    "noBriefing": "Briefing is nu niet beschikbaar",
+    "priorities": "Vandaag besluit nodig",
+    "prioritiesNote": "Acties gesorteerd op dataprioriteit",
+    "view": "Openen",
+    "kpi": {
+      "members": "Geregistreerde leden",
+      "views": "Contentweergaven",
+      "pending": "Wachtende goedkeuringen",
+      "messages": "Berichten en vragen"
+    },
+    "noData": "Niet genoeg gegevens",
+    "trendNote": "Vergeleken met de vorige 7 dagen",
+    "activity": "Activiteit gemeenschap",
+    "activityNote": "Echte registraties en interacties uit de database",
+    "systemPulse": "Systeemstatus",
+    "sync": "Sync",
+    "latency": "Databaserespons",
+    "engine": "AI-engine",
+    "syncActive": "Actief",
+    "syncIdle": "Inactief",
+    "error": "Gegevens konden niet worden geladen",
+    "retry": "Opnieuw",
+    "loading": "Laden..."
   }
 }
