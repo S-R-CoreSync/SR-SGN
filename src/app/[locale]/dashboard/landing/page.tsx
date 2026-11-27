@@ -1,4 +1,8 @@
+import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/db";
+import { isPureLocaleText, localizeCategory } from "@/lib/language-guard";
+import { dedupePosts } from "@/lib/post-dedup";
+import { relativeTimeKey, relativeTimeParts } from "@/lib/relative-time";
 import { TopBar } from "@/components/home/top-bar";
 import { SiteHeader } from "@/components/home/site-header";
 import { BreakingNews } from "@/components/home/breaking-news";
@@ -12,19 +16,20 @@ import { Newsletter } from "@/components/home/newsletter";
 import { Ads } from "@/components/ads";
 import { CommunityStats } from "@/components/community-stats";
 
-function timeAgo(date: Date) {
-  const diff = Date.now() - date.getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 60) return `${mins || 1} دقيقة`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs} ساعة`;
-  const days = Math.floor(hrs / 24);
-  return `${days} يوم`;
-}
+export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "common" });
+  const ts = await getTranslations({ locale, namespace: "site" });
+  const renderedAt = Date.now();
 
-export default async function Home() {
-  const posts = await prisma.post.findMany({
-    where: { published: true },
+  // Pure calculation from one fixed reference: SSR and hydration render identical text.
+  const timeAgo = (date: Date) => {
+    const { unit, count } = relativeTimeParts(date, renderedAt);
+    return t(relativeTimeKey(unit), { count });
+  };
+
+  const rawPosts = await prisma.post.findMany({
+    where: { published: true, locale },
     orderBy: { createdAt: "desc" },
     take: 10,
     select: {
@@ -43,14 +48,18 @@ export default async function Home() {
     },
   });
 
+  const posts = dedupePosts(rawPosts.filter((p) => isPureLocaleText(p.title, locale)));
   const videoPosts = posts.filter((p: any) => p.videoId || p.source === "youtube").slice(0, 4);
+
+  const general = t("generalCategory");
+  const community = ts("shortTitle");
 
   const featured = posts.slice(0, 4).map((p: any) => ({
     title: p.title,
-    cat: p.category || "عام",
+    cat: localizeCategory(p.category || "", locale) || general,
     img: p.image,
     excerpt: p.excerpt || "",
-    author: p.author?.name || "الجالية السورية",
+    author: p.author?.name || community,
     time: timeAgo(p.createdAt),
     slug: p.slug || "",
     videoId: p.videoId || undefined,
@@ -66,10 +75,10 @@ export default async function Home() {
 
   const videos = videoPosts.map((p: any) => ({
     title: p.title,
-    cat: p.category || "عام",
+    cat: localizeCategory(p.category || "", locale) || general,
     img: p.image,
     excerpt: p.excerpt || "",
-    author: p.author?.name || "الجالية السورية",
+    author: p.author?.name || community,
     time: timeAgo(p.createdAt),
     slug: p.slug || "",
     videoId: p.videoId || undefined,

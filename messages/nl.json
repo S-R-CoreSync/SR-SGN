@@ -325,6 +325,7 @@
     "ago_minute": "{count} minuut{count, plural, one {} other {en}} geleden",
     "ago_hour": "{count} uur geleden",
     "ago_day": "{count} dag{count, plural, one {} other {en}} geleden",
+    "generalCategory": "Algemeen",
     "readMore": "Lees Meer",
     "share": "Delen",
     "print": "Printen",

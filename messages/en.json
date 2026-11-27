@@ -325,6 +325,7 @@
     "ago_minute": "{count} minute{count, plural, one {} other {s}} ago",
     "ago_hour": "{count} hour{count, plural, one {} other {s}} ago",
     "ago_day": "{count} day{count, plural, one {} other {s}} ago",
+    "generalCategory": "General",
     "readMore": "Read More",
     "share": "Share",
     "print": "Print",

@@ -325,6 +325,7 @@
     "ago_minute": "منذ {count} دقيقة",
     "ago_hour": "منذ {count} ساعة",
     "ago_day": "منذ {count} يوم",
+    "generalCategory": "عام",
     "readMore": "اقرأ المزيد",
     "share": "مشاركة",
     "print": "طباعة",
