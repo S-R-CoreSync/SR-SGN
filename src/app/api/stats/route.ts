@@ -25,12 +25,16 @@ export async function GET() {
     // Registered members should be from Member table, but fallback to User count if no members are registered yet (e.g. fresh dev DB)
     const members = membersCount > 0 ? membersCount : usersCount;
 
+    const contentCoverage = postsCount > 0 ? Math.round((postsWithImage / postsCount) * 100) : 0;
+
     return NextResponse.json({
       posts: postsCount,
       users: members,
       events: eventsCount,
       volunteers: volunteersCount,
-      contentCoverage: postsCount > 0 ? Math.round((postsWithImage / postsCount) * 100) : 0,
+      contentCoverage,
+      // Same real metric powers the original mobile vitality gauge.
+      vitalityScore: contentCoverage,
       totalViews: viewsResult._sum.views || 0,
     });
   } catch (error) {

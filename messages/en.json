@@ -802,10 +802,7 @@
       "tasks": "Tasks",
       "ads": "Ads",
       "clicks": "Ad Clicks"
-    },
-    "coverageTitle": "News image coverage",
-    "coverageNote": "Share of published articles that have a real image",
-    "aiOpsLink": "AI operations center"
+    }
   },
   "mobileControl": {
     "pageTitle": "Mobile & iPad App Control Panel",

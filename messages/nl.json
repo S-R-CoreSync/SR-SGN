@@ -802,10 +802,7 @@
       "tasks": "Taken",
       "ads": "Advertenties",
       "clicks": "Advertentieklikken"
-    },
-    "coverageTitle": "Dekking nieuwsafbeeldingen",
-    "coverageNote": "Aandeel gepubliceerde artikelen met een echte afbeelding",
-    "aiOpsLink": "AI-operatiecentrum"
+    }
   },
   "mobileControl": {
     "pageTitle": "Mobiele & iPad App-beheerpaneel",
