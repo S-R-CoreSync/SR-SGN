@@ -18,7 +18,7 @@ import { CommunityStats } from "@/components/community-stats";
 
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "common" });
+  const t = await getTranslations({ locale });
   const ts = await getTranslations({ locale, namespace: "site" });
   const renderedAt = Date.now();
 
@@ -51,7 +51,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
   const posts = dedupePosts(rawPosts.filter((p) => isPureLocaleText(p.title, locale)));
   const videoPosts = posts.filter((p: any) => p.videoId || p.source === "youtube").slice(0, 4);
 
-  const general = t("generalCategory");
+  const general = t("common.generalCategory");
   const community = ts("shortTitle");
 
   const featured = posts.slice(0, 4).map((p: any) => ({
