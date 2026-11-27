@@ -45,18 +45,19 @@ interface AIBriefingData {
   executiveSummary: string;
   actionItems: { id: string; title: string; desc: string; priority: string; href: string }[];
   provincesData: { name: string; count: number }[];
-  sentimentScore: number;
+  sentimentScore: number | null;
   systemHealth: {
     syncStatus: string;
     tursoLatencyMs: number;
     aiEngine: string;
-    lastSync: string;
+    lastSync: string | null;
   };
 }
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const t = useTranslations("dashboard");
+  const tCommon = useTranslations("common");
   const locale = useLocale();
   const isRtl = locale === "ar";
   
@@ -121,7 +122,8 @@ export default function DashboardPage() {
   if (!session) return null;
 
   const totalApplications = Object.values(stats.membersByStatus).reduce((a, b) => a + b, 0);
-  const vitality = aiData?.vitalityScore || stats.vitalityScore || 88;
+  const vitality = aiData?.vitalityScore ?? stats.vitalityScore ?? 0;
+  const health = aiData?.systemHealth;
 
   const handleGenerateAi = async () => {
     if (!aiPrompt.trim() || isGenerating) return;
@@ -237,7 +239,7 @@ export default function DashboardPage() {
               </svg>
               <div className="absolute flex flex-col items-center justify-center text-center">
                 <span className="text-lg font-black text-white leading-none">
-                  {formatLocalizedDigits(vitality, locale)}٪
+                  {formatLocalizedDigits(vitality, locale)}{tCommon("percentSign")}
                 </span>
                 <span className="text-[9px] text-[#edd28a] font-bold mt-0.5">
                   {locale === "nl" ? "Score" : locale === "en" ? "Score" : "المؤشر"}
@@ -261,7 +263,7 @@ export default function DashboardPage() {
               </p>
               <div className="flex items-center gap-1 text-[10px] text-emerald-300 font-bold">
                 <TrendingUp className="w-3 h-3 text-[#c8a84e]" />
-                <span>+ {formatLocalizedDigits(14.8, locale)}٪ {locale === "nl" ? "deze maand" : locale === "en" ? "this month" : "هذا الشهر"}</span>
+                <span>{stats.newMembersThisWeek ? t("newThisWeek", { count: formatLocalizedDigits(stats.newMembersThisWeek, locale) }) : t("noRecentGrowth")}</span>
               </div>
             </div>
           </div>
@@ -403,29 +405,29 @@ export default function DashboardPage() {
             {[
               {
                 name: locale === "nl" ? "Facebook Graph API Sync" : locale === "en" ? "Facebook Graph API Sync" : "مزامنة صفحة فيسبوك الرسمية",
-                status: locale === "nl" ? "Actief en gesynchroniseerd" : locale === "en" ? "Active & In Sync" : "متصل ومتزامن بنجاح",
-                detail: "31 منشور مجلوب",
+                status: health?.syncStatus === "active" ? t("syncActive") : t("syncIdle"),
+                detail: health?.lastSync ? t("lastSync", { time: formatLocalizedDigits(health.lastSync.slice(0, 10), locale) }) : t("dataNotAvailable"),
                 color: "text-blue-500",
                 bg: "bg-blue-50 dark:bg-blue-950/30"
               },
               {
                 name: locale === "nl" ? "YouTube RSS Stream" : locale === "en" ? "YouTube RSS Stream" : "تغذية قناة يوتيوب المرئية",
-                status: locale === "nl" ? "13 video's gekoppeld" : locale === "en" ? "13 videos connected" : "١٣ فيديو رسمي متزامن",
-                detail: "قناة الجالية",
+                status: health?.lastSync ? t("syncActive") : t("syncIdle"),
+                detail: health?.lastSync ? t("lastSync", { time: formatLocalizedDigits(health.lastSync.slice(0, 10), locale) }) : t("dataNotAvailable"),
                 color: "text-rose-500",
                 bg: "bg-rose-50 dark:bg-rose-950/30"
               },
               {
                 name: locale === "nl" ? "Turso LibSQL Database" : locale === "en" ? "Turso LibSQL Cloud DB" : "قاعدة بيانات Turso السحابية",
-                status: "24ms Latency",
-                detail: "🟢 صحة مثالية",
+                status: health ? t("latency", { count: formatLocalizedDigits(health.tursoLatencyMs, locale) }) : t("dataNotAvailable"),
+                detail: health ? t("syncActive") : t("dataNotAvailable"),
                 color: "text-emerald-600",
                 bg: "bg-emerald-50 dark:bg-emerald-950/30"
               },
               {
-                name: locale === "nl" ? "AI Inference Engine" : locale === "en" ? "AI Inference Engine" : "محرك الذكاء الاصطناعي (Groq)",
-                status: "Llama 3.3 70B",
-                detail: "⚡ سرعة استجابة فائقة",
+                name: locale === "nl" ? "AI Inference Engine" : locale === "en" ? "AI Inference Engine" : "محرك الذكاء الاصطناعي",
+                status: health?.aiEngine || t("dataNotAvailable"),
+                detail: t("dataNotAvailable"),
                 color: "text-purple-600",
                 bg: "bg-purple-50 dark:bg-purple-950/30"
               }
@@ -476,7 +478,7 @@ export default function DashboardPage() {
               label: locale === "nl" ? "Geregistreerde Leden" : locale === "en" ? "Registered Members" : "الأعضاء والمستفيدين",
               val: totalApplications,
               unit: locale === "nl" ? "leden" : locale === "en" ? "members" : "عضو موثق",
-              sub: `+${formatLocalizedDigits(stats.newMembersThisWeek || 4, locale)} ${locale === "nl" ? "deze week" : locale === "en" ? "this week" : "جديد هذا الأسبوع"}`,
+              sub: stats.newMembersThisWeek ? t("newThisWeek", { count: formatLocalizedDigits(stats.newMembersThisWeek, locale) }) : t("noRecentGrowth"),
               icon: Users,
               accent: "from-emerald-500 to-teal-700",
               lightBg: "bg-emerald-50/80 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300",
@@ -486,7 +488,7 @@ export default function DashboardPage() {
               label: locale === "nl" ? "Totaal Aantal Weergaven" : locale === "en" ? "Content Views" : "مشاهدات وقراءات المنصة",
               val: stats.totalViews,
               unit: locale === "nl" ? "weergaven" : locale === "en" ? "views" : "قراءة ومطالعة",
-              sub: `+${formatLocalizedDigits(24.5, locale)}٪ ${locale === "nl" ? "groei" : locale === "en" ? "growth" : "معدل نمو شهري"}`,
+              sub: `${formatLocalizedDigits(stats.comments ?? 0, locale)} ${t("stats.comments")}`,
               icon: Eye,
               accent: "from-rose-500 to-pink-700",
               lightBg: "bg-rose-50/80 dark:bg-rose-950/30 text-rose-700 dark:text-rose-300",
@@ -506,7 +508,7 @@ export default function DashboardPage() {
               label: locale === "nl" ? "Gemeenschapsberichten" : locale === "en" ? "Community Inquiries" : "استفسارات ورسائل الجالية",
               val: stats.messages,
               unit: locale === "nl" ? "berichten" : locale === "en" ? "messages" : "استفسار وطلب دعم",
-              sub: locale === "nl" ? "98% responsratio" : locale === "en" ? "98% response rate" : "معدل استجابة ٩٨٪",
+              sub: tCommon("unknownValue"),
               icon: MessageSquare,
               accent: "from-amber-500 to-orange-700",
               lightBg: "bg-amber-50/80 dark:bg-amber-950/30 text-amber-700 dark:text-amber-300",
@@ -619,16 +621,11 @@ export default function DashboardPage() {
           </div>
 
           <div className="space-y-3.5">
-            {(stats.provinceDistribution && stats.provinceDistribution.length > 0 ? stats.provinceDistribution : [
-              { name: "Zuid-Holland (روتردام ولاهاي)", count: 28 },
-              { name: "Noord-Holland (أمستردام)", count: 22 },
-              { name: "Utrecht (أوتريخت)", count: 18 },
-              { name: "Gelderland (غيلدرلاند)", count: 14 },
-              { name: "Noord-Brabant (برابانت)", count: 11 },
-              { name: "Overijssel (أوفريسل)", count: 7 },
-            ]).map((prov, i) => {
-              const maxCount = Math.max(...(stats.provinceDistribution?.map(p => p.count) || [28]), 1);
-              const pct = Math.round((prov.count / Math.max(totalApplications || 100, 1)) * 100) || 12;
+            {(stats.provinceDistribution ?? []).length === 0 ? (
+              <p className="py-6 text-center text-xs text-gray-400">{t("noProvinceData")}</p>
+            ) : (stats.provinceDistribution ?? []).map((prov, i) => {
+              const maxCount = Math.max(...(stats.provinceDistribution?.map(p => p.count) || [1]), 1);
+              const pct = Math.round((prov.count / Math.max(totalApplications, 1)) * 100);
               return (
                 <div key={i} className="space-y-1.5">
                   <div className="flex justify-between text-xs font-bold text-gray-800 dark:text-gray-200">
@@ -637,7 +634,7 @@ export default function DashboardPage() {
                       {prov.name}
                     </span>
                     <span className="text-gray-500 font-semibold">
-                      {formatLocalizedDigits(prov.count, locale)} {locale === "nl" ? "leden" : locale === "en" ? "members" : "عضو"} ({formatLocalizedDigits(pct, locale)}٪)
+                      {formatLocalizedDigits(prov.count, locale)} {locale === "nl" ? "leden" : locale === "en" ? "members" : "عضو"} ({formatLocalizedDigits(pct, locale)}{tCommon("percentSign")})
                     </span>
                   </div>
                   <div className="w-full h-2.5 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
@@ -676,13 +673,9 @@ export default function DashboardPage() {
             </div>
 
             <div className="space-y-3">
-              {(stats.topPosts && stats.topPosts.length > 0 ? stats.topPosts.slice(0, 5) : [
-                { title: "دليل تجديد الإقامات وقوانين الاندماج الجديدة في هولندا ٢٠٢٦", views: 1840, slug: "inburgering-2026" },
-                { title: "الجالية السورية تعقد لقاءً مفتوحاً في أوتريخت لمناقشة فرص العمل والتعليم", views: 1420, slug: "utrecht-meeting" },
-                { title: "صندوق التكافل الاجتماعي ونقل الجثامين: خطوات الاشتراك والخدمات المقدمة", views: 1290, slug: "solidarity-fund" },
-                { title: "افتتاح بطولة الربيع الكروية للجالية السورية بمشاركة ١٦ فريقاً", views: 980, slug: "spring-tournament" },
-                { title: "إرشادات قانونية هامة بخصوص لم الشمل وإجراءات مصلحة الهجرة IND", views: 870, slug: "ind-family-reunion" },
-              ]).map((post, idx) => (
+              {(stats.topPosts ?? []).length === 0 ? (
+                <p className="py-6 text-center text-xs text-gray-400">{t("noTopPosts")}</p>
+              ) : (stats.topPosts ?? []).slice(0, 5).map((post, idx) => (
                 <div 
                   key={idx}
                   className="flex items-center justify-between p-3 rounded-2xl bg-gray-50/70 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800 hover:border-emerald-500/30 transition-all"

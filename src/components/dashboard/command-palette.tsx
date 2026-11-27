@@ -38,14 +38,9 @@ export function CommandPalette({
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Keyboard shortcut listener for Ctrl+K / Cmd+K
+  // Ctrl+K is owned by the dashboard shell; this palette only handles Escape.
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
-        e.preventDefault();
-        if (open) onClose();
-        else onClose(); // parent handles toggle
-      }
       if (e.key === "Escape" && open) {
         onClose();
       }

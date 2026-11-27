@@ -1,6 +1,6 @@
 "use client";
 
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Printer, X, Download, ShieldCheck, Award, FileText, CheckCircle2 } from "lucide-react";
 import { formatLocalizedDigits } from "@/lib/language-guard";
 import { FreeSyrianFlag, DutchFlag } from "@/components/flags";
@@ -20,6 +20,7 @@ export function ExecutiveReportModal({
   vitalityScore,
 }: ExecutiveReportModalProps) {
   const locale = useLocale();
+  const t = useTranslations("common");
 
   if (!open) return null;
 
@@ -34,7 +35,7 @@ export function ExecutiveReportModal({
     day: "numeric",
   });
 
-  const totalMembers = Object.values(stats?.membersByStatus || {}).reduce((a: any, b: any) => a + b, 0) || stats?.users || 120;
+  const totalMembers = Object.values(stats?.membersByStatus || {}).reduce((a: any, b: any) => a + b, 0);
 
   return (
     <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
@@ -118,7 +119,7 @@ export function ExecutiveReportModal({
             <div className="bg-[#1a5632] text-white rounded-2xl p-5 flex flex-col justify-between text-center">
               <span className="text-xs text-[#edd28a] font-bold">مؤشر حيوية المنصة (Vitality)</span>
               <span className="text-4xl font-black my-1 text-white">
-                {formatLocalizedDigits(vitalityScore, locale)}٪
+                {formatLocalizedDigits(vitalityScore, locale)}{t("percentSign")}
               </span>
               <span className="text-[11px] text-emerald-200 font-medium">أداء تشغيلي ممتاز ومستقر</span>
             </div>
@@ -132,13 +133,12 @@ export function ExecutiveReportModal({
             <div className="grid grid-cols-4 gap-3">
               {[
                 { label: "الأعضاء الموثقين", val: totalMembers, sub: "عضو مسجل بالنظام" },
-                { label: "المشاهدات والمتابعات", val: stats?.totalViews || 24800, sub: "قراءة للمحتوى" },
-                { label: "الكوادر والمتطوعين", val: stats?.volunteers || 18, sub: "كفاءة سورية متطوعة" },
-                { label: "استفسارات الجالية", val: stats?.messages || 94, sub: "طلب دعم واستشارة" },
-                { label: "المقالات والتقارير", val: stats?.posts || 75, sub: "مقال وخبر منشور" },
-                { label: "الفعاليات الموثقة", val: stats?.events || 6, sub: "فعالية وندوة" },
-                { label: "مجلس الإدارة", val: 24, sub: "عضواً في الأمانة والمكاتب" },
-                { label: "نسبة استجابة الدعم", val: "٩٨٪", sub: "كفاءة المتابعة والتوجيه" },
+                { label: "المشاهدات والمتابعات", val: stats?.totalViews ?? 0, sub: "قراءة للمحتوى" },
+                { label: "الكوادر والمتطوعين", val: stats?.volunteers ?? 0, sub: "كفاءة سورية متطوعة" },
+                { label: "استفسارات الجالية", val: stats?.messages ?? 0, sub: "طلب دعم واستشارة" },
+                { label: "المقالات والتقارير", val: stats?.posts ?? 0, sub: "مقال وخبر منشور" },
+                { label: "الفعاليات الموثقة", val: stats?.events ?? 0, sub: "فعالية وندوة" },
+                { label: "مجلس الإدارة", val: stats?.boardMembers ?? 0, sub: "عضواً في الأمانة والمكاتب" },
               ].map((m, i) => (
                 <div key={i} className="p-3 bg-gray-50 rounded-xl border border-gray-200 space-y-1">
                   <p className="text-[11px] font-bold text-gray-500">{m.label}</p>

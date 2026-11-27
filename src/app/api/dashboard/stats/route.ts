@@ -6,6 +6,7 @@ import { authOptions } from "@/lib/auth";
 export async function GET() {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (session.user?.role !== "admin") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const now = new Date();
   const days30 = new Date(now.getTime() - 30 * 86400000);
@@ -19,6 +20,7 @@ export async function GET() {
   const comments = await prisma.comment.count();
   const volunteers = await prisma.volunteer.count();
   const ads = await prisma.ad.count();
+  const boardMembers = await prisma.boardMember.count();
   const allComments = await prisma.comment.findMany({ select: { createdAt: true }, where: { createdAt: { gte: days30 } } });
   const members = await prisma.member.findMany({ select: { status: true, createdAt: true } });
   const topPosts = await prisma.post.findMany({ select: { title: true, views: true, slug: true }, orderBy: { views: "desc" }, take: 10 });
@@ -94,7 +96,7 @@ export async function GET() {
   vitalityScore = Math.min(99, Math.max(75, vitalityScore));
 
   return NextResponse.json({
-    tasks, users, messages, events, subscribers, posts, comments, volunteers, ads,
+    tasks, users, messages, events, subscribers, posts, comments, volunteers, ads, boardMembers,
     totalViews: totalViews._sum.views || 0,
     totalAdClicks: totalAdClicks._sum.clicks || 0,
     membersByStatus,

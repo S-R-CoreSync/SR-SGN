@@ -21,6 +21,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [searchQuery, setSearchQuery] = useState("");
   const [commandOpen, setCommandOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
+  const [stats, setStats] = useState<any>(null);
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({
     overview: false,
     content: false,
@@ -39,7 +40,24 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   }, [status, session, router]);
 
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setCommandOpen((v) => !v);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
 
+  useEffect(() => {
+    if (session?.user?.role !== "admin") return;
+    fetch("/api/dashboard/stats")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => data && setStats(data))
+      .catch(() => setStats(null));
+  }, [session?.user?.role]);
 
   if (status === "loading") {
     return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-[#1a5632] border-t-transparent rounded-full" /></div>;
@@ -77,7 +95,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       items: [
         { label: t("pages"), href: "/dashboard/pages", icon: FileText, editor: true },
         { label: t("events"), href: "/dashboard/events", icon: Calendar, editor: true },
-        { label: "النظام الداخلي", href: "/dashboard/regulations", icon: FileText, admin: true },
+        { label: t("regulations"), href: "/dashboard/regulations", icon: FileText, admin: true },
         { label: t("board"), href: "/dashboard/board", icon: Building2, admin: true },
         { label: t("landing"), href: "/dashboard/landing", icon: Globe, admin: true },
         { label: t("media"), href: "/dashboard/media", icon: ImageIcon, admin: true },
@@ -89,7 +107,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       title: t("navGroups.community"),
       items: [
         { label: t("members"), href: "/dashboard/members", icon: Users },
-        { label: "إدارة المستندات", href: "/dashboard/members/vault", icon: Shield, admin: true },
+        { label: t("vault"), href: "/dashboard/members/vault", icon: Shield, admin: true },
         { label: t("documentsGenerator"), href: "/dashboard/documents-generator", icon: Printer, admin: true },
         { label: t("membershipSettings"), href: "/dashboard/membership-settings", icon: CheckSquare },
         { label: t("volunteers"), href: "/dashboard/volunteers", icon: HandHeart, editor: true },
@@ -115,6 +133,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         { label: t("mobileControl"), href: "/dashboard/mobile-control", icon: Smartphone, admin: true },
         { label: t("users"), href: "/dashboard/users", icon: Users, admin: true },
         { label: t("roles"), href: "/dashboard/roles", icon: Shield, admin: true },
+        { label: t("revenue"), href: "/dashboard/revenue", icon: BarChart3, admin: true },
       ]
     }
   ];
@@ -241,10 +260,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <button
               onClick={() => setCommandOpen(true)}
               className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 bg-gray-100 hover:bg-gray-200/80 dark:bg-gray-800 dark:hover:bg-gray-700 transition-all border border-gray-200/80 dark:border-gray-700"
-              title="البحث السريع والتنقل (Ctrl+K)"
+              title={t("navSearchTitle")}
             >
               <Search className="w-3.5 h-3.5 text-gray-400" />
-              <span className="hidden md:inline">بحث سريع</span>
+              <span className="hidden md:inline">{t("quickSearch")}</span>
               <kbd className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-400">Ctrl K</kbd>
             </button>
 
@@ -252,10 +271,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <button
               onClick={() => setReportOpen(true)}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-[#1a5632] dark:text-[#edd28a] bg-[#c8a84e]/15 hover:bg-[#c8a84e]/25 border border-[#c8a84e]/30 transition-all"
-              title="تصدير تقرير الإدارة الرسمي PDF"
+              title={t("exportReportTitle")}
             >
               <Printer className="w-3.5 h-3.5" />
-              <span className="hidden lg:inline">تقرير الإدارة (PDF)</span>
+              <span className="hidden lg:inline">{t("exportReport")}</span>
             </button>
 
             <Link
@@ -274,7 +293,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="flex items-center gap-2 pl-1 border-r border-gray-200 dark:border-gray-800">
               <div className="hidden sm:flex flex-col text-right">
                 <span className="text-xs font-bold text-gray-800 dark:text-gray-200 leading-tight">{session.user?.name}</span>
-                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider">الإدارة المركزية</span>
+                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider">{t("centralAdmin")}</span>
               </div>
               <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-[#1a5632] to-[#c8a84e] p-0.5 shadow-sm">
                 <div className="w-full h-full rounded-[14px] bg-white dark:bg-gray-800 flex items-center justify-center overflow-hidden font-bold text-xs text-[#1a5632] dark:text-[#c8a84e]">
@@ -295,9 +314,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <NotificationToaster />
 
       {/* Spotlight Command Palette (Ctrl+K) */}
-      <CommandPalette 
-        open={commandOpen} 
-        onClose={() => setCommandOpen(false)} 
+      <CommandPalette
+        open={commandOpen}
+        onClose={() => setCommandOpen(false)}
+        onOpenAiStudio={() => router.push("/dashboard/ai")}
         onPrintReport={() => setReportOpen(true)}
       />
 
@@ -305,8 +325,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <ExecutiveReportModal
         open={reportOpen}
         onClose={() => setReportOpen(false)}
-        vitalityScore={92}
-        stats={{}}
+        vitalityScore={stats?.vitalityScore ?? 0}
+        stats={stats ?? {}}
       />
     </div>
   );

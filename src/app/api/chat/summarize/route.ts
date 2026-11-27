@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { summarizeConversation } from "@/lib/ai/text";
 import { prisma } from "@/lib/db";
+import { getApiMessage } from "@/lib/api-messages";
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
@@ -16,13 +17,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "sessionId is required" }, { status: 400 });
     }
 
+    const owned = await prisma.chatAISession.findFirst({
+      where: { id: sessionId, userId: session.user.id },
+      select: { id: true },
+    });
+    if (!owned) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
     const msgs = await prisma.chatAIMessage.findMany({
       where: { sessionId },
       orderBy: { createdAt: "asc" },
     });
 
     if (msgs.length === 0) {
-      return NextResponse.json({ summary: "لا توجد رسائل في هذه المحادثة." });
+      return NextResponse.json({ summary: getApiMessage(locale || "ar", "chat.noMessages") });
     }
 
     const summary = await summarizeConversation(msgs, locale || "ar");

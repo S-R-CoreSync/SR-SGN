@@ -13,6 +13,7 @@ const briefingLimiter = createRateLimiter({ maxRequests: 10, windowMs: 60_000, n
 export async function GET(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (session.user?.role !== "admin") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const limited = tooMany(briefingLimiter, String(session.user?.id || "anon"));
   if (limited) return limited;
@@ -26,6 +27,7 @@ export async function GET(req: Request) {
     const days7 = new Date(now.getTime() - 7 * 86400000);
     const days30 = new Date(now.getTime() - 30 * 86400000);
 
+    const dbQueryStart = Date.now();
     const [
       totalMembers,
       pendingMembers,
@@ -54,6 +56,18 @@ export async function GET(req: Request) {
         take: 6,
       }),
     ]);
+    const dbLatencyMs = Date.now() - dbQueryStart;
+
+    // Latest synced post is the only honest signal for "last sync".
+    const latestSyncedPost = await prisma.post.findFirst({
+      where: { source: { not: null } },
+      orderBy: { createdAt: "desc" },
+      select: { createdAt: true },
+    });
+    const lastSync = latestSyncedPost?.createdAt.toISOString() ?? null;
+    const syncStatus = lastSync && now.getTime() - new Date(lastSync).getTime() < 24 * 3600_000
+      ? "active"
+      : "idle";
 
     // Calculate Vitality Score (0-100)
     let vitalityScore = 75; // baseline
@@ -127,12 +141,12 @@ export async function GET(req: Request) {
       executiveSummary: executiveSummary.trim(),
       actionItems,
       provincesData,
-      sentimentScore: 94,
+      sentimentScore: null,
       systemHealth: {
-        syncStatus: "active",
-        tursoLatencyMs: 24,
-        aiEngine: "Groq Llama 3.3 70B",
-        lastSync: new Date().toISOString(),
+        syncStatus,
+        tursoLatencyMs: dbLatencyMs,
+        aiEngine: process.env.AI_PROVIDER || "auto",
+        lastSync,
       },
     });
   } catch (error: any) {
@@ -144,6 +158,7 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (session.user?.role !== "admin") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   try {
     const body = await req.json();

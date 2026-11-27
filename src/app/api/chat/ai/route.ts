@@ -63,6 +63,15 @@ export async function POST(req: Request) {
 
     const cleanMessage = guarded.messages[0].content;
 
+    // A session ID supplied by the client must belong to the authenticated user.
+    if (sessionId) {
+      const owned = await prisma.chatAISession.findFirst({
+        where: { id: sessionId, userId: user.id },
+        select: { id: true },
+      });
+      if (!owned) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
     const userLocale = locale || "ar";
     const sid = sessionId || await getOrCreateSession(user.id, persona);
     const userName = user.name || user.email || "User";
