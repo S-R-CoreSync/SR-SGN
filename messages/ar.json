@@ -2317,14 +2317,17 @@
   },
   "dashboardV2": {
     "prototype": "نموذج أولي",
-    "prototypeNote": "نسخة تجريبية منفصلة — اللوحة الحالية ما تغيّرت",
-    "backToClassic": "العودة للوحة الحالية",
+    "communityName": "جالية سوريا في هولندا",
     "searchPlaceholder": "ابحث في اللوحة...",
     "searchTitle": "بحث سريع",
     "close": "إغلاق",
     "greeting": "صباح الخير، {name}",
-    "subtitle": "ملخص هادئ لوضع الجالية اليوم",
-    "todayLabel": "اليوم",
+    "subtitle": "هذه لمحة واضحة عن وضع الجالية اليوم، وكل رقم مبني على بيانات المنصة.",
+    "breadcrumbDashboard": "لوحة التحكم",
+    "breadcrumbOverview": "نظرة عامة",
+    "guest": "ضيف",
+    "adminRole": "مدير النظام",
+    "backToClassic": "العودة للوحة الحالية",
     "groups": {
       "today": "اليوم",
       "community": "الجالية",
@@ -2336,23 +2339,19 @@
       "members": "الأعضاء",
       "messages": "الرسائل",
       "events": "الفعاليات",
-      "pages": "الصفحات",
+      "pages": "المقالات",
       "sync": "المزامنة",
       "settings": "الإعدادات"
     },
-    "tasksTitle": "بانتظارك",
+    "tasksTitle": "يحتاج انتباهك",
+    "tasksNote": "أمور حقيقية من بيانات المنصة، مرتبة حسب الأهمية",
     "task": {
-      "approvals": "طلبات انتساب",
+      "approvals": "طلبات انتساب بانتظار المراجعة",
       "messages": "رسائل واستفسارات",
       "posts": "مقالات منشورة"
     },
-    "table": {
-      "indicator": "المؤشر",
-      "value": "القيمة",
-      "change": "التغيّر",
-      "action": "إجراء",
-      "open": "فتح"
-    },
+    "view": "فتح التفاصيل",
+    "pulseTitle": "نبض الجالية",
     "kpi": {
       "members": "الأعضاء المسجلون",
       "views": "مشاهدات المحتوى",
@@ -2360,17 +2359,19 @@
       "posts": "المقالات"
     },
     "noData": "لا توجد بيانات كافية",
-    "trendNote": "التغيّر مقارنة بسبعة أيام سابقة",
-    "activity": "سجل النشاط",
-    "activityNote": "تسجيلات فعلية من قاعدة البيانات",
+    "trendNote": "مقارنة بالأسبوع السابق",
+    "activityTitle": "نشاط الجالية",
+    "activityNote": "تسجيلات وتفاعلات فعلية خلال آخر سبعة أيام",
     "systemTitle": "حالة النظام",
     "database": "زمن قاعدة البيانات",
+    "milliseconds": "مللي ثانية",
     "sync": "المزامنة",
     "apiVersion": "إصدار الواجهة",
     "syncActive": "نشطة",
     "syncIdle": "خاملة",
     "error": "تعذّر تحميل البيانات",
     "retry": "إعادة المحاولة",
-    "loading": "جاري التحميل..."
+    "loading": "جاري التحميل...",
+    "logoLetter": "س"
   }
 }

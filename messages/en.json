@@ -2317,14 +2317,17 @@
   },
   "dashboardV2": {
     "prototype": "Prototype",
-    "prototypeNote": "Separate preview - the current dashboard is unchanged",
-    "backToClassic": "Back to current dashboard",
+    "communityName": "Syrian community in the Netherlands",
     "searchPlaceholder": "Search the dashboard...",
     "searchTitle": "Quick search",
     "close": "Close",
     "greeting": "Good morning, {name}",
-    "subtitle": "A quiet summary of the community today",
-    "todayLabel": "Today",
+    "subtitle": "A clear view of the community today, with every figure based on platform data.",
+    "breadcrumbDashboard": "Dashboard",
+    "breadcrumbOverview": "Overview",
+    "guest": "Guest",
+    "adminRole": "Administrator",
+    "backToClassic": "Back to current dashboard",
     "groups": {
       "today": "Today",
       "community": "Community",
@@ -2336,23 +2339,19 @@
       "members": "Members",
       "messages": "Messages",
       "events": "Events",
-      "pages": "Pages",
+      "pages": "Posts",
       "sync": "Sync",
       "settings": "Settings"
     },
-    "tasksTitle": "Waiting for you",
+    "tasksTitle": "Needs your attention",
+    "tasksNote": "Real items from platform data, ordered by importance",
     "task": {
-      "approvals": "Membership requests",
+      "approvals": "Membership requests pending",
       "messages": "Messages and inquiries",
       "posts": "Published posts"
     },
-    "table": {
-      "indicator": "Indicator",
-      "value": "Value",
-      "change": "Change",
-      "action": "Action",
-      "open": "Open"
-    },
+    "view": "Open details",
+    "pulseTitle": "Community pulse",
     "kpi": {
       "members": "Registered members",
       "views": "Content views",
@@ -2360,17 +2359,19 @@
       "posts": "Posts"
     },
     "noData": "Not enough data",
-    "trendNote": "Change compared with the previous 7 days",
-    "activity": "Activity log",
-    "activityNote": "Real registrations from the database",
+    "trendNote": "Compared with the previous week",
+    "activityTitle": "Community activity",
+    "activityNote": "Real registrations and interactions over the last seven days",
     "systemTitle": "System status",
     "database": "Database response time",
+    "milliseconds": "ms",
     "sync": "Sync",
     "apiVersion": "API version",
     "syncActive": "Active",
     "syncIdle": "Idle",
     "error": "Could not load data",
     "retry": "Retry",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "logoLetter": "S"
   }
 }

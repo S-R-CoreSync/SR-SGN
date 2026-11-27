@@ -2317,14 +2317,17 @@
   },
   "dashboardV2": {
     "prototype": "Prototype",
-    "prototypeNote": "Losse voorvertoning - het huidige dashboard is niet gewijzigd",
-    "backToClassic": "Terug naar huidig dashboard",
+    "communityName": "Syrische gemeenschap in Nederland",
     "searchPlaceholder": "Zoek in het dashboard...",
     "searchTitle": "Snel zoeken",
     "close": "Sluiten",
     "greeting": "Goedemorgen, {name}",
-    "subtitle": "Een rustig overzicht van de gemeenschap vandaag",
-    "todayLabel": "Vandaag",
+    "subtitle": "Een helder overzicht van de gemeenschap vandaag, met cijfers uit platformgegevens.",
+    "breadcrumbDashboard": "Dashboard",
+    "breadcrumbOverview": "Overzicht",
+    "guest": "Gast",
+    "adminRole": "Beheerder",
+    "backToClassic": "Terug naar huidig dashboard",
     "groups": {
       "today": "Vandaag",
       "community": "Gemeenschap",
@@ -2336,23 +2339,19 @@
       "members": "Leden",
       "messages": "Berichten",
       "events": "Evenementen",
-      "pages": "Pagina's",
+      "pages": "Berichten",
       "sync": "Synchronisatie",
       "settings": "Instellingen"
     },
-    "tasksTitle": "Wacht op u",
+    "tasksTitle": "Vraagt uw aandacht",
+    "tasksNote": "Echte items uit platformgegevens, gesorteerd op belangrijkheid",
     "task": {
-      "approvals": "Lidmaatschapsaanvragen",
+      "approvals": "Lidmaatschapsaanvragen wachtend",
       "messages": "Berichten en vragen",
       "posts": "Gepubliceerde berichten"
     },
-    "table": {
-      "indicator": "Indicator",
-      "value": "Waarde",
-      "change": "Wijziging",
-      "action": "Actie",
-      "open": "Openen"
-    },
+    "view": "Details openen",
+    "pulseTitle": "Gemeenschap in beweging",
     "kpi": {
       "members": "Geregistreerde leden",
       "views": "Contentweergaven",
@@ -2360,17 +2359,19 @@
       "posts": "Berichten"
     },
     "noData": "Niet genoeg gegevens",
-    "trendNote": "Wijziging vergeleken met de vorige 7 dagen",
-    "activity": "Activiteitenlog",
-    "activityNote": "Echte registraties uit de database",
+    "trendNote": "Vergeleken met de vorige week",
+    "activityTitle": "Activiteit gemeenschap",
+    "activityNote": "Echte registraties en interacties in de afgelopen zeven dagen",
     "systemTitle": "Systeemstatus",
     "database": "Databaserespons",
+    "milliseconds": "ms",
     "sync": "Sync",
     "apiVersion": "API-versie",
     "syncActive": "Actief",
     "syncIdle": "Inactief",
     "error": "Gegevens konden niet worden geladen",
     "retry": "Opnieuw",
-    "loading": "Laden..."
+    "loading": "Laden...",
+    "logoLetter": "S"
   }
 }
