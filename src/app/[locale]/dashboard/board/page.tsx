@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { formatLocalizedDigits } from "@/lib/language-guard";
 import {
   Plus, Pencil, Trash2, Upload, X, Check, Loader2, UserCircle2,
   ChevronUp, ChevronDown, Building2, Mail, MessageCircle, Link2, Link2Off
@@ -124,6 +125,7 @@ function ImageUploader({
   currentUrl: string;
   onUploaded: (url: string) => void;
 }) {
+  const t = useTranslations("dashboardBoard");
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState(currentUrl);
@@ -152,7 +154,7 @@ function ImageUploader({
 
       const res = await fetch("/api/board/upload", { method: "POST", body: fd });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "فشل الرفع");
+      if (!res.ok) throw new Error(data.error || t("uploadFailed"));
       setPreview(data.url);
       onUploaded(data.url);
     } catch (e: any) {
@@ -186,8 +188,8 @@ function ImageUploader({
         type="file"
         accept="image/jpeg,image/jpg,image/png,image/webp"
         className="hidden"
-        title="اختر صورة العضو"
-        aria-label="اختر صورة العضو"
+        title={t("chooseMemberPhoto")}
+        aria-label={t("chooseMemberPhoto")}
         onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
       />
 
@@ -198,11 +200,11 @@ function ImageUploader({
         className="text-xs text-[#1a5632] hover:underline flex items-center gap-1"
       >
         <Upload className="w-3 h-3" />
-        {uploading ? "جاري الرفع..." : "رفع صورة"}
+        {uploading ? t("uploading") : t("uploadPhoto")}
       </button>
 
       {error && <p className="text-red-500 text-xs text-center">{error}</p>}
-      <p className="text-gray-400 text-xs">JPG, PNG, WebP — حتى 5MB</p>
+      <p className="text-gray-400 text-xs">{t("uploadHint")}</p>
     </div>
   );
 }
@@ -219,6 +221,7 @@ function ListEditor({
   onChange: (items: string[]) => void;
   placeholder: string;
 }) {
+  const t = useTranslations("dashboardBoard");
   const [draft, setDraft] = useState("");
 
   function add() {
@@ -263,8 +266,8 @@ function ListEditor({
         <button
           type="button"
           onClick={add}
-          title="إضافة"
-          aria-label="إضافة عنصر"
+          title={t("add")}
+          aria-label={t("addItem")}
           className="px-3 py-1.5 bg-[#1a5632] text-white text-sm rounded-lg hover:bg-[#0f3d23] transition-colors"
         >
           <Plus className="w-4 h-4" />
@@ -277,20 +280,20 @@ function ListEditor({
           <li key={i} className="flex items-start gap-2 bg-gray-50 rounded-lg px-3 py-2 text-sm group">
             <span className="flex-1 text-gray-700" dir="rtl">{item}</span>
             <div className="flex items-center gap-1 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button type="button" onClick={() => moveUp(i)} title="أعلى" className="p-0.5 hover:text-[#1a5632]">
+              <button type="button" onClick={() => moveUp(i)} title={t("moveUp")} className="p-0.5 hover:text-[#1a5632]">
                 <ChevronUp className="w-3.5 h-3.5" />
               </button>
-              <button type="button" onClick={() => moveDown(i)} title="أسفل" className="p-0.5 hover:text-[#1a5632]">
+              <button type="button" onClick={() => moveDown(i)} title={t("moveDown")} className="p-0.5 hover:text-[#1a5632]">
                 <ChevronDown className="w-3.5 h-3.5" />
               </button>
-              <button type="button" onClick={() => remove(i)} title="حذف" className="p-0.5 hover:text-red-500">
+              <button type="button" onClick={() => remove(i)} title={t("remove")} className="p-0.5 hover:text-red-500">
                 <X className="w-3.5 h-3.5" />
               </button>
             </div>
           </li>
         ))}
         {items.length === 0 && (
-          <li className="text-gray-400 text-xs text-center py-2">لم تُضف أي عناصر بعد</li>
+          <li className="text-gray-400 text-xs text-center py-2">{t("noItemsYet")}</li>
         )}
       </ul>
     </div>
@@ -308,6 +311,7 @@ function MemberForm({
   onCancel: () => void;
 }) {
   const tAdmin = useTranslations("boardAdmin");
+  const t = useTranslations("dashboardBoard");
   const [form, setForm] = useState(initial);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -319,7 +323,7 @@ function MemberForm({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!form.nameAr.trim() || !form.titleAr.trim()) {
-      setError("الاسم والمنصب (عربي) حقلان إلزاميان");
+      setError(t("nameArRequiredError"));
       return;
     }
     setSaving(true);
@@ -327,7 +331,7 @@ function MemberForm({
     try {
       await onSave(form);
     } catch (e: any) {
-      setError(e.message || "حدث خطأ");
+      setError(e.message || t("genericError"));
     } finally {
       setSaving(false);
     }
@@ -346,15 +350,15 @@ function MemberForm({
       {/* الأسماء */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label htmlFor="field-nameAr" className="block text-sm font-semibold text-gray-700 mb-1">الاسم (عربي) *</label>
+          <label htmlFor="field-nameAr" className="block text-sm font-semibold text-gray-700 mb-1">{t("nameArLabel")}</label>
           <input id="field-nameAr" value={form.nameAr} onChange={(e) => set("nameAr", e.target.value)}
-            placeholder="مثال: أحمد الخطيب"
+            placeholder={t("nameArPlaceholder")}
             className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5632]" required />
         </div>
         <div>
-          <label htmlFor="field-nameEn" className="block text-sm font-semibold text-gray-700 mb-1">Name (English)</label>
+          <label htmlFor="field-nameEn" className="block text-sm font-semibold text-gray-700 mb-1">{t("nameEnLabel")}</label>
           <input id="field-nameEn" value={form.nameEn} onChange={(e) => set("nameEn", e.target.value)} dir="ltr"
-            placeholder="e.g. Ahmad Al-Khatib"
+            placeholder={t("nameEnPlaceholder")}
             className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5632]" />
         </div>
       </div>
@@ -362,24 +366,24 @@ function MemberForm({
       {/* المناصب */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label htmlFor="field-titleAr" className="block text-sm font-semibold text-gray-700 mb-1">المنصب (عربي) *</label>
+          <label htmlFor="field-titleAr" className="block text-sm font-semibold text-gray-700 mb-1">{t("titleArLabel")}</label>
           <input id="field-titleAr" value={form.titleAr} onChange={(e) => set("titleAr", e.target.value)}
-            placeholder="مثال: رئيس مجلس الإدارة"
+            placeholder={t("titleArPlaceholder")}
             className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5632]" required />
         </div>
         <div>
-          <label htmlFor="field-titleEn" className="block text-sm font-semibold text-gray-700 mb-1">Title (English)</label>
+          <label htmlFor="field-titleEn" className="block text-sm font-semibold text-gray-700 mb-1">{t("titleEnLabel")}</label>
           <input id="field-titleEn" value={form.titleEn} onChange={(e) => set("titleEn", e.target.value)} dir="ltr"
-            placeholder="e.g. Chairman of the Board"
+            placeholder={t("titleEnPlaceholder")}
             className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5632]" />
         </div>
       </div>
 
       {/* رقم KVK */}
       <div>
-        <label htmlFor="field-kvk" className="block text-sm font-semibold text-gray-700 mb-1">رقم KVK</label>
+        <label htmlFor="field-kvk" className="block text-sm font-semibold text-gray-700 mb-1">{t("kvkLabel")}</label>
         <input id="field-kvk" value={form.kvkNumber} onChange={(e) => set("kvkNumber", e.target.value)} dir="ltr"
-          placeholder="96718943"
+          placeholder={t("kvkPlaceholder")}
           className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5632]" />
       </div>
 
@@ -418,29 +422,29 @@ function MemberForm({
         <label className="flex items-center gap-2 cursor-pointer select-none">
           <input type="checkbox" checked={form.isFounder} onChange={(e) => set("isFounder", e.target.checked)}
             className="w-4 h-4 accent-[#1a5632]" />
-          <span className="text-sm font-medium text-gray-700">عضو مؤسس</span>
+          <span className="text-sm font-medium text-gray-700">{t("founder")}</span>
         </label>
         <label className="flex items-center gap-2 cursor-pointer select-none">
           <input type="checkbox" checked={form.isLicensing} onChange={(e) => set("isLicensing", e.target.checked)}
             className="w-4 h-4 accent-[#1a5632]" />
-          <span className="text-sm font-medium text-gray-700">عضو لجنة الترخيص</span>
+          <span className="text-sm font-medium text-gray-700">{t("licensingCommittee")}</span>
         </label>
       </div>
 
       {/* اللجان */}
       <ListEditor
-        label="اللجان والمكاتب"
+        label={t("committeesLabel")}
         items={form.committees}
         onChange={(v) => set("committees", v)}
-        placeholder="اكتب اسم اللجنة واضغط Enter..."
+        placeholder={t("committeesPlaceholder")}
       />
 
       {/* نقاط السيرة */}
       <ListEditor
-        label="نقاط السيرة المهنية"
+        label={t("bioPointsLabel")}
         items={form.bioPoints}
         onChange={(v) => set("bioPoints", v)}
-        placeholder="اكتب نقطة سيرة واضغط Enter..."
+        placeholder={t("bioPointsPlaceholder")}
       />
 
       {error && (
@@ -453,12 +457,12 @@ function MemberForm({
       <div className="flex justify-end gap-3 pt-2 border-t">
         <button type="button" onClick={onCancel}
           className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">
-          إلغاء
+          {t("cancel")}
         </button>
         <button type="submit" disabled={saving}
           className="px-5 py-2.5 text-sm font-medium text-white bg-[#1a5632] hover:bg-[#0f3d23] rounded-xl transition-colors flex items-center gap-2 disabled:opacity-60">
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
-          {saving ? "جاري الحفظ..." : "حفظ"}
+          {saving ? t("saving") : t("save")}
         </button>
       </div>
     </form>
@@ -468,6 +472,8 @@ function MemberForm({
 // ─── الصفحة الرئيسية ────────────────────────────────────────────────────────
 export default function DashboardBoardPage() {
   const tAdmin = useTranslations("boardAdmin");
+  const t = useTranslations("dashboardBoard");
+  const locale = useLocale();
   const [members, setMembers] = useState<BoardMember[]>([]);
   const [accounts, setAccounts] = useState<Array<{ id: string; name: string | null; email: string; role: string }>>([]);
   const [loading, setLoading] = useState(true);
@@ -518,10 +524,10 @@ export default function DashboardBoardPage() {
 
     if (!res.ok) {
       const err = await res.json();
-      throw new Error(err.error || "فشل الحفظ");
+      throw new Error(err.error || t("saveFailed"));
     }
 
-    showToast(isNew ? "تمت إضافة العضو بنجاح ✅" : "تم تحديث بيانات العضو ✅");
+    showToast(isNew ? t("memberAdded") : t("memberUpdated"));
     setEditingId(null);
     await load();
   }
@@ -531,10 +537,10 @@ export default function DashboardBoardPage() {
     setDeleting(true);
     const res = await fetch(`/api/board/${id}`, { method: "DELETE" });
     if (res.ok) {
-      showToast("تم حذف العضو بنجاح");
+      showToast(t("memberDeleted"));
       setMembers((m) => m.filter((x) => x.id !== id));
     } else {
-      showToast("فشل الحذف", "error");
+      showToast(t("deleteFailed"), "error");
     }
     setDeleteId(null);
     setDeleting(false);
@@ -600,8 +606,10 @@ export default function DashboardBoardPage() {
             <Building2 className="w-5 h-5 text-[#1a5632]" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">إدارة مجلس الإدارة</h1>
-            <p className="text-sm text-gray-500">{members.length} عضو في قاعدة البيانات</p>
+            <h1 className="text-xl font-bold text-gray-900">{t("pageTitle")}</h1>
+            <p className="text-sm text-gray-500">
+              {t("membersCount", { count: members.length, displayCount: formatLocalizedDigits(members.length, locale) })}
+            </p>
           </div>
         </div>
         {editingId === null && (
@@ -610,7 +618,7 @@ export default function DashboardBoardPage() {
             className="flex items-center gap-2 px-4 py-2.5 bg-[#1a5632] text-white text-sm font-medium rounded-xl hover:bg-[#0f3d23] transition-colors shadow-sm"
           >
             <Plus className="w-4 h-4" />
-            إضافة عضو
+            {t("addMember")}
           </button>
         )}
       </div>
@@ -620,9 +628,9 @@ export default function DashboardBoardPage() {
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-8">
           <div className="flex items-center justify-between mb-6">
             <h2 className="font-bold text-gray-900 text-lg">
-              {editingId === "new" ? "إضافة عضو جديد" : "تعديل بيانات العضو"}
+              {editingId === "new" ? t("addNewMember") : t("editMember")}
             </h2>
-            <button onClick={() => setEditingId(null)} aria-label="إغلاق النموذج" title="إغلاق" className="p-1.5 hover:bg-gray-100 rounded-lg">
+            <button onClick={() => setEditingId(null)} aria-label={t("closeForm")} title={t("close")} className="p-1.5 hover:bg-gray-100 rounded-lg">
               <X className="w-5 h-5 text-gray-500" />
             </button>
           </div>
@@ -642,7 +650,7 @@ export default function DashboardBoardPage() {
       ) : members.length === 0 ? (
         <div className="text-center py-24 text-gray-400">
           <UserCircle2 className="w-14 h-14 mx-auto mb-3 opacity-30" />
-          <p>لا توجد أعضاء بعد. ابدأ بإضافة العضو الأول.</p>
+          <p>{t("noMembers")}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -666,13 +674,13 @@ export default function DashboardBoardPage() {
               {/* شارات */}
               <div className="px-5 pb-3 flex flex-wrap gap-1.5">
                 {m.isFounder && (
-                  <span className="text-xs bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full">مؤسس</span>
+                  <span className="text-xs bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full">{t("founderBadge")}</span>
                 )}
                 {m.isLicensing && (
-                  <span className="text-xs bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-full">لجنة الترخيص</span>
+                  <span className="text-xs bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-full">{t("licensingCommittee")}</span>
                 )}
                 <span className="text-xs bg-gray-50 text-gray-500 border px-2 py-0.5 rounded-full">
-                  {m.committees.length} لجنة
+                  {t("committeesBadge", { count: m.committees.length, displayCount: formatLocalizedDigits(m.committees.length, locale) })}
                 </span>
               </div>
 
@@ -731,12 +739,12 @@ export default function DashboardBoardPage() {
                   className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-[#1a5632] bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-colors border border-emerald-200"
                 >
                   <Pencil className="w-3.5 h-3.5" />
-                  تعديل
+                  {t("edit")}
                 </button>
                 <button
                   onClick={() => setDeleteId(m.id)}
-                  aria-label={`حذف ${m.nameAr}`}
-                  title="حذف العضو"
+                  aria-label={t("deleteMemberNamed", { name: m.nameAr })}
+                  title={t("deleteMember")}
                   className="flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-colors border border-red-200"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -754,19 +762,19 @@ export default function DashboardBoardPage() {
             <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center mx-auto mb-4">
               <Trash2 className="w-6 h-6 text-red-600" />
             </div>
-            <h3 className="text-lg font-bold text-gray-900 text-center mb-2">تأكيد الحذف</h3>
+            <h3 className="text-lg font-bold text-gray-900 text-center mb-2">{t("confirmDelete")}</h3>
             <p className="text-gray-500 text-sm text-center mb-6">
-              سيتم حذف بيانات هذا العضو نهائياً من قاعدة البيانات ولا يمكن التراجع.
+              {t("deleteWarning")}
             </p>
             <div className="flex gap-3">
               <button onClick={() => setDeleteId(null)}
                 className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">
-                إلغاء
+                {t("cancel")}
               </button>
               <button onClick={() => handleDelete(deleteId)} disabled={deleting}
                 className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-60">
                 {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                {deleting ? "جاري الحذف..." : "حذف"}
+                {deleting ? t("deleting") : t("delete")}
               </button>
             </div>
           </div>

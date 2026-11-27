@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import {
   Printer, FileText, RefreshCw, User, Building2, HandHeart,
@@ -90,6 +90,7 @@ const AI_PRESETS = [
 export default function DocumentsGeneratorPage() {
   const locale = useLocale() as "ar" | "nl" | "en";
   const isAr = locale === "ar";
+  const td = useTranslations("dashboardDocs");
 
   // Tab State
   const [activeTab, setActiveTab] = useState<"parties" | "articles" | "ai">("parties");
@@ -303,7 +304,7 @@ export default function DocumentsGeneratorPage() {
 
       if (data.articles && Array.isArray(data.articles) && data.articles.length > 0) {
         setArticles(data.articles);
-        setAiMessage(isAr ? "تم تحديث بنود العقد وتخصيصها بالذكاء الاصطناعي بنجاح ✓" : "Contractartikelen succesvol gegenereerd en bijgewerkt via AI ✓");
+        setAiMessage(td("aiUpdatedArticles"));
       } else if (data.content) {
         const newArtNum = articles.length + 1;
         setArticles(prev => [
@@ -316,10 +317,10 @@ export default function DocumentsGeneratorPage() {
             paragraphsAr: [data.content],
           }
         ]);
-        setAiMessage(isAr ? "تمت إضافة المادة التخصصية إلى العقد بنجاح ✓" : "Extra bepaling succesvol toegevoegd aan het contract ✓");
+        setAiMessage(td("aiAddedArticle"));
       }
     } catch {
-      setAiMessage(isAr ? "تعذر الاتصال بالذكاء الاصطناعي، يرجى المحاولة ثانية." : "AI fout, probeer opnieuw.");
+      setAiMessage(td("aiError"));
     } finally {
       setGeneratingAi(false);
     }
@@ -709,17 +710,17 @@ export default function DocumentsGeneratorPage() {
           <Link
             href="/dashboard"
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-bold transition group"
-            title="الرجوع إلى لوحة التحكم الرئيسية"
+            title={td("backToDashboardTitle")}
           >
             <ArrowLeft className="w-3.5 h-3.5 text-slate-500 group-hover:-translate-x-0.5 transition-transform" />
-            <span>{isAr ? "الرجوع للوحة التحكم" : "Terug naar Dashboard"}</span>
+            <span>{td("backToDashboard")}</span>
           </Link>
 
           <div className="h-5 w-px bg-slate-200 hidden sm:block" />
 
           <div>
             <h1 className="text-sm sm:text-base font-extrabold text-slate-900 leading-tight">
-              {isAr ? "منشئ ومحرر العقود والوثائق الرسمية" : "Documenten- & Contractengenerator"}
+              {td("pageTitle")}
             </h1>
             <p className="text-[11px] text-slate-500 hidden sm:flex items-center gap-2">
               <span className="font-semibold text-emerald-800">{orgHeaderTitle}</span>
@@ -736,10 +737,10 @@ export default function DocumentsGeneratorPage() {
           <button
             onClick={handleLoadMaherAslan}
             className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-emerald-50 hover:border-emerald-300 text-slate-700 text-xs font-semibold transition"
-            title="تحميل وتعبئة النموذج المعتمد لماهر أصلان"
+            title={td("maherTemplateTitle")}
           >
             <User className="w-3 h-3 text-emerald-600" />
-            <span>{isAr ? "نموذج ماهر أصلان" : "Model Aslan"}</span>
+            <span>{td("maherTemplate")}</span>
           </button>
 
           {/* Digital Signature Trigger */}
@@ -750,10 +751,10 @@ export default function DocumentsGeneratorPage() {
                 ? "bg-emerald-50 border-emerald-300 text-emerald-800"
                 : "border-slate-300 bg-white hover:bg-slate-50 text-slate-700"
             }`}
-            title="توقيع الطرف الثاني على الشاشة"
+            title={td("signTitle")}
           >
             <PenTool className="w-3.5 h-3.5 text-emerald-600" />
-            <span>{volunteerSignature ? (isAr ? "تم التوقيع ✓" : "Getekend ✓") : (isAr ? "توقيع على الشاشة" : "Ondertekenen")}</span>
+            <span>{volunteerSignature ? td("signed") : td("signOnScreen")}</span>
           </button>
 
           {/* Language Selector */}
@@ -783,7 +784,7 @@ export default function DocumentsGeneratorPage() {
             <button
               onClick={() => setZoomLevel(Math.max(75, zoomLevel - 15))}
               className="p-1 hover:bg-slate-100 rounded text-slate-600"
-              title="تصغير"
+              title={td("zoomOutTitle")}
             >
               <ZoomOut className="w-3.5 h-3.5" />
             </button>
@@ -791,7 +792,7 @@ export default function DocumentsGeneratorPage() {
             <button
               onClick={() => setZoomLevel(Math.min(130, zoomLevel + 15))}
               className="p-1 hover:bg-slate-100 rounded text-slate-600"
-              title="تكبير"
+              title={td("zoomInTitle")}
             >
               <ZoomIn className="w-3.5 h-3.5" />
             </button>
@@ -804,7 +805,7 @@ export default function DocumentsGeneratorPage() {
             className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-sm transition transform active:scale-95 disabled:opacity-50"
           >
             {isPrinting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Printer className="w-4 h-4" />}
-            <span>{isAr ? "طباعة وتصدير PDF فوري" : "Afdrukken / PDF"}</span>
+            <span>{td("printPdf")}</span>
           </button>
         </div>
       </div>
@@ -822,21 +823,21 @@ export default function DocumentsGeneratorPage() {
               className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-bold transition ${activeTab === "parties" ? "bg-white text-emerald-800 shadow-xs" : "text-slate-600 hover:text-slate-900"}`}
             >
               <User className="w-3.5 h-3.5" />
-              <span>{isAr ? "البيانات والطرفين" : "Partijen & Info"}</span>
+              <span>{td("tabParties")}</span>
             </button>
             <button
               onClick={() => setActiveTab("articles")}
               className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-bold transition ${activeTab === "articles" ? "bg-white text-emerald-800 shadow-xs" : "text-slate-600 hover:text-slate-900"}`}
             >
               <FileText className="w-3.5 h-3.5" />
-              <span>{isAr ? "بنود العقد (٩)" : "Artikelen (9)"}</span>
+              <span>{td("tabArticles")}</span>
             </button>
             <button
               onClick={() => setActiveTab("ai")}
               className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-bold transition ${activeTab === "ai" ? "bg-amber-500 text-white shadow-xs" : "text-amber-700 hover:bg-amber-50"}`}
             >
               <Sparkles className="w-3.5 h-3.5" />
-              <span>{isAr ? "تخصيص بالذكاء الاصطناعي" : "AI Assistent"}</span>
+              <span>{td("tabAi")}</span>
             </button>
           </div>
 
@@ -851,15 +852,13 @@ export default function DocumentsGeneratorPage() {
                   <div className="flex items-center justify-between mb-2">
                     <label className="text-xs font-bold text-emerald-900 flex items-center gap-1.5">
                       <Search className="w-4 h-4 text-emerald-700" />
-                      <span>{isAr ? "ربط فوري مع المشتركين والمنتسبين" : "Koppel met Leden & Vrijwilligers"}</span>
+                      <span>{td("linkMembers")}</span>
                     </label>
                     {loadingMembers && <Loader2 className="w-3.5 h-3.5 text-emerald-600 animate-spin" />}
                   </div>
 
                   <p className="text-[11px] text-emerald-800/80 mb-2.5">
-                    {isAr
-                      ? "ابحث بالاسم أو البريد، وسيتم ملء كافة تفاصيل الطرف الثاني تلقائياً."
-                      : "Typ een naam of e-mail om de gegevens van de tweede partij direct in te laden."}
+                    {td("searchHint")}
                   </p>
 
                   <div className="relative">
@@ -868,7 +867,7 @@ export default function DocumentsGeneratorPage() {
                       value={searchQuery}
                       onChange={(e) => { setSearchQuery(e.target.value); setShowDropdown(true); }}
                       onFocus={() => setShowDropdown(true)}
-                      placeholder={isAr ? "اكتب اسم المشترك أو المتطوع..." : "Zoek op naam of e-mail..."}
+                      placeholder={td("searchPlaceholder")}
                       className="w-full bg-white border border-emerald-300 rounded-xl px-3 py-2 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-xs"
                     />
 
@@ -896,13 +895,13 @@ export default function DocumentsGeneratorPage() {
                 {/* SECOND PARTY FIELDS */}
                 <div className="space-y-3">
                   <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider pb-1 border-b border-slate-200">
-                    {isAr ? "بيانات الطرف الثاني (المتطوع)" : "Gegevens Tweede Partij (Vrijwilliger)"}
+                    {td("secondPartyHeading")}
                   </h3>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div className="col-span-2">
                       <label className="text-[11px] font-bold text-slate-700 mb-1 block">
-                        {isAr ? "الاسم الكامل" : "Volledige Naam"}
+                        {td("fullName")}
                       </label>
                       <input
                         type="text"
@@ -914,7 +913,7 @@ export default function DocumentsGeneratorPage() {
 
                     <div>
                       <label className="text-[11px] font-bold text-slate-700 mb-1 block">
-                        {isAr ? "الرقم التعريفي / المرجعي" : "Referentienummer"}
+                        {td("referenceNumber")}
                       </label>
                       <input
                         type="text"
@@ -926,7 +925,7 @@ export default function DocumentsGeneratorPage() {
 
                     <div>
                       <label className="text-[11px] font-bold text-slate-700 mb-1 block">
-                        {isAr ? "تاريخ الميلاد" : "Geboortedatum"}
+                        {td("birthDate")}
                       </label>
                       <input
                         type="date"
@@ -938,7 +937,7 @@ export default function DocumentsGeneratorPage() {
 
                     <div>
                       <label className="text-[11px] font-bold text-slate-700 mb-1 block">
-                        {isAr ? "العنوان والشارع" : "Straat & Huisnummer"}
+                        {td("address")}
                       </label>
                       <input
                         type="text"
@@ -950,7 +949,7 @@ export default function DocumentsGeneratorPage() {
 
                     <div>
                       <label className="text-[11px] font-bold text-slate-700 mb-1 block">
-                        {isAr ? "الرمز البريدي والمدينة" : "Postcode & Woonplaats"}
+                        {td("postcodeCity")}
                       </label>
                       <div className="flex gap-1.5">
                         <input
@@ -972,7 +971,7 @@ export default function DocumentsGeneratorPage() {
 
                     <div>
                       <label className="text-[11px] font-bold text-slate-700 mb-1 block">
-                        {isAr ? "البريد الإلكتروني" : "E-mailadres"}
+                        {td("email")}
                       </label>
                       <input
                         type="email"
@@ -984,7 +983,7 @@ export default function DocumentsGeneratorPage() {
 
                     <div>
                       <label className="text-[11px] font-bold text-slate-700 mb-1 block">
-                        {isAr ? "رقم الهاتف" : "Telefoonnummer"}
+                        {td("phone")}
                       </label>
                       <input
                         type="text"
@@ -996,7 +995,7 @@ export default function DocumentsGeneratorPage() {
 
                     <div>
                       <label className="text-[11px] font-bold text-slate-700 mb-1 block">
-                        {isAr ? "القسم واللجنة" : "Afdeling"}
+                        {td("department")}
                       </label>
                       <select
                         value={department}
@@ -1013,7 +1012,7 @@ export default function DocumentsGeneratorPage() {
 
                     <div>
                       <label className="text-[11px] font-bold text-slate-700 mb-1 block">
-                        {isAr ? "متوسط الساعات أسبوعياً" : "Uren per week"}
+                        {td("hoursPerWeek")}
                       </label>
                       <input
                         type="text"
@@ -1029,13 +1028,13 @@ export default function DocumentsGeneratorPage() {
                 {/* DOCUMENT & SIGNATORY */}
                 <div className="space-y-3 pt-2">
                   <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider pb-1 border-b border-slate-200">
-                    {isAr ? "بيانات الوثيقة والتوقيع" : "Document & Ondertekening"}
+                    {td("documentHeading")}
                   </h3>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="text-[11px] font-bold text-slate-700 mb-1 block">
-                        {isAr ? "الرقم المرجعي" : "Referentienummer"}
+                        {td("referenceNumber")}
                       </label>
                       <div className="flex gap-1.5">
                         <input
@@ -1047,7 +1046,7 @@ export default function DocumentsGeneratorPage() {
                         <button
                           onClick={() => setRefNumber(`SGN-DOC-2026-${Math.floor(1000 + Math.random() * 9000)}`)}
                           className="px-2 border rounded-lg text-slate-500 hover:text-emerald-700"
-                          title="توليد رقم عشوائي"
+                          title={td("randomRefTitle")}
                         >
                           <RefreshCw className="w-3.5 h-3.5" />
                         </button>
@@ -1056,7 +1055,7 @@ export default function DocumentsGeneratorPage() {
 
                     <div>
                       <label className="text-[11px] font-bold text-slate-700 mb-1 block">
-                        {isAr ? "تاريخ الإصدار" : "Datum"}
+                        {td("issueDate")}
                       </label>
                       <input
                         type="date"
@@ -1068,7 +1067,7 @@ export default function DocumentsGeneratorPage() {
 
                     <div className="col-span-2">
                       <label className="text-[11px] font-bold text-slate-700 mb-1 block">
-                        {isAr ? "الممثل الموقّع عن الجالية" : "Ondertekenaar namens SGN"}
+                        {td("signatory")}
                       </label>
                       <select
                         value={signatoryIndex}
@@ -1092,7 +1091,7 @@ export default function DocumentsGeneratorPage() {
                         onChange={(e) => setIncludeSeal(e.target.checked)}
                         className="rounded text-emerald-600 focus:ring-emerald-500"
                       />
-                      <span>{isAr ? "تضمين الختم الرسمي للجالية" : "Officieel SGN Stempel"}</span>
+                      <span>{td("includeSeal")}</span>
                     </label>
 
                     <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-slate-700">
@@ -1102,7 +1101,7 @@ export default function DocumentsGeneratorPage() {
                         onChange={(e) => setIncludeQr(e.target.checked)}
                         className="rounded text-emerald-600 focus:ring-emerald-500"
                       />
-                      <span>{isAr ? "رمز التحقق الرقمي QR" : "QR Verificatie"}</span>
+                      <span>{td("includeQr")}</span>
                     </label>
                   </div>
                 </div>
@@ -1114,14 +1113,14 @@ export default function DocumentsGeneratorPage() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between pb-2 border-b border-slate-200">
                   <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                    {isAr ? "بنود العقد القانونية (قابلة للتعديل)" : "Artikelen van de Overeenkomst"}
+                    {td("articlesHeading")}
                   </h3>
                   <button
                     onClick={handleResetArticles}
                     className="text-[11px] text-emerald-700 hover:underline flex items-center gap-1 font-bold"
                   >
                     <RefreshCw className="w-3 h-3" />
-                    <span>{isAr ? "استعادة النموذج الرسمي" : "Herstel standaard"}</span>
+                    <span>{td("resetDefault")}</span>
                   </button>
                 </div>
 
@@ -1135,7 +1134,7 @@ export default function DocumentsGeneratorPage() {
                         <button
                           onClick={() => setArticles(articles.filter((_, i) => i !== aIdx))}
                           className="text-red-500 hover:text-red-700 p-1"
-                          title="حذف هذا البند"
+                          title={td("deleteArticleTitle")}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -1219,7 +1218,7 @@ export default function DocumentsGeneratorPage() {
                     className="w-full py-2.5 border-2 border-dashed border-emerald-300 hover:border-emerald-500 rounded-xl text-emerald-800 text-xs font-bold flex items-center justify-center gap-1.5 transition"
                   >
                     <Plus className="w-4 h-4" />
-                    <span>{isAr ? "إضافة مادة قانونية جديدة للعقد" : "Voeg een nieuw artikel toe"}</span>
+                    <span>{td("addArticle")}</span>
                   </button>
                 </div>
               </div>
@@ -1231,12 +1230,10 @@ export default function DocumentsGeneratorPage() {
                 <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
                   <div className="flex items-center gap-2 text-amber-900 font-bold text-xs mb-1">
                     <Sparkles className="w-4 h-4 text-amber-600" />
-                    <span>{isAr ? "نماذج واقتراحات جاهزة بضغطة زر" : "AI Sjablonen & Suggesties"}</span>
+                    <span>{td("aiTemplatesHeading")}</span>
                   </div>
                   <p className="text-[11px] text-amber-800/80 mb-3">
-                    {isAr
-                      ? "اختر نوع التخصص المطلوب ليقوم الذكاء الاصطناعي بصياغة وتضمين المواد القانونية الملائمة مباشرة في العقد:"
-                      : "Kies een specialisatie om de AI automatisch passende bepalingen te laten formuleren:"}
+                    {td("aiTemplatesHint")}
                   </p>
 
                   <div className="grid grid-cols-1 gap-2">
@@ -1267,17 +1264,13 @@ export default function DocumentsGeneratorPage() {
                 {/* CUSTOM PROMPT */}
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-slate-800 block">
-                    {isAr ? "أو اكتب توجيهاً مخصصاً للذكاء الاصطناعي:" : "Of geef een aangepaste instructie:"}
+                    {td("customPromptLabel")}
                   </label>
                   <textarea
                     value={aiPrompt}
                     onChange={(e) => setAiPrompt(e.target.value)}
                     rows={4}
-                    placeholder={
-                      isAr
-                        ? "مثال: أضف بنداً يعفي المتطوع من ساعات الدوام أثناء فترة الامتحانات الجامعية، ويلزمه بسرية حسابات التواصل..."
-                        : "Bijv: Voeg een clausule toe over flexibele uren tijdens tentamenperiodes en geheimhouding van sociale media..."
-                    }
+                    placeholder={td("customPromptPlaceholder")}
                     className="w-full text-xs p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none resize-none"
                   />
 
@@ -1289,12 +1282,12 @@ export default function DocumentsGeneratorPage() {
                     {generatingAi ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>{isAr ? "جارٍ الصياغة القانونية بالذكاء الاصطناعي..." : "AI formuleert juridische tekst..."}</span>
+                        <span>{td("aiGenerating")}</span>
                       </>
                     ) : (
                       <>
                         <Wand2 className="w-4 h-4" />
-                        <span>{isAr ? "توليد وتطبيق على العقد فوراً" : "Genereer en voeg toe aan contract"}</span>
+                        <span>{td("aiGenerateApply")}</span>
                       </>
                     )}
                   </button>
@@ -1571,7 +1564,7 @@ export default function DocumentsGeneratorPage() {
                               onClick={() => setVolunteerSignature(null)}
                               className="text-[9px] text-red-500 hover:underline print:hidden"
                             >
-                              {isAr ? "مسح" : "Wis"}
+                              {td("clearSignature")}
                             </button>
                           )}
                         </div>
@@ -1615,7 +1608,7 @@ export default function DocumentsGeneratorPage() {
             <div className="flex items-center justify-between border-b pb-2">
               <h3 className="font-bold text-sm text-slate-900 flex items-center gap-2">
                 <PenTool className="w-4 h-4 text-emerald-600" />
-                <span>{isAr ? "لوحة التوقيع الرقمي الحي" : "Digitaal Handtekeningenpaneel"}</span>
+                <span>{td("signatureModalTitle")}</span>
               </h3>
               <button
                 onClick={() => setShowSignaturePad(false)}
@@ -1626,9 +1619,7 @@ export default function DocumentsGeneratorPage() {
             </div>
 
             <p className="text-xs text-slate-500">
-              {isAr
-                ? "ارسم التوقيع بالماوس أو الإصبع/القلم على الشاشة ليتم تضمينه في ورقة العقد:"
-                : "Teken uw handtekening met de muis of vinger op het scherm:"}
+              {td("signatureModalHint")}
             </p>
 
             <div className="border-2 border-dashed border-slate-300 rounded-xl bg-slate-50 overflow-hidden flex justify-center">
@@ -1653,7 +1644,7 @@ export default function DocumentsGeneratorPage() {
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-50"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
-                <span>{isAr ? "مسح وإعادة" : "Wissen"}</span>
+                <span>{td("clearRedo")}</span>
               </button>
 
               <div className="flex gap-2">
@@ -1661,13 +1652,13 @@ export default function DocumentsGeneratorPage() {
                   onClick={() => setShowSignaturePad(false)}
                   className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs text-slate-600 hover:bg-slate-100"
                 >
-                  {isAr ? "إلغاء" : "Annuleren"}
+                  {td("cancel")}
                 </button>
                 <button
                   onClick={saveSignature}
                   className="px-4 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-xs"
                 >
-                  {isAr ? "حفظ التوقيع بالعقد" : "Opslaan in Contract"}
+                  {td("saveToContract")}
                 </button>
               </div>
             </div>

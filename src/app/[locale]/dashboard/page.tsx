@@ -180,11 +180,7 @@ export default function DashboardPage() {
                 <span className="text-xl">👋</span>
               </h1>
               <p className="text-xs sm:text-sm text-emerald-100/90 font-medium max-w-2xl mt-1">
-                {locale === "nl" 
-                  ? "Geavanceerd dashboard voor het beheer van de Syrische gemeenschap in Nederland. Bekijk actuele indicatoren en AI-analyses."
-                  : locale === "en"
-                  ? "Next-gen command center for managing the Syrian community in the Netherlands. Real-time metrics and AI intelligence."
-                  : "لوحة القيادة المتطورة لإدارة وتوجيه شؤون الجالية السورية في هولندا. مؤشرات تفاعلية حية، وتحليلات فورية بالذكاء الاصطناعي."}
+                {t("welcomeSubtitle")}
               </p>
             </div>
 
@@ -256,11 +252,7 @@ export default function DashboardPage() {
                 </span>
               </div>
               <p className="text-[11px] text-emerald-100 max-w-[130px] leading-tight">
-                {locale === "nl" 
-                  ? "Uitstekende interactie en stabiele werking" 
-                  : locale === "en" 
-                  ? "High community engagement & healthy pulse" 
-                  : "نشاط مجتمعي ممتاز وتفاعل نوعي مستمر"}
+                {t("vitalityNote")}
               </p>
               <div className="flex items-center gap-1 text-[10px] text-emerald-300 font-bold">
                 <TrendingUp className="w-3 h-3 text-[#c8a84e]" />
@@ -306,13 +298,7 @@ export default function DashboardPage() {
             <div className="flex items-start gap-3">
               <div className="w-2 h-2 rounded-full bg-emerald-500 mt-2 shrink-0 animate-ping" />
               <p>
-                {aiData?.executiveSummary || (
-                  locale === "nl" 
-                    ? "De Syrische Gemeenschap in Nederland groeit gestaag met actieve participatie. De kernprioriteit voor vandaag is het verifiëren van nieuwe aanmeldingen."
-                    : locale === "en"
-                    ? "The Syrian Community in the Netherlands is experiencing steady engagement. The top priority today is reviewing pending member verifications."
-                    : "تشهد منصة الجالية السورية في هولندا نمواً متصاعداً مع تفاعل نوعي على مختلف الخدمات. الأولوية التشغيلية اليوم هي اعتماد طلبات الانتساب الجديدة ومتابعة استفسارات شؤون الإقامة والاندماج."
-                )}
+                {aiData?.executiveSummary || t("noBriefingYet")}
               </p>
             </div>
           </div>
@@ -743,13 +729,7 @@ export default function DashboardPage() {
               <textarea
                 value={aiPrompt}
                 onChange={(e) => setAiPrompt(e.target.value)}
-                placeholder={
-                  locale === "nl" 
-                    ? "Bijv. Uitnodiging voor een voorlichtingsbijeenkomst over inburgering in Amsterdam op zaterdag..." 
-                    : locale === "en" 
-                    ? "e.g., Invitation to a legal webinar regarding family reunification and IND rules next Saturday..."
-                    : "مثال: إعلان رسمي عن تنظيم ندوة قانونية مجانية حول قوانين الإقامة ولم الشمل في أمستردام يوم السبت القادم مع توفير مترجمين..."
-                }
+                placeholder={t("aiExamplePrompt")}
                 rows={3}
                 className="w-full rounded-2xl p-3.5 text-xs sm:text-sm border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#1a5632]"
               />
@@ -810,14 +790,14 @@ export default function DashboardPage() {
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-emerald-900 dark:text-emerald-300 flex items-center gap-1.5">
                       <FreeSyrianFlag className="w-4 h-3 rounded-xs" />
-                      <span>النسخة العربية (العربية الفصحى)</span>
+                      <span>{t("arabicVersionLabel")}</span>
                     </span>
                     <button
                       onClick={() => copyToClipboard(`${generatedContent.titleAr}\n\n${generatedContent.contentAr}`, "ar")}
                       className="text-xs text-emerald-800 dark:text-emerald-300 font-bold hover:underline flex items-center gap-1"
                     >
                       {copiedKey === "ar" ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                      <span>{copiedKey === "ar" ? "تم النسخ!" : "نسخ النص"}</span>
+                      <span>{copiedKey === "ar" ? t("copied") : t("copyText")}</span>
                     </button>
                   </div>
                   <p className="text-xs font-bold text-gray-900 dark:text-white">{generatedContent.titleAr}</p>
@@ -836,7 +816,7 @@ export default function DashboardPage() {
                       className="text-xs text-gray-600 dark:text-gray-300 font-bold hover:underline flex items-center gap-1"
                     >
                       {copiedKey === "nl" ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                      <span>{copiedKey === "nl" ? "Gekopieerd!" : "Kopiëren"}</span>
+                      <span>{copiedKey === "nl" ? t("copied") : t("copyText")}</span>
                     </button>
                   </div>
                   <p className="text-xs font-bold text-gray-900 dark:text-white">{generatedContent.titleNl}</p>
@@ -855,7 +835,7 @@ export default function DashboardPage() {
                       className="text-xs text-gray-600 dark:text-gray-300 font-bold hover:underline flex items-center gap-1"
                     >
                       {copiedKey === "en" ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                      <span>{copiedKey === "en" ? "Copied!" : "Copy"}</span>
+                      <span>{copiedKey === "en" ? t("copied") : t("copyText")}</span>
                     </button>
                   </div>
                   <p className="text-xs font-bold text-gray-900 dark:text-white">{generatedContent.titleEn}</p>

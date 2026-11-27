@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { Save, Loader2, FileText, Plus, Trash2, GripVertical } from "lucide-react";
+import { formatLocalizedDigits } from "@/lib/language-guard";
 
 interface Section {
   title: string;
@@ -20,6 +22,8 @@ interface Regulation {
 }
 
 export default function RegulationsDashboard() {
+  const t = useTranslations("dashboardRegulations");
+  const locale = useLocale();
   const [data, setData] = useState<Regulation | null>(null);
   const [sections, setSections] = useState<Section[]>([]);
   const [loading, setLoading] = useState(true);
@@ -66,9 +70,9 @@ export default function RegulationsDashboard() {
       if (!res.ok) throw new Error((await res.json()).error);
       const updated = await res.json();
       setData(updated);
-      setMsg("✅ تم الحفظ");
+      setMsg(t("saved"));
     } catch (e: any) {
-      setMsg("❌ " + e.message);
+      setMsg(t("saveFailed", { message: e.message }));
     }
     setSaving(false);
   };
@@ -77,10 +81,10 @@ export default function RegulationsDashboard() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">إدارة النظام الداخلي</h1>
+      <h1 className="text-2xl font-bold mb-6">{t("pageTitle")}</h1>
 
       <div className="bg-[#f0f7f2] border border-emerald-200 rounded-2xl p-6 mb-6">
-        <label className="block font-bold mb-2">الوصف</label>
+        <label className="block font-bold mb-2">{t("description")}</label>
         <textarea
           className="w-full p-3 border rounded-xl"
           rows={3}
@@ -98,7 +102,7 @@ export default function RegulationsDashboard() {
                 className="flex-1 font-bold p-2 border rounded-lg"
                 value={sec.title}
                 onChange={(e) => updateSection(i, "title", e.target.value)}
-                placeholder="عنوان القسم"
+                placeholder={t("sectionTitlePlaceholder")}
               />
               <button onClick={() => removeSection(i)} className="text-red-500 hover:text-red-700">
                 <Trash2 className="w-4 h-4" />
@@ -109,14 +113,14 @@ export default function RegulationsDashboard() {
               rows={3}
               value={sec.body}
               onChange={(e) => updateSection(i, "body", e.target.value)}
-              placeholder="نص القسم"
+              placeholder={t("sectionBodyPlaceholder")}
             />
           </div>
         ))}
       </div>
 
       <button onClick={addSection} className="flex items-center gap-2 text-[#1a5632] font-bold mb-6">
-        <Plus className="w-4 h-4" /> إضافة قسم
+        <Plus className="w-4 h-4" /> {t("addSection")}
       </button>
 
       <div className="flex items-center gap-4">
@@ -126,18 +130,20 @@ export default function RegulationsDashboard() {
           className="flex items-center gap-2 bg-[#1a5632] text-white px-6 py-3 rounded-xl font-bold hover:bg-[#0f3d23] disabled:opacity-50"
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-          حفظ التعديلات
+          {t("saveChanges")}
         </button>
         {msg && <span className="text-sm">{msg}</span>}
       </div>
 
       <div className="mt-8 p-4 bg-gray-50 rounded-xl">
-        <h3 className="font-bold mb-2">ملف PDF</h3>
+        <h3 className="font-bold mb-2">{t("pdfFile")}</h3>
         <p className="text-sm text-gray-600">
-          المسار: <code className="bg-gray-200 px-2 py-0.5 rounded">{data?.pdfPath}</code>
+          {t("pathLabel")}<code className="bg-gray-200 px-2 py-0.5 rounded">{data?.pdfPath}</code>
         </p>
-        <p className="text-sm text-gray-600">الحجم: {data?.pdfSize ? Math.round(data.pdfSize / 1024) + " كيلوبايت" : "-"}</p>
-        <p className="text-sm text-gray-600">النسخة: v{data?.version}</p>
+        <p className="text-sm text-gray-600">
+          {t("sizeLabel")}{data?.pdfSize ? formatLocalizedDigits(Math.round(data.pdfSize / 1024), locale) + " " + t("kilobytes") : "-"}
+        </p>
+        <p className="text-sm text-gray-600">{t("versionLabel", { version: formatLocalizedDigits(data?.version, locale) })}</p>
       </div>
     </div>
   );
