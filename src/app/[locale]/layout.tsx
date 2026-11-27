@@ -47,13 +47,15 @@ export default async function LocaleLayout({ children }: { children: React.React
 
   return (
     <NextIntlClientProvider locale={locale}>
-      <RouteProgress />
-      <LocaleSync />
-      <AnnouncementBar />
-      {children}
-      <SiteFooter />
-      <ChatWidget />
-      <NotificationToaster />
+      <div data-locale={locale} className="contents">
+        <RouteProgress />
+        <LocaleSync />
+        <AnnouncementBar />
+        {children}
+        <SiteFooter />
+        <ChatWidget />
+        <NotificationToaster />
+      </div>
     </NextIntlClientProvider>
   );
 }

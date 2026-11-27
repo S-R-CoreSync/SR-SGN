@@ -102,6 +102,9 @@
   }
 }
 
+/* English and Dutch sections must never use the Arabic typeface. */
+[data-locale="en"], [data-locale="nl"] { --font-sans: system-ui, sans-serif; }
+
 @layer base {
   * { @apply border-border; }
   body { @apply bg-background text-foreground; }

@@ -22,12 +22,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [commandOpen, setCommandOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [stats, setStats] = useState<any>(null);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({
     overview: false,
     content: false,
     community: false,
-    interactions: true,
-    system: true,
+    interactions: false,
+    system: false,
   });
 
   const pathname = usePathname();
@@ -138,6 +139,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   ];
 
+  const allNavItems = navGroups.flatMap(group => group.items);
+  const crumbs: { label: string; href: string }[] = [{ label: t("title"), href: "/dashboard" }];
+  let crumbPath = "";
+  for (const segment of pathname.split("/").filter(Boolean).slice(1)) {
+    crumbPath += `/${segment}`;
+    const match = allNavItems.find(item => item.href === crumbPath);
+    if (match) crumbs.push({ label: match.label, href: crumbPath });
+  }
+
   // Filter groups by accessible items and search query
   const filteredGroups = navGroups.map(group => {
     const accessible = group.items.filter(item => canAccess(item));
@@ -152,30 +162,30 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar - positioned on the right for RTL with overflow-y-auto */}
-      <aside className={`fixed lg:sticky top-0 right-0 z-40 w-64 h-screen bg-white border-l overflow-y-auto transform transition-transform duration-200 print:hidden ${open ? "translate-x-0" : "translate-x-full lg:translate-x-0"}`}>
-        <div className="p-4 border-b">
+      <aside className={`fixed lg:sticky top-0 right-0 z-40 w-64 h-screen bg-white dark:bg-gray-900 border-l dark:border-gray-800 overflow-y-auto transform transition-transform duration-200 print:hidden ${open ? "translate-x-0" : "translate-x-full lg:translate-x-0"}`}>
+        <div className="p-4 border-b dark:border-gray-800">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <SgnLogo size={36} className="w-9 h-9" priority />
               <div className="flex items-center gap-1.5" dir="rtl">
                 <FreeSyrianFlag className="w-6 h-4 flex-shrink-0 transition-transform hover:scale-105" />
-                <span className="font-bold text-gray-900 text-xs sm:text-sm px-0.5">{t("shortTitle")}</span>
+                <span className="font-bold text-gray-900 dark:text-white text-xs sm:text-sm px-0.5">{t("shortTitle")}</span>
                 <DutchFlag className="w-6 h-4 flex-shrink-0 transition-transform hover:scale-105" />
               </div>
             </div>
-            <button onClick={() => setOpen(false)} className="lg:hidden p-1 hover:bg-gray-100 rounded" title="Close Menu" aria-label="Close Menu"><X className="w-5 h-5" /></button>
+            <button onClick={() => setOpen(false)} className="lg:hidden p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded" title="Close Menu" aria-label="Close Menu"><X className="w-5 h-5" /></button>
           </div>
         </div>
 
         {/* Search Box */}
-        <div className="p-3 border-b">
+        <div className="p-3 border-b dark:border-gray-800">
           <div className="relative">
             <input
               type="text"
               placeholder={t("navSearchPlaceholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-gray-50 border border-gray-200 rounded-xl px-8 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#1a5632] focus:bg-white transition-all text-gray-800"
+              className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-8 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#1a5632] focus:bg-white dark:focus:bg-gray-800 transition-all text-gray-800 dark:text-gray-100"
               dir="auto"
             />
             <Search className="absolute right-2.5 top-2.5 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
@@ -198,7 +208,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <div key={group.id} className="space-y-1">
                 <button
                   onClick={() => toggleGroup(group.id)}
-                  className="w-full flex items-center justify-between px-3 py-1.5 text-[10px] font-bold text-gray-400 hover:text-gray-600 transition-colors uppercase tracking-wider group"
+                  className="w-full flex items-center justify-between px-3 py-1.5 text-[10px] font-bold text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors uppercase tracking-wider group"
                 >
                   <span>{group.title}</span>
                   <span className="text-gray-300 group-hover:text-gray-500 transition-transform duration-150">
@@ -216,11 +226,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                           prefetch={true}
                           className={`flex items-center gap-3 px-3 py-2 text-sm rounded-xl transition-all duration-150 ${
                             isActive
-                              ? "bg-emerald-50 text-[#1a5632] font-bold shadow-sm"
-                              : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                              ? "bg-emerald-50 dark:bg-emerald-950/40 text-[#1a5632] dark:text-emerald-300 font-bold shadow-sm"
+                              : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
                           }`}
                         >
-                          <n.icon className={`w-4 h-4 shrink-0 ${isActive ? "text-[#1a5632]" : "text-gray-400"}`} />
+                          <n.icon className={`w-4 h-4 shrink-0 ${isActive ? "text-[#1a5632] dark:text-emerald-300" : "text-gray-400"}`} />
                           <span className="truncate">{n.label}</span>
                         </Link>
                       );
@@ -230,8 +240,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </div>
             );
           })}
-          <hr className="my-3" />
-          <button onClick={() => signOut({ callbackUrl: "/login" })} className="flex items-center gap-3 px-3 py-2.5 text-red-600 hover:bg-red-50 rounded-xl text-sm w-full transition-colors font-medium">
+          <hr className="my-3 dark:border-gray-800" />
+          <button onClick={() => signOut({ callbackUrl: "/login" })} className="flex items-center gap-3 px-3 py-2.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl text-sm w-full transition-colors font-medium">
             <LogOut className="w-4 h-4 shrink-0" />
             {t("logout")}
           </button>
@@ -290,24 +300,58 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <NotificationBell />
             <ThemeToggle />
             
-            <div className="flex items-center gap-2 pl-1 border-r border-gray-200 dark:border-gray-800">
-              <div className="hidden sm:flex flex-col text-right">
-                <span className="text-xs font-bold text-gray-800 dark:text-gray-200 leading-tight">{session.user?.name}</span>
-                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider">{t("centralAdmin")}</span>
-              </div>
-              <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-[#1a5632] to-[#c8a84e] p-0.5 shadow-sm">
-                <div className="w-full h-full rounded-[14px] bg-white dark:bg-gray-800 flex items-center justify-center overflow-hidden font-bold text-xs text-[#1a5632] dark:text-[#c8a84e]">
-                  {session.user?.image ? (
-                    <img src={session.user.image} alt="" className="w-full h-full object-cover" />
-                  ) : (
-                    (session.user?.name || "?").charAt(0)
-                  )}
+            <div className="relative pl-1 border-r border-gray-200 dark:border-gray-800">
+              <button
+                onClick={() => setUserMenuOpen(v => !v)}
+                aria-expanded={userMenuOpen}
+                className="flex items-center gap-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 p-1 transition-colors"
+              >
+                <div className="hidden sm:flex flex-col text-right">
+                  <span className="text-xs font-bold text-gray-800 dark:text-gray-200 leading-tight">{session.user?.name}</span>
+                  <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider">{t("centralAdmin")}</span>
                 </div>
-              </div>
+                <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-[#1a5632] to-[#c8a84e] p-0.5 shadow-sm">
+                  <div className="w-full h-full rounded-[14px] bg-white dark:bg-gray-800 flex items-center justify-center overflow-hidden font-bold text-xs text-[#1a5632] dark:text-[#c8a84e]">
+                    {session.user?.image ? (
+                      <img src={session.user.image} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      (session.user?.name || "?").charAt(0)
+                    )}
+                  </div>
+                </div>
+                <ChevronDown className={`w-3 h-3 text-gray-400 transition-transform ${userMenuOpen ? "rotate-180" : ""}`} />
+              </button>
+              {userMenuOpen && (
+                <div className="absolute left-0 top-full mt-2 w-48 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-lg p-1.5 z-30 space-y-0.5">
+                  <Link href="/dashboard/member-profile" onClick={() => setUserMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800">
+                    <User className="w-3.5 h-3.5" /> {t("memberProfile")}
+                  </Link>
+                  <Link href="/dashboard/settings" onClick={() => setUserMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800">
+                    <Shield className="w-3.5 h-3.5" /> {t("settings")}
+                  </Link>
+                  <button onClick={() => signOut({ callbackUrl: "/login" })} className="flex items-center gap-2 w-full px-3 py-2 rounded-xl text-xs text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30">
+                    <LogOut className="w-3.5 h-3.5" /> {t("logout")}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </header>
         <main className="p-4 lg:p-8 space-y-6">
+          {crumbs.length > 1 && (
+            <nav aria-label={t("breadcrumb")} className="flex flex-wrap items-center gap-1 text-xs text-gray-400">
+              {crumbs.map((crumb, index) => (
+                <span key={crumb.href} className="flex items-center gap-1">
+                  {index > 0 && <ChevronRight className="w-3 h-3" />}
+                  {index === crumbs.length - 1 ? (
+                    <span className="font-bold text-gray-600 dark:text-gray-300">{crumb.label}</span>
+                  ) : (
+                    <Link href={crumb.href} className="hover:text-[#1a5632] dark:hover:text-emerald-400">{crumb.label}</Link>
+                  )}
+                </span>
+              ))}
+            </nav>
+          )}
           {children}
         </main>
       </div>

@@ -15,6 +15,7 @@ import {
 import { useTranslations, useLocale } from "next-intl";
 import { formatLocalizedDigits } from "@/lib/language-guard";
 import { FreeSyrianFlag, DutchFlag } from "@/components/flags";
+import { EmptyState } from "@/components/ui/empty-state";
 
 interface Stats {
   tasks: number;
@@ -622,7 +623,7 @@ export default function DashboardPage() {
 
           <div className="space-y-3.5">
             {(stats.provinceDistribution ?? []).length === 0 ? (
-              <p className="py-6 text-center text-xs text-gray-400">{t("noProvinceData")}</p>
+              <EmptyState title={t("noProvinceData")} icon={Compass} />
             ) : (stats.provinceDistribution ?? []).map((prov, i) => {
               const maxCount = Math.max(...(stats.provinceDistribution?.map(p => p.count) || [1]), 1);
               const pct = Math.round((prov.count / Math.max(totalApplications, 1)) * 100);
@@ -674,7 +675,7 @@ export default function DashboardPage() {
 
             <div className="space-y-3">
               {(stats.topPosts ?? []).length === 0 ? (
-                <p className="py-6 text-center text-xs text-gray-400">{t("noTopPosts")}</p>
+                <EmptyState title={t("noTopPosts")} icon={BarChart3} />
               ) : (stats.topPosts ?? []).slice(0, 5).map((post, idx) => (
                 <div 
                   key={idx}
