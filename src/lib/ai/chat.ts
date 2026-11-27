@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { buildRAGContext } from "./rag";
+import { buildRAGContext, type RAGResult } from "./rag";
 import { generateChat } from "./provider";
 
 const MAX_HISTORY = 20;
@@ -56,7 +56,13 @@ function buildSystemPrompt(locale: string, userName: string, persona: string, ra
   let prompt = basePrompt + "\n" + personaPrompt;
 
   if (ragContext) {
-    prompt += `\n\nإليك معلومات حديثة ومستندات من قاعدة بيانات الموقع قد تساعدك في الرد الدقيق:\n${ragContext}\n\nيرجى استخدام هذه المعلومات بشكل أساسي وموثوق عند الإجابة عن الأسئلة المرتبطة بها وتجنب الهلوسة.`;
+    const citationRule = locale === "ar"
+      ? "عندما تستخدم معلومة من هذه المصادر، اذكر رقم المصدر بين أقواس مربعات مثل [1] مباشرة بعد الجملة التي استندت إليها. استخدم فقط الأرقام الموجودة في السياق المعطى، ولا تخترع أبداً رقماً أو مرجعاً لم يُذكر."
+      : locale === "nl"
+        ? "Wanneer je informatie uit deze bronnen gebruikt, zet het bronnummer tussen vierkante haken, zoals [1], direct na de zin waarop het gebaseerd is. Gebruik alleen nummers die in de context staan en verzint nooit een nummer of bron die niet is meegegeven."
+        : "When you use information from these sources, put the source number in square brackets, like [1], right after the sentence it supports. Use only numbers present in the provided context and never invent a marker or source that wasn't given.";
+
+    prompt += `\n\nإليك معلومات حديثة ومستندات من قاعدة بيانات الموقع قد تساعدك في الرد الدقيق (كل سطر ينتهي برقم مصدر مثل [1]):\n${ragContext}\n\nيرجى استخدام هذه المعلومات بشكل أساسي وموثوق عند الإجابة عن الأسئلة المرتبطة بها وتجنب الهلوسة.\n${citationRule}`;
   }
 
   return prompt;
@@ -82,7 +88,7 @@ export async function sendAIMessage(
   locale: string,
   userName: string,
   personaOverride?: string
-): Promise<{ reply: string; sources: { title: string; type: string }[] }> {
+): Promise<{ reply: string; sources: RAGResult["sources"] }> {
   await prisma.chatAIMessage.create({
     data: { sessionId, role: "user", content },
   });
@@ -160,7 +166,7 @@ export async function analyzeDocument(imageUrl: string, locale: string): Promise
     ? "Analyseer deze brief en leg het uit."
     : locale === "en"
       ? "Analyze this letter and explain it."
-      : "من فضلك قم بتحليل وقراءة هذه الرسالة وشرح الإجراءات المطلوبة مني.";
+      : "من فضلك قم بتحليل وقراءة هذه الرسالة وشرح الإجراءات المطلوبة مني."; // i18n-ignore — server prompt
 
   const isProd = process.env.NODE_ENV === "production" || process.env.VERCEL_ENV === "production";
   let provider = process.env.AI_PROVIDER || (isProd ? (process.env.ANTHROPIC_API_KEY ? "anthropic" : "openai") : "ollama");

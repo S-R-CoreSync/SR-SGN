@@ -3,10 +3,13 @@
 import { useState, useEffect, useRef } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { MessageSquare, X, Trash2, Send, Loader2, Sparkles, Bot, Mic, MicOff } from "lucide-react";
+import { streamAIChat, type AICitationSource } from "@/lib/ai/stream-client";
+import { SourcesList } from "@/components/ai/sources-list";
 
 interface AIMessage {
   role: "user" | "assistant";
   content: string;
+  sources?: AICitationSource[];
 }
 
 const PERSONAS = [
@@ -100,31 +103,46 @@ export function ChatWidget() {
     setInput("");
     setShowSuggestions(false);
 
-    // Append user message
-    setMessages((prev) => [...prev, { role: "user", content: text }]);
+    // Append user message and an empty assistant bubble that fills up as tokens arrive.
+    setMessages((prev) => [
+      ...prev,
+      { role: "user", content: text },
+      { role: "assistant", content: "" },
+    ]);
 
     try {
-      const res = await fetch("/api/chat/ai", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: text,
-          sessionId: sessionId,
-          locale: locale,
-          persona: persona,
-        }),
+      const result = await streamAIChat({
+        message: text,
+        sessionId,
+        locale: String(locale),
+        persona,
+        onDelta: (_delta, accumulated) => {
+          setMessages((prev) => {
+            const next = [...prev];
+            const last = next[next.length - 1];
+            if (last?.role === "assistant") next[next.length - 1] = { ...last, content: accumulated };
+            return next;
+          });
+        },
       });
-
-      if (!res.ok) throw new Error();
-      const data = await res.json();
-      
-      setSessionId(data.sessionId);
-      setMessages((prev) => [...prev, { role: "assistant", content: data.reply }]);
+      setSessionId(result.sessionId);
+      setMessages((prev) => {
+        const next = [...prev];
+        const last = next[next.length - 1];
+        if (last?.role === "assistant") {
+          next[next.length - 1] = { ...last, content: result.reply, sources: result.sources };
+        }
+        return next;
+      });
     } catch {
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: t("aiError") || "عذراً، حدث خطأ. حاول مرة أخرى." },
-      ]);
+      setMessages((prev) => {
+        const next = [...prev];
+        const last = next[next.length - 1];
+        if (last?.role === "assistant") {
+          next[next.length - 1] = { ...last, content: t("aiError") };
+        }
+        return next;
+      });
     } finally {
       setLoading(false);
     }
@@ -285,6 +303,7 @@ export function ChatWidget() {
                       {isSpeaking ? (t("stopSpeaking") || "إيقاف") : (t("speak") || "تحدث")}
                     </button>
                   )}
+                  {msg.role === "assistant" && <SourcesList sources={msg.sources} />}
                 </div>
               </div>
             ))}

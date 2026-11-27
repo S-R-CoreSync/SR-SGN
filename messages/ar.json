@@ -2278,5 +2278,47 @@
     "sizeLabel": "الحجم: ",
     "kilobytes": "كيلوبايت",
     "versionLabel": "النسخة: إصدار {version}"
+  },
+
+  "aiCitations": {
+    "title": "مصادر من قاعدة البيانات"
+  },
+  "dashboardAIOps": {
+    "title": "مركز عمليات الذكاء الاصطناعي",
+    "subtitle": "مؤشرات استخدام حقيقية وأدوات محدودة تعمل بصلاحية المشرف فقط.",
+    "usageTitle": "استخدام آخر ٧ أيام",
+    "totalCalls": "عدد الطلبات",
+    "failedCalls": "الطلبات الفاشلة",
+    "avgLatency": "متوسط زمن الاستجابة (مللي ثانية)",
+    "noUsage": "لا توجد طلبات مسجّلة بعد.",
+    "providers": "المزوّدون",
+    "toolsTitle": "الأدوات المسموحة",
+    "toolsHint": "كل أداة تقرأ بيانات المنصة الحقيقية. طلب البيان لا يُنشر قبل موافقة المشرف.",
+    "tool_search_news": "البحث في الأخبار",
+    "tool_upcoming_events": "الفعاليات القادمة",
+    "tool_community_stats": "إحصائيات الجالية",
+    "tool_request_statement": "طلب بيان (يحتاج موافقة)",
+    "queryLabel": "كلمة البحث",
+    "queryPlaceholder": "اكتب كلمة للبحث في الأخبار...",
+    "statementTitle": "عنوان البيان",
+    "statementBody": "نص البيان",
+    "runTool": "تنفيذ الأداة",
+    "running": "جارٍ التنفيذ...",
+    "runError": "تعذّر التنفيذ",
+    "resultTitle": "النتيجة",
+    "approvalsTitle": "طلبات بانتظار الموافقة",
+    "noApprovals": "لا توجد طلبات معلّقة.",
+    "approve": "موافقة",
+    "reject": "رفض",
+    "approved": "تمت الموافقة",
+    "rejected": "تم الرفض",
+    "recentTitle": "آخر الطلبات",
+    "colRoute": "المسار",
+    "colStatus": "الحالة",
+    "colLatency": "الزمن",
+    "colTime": "الوقت",
+    "statusSuccess": "نجاح",
+    "statusError": "خطأ",
+    "errorGeneric": "حدث خطأ"
   }
 }

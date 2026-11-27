@@ -2278,5 +2278,47 @@
     "sizeLabel": "Size: ",
     "kilobytes": "KB",
     "versionLabel": "Version: v{version}"
+  },
+
+  "aiCitations": {
+    "title": "Sources from the database"
+  },
+  "dashboardAIOps": {
+    "title": "AI operations center",
+    "subtitle": "Real usage metrics and a small allow-listed toolset, available to admins only.",
+    "usageTitle": "Usage in the last 7 days",
+    "totalCalls": "Total requests",
+    "failedCalls": "Failed requests",
+    "avgLatency": "Average latency (ms)",
+    "noUsage": "No requests recorded yet.",
+    "providers": "Providers",
+    "toolsTitle": "Allowed tools",
+    "toolsHint": "Every tool reads real platform data. A statement request is never published before admin approval.",
+    "tool_search_news": "Search news",
+    "tool_upcoming_events": "Upcoming events",
+    "tool_community_stats": "Community stats",
+    "tool_request_statement": "Request statement (needs approval)",
+    "queryLabel": "Search term",
+    "queryPlaceholder": "Type a word to search news...",
+    "statementTitle": "Statement title",
+    "statementBody": "Statement text",
+    "runTool": "Run tool",
+    "running": "Running...",
+    "runError": "Could not run the tool",
+    "resultTitle": "Result",
+    "approvalsTitle": "Pending approvals",
+    "noApprovals": "No pending requests.",
+    "approve": "Approve",
+    "reject": "Reject",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "recentTitle": "Recent requests",
+    "colRoute": "Route",
+    "colStatus": "Status",
+    "colLatency": "Latency",
+    "colTime": "Time",
+    "statusSuccess": "Success",
+    "statusError": "Error",
+    "errorGeneric": "An error occurred"
   }
 }

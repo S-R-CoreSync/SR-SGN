@@ -409,3 +409,262 @@ export async function generateChat(
     options?.model,
   );
 }
+
+/* -------------------------------------------------------------------------- */
+/* Streaming (SSE for OpenAI-compatible providers, NDJSON for Ollama)          */
+/* -------------------------------------------------------------------------- */
+
+type StreamOptions = {
+  model?: string;
+  responseFormat?: "text" | "json";
+  provider?: string;
+};
+
+type OpenAICompatibleTarget = {
+  label: string;
+  url: string;
+  model: string;
+  apiKey?: string;
+  missingKeyError?: string;
+};
+
+function getOpenAICompatibleTarget(config: AIConfig): OpenAICompatibleTarget | null {
+  switch (config.provider) {
+    case "groq":
+      return {
+        label: "Groq",
+        url: "https://api.groq.com/openai/v1/chat/completions",
+        model: config.model,
+        apiKey: getEnvVar("GROQ_API_KEY"),
+        missingKeyError: "GROQ_API_KEY is required for Groq provider",
+      };
+    case "openai": {
+      const baseUrl = getEnvVar("OPENAI_BASE_URL") || "https://api.openai.com/v1";
+      return {
+        label: "OpenAI",
+        url: `${baseUrl.replace(/\/$/, "")}/chat/completions`,
+        model: config.model,
+        apiKey: getEnvVar("OPENAI_API_KEY"),
+        missingKeyError: "OPENAI_API_KEY is required for OpenAI provider",
+      };
+    }
+    case "deepseek":
+      return {
+        label: "DeepSeek",
+        url: "https://api.deepseek.com/v1/chat/completions",
+        model: config.model,
+        apiKey: getEnvVar("DEEPSEEK_API_KEY"),
+        missingKeyError: "DEEPSEEK_API_KEY is required for DeepSeek provider",
+      };
+    case "github":
+      return {
+        label: "GitHub Models",
+        url: "https://models.github.ai/inference/chat/completions",
+        model: config.model,
+        apiKey: getEnvVar("GITHUB_TOKEN"),
+        missingKeyError: "GITHUB_TOKEN is required for GitHub provider",
+      };
+    case "cerebras":
+      return {
+        label: "Cerebras",
+        url: "https://api.cerebras.ai/v1/chat/completions",
+        model: config.model,
+        apiKey: getEnvVar("CEREBRAS_API_KEY"),
+        missingKeyError: "CEREBRAS_API_KEY is required for Cerebras provider",
+      };
+    case "siliconflow":
+      return {
+        label: "SiliconFlow",
+        url: "https://api.siliconflow.cn/v1/chat/completions",
+        model: config.model,
+        apiKey: getEnvVar("SILICONFLOW_API_KEY"),
+        missingKeyError: "SILICONFLOW_API_KEY is required for SiliconFlow provider",
+      };
+    case "omniroute": {
+      const baseUrl = (getEnvVar("OMNIROUTE_BASE_URL") || "http://localhost:20128/v1").replace(/\/$/, "");
+      // OmniRoute may run locally without a key (same as generateChat).
+      return { label: "OmniRoute", url: `${baseUrl}/chat/completions`, model: config.model, apiKey: getEnvVar("OMNIROUTE_API_KEY") };
+    }
+    default:
+      // anthropic, gemini and ollama don't use this OpenAI-compatible path.
+      return null;
+  }
+}
+
+/** Splits an HTTP stream into lines, including a final line without newline. */
+async function* readStreamLines(res: Response): AsyncGenerator<string> {
+  if (!res.body) throw new Error("Streaming response has no body");
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true }).replace(/\r\n/g, "\n");
+      let newline = buffer.indexOf("\n");
+      while (newline !== -1) {
+        const line = buffer.slice(0, newline).trim();
+        buffer = buffer.slice(newline + 1);
+        newline = buffer.indexOf("\n");
+        if (line) yield line;
+      }
+    }
+    const tail = buffer.trim();
+    if (tail) yield tail;
+  } finally {
+    reader.releaseLock();
+  }
+}
+
+async function* streamOpenAICompatible(
+  target: OpenAICompatibleTarget,
+  messages: AIMessage[],
+  systemPrompt: string | undefined,
+  options?: StreamOptions
+): AsyncGenerator<string> {
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  if (target.apiKey) headers["Authorization"] = `Bearer ${target.apiKey}`;
+
+  const msgs: any[] = [];
+  if (systemPrompt) msgs.push({ role: "system", content: systemPrompt });
+  msgs.push(...messages);
+
+  const res = await fetch(target.url, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      model: options?.model || target.model,
+      messages: msgs,
+      stream: true,
+      ...(options?.responseFormat === "json" ? { response_format: { type: "json_object" } } : {}),
+    }),
+  });
+
+  if (!res.ok) {
+    const err = await res.text().catch(() => "");
+    throw new Error(`${target.label} stream error ${res.status}: ${err.slice(0, 300)}`);
+  }
+
+  for await (const line of readStreamLines(res)) {
+    if (!line.startsWith("data:")) continue;
+    const payload = line.slice(5).trim();
+    if (payload === "[DONE]") return;
+    if (!payload) continue;
+    let parsed: any;
+    try {
+      parsed = JSON.parse(payload);
+    } catch {
+      continue;
+    }
+    const delta = parsed?.choices?.[0]?.delta?.content;
+    if (typeof delta === "string" && delta) yield delta;
+  }
+}
+
+async function* streamOllamaChat(
+  messages: AIMessage[],
+  systemPrompt: string | undefined,
+  options?: StreamOptions
+): AsyncGenerator<string> {
+  const baseUrl = (getEnvVar("OLLAMA_HOST") || "http://localhost:11434").replace(/\/$/, "");
+  const model = options?.model || getEnvVar("OLLAMA_MODEL") || "qwen2.5:7b";
+
+  const text = messages.map((m) => `[${m.role}]\n${m.content}`).join("\n\n");
+  const userMsg: Record<string, unknown> = { role: "user", content: text };
+  const msgs: Record<string, unknown>[] = [];
+  if (systemPrompt) msgs.push({ role: "system", content: systemPrompt });
+  msgs.push(userMsg);
+
+  const body: Record<string, unknown> = { model, messages: msgs, stream: true };
+  if (options?.responseFormat === "json") body.format = "json";
+
+  const res = await fetch(`${baseUrl}/api/chat`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    const err = await res.text().catch(() => "");
+    throw new Error(`Ollama stream error ${res.status}: ${err.slice(0, 300)}`);
+  }
+
+  for await (const line of readStreamLines(res)) {
+    let parsed: any;
+    try {
+      parsed = JSON.parse(line);
+    } catch {
+      continue;
+    }
+    const delta = parsed?.message?.content;
+    if (typeof delta === "string" && delta) yield delta;
+    if (parsed?.done === true) return;
+  }
+}
+
+/** Non-streaming fallback, chopped into a few deltas for the SSE client. */
+async function* yieldFallbackInChunks(
+  messages: AIMessage[],
+  systemPrompt: string | undefined,
+  options?: StreamOptions
+): AsyncGenerator<string> {
+  const text = await generateChat(messages, systemPrompt, options);
+  if (!text) return;
+  const chars = Array.from(text);
+  const chunkSize = 120;
+  for (let i = 0; i < chars.length; i += chunkSize) {
+    yield chars.slice(i, i + chunkSize).join("");
+  }
+}
+
+/**
+ * Yields text deltas as they arrive from the AI provider.
+ * Same config/guardrails as generateChat; unsupported providers (anthropic,
+ * gemini) or a failed stream fall back to generateChat in chunks, so callers
+ * never have to special-case a provider.
+ */
+export async function* generateChatStream(
+  messages: AIMessage[],
+  systemPrompt?: string,
+  options?: StreamOptions
+): AsyncGenerator<string> {
+  const config = getConfig(options?.provider);
+  const guarded = applyGuardrails({ messages, systemPrompt });
+  if (guarded.blocked) {
+    throw new Error(guarded.reason || "Request blocked by guardrails");
+  }
+  const safeMessages = guarded.messages as AIMessage[];
+  const safeSystemPrompt = guarded.systemPrompt;
+
+  let yielded = false;
+  try {
+    const target = getOpenAICompatibleTarget(config);
+    if (target) {
+      if (target.missingKeyError && !target.apiKey) {
+        throw new Error(target.missingKeyError);
+      }
+      for await (const delta of streamOpenAICompatible(target, safeMessages, safeSystemPrompt, options)) {
+        yielded = true;
+        yield delta;
+      }
+      return;
+    }
+
+    if (config.provider === "ollama") {
+      for await (const delta of streamOllamaChat(safeMessages, safeSystemPrompt, options)) {
+        yielded = true;
+        yield delta;
+      }
+      return;
+    }
+  } catch (err) {
+    // If deltas were already sent we can't restart cleanly; let the route
+    // report the error instead of duplicating the beginning of the answer.
+    if (yielded) throw err;
+    logger.warn("AI", "Streaming failed; falling back to non-streaming generation:", err instanceof Error ? err.name : "unknown error");
+  }
+
+  // anthropic / gemini (and any provider that couldn't stream) still work.
+  yield* yieldFallbackInChunks(safeMessages, safeSystemPrompt, options);
+}

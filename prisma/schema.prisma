@@ -541,6 +541,37 @@ model ChatAIMessage {
   @@index([sessionId, createdAt])
 }
 
+model AIUsage {
+  id        String   @id @default(cuid())
+  userId    String?
+  route     String
+  provider  String?
+  model     String?
+  locale    String?
+  status    String   @default("success")
+  latencyMs Int      @default(0)
+  error     String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([userId, createdAt])
+}
+
+model AIApproval {
+  id          String    @id @default(cuid())
+  kind        String
+  title       String?
+  payload     String
+  status      String    @default("pending")
+  requestedBy String?
+  reviewedBy  String?
+  reviewNote  String?
+  createdAt   DateTime  @default(now())
+  reviewedAt  DateTime?
+
+  @@index([status, createdAt])
+}
+
 model Donation {
   id            String    @id @default(cuid())
   memberId      String?

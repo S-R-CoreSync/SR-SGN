@@ -2,14 +2,27 @@
 
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { Sparkles, Send, Bot, Loader2, Languages, BarChart3, Newspaper, ArrowRight } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { Sparkles, Send, Bot, Loader2, Languages, BarChart3, Newspaper, ArrowRight, Activity } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import { formatLocalizedDigits } from "@/lib/language-guard";
 
-type Tab = "suggest" | "news" | "translate" | "sentiment";
+type Tab = "suggest" | "news" | "translate" | "sentiment" | "ops";
+
+type OpsData = {
+  total: number;
+  failed: number;
+  avgLatencyMs: number;
+  byProvider: { provider: string; count: number }[];
+  recent: { id: string; route: string; status: string; latencyMs: number; createdAt: string }[];
+  pendingApprovals: number;
+  approvals: { id: string; kind: string; title: string | null; payload: string; createdAt: string }[];
+};
 
 export default function AIPage() {
   const { status } = useSession();
   const t = useTranslations("dashboard.aiPage");
+  const tOps = useTranslations("dashboardAIOps");
+  const locale = useLocale();
   const [tab, setTab] = useState<Tab>("suggest");
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
@@ -21,6 +34,80 @@ export default function AIPage() {
   const [translateFrom, setTranslateFrom] = useState("ar");
   const [translateTo, setTranslateTo] = useState("nl");
   const [translateText, setTranslateText] = useState("");
+
+  const [ops, setOps] = useState<OpsData | null>(null);
+  const [opsError, setOpsError] = useState("");
+  const [tool, setTool] = useState("search_news");
+  const [toolQuery, setToolQuery] = useState("");
+  const [toolBody, setToolBody] = useState("");
+  const [toolResult, setToolResult] = useState<Record<string, unknown> | null>(null);
+  const [toolRunning, setToolRunning] = useState(false);
+
+  const loadOps = async () => {
+    try {
+      const res = await fetch("/api/dashboard/ai/ops", { cache: "no-store" });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setOps(data as OpsData);
+        setOpsError("");
+      } else {
+        setOpsError(data.error || tOps("errorGeneric"));
+      }
+    } catch {
+      setOpsError(tOps("errorGeneric"));
+    }
+  };
+
+  useEffect(() => {
+    if (tab === "ops") void loadOps();
+  }, [tab]);
+
+  const runTool = async () => {
+    setToolRunning(true);
+    setToolResult(null);
+    setOpsError("");
+    try {
+      const input: Record<string, string> =
+        tool === "search_news"
+          ? { query: toolQuery }
+          : tool === "request_statement"
+          ? { title: toolQuery, body: toolBody }
+          : {};
+      const res = await fetch("/api/dashboard/ai/ops", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "run_tool", tool, input }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        setOpsError(data.error || tOps("runError"));
+      } else {
+        setToolResult(data);
+        await loadOps();
+      }
+    } catch {
+      setOpsError(tOps("runError"));
+    } finally {
+      setToolRunning(false);
+    }
+  };
+
+  const reviewApproval = async (id: string, decision: "approve" | "reject") => {
+    try {
+      const res = await fetch("/api/dashboard/ai/ops", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "review", id, decision }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        setOpsError(data.error || tOps("errorGeneric"));
+      }
+      await loadOps();
+    } catch {
+      setOpsError(tOps("errorGeneric"));
+    }
+  };
 
   useEffect(() => {
     fetch("/api/news?limit=50")
@@ -66,6 +153,7 @@ export default function AIPage() {
     { key: "news", label: t("summariseTab"), icon: Newspaper },
     { key: "translate", label: t("translateTab"), icon: Languages },
     { key: "sentiment", label: t("sentimentTab"), icon: BarChart3 },
+    { key: "ops", label: tOps("title"), icon: Activity },
   ];
 
   return (
@@ -89,6 +177,7 @@ export default function AIPage() {
       </div>
 
       {/* Input forms */}
+      {tab !== "ops" && (
       <div className="bg-white rounded-2xl border p-4 mb-6">
         {tab === "suggest" && (
           <div className="flex gap-2">
@@ -199,10 +288,133 @@ export default function AIPage() {
           </div>
         )}
       </div>
+      )}
 
-      {error && <div className="bg-amber-50 text-amber-700 p-4 rounded-xl text-sm mb-4 border border-amber-200">{error}</div>}
+      {tab === "ops" && (
+        <div className="space-y-6">
+          <div className="bg-white rounded-2xl border p-5">
+            <h2 className="text-lg font-bold text-gray-900 mb-4">{tOps("usageTitle")}</h2>
+            {ops ? (
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="rounded-xl bg-emerald-50 p-4">
+                    <p className="text-xs text-emerald-800">{tOps("totalCalls")}</p>
+                    <p className="text-2xl font-black text-emerald-900">{formatLocalizedDigits(ops.total, locale)}</p>
+                  </div>
+                  <div className="rounded-xl bg-amber-50 p-4">
+                    <p className="text-xs text-amber-800">{tOps("failedCalls")}</p>
+                    <p className="text-2xl font-black text-amber-900">{formatLocalizedDigits(ops.failed, locale)}</p>
+                  </div>
+                  <div className="rounded-xl bg-slate-50 p-4">
+                    <p className="text-xs text-slate-600">{tOps("avgLatency")}</p>
+                    <p className="text-2xl font-black text-slate-900">{formatLocalizedDigits(ops.avgLatencyMs, locale)}</p>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500 mt-4">
+                  {tOps("providers")}: {ops.byProvider.map(p => `${p.provider} (${formatLocalizedDigits(p.count, locale)})`).join(" · ") || "-"}
+                </p>
+              </>
+            ) : (
+              <p className="text-sm text-gray-500">{tOps("noUsage")}</p>
+            )}
+          </div>
 
-      {result && (
+          <div className="bg-white rounded-2xl border p-5 space-y-3">
+            <h2 className="text-lg font-bold text-gray-900">{tOps("toolsTitle")}</h2>
+            <p className="text-sm text-gray-500">{tOps("toolsHint")}</p>
+            <select
+              value={tool}
+              onChange={e => setTool(e.target.value)}
+              className="w-full px-4 py-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5632]"
+            >
+              <option value="search_news">{tOps("tool_search_news")}</option>
+              <option value="upcoming_events">{tOps("tool_upcoming_events")}</option>
+              <option value="community_stats">{tOps("tool_community_stats")}</option>
+              <option value="request_statement">{tOps("tool_request_statement")}</option>
+            </select>
+            {(tool === "search_news" || tool === "request_statement") && (
+              <input
+                value={toolQuery}
+                onChange={e => setToolQuery(e.target.value)}
+                placeholder={tool === "search_news" ? tOps("queryPlaceholder") : tOps("statementTitle")}
+                className="w-full px-4 py-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5632]"
+              />
+            )}
+            {tool === "request_statement" && (
+              <textarea
+                value={toolBody}
+                onChange={e => setToolBody(e.target.value)}
+                placeholder={tOps("statementBody")}
+                rows={4}
+                className="w-full px-4 py-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5632]"
+              />
+            )}
+            <button
+              onClick={runTool}
+              disabled={toolRunning}
+              className="flex items-center gap-2 bg-[#1a5632] text-white px-5 py-2.5 rounded-xl text-sm disabled:opacity-50"
+            >
+              {toolRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : <Activity className="w-4 h-4" />}
+              {toolRunning ? tOps("running") : tOps("runTool")}
+            </button>
+            {toolResult && (
+              <pre className="bg-slate-50 rounded-xl p-3 text-xs overflow-x-auto whitespace-pre-wrap">
+                {JSON.stringify(toolResult, null, 2)}
+              </pre>
+            )}
+          </div>
+
+          <div className="bg-white rounded-2xl border p-5">
+            <h2 className="text-lg font-bold text-gray-900 mb-3">{tOps("approvalsTitle")}</h2>
+            {ops?.approvals.length ? (
+              <ul className="space-y-3">
+                {ops.approvals.map(a => (
+                  <li key={a.id} className="border rounded-xl p-3 flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <p className="text-sm font-bold text-gray-800">{a.title || a.kind}</p>
+                      <p className="text-[11px] text-gray-400">{new Date(a.createdAt).toLocaleString(locale === "ar" ? "ar-EG" : locale === "nl" ? "nl-NL" : "en-US")}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={() => void reviewApproval(a.id, "approve")} className="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs">{tOps("approve")}</button>
+                      <button onClick={() => void reviewApproval(a.id, "reject")} className="px-3 py-1.5 rounded-lg bg-slate-200 text-slate-700 text-xs">{tOps("reject")}</button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-gray-500">{tOps("noApprovals")}</p>
+            )}
+          </div>
+
+          <div className="bg-white rounded-2xl border p-5 overflow-x-auto">
+            <h2 className="text-lg font-bold text-gray-900 mb-3">{tOps("recentTitle")}</h2>
+            <table className="w-full text-xs">
+              <thead className="text-gray-500">
+                <tr>
+                  <th className="text-start py-2">{tOps("colRoute")}</th>
+                  <th className="text-start py-2">{tOps("colStatus")}</th>
+                  <th className="text-start py-2">{tOps("colLatency")}</th>
+                  <th className="text-start py-2">{tOps("colTime")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(ops?.recent || []).map(r => (
+                  <tr key={r.id} className="border-t border-gray-100">
+                    <td className="py-2 font-mono">{r.route}</td>
+                    <td className="py-2">{r.status === "success" ? tOps("statusSuccess") : tOps("statusError")}</td>
+                    <td className="py-2">{formatLocalizedDigits(r.latencyMs, locale)}</td>
+                    <td className="py-2">{new Date(r.createdAt).toLocaleString(locale === "ar" ? "ar-EG" : locale === "nl" ? "nl-NL" : "en-US")}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {(error || opsError) && <div className="bg-amber-50 text-amber-700 p-4 rounded-xl text-sm mb-4 border border-amber-200">{error || opsError}</div>}
+
+      {tab !== "ops" && result && (
         <div className="bg-white rounded-2xl border p-6">
           <div className="flex items-center gap-2 mb-3">
             <Bot className="w-5 h-5 text-[#1a5632]" />

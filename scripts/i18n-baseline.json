@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-27T04:55:54.314Z",
+  "generatedAt": "2026-11-27T05:23:03.447Z",
   "files": {
     "app/[locale]/about/align/page.tsx": 35,
     "app/[locale]/courses/inburgering-quiz/page.tsx": 44,
@@ -74,7 +74,7 @@
     "app/api/sync/facebook/route.ts": 1,
     "app/api/uploads/route.ts": 1,
     "app/sitemap.ts": 1,
-    "components/chat-widget.tsx": 36,
+    "components/chat-widget.tsx": 35,
     "components/dashboard/command-palette.tsx": 30,
     "components/dashboard/NetherlandsMap.tsx": 21,
     "components/home/home-province-map.tsx": 20,

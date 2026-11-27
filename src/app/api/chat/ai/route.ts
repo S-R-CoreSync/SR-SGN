@@ -5,6 +5,7 @@ import { getSessionUser } from "@/lib/mobile-auth";
 import { createRateLimiter } from "@/lib/rate-limit";
 import { applyGuardrails } from "@/lib/guardrails";
 import { logger } from "@/lib/logger";
+import { logAIUsage } from "@/lib/ai/usage";
 
 const chatLimiter = createRateLimiter({ maxRequests: 30, windowMs: 60_000, name: "ai-chat" });
 
@@ -31,6 +32,10 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  const started = Date.now();
+  let userLocale = "ar";
+  let status = "success";
+  let errorText: string | null = null;
   const user = await getSessionUser(req);
   if (!user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -72,7 +77,7 @@ export async function POST(req: Request) {
       if (!owned) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const userLocale = locale || "ar";
+    userLocale = typeof locale === "string" ? locale : "ar";
     const sid = sessionId || await getOrCreateSession(user.id, persona);
     const userName = user.name || user.email || "User";
 
@@ -80,7 +85,18 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ reply, sessionId: sid, sources });
   } catch (e: any) {
+    status = "error";
+    errorText = e instanceof Error ? e.message.slice(0, 300) : "unknown_error";
     logger.error("API/chat/ai", "AI chat error:", e);
     return NextResponse.json({ error: e.message || "Internal server error" }, { status: 500 });
+  } finally {
+    await logAIUsage({
+      userId: user?.id,
+      route: "/api/chat/ai",
+      locale: userLocale,
+      status,
+      latencyMs: Date.now() - started,
+      error: errorText,
+    });
   }
 }

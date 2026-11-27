@@ -4,6 +4,8 @@ import { useSession } from "next-auth/react";
 import { useTranslations, useLocale } from "next-intl";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Send, Search, MessageSquare, ArrowLeft, ArrowRight, Loader2, AlertCircle, Bot, Plus, Sparkles } from "lucide-react";
+import { streamAIChat, type AICitationSource } from "@/lib/ai/stream-client";
+import { SourcesList } from "@/components/ai/sources-list";
 
 interface Conversation {
   member: { id: string; nameAr: string; nameNl: string; avatar: string | null };
@@ -24,6 +26,7 @@ interface ChatMsg {
 interface AIMessage {
   role: "user" | "assistant";
   content: string;
+  sources?: AICitationSource[];
 }
 
 const SUGGESTED_QUESTIONS = [
@@ -375,30 +378,44 @@ function AIChatPanel({
     setSummary(null);
 
     const userMsg: AIMessage = { role: "user", content: text };
-    setAiMessages((prev) => [...prev, userMsg]);
+    setAiMessages((prev) => [...prev, userMsg, { role: "assistant", content: "" }]);
     setInput("");
     setAiLoading(true);
 
     const activePersona = forcedPersona || persona;
 
     try {
-      const res = await fetch("/api/chat/ai", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: text,
-          sessionId: aiSessionId,
-          locale: locale,
-          persona: activePersona,
-        }),
+      const result = await streamAIChat({
+        message: text,
+        sessionId: aiSessionId,
+        locale: String(locale),
+        persona: activePersona,
+        onDelta: (_delta, accumulated) => {
+          setAiMessages((prev) => {
+            const next = [...prev];
+            const last = next[next.length - 1];
+            if (last?.role === "assistant") next[next.length - 1] = { ...last, content: accumulated };
+            return next;
+          });
+        },
       });
-      if (!res.ok) throw new Error(t("aiError"));
-      const data = await res.json();
-      setAiSessionId(data.sessionId);
-      setAiMessages((prev) => [...prev, { role: "assistant", content: data.reply }]);
+      setAiSessionId(result.sessionId);
+      setAiMessages((prev) => {
+        const next = [...prev];
+        const last = next[next.length - 1];
+        if (last?.role === "assistant") {
+          next[next.length - 1] = { ...last, content: result.reply, sources: result.sources };
+        }
+        return next;
+      });
     } catch {
       setAiError(t("aiError"));
-      setAiMessages((prev) => [...prev, { role: "assistant", content: t("aiError") }]);
+      setAiMessages((prev) => {
+        const next = [...prev];
+        const last = next[next.length - 1];
+        if (last?.role === "assistant") next[next.length - 1] = { ...last, content: t("aiError") };
+        return next;
+      });
     } finally {
       setAiLoading(false);
     }
@@ -645,6 +662,7 @@ function AIChatPanel({
                   </button>
                 </div>
               )}
+              {msg.role === "assistant" && <SourcesList sources={msg.sources} />}
             </div>
           </div>
         ))}
