@@ -6,9 +6,8 @@ import { Link, useRouter } from "@/i18n/routing";
 import { useLocale, useTranslations } from "next-intl";
 import { formatLocalizedDigits } from "@/lib/language-guard";
 import {
-  Activity, ArrowLeft, ArrowUpRight, Bot, Calendar, CheckSquare,
-  Cpu, Database, LayoutDashboard, Mail, MessageSquare, RefreshCw,
-  Search, Settings, ShieldCheck, Sparkles, Users, X,
+  ArrowLeft, ArrowUpRight, Calendar, CheckSquare, Database, FileText,
+  LayoutDashboard, Mail, RefreshCw, Search, Settings, Users, X,
 } from "lucide-react";
 
 type Daily = { date: string; count: number };
@@ -18,38 +17,23 @@ type Stats = {
   messages: number;
   events: number;
   posts: number;
+  volunteers: number;
   totalViews: number;
   membersByStatus: Record<string, number>;
   usersByDay: Daily[];
-  membersByDay: Daily[];
   commentsByDay: Daily[];
 };
 
-type Briefing = {
-  executiveSummary?: string;
-  actionItems?: { id: string; title: string; desc: string; priority: string; href: string }[];
-  systemHealth?: {
-    syncStatus: string;
-    tursoLatencyMs: number;
-    aiEngine: string;
-    lastSync: string | null;
+type Health = {
+  status: string;
+  checks: {
+    database: { status: string; responseTime: number };
+    facebook?: { status: string };
+    api?: { status: string; version: string };
   };
 };
 
 type NavItem = { key: string; href: string; icon: typeof Users };
-
-function Spark({ values, color }: { values: number[]; color: string }) {
-  if (values.length < 2) return null;
-  const max = Math.max(...values, 1);
-  const points = values
-    .map((v, i) => `${(i / (values.length - 1)) * 100},${28 - (v / max) * 24}`)
-    .join(" ");
-  return (
-    <svg viewBox="0 0 100 30" preserveAspectRatio="none" className="h-8 w-24" aria-hidden="true">
-      <polyline points={points} fill="none" stroke={color} strokeWidth="2" vectorEffect="non-scaling-stroke" />
-    </svg>
-  );
-}
 
 function trend(values: Daily[] | undefined): number | null {
   if (!values || values.length < 14) return null;
@@ -68,7 +52,7 @@ export default function DashboardV2Page() {
   const isRtl = locale === "ar";
 
   const [stats, setStats] = useState<Stats | null>(null);
-  const [briefing, setBriefing] = useState<Briefing | null>(null);
+  const [health, setHealth] = useState<Health | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
@@ -78,17 +62,17 @@ export default function DashboardV2Page() {
     setLoading(true);
     setError(false);
     try {
-      const [statsRes, briefingRes] = await Promise.all([
+      const [statsRes, healthRes] = await Promise.all([
         fetch("/api/dashboard/stats", { cache: "no-store" }).then((r) => {
           if (!r.ok) throw new Error("stats");
           return r.json();
         }),
-        fetch(`/api/dashboard/ai-briefing?locale=${locale}`, { cache: "no-store" })
+        fetch("/api/health?sources=true", { cache: "no-store" })
           .then((r) => (r.ok ? r.json() : null))
           .catch(() => null),
       ]);
       setStats(statsRes);
-      setBriefing(briefingRes && !briefingRes.error ? briefingRes : null);
+      setHealth(healthRes);
     } catch {
       setError(true);
     } finally {
@@ -118,7 +102,6 @@ export default function DashboardV2Page() {
       key: "today",
       items: [
         { key: "overview", href: "/dashboard/v2", icon: LayoutDashboard },
-        { key: "briefing", href: "/dashboard/ai", icon: Sparkles },
         { key: "tasks", href: "/dashboard/tasks", icon: CheckSquare },
       ],
     },
@@ -126,15 +109,15 @@ export default function DashboardV2Page() {
       key: "community",
       items: [
         { key: "members", href: "/dashboard/members", icon: Users },
-        { key: "messages", href: "/dashboard/messages", icon: MessageSquare },
+        { key: "messages", href: "/dashboard/messages", icon: Mail },
         { key: "events", href: "/dashboard/events", icon: Calendar },
+        { key: "pages", href: "/dashboard/pages", icon: FileText },
       ],
     },
     {
       key: "system",
       items: [
         { key: "sync", href: "/dashboard/facebook-sync", icon: RefreshCw },
-        { key: "aiOps", href: "/dashboard/ai", icon: Bot },
         { key: "settings", href: "/dashboard/settings", icon: Settings },
       ],
     },
@@ -151,320 +134,224 @@ export default function DashboardV2Page() {
         .reduce((sum, [, count]) => sum + count, 0)
     : 0;
 
-  const last14 = (values: Daily[] | undefined) => (values ?? []).slice(-14).map((d) => d.count);
-  const kpis = [
-    { key: "members", value: stats?.users ?? 0, values: last14(stats?.usersByDay), color: "#1a5632", href: "/dashboard/members", icon: Users, daily: stats?.usersByDay },
-    { key: "views", value: stats?.totalViews ?? 0, values: last14(stats?.commentsByDay), color: "#dc2626", href: "/news", icon: Activity, daily: stats?.commentsByDay },
-    { key: "pending", value: pending, values: last14(stats?.membersByDay), color: "#b8892c", href: "/dashboard/members", icon: ShieldCheck, daily: stats?.membersByDay },
-    { key: "messages", value: stats?.messages ?? 0, values: [], color: "#2563eb", href: "/dashboard/messages", icon: Mail, daily: undefined },
+  const values = (daily: Daily[] | undefined) => (daily ?? []).slice(-14).map((d) => d.count);
+  const rows = [
+    { key: "members", value: stats?.users ?? 0, daily: stats?.usersByDay, href: "/dashboard/members" },
+    { key: "views", value: stats?.totalViews ?? 0, daily: stats?.commentsByDay, href: "/news" },
+    { key: "volunteers", value: stats?.volunteers ?? 0, daily: undefined, href: "/dashboard/volunteers" },
+    { key: "posts", value: stats?.posts ?? 0, daily: undefined, href: "/dashboard/pages" },
   ];
 
-  const activity = (stats?.usersByDay ?? []).slice(-7);
-  const activityComments = (stats?.commentsByDay ?? []).slice(-7);
-  const activityMax = Math.max(1, ...activity.map((d) => d.count), ...activityComments.map((d) => d.count));
+  const tasks = [
+    { key: "approvals", value: pending, href: "/dashboard/members" },
+    { key: "messages", value: stats?.messages ?? 0, href: "/dashboard/messages" },
+    { key: "posts", value: stats?.posts ?? 0, href: "/dashboard/pages" },
+  ];
+
+  const log = (stats?.usersByDay ?? []).filter((d) => d.count > 0).slice(-5).reverse();
   const now = new Date();
   const today = `${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()}`;
-  const health = briefing?.systemHealth;
-  const actions = (briefing?.actionItems ?? []).slice(0, 3);
+  const db = health?.checks?.database;
+  const facebook = health?.checks?.facebook;
 
   return (
-    <div dir={isRtl ? "rtl" : "ltr"} className="min-h-screen bg-[#f6f7f4] text-[#16231b]">
-      {/* Compact rail */}
+    <div dir={isRtl ? "rtl" : "ltr"} className="min-h-screen bg-[#fbfcfa] text-[#16231b]">
+      {/* Slim icon rail */}
       <aside
-        className={`fixed top-0 ${isRtl ? "right-0 border-l" : "left-0 border-r"} z-30 hidden h-screen w-60 flex-col border-[#e3e7e1] bg-white lg:flex`}
+        className={`fixed top-0 ${isRtl ? "right-0 border-l" : "left-0 border-r"} z-30 hidden h-screen w-16 flex-col items-center border-[#e9ece7] bg-white py-5 lg:flex`}
       >
-        <div className="flex items-center gap-2 border-b border-[#eef0ec] px-5 py-5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#113d22] text-white">
-            <Sparkles size={18} />
-          </div>
-          <div className="min-w-0">
-            <p className="truncate text-sm font-black">SGN</p>
-            <p className="text-[10px] font-bold text-[#b8892c]">{t("prototype")}</p>
-          </div>
+        <div className="mb-8 flex h-9 w-9 items-center justify-center rounded-lg bg-[#113d22] text-sm font-black text-white">
+          S
         </div>
-
-        <button
-          onClick={() => setPaletteOpen(true)}
-          className={`mx-4 mt-4 flex items-center gap-2 rounded-xl border border-[#e3e7e1] bg-[#fafbf9] px-3 py-2 text-xs text-[#7a847c] ${isRtl ? "text-right" : "text-left"}`}
-        >
-          <Search size={14} />
-          <span className="flex-1">{t("searchPlaceholder")}</span>
-          <kbd className="rounded-md border border-[#dde2da] bg-white px-1.5 py-0.5 text-[9px] font-bold">⌘K</kbd>
-        </button>
-
-        <nav className="flex-1 space-y-6 overflow-y-auto px-4 py-5">
-          {groups.map((group) => (
-            <div key={group.key}>
-              <p className="mb-2 px-2 text-[10px] font-black uppercase tracking-wider text-[#9aa39b]">
-                {t(`groups.${group.key}`)}
-              </p>
-              <div className="space-y-1">
-                {group.items.map((item) => {
-                  const active = item.href === "/dashboard/v2";
-                  const Icon = item.icon;
-                  return (
-                    <Link
-                      key={item.key}
-                      href={item.href}
-                      className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm transition-colors ${
-                        active
-                          ? "bg-[#113d22] font-bold text-white"
-                          : "text-[#4d5a50] hover:bg-[#f2f5f0] hover:text-[#113d22]"
-                      }`}
-                    >
-                      <Icon size={16} className={active ? "text-[#e2c77c]" : "text-[#8b968d]"} />
-                      <span className="truncate">{t(`nav.${item.key}`)}</span>
-                    </Link>
-                  );
-                })}
-              </div>
+        <nav className="flex flex-1 flex-col items-center gap-2">
+          {groups.map((group, index) => (
+            <div key={group.key} className="flex flex-col items-center gap-2">
+              {index > 0 && <div className="my-2 h-px w-7 bg-[#e9ece7]" />}
+              {group.items.map((item) => {
+                const Icon = item.icon;
+                const active = item.href === "/dashboard/v2";
+                return (
+                  <Link
+                    key={item.key}
+                    href={item.href}
+                    title={t(`nav.${item.key}`)}
+                    aria-label={t(`nav.${item.key}`)}
+                    className={`flex h-10 w-10 items-center justify-center rounded-lg transition-colors ${
+                      active ? "bg-[#eaf0e7] text-[#113d22]" : "text-[#8b968d] hover:bg-[#f2f5f0] hover:text-[#113d22]"
+                    }`}
+                  >
+                    <Icon size={18} />
+                  </Link>
+                );
+              })}
             </div>
           ))}
         </nav>
-
-        <div className="border-t border-[#eef0ec] p-4">
-          <Link
-            href="/dashboard"
-            className="flex items-center gap-2 rounded-xl bg-[#f2f5f0] px-3 py-2 text-xs font-bold text-[#4d5a50] hover:bg-[#e8ede5]"
-          >
-            <ArrowLeft size={14} className={isRtl ? "rotate-180" : ""} />
-            {t("backToClassic")}
-          </Link>
-        </div>
+        <button
+          onClick={() => setPaletteOpen(true)}
+          title={t("searchTitle")}
+          aria-label={t("searchTitle")}
+          className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg text-[#8b968d] hover:bg-[#f2f5f0]"
+        >
+          <Search size={18} />
+        </button>
+        <Link
+          href="/dashboard"
+          title={t("backToClassic")}
+          aria-label={t("backToClassic")}
+          className="flex h-10 w-10 items-center justify-center rounded-lg text-[#8b968d] hover:bg-[#f2f5f0]"
+        >
+          <ArrowLeft size={18} className={isRtl ? "rotate-180" : ""} />
+        </Link>
       </aside>
 
-      {/* Main */}
-      <main className={`${isRtl ? "lg:mr-60" : "lg:ml-60"} mx-auto max-w-6xl px-4 py-8 sm:px-8`}>
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+      <main className={`${isRtl ? "lg:mr-16" : "lg:ml-16"} mx-auto max-w-5xl px-5 py-10 sm:px-10`}>
+        <header className="mb-9 flex flex-wrap items-end justify-between gap-4 border-b border-[#e9ece7] pb-7">
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-black tracking-tight sm:text-3xl">
-                {t("greeting", { name: session?.user?.name ?? "" })}
-              </h1>
-            </div>
-            <p className="mt-1 text-sm text-[#6b776d]">{t("subtitle")}</p>
+            <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#b8892c]">
+              SGN · {t("prototype")} · {formatLocalizedDigits(today, locale)}
+            </p>
+            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+              {t("greeting", { name: session?.user?.name ?? "" })}
+            </h1>
+            <p className="mt-2 text-sm text-[#6b776d]">{t("subtitle")}</p>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="rounded-full border border-[#e6d3a6] bg-[#fbf6e8] px-3 py-1.5 text-[11px] font-bold text-[#8a6a1f]">
-              {t("prototypeNote")}
-            </span>
+          <div className="flex items-center gap-4">
+            <span className="text-[11px] text-[#9aa39b]">{t("prototypeNote")}</span>
             <button
               onClick={() => void load()}
-              className="rounded-xl border border-[#e3e7e1] bg-white p-2 text-[#4d5a50] hover:bg-[#f2f5f0]"
               title={t("retry")}
+              aria-label={t("retry")}
+              className="rounded-lg border border-[#e9ece7] p-2 text-[#6b776d] hover:bg-[#f2f5f0]"
             >
               <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
             </button>
           </div>
-        </div>
+        </header>
 
         {error ? (
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center text-sm font-bold text-red-700">
+          <div className="border border-red-200 bg-red-50/60 px-5 py-6 text-center text-sm text-red-700">
             {t("error")}
-            <button onClick={() => void load()} className="mr-2 underline">
-              {t("retry")}
-            </button>
+            <button onClick={() => void load()} className="mr-2 underline">{t("retry")}</button>
           </div>
         ) : loading ? (
-          <div className="rounded-2xl border border-[#e3e7e1] bg-white p-10 text-center text-sm text-[#7a847c]">
-            {t("loading")}
-          </div>
+          <div className="px-5 py-10 text-center text-sm text-[#9aa39b]">{t("loading")}</div>
         ) : (
-          <div className="space-y-6">
-            {/* AI briefing — inside the workflow, with sources */}
-            <section className="relative overflow-hidden rounded-3xl bg-[#113d22] p-6 text-white shadow-sm sm:p-7">
-              <div className="pointer-events-none absolute -left-16 -top-16 h-64 w-64 rounded-full bg-[#c8a84e]/10 blur-3xl" />
-              <div className="relative space-y-4">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex items-center gap-2.5">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#c8a84e] text-[#113d22]">
-                      <Bot size={18} />
-                    </div>
+          <div className="space-y-11">
+            {/* Task strip */}
+            <section>
+              <h2 className="mb-4 text-xs font-bold uppercase tracking-wider text-[#6b776d]">{t("tasksTitle")}</h2>
+              <div className="grid gap-0 sm:grid-cols-3">
+                {tasks.map((task, index) => (
+                  <Link
+                    key={task.key}
+                    href={task.href}
+                    className={`group flex items-baseline justify-between py-4 pr-4 ${
+                      index > 0 ? "sm:border-r sm:border-[#e9ece7] sm:pr-6 sm:mr-2" : ""
+                    }`}
+                  >
                     <div>
-                      <h2 className="text-sm font-black sm:text-base">{t("briefingTitle")}</h2>
-                      <p className="text-[11px] text-emerald-100/70">
-                        {formatLocalizedDigits(today, locale)} · {t("briefingSource")}
+                      <p className="text-xs text-[#6b776d]">{t(`task.${task.key}`)}</p>
+                      <p className="mt-1 text-3xl font-bold tabular-nums tracking-tight text-[#113d22]">
+                        {formatLocalizedDigits(task.value.toLocaleString(), locale)}
                       </p>
                     </div>
-                  </div>
-                  <Link
-                    href="/dashboard/ai"
-                    className="inline-flex items-center gap-1 rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-xs font-bold hover:bg-white/20"
-                  >
-                    {t("briefingOpen")}
-                    <ArrowUpRight size={14} />
+                    <ArrowUpRight size={16} className="text-[#c8a84e] opacity-0 transition-opacity group-hover:opacity-100" />
                   </Link>
-                </div>
-
-                <p className="max-w-3xl text-sm leading-relaxed text-emerald-50 sm:text-base">
-                  {briefing?.executiveSummary || t("noBriefing")}
-                </p>
-
-                <div className="flex flex-wrap items-center gap-2">
-                  <Link
-                    href="/dashboard/stats"
-                    className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[10px] font-bold text-[#e8d9ae] hover:bg-white/20"
-                  >
-                    [1] {t("kpi.members")}
-                  </Link>
-                  <Link
-                    href="/dashboard/facebook-sync"
-                    className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[10px] font-bold text-[#e8d9ae] hover:bg-white/20"
-                  >
-                    [2] {t("sync")}
-                  </Link>
-                  <Link
-                    href="/dashboard/ai"
-                    className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[10px] font-bold text-[#e8d9ae] hover:bg-white/20"
-                  >
-                    [3] {t("systemPulse")}
-                  </Link>
-                </div>
+                ))}
               </div>
             </section>
 
-            {/* Only decisions, not every metric */}
+            {/* Quiet indicator table */}
             <section>
-              <div className="mb-3 flex items-end justify-between gap-3">
-                <div>
-                  <h2 className="text-lg font-black">{t("priorities")}</h2>
-                  <p className="text-xs text-[#7a847c]">{t("prioritiesNote")}</p>
-                </div>
-                <span className="rounded-full bg-[#eaf0e7] px-3 py-1 text-[11px] font-bold text-[#1a5632]">
-                  {formatLocalizedDigits(Math.min(actions.length, 3), locale)}
-                </span>
-              </div>
-              <div className="grid gap-3 sm:grid-cols-3">
-                {actions.length === 0 ? (
-                  <div className="rounded-2xl border border-[#e3e7e1] bg-white p-5 text-xs text-[#7a847c] sm:col-span-3">
-                    {t("noBriefing")}
-                  </div>
-                ) : (
-                  actions.map((item, index) => {
-                    const priority = item.priority === "high" ? "#b42318" : item.priority === "medium" ? "#b8892c" : "#1a5632";
-                    const isStudio = item.href === "#ai-studio";
+              <h2 className="mb-4 text-xs font-bold uppercase tracking-wider text-[#6b776d]">{t("todayLabel")}</h2>
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr className="border-b border-[#d8ddd6] text-[11px] font-bold uppercase tracking-wide text-[#9aa39b]">
+                    <th className="py-2 text-right font-bold">{t("table.indicator")}</th>
+                    <th className="py-2 text-left font-bold">{t("table.value")}</th>
+                    <th className="py-2 text-left font-bold">{t("table.change")}</th>
+                    <th className="py-2 text-left font-bold">{t("table.action")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((row) => {
+                    const change = trend(row.daily);
                     return (
-                      <div
-                        key={item.id}
-                        className="flex flex-col justify-between rounded-2xl border border-[#e3e7e1] bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
-                      >
-                        <div>
-                          <div className="mb-3 flex items-center justify-between">
-                            <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: priority }} />
-                            <span className="text-[11px] font-black text-[#b6bdb6]">
-                              {formatLocalizedDigits(index + 1, locale)}
+                      <tr key={row.key} className="border-b border-[#eef0ec]">
+                        <td className="py-3.5 text-right text-[#4d5a50]">{t(`kpi.${row.key}`)}</td>
+                        <td className="py-3.5 text-left text-base font-bold tabular-nums text-[#16231b]">
+                          {formatLocalizedDigits(row.value.toLocaleString(), locale)}
+                        </td>
+                        <td className="py-3.5 text-left text-xs text-[#6b776d]">
+                          {change === null ? (
+                            <span className="text-[#a3aca4]">{t("noData")}</span>
+                          ) : (
+                            <span className={change >= 0 ? "text-[#1a5632]" : "text-[#b42318]"}>
+                              {change > 0 ? "+" : ""}
+                              {formatLocalizedDigits(change, locale)}
+                              {tCommon("percentSign")}
                             </span>
-                          </div>
-                          <h3 className="text-sm font-black leading-snug">{item.title}</h3>
-                          <p className="mt-1.5 text-xs leading-relaxed text-[#6b776d]">{item.desc}</p>
-                        </div>
-                        <Link
-                          href={isStudio ? "/dashboard/ai" : (item.href as "/dashboard/members")}
-                          className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-[#1a5632] hover:underline"
-                        >
-                          {t("view")}
-                          <ArrowUpRight size={13} />
-                        </Link>
-                      </div>
-                    );
-                  })
-                )}
-              </div>
-            </section>
-
-            {/* Four KPIs only — every delta comes from data or is shown as unavailable */}
-            <section>
-              <h2 className="mb-3 text-lg font-black">{t("todayLabel")}</h2>
-              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                {kpis.map((kpi) => {
-                  const Icon = kpi.icon;
-                  const change = trend(kpi.daily);
-                  return (
-                    <Link
-                      key={kpi.key}
-                      href={kpi.href}
-                      className="rounded-2xl border border-[#e3e7e1] bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
-                    >
-                      <div className="mb-4 flex items-center justify-between">
-                        <div
-                          className="flex h-10 w-10 items-center justify-center rounded-xl"
-                          style={{ backgroundColor: `${kpi.color}16`, color: kpi.color }}
-                        >
-                          <Icon size={19} />
-                        </div>
-                        <Spark values={kpi.values} color={kpi.color} />
-                      </div>
-                      <p className="text-xs font-semibold text-[#7a847c]">{t(`kpi.${kpi.key}`)}</p>
-                      <p className="mt-1 text-2xl font-black tracking-tight">
-                        {formatLocalizedDigits(kpi.value.toLocaleString(), locale)}
-                      </p>
-                      <div className="mt-3 border-t border-[#eef0ec] pt-2.5">
-                        {change === null ? (
-                          <span className="text-[11px] text-[#a3aca4]">{t("noData")}</span>
-                        ) : (
-                          <span className="text-[11px] font-bold" style={{ color: change >= 0 ? "#1a5632" : "#b42318" }}>
-                            {change > 0 ? "+" : ""}
-                            {formatLocalizedDigits(change, locale)}
-                            {tCommon("percentSign")} · {t("trendNote")}
-                          </span>
-                        )}
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
-            </section>
-
-            {/* One chart only */}
-            <section className="grid gap-3 lg:grid-cols-3">
-              <div className="rounded-2xl border border-[#e3e7e1] bg-white p-5 lg:col-span-2">
-                <h2 className="text-sm font-black">{t("activity")}</h2>
-                <p className="mb-5 text-[11px] text-[#8b968d]">{t("activityNote")}</p>
-                <div className="flex h-32 items-end justify-between gap-2" dir="ltr">
-                  {activity.map((day, index) => {
-                    const second = activityComments[index]?.count ?? 0;
-                    return (
-                      <div key={day.date} className="flex h-full flex-1 flex-col justify-end gap-1">
-                        <div className="flex h-full items-end justify-center gap-0.5">
-                          <div
-                            className="w-2.5 rounded-t bg-[#1a5632]"
-                            style={{ height: `${Math.max(3, (day.count / activityMax) * 100)}%` }}
-                          />
-                          <div
-                            className="w-2.5 rounded-t bg-[#c8a84e]"
-                            style={{ height: `${Math.max(3, (second / activityMax) * 100)}%` }}
-                          />
-                        </div>
-                        <span className="text-center text-[9px] text-[#9aa39b]">{day.date.slice(5)}</span>
-                      </div>
+                          )}
+                        </td>
+                        <td className="py-3.5 text-left">
+                          <Link href={row.href} className="text-xs font-bold text-[#1a5632] hover:underline">
+                            {t("table.open")}
+                          </Link>
+                        </td>
+                      </tr>
                     );
                   })}
-                  {activity.length === 0 && (
-                    <div className="m-auto text-xs text-[#9aa39b]">{t("noData")}</div>
-                  )}
-                </div>
-              </div>
+                </tbody>
+              </table>
+              <p className="mt-2 text-[11px] text-[#9aa39b]">{t("trendNote")}</p>
+            </section>
 
-              <div className="rounded-2xl border border-[#e3e7e1] bg-white p-5">
-                <h2 className="mb-4 text-sm font-black">{t("systemPulse")}</h2>
-                <div className="space-y-3">
-                  {[
-                    { icon: RefreshCw, label: t("sync"), value: health?.syncStatus === "active" ? t("syncActive") : t("syncIdle") },
-                    { icon: Database, label: t("latency"), value: health ? `${formatLocalizedDigits(health.tursoLatencyMs, locale)} ms` : t("noData") },
-                    { icon: Cpu, label: t("engine"), value: health?.aiEngine || t("noData") },
-                  ].map((row) => {
-                    const Icon = row.icon;
-                    return (
-                      <div key={row.label} className="flex items-center justify-between rounded-xl bg-[#f7f9f6] px-3 py-2.5">
-                        <span className="flex items-center gap-2 text-xs text-[#6b776d]">
-                          <Icon size={14} className="text-[#8b968d]" />
-                          {row.label}
+            {/* Event log */}
+            <section className="grid gap-10 lg:grid-cols-2">
+              <div>
+                <h2 className="mb-4 text-xs font-bold uppercase tracking-wider text-[#6b776d]">{t("activity")}</h2>
+                {log.length === 0 ? (
+                  <p className="text-xs text-[#9aa39b]">{t("noData")}</p>
+                ) : (
+                  <ul className="divide-y divide-[#eef0ec]">
+                    {log.map((day) => (
+                      <li key={day.date} className="flex items-center justify-between py-2.5 text-sm">
+                        <span className="tabular-nums text-[#6b776d]">
+                          {formatLocalizedDigits(day.date.slice(5), locale)}
                         </span>
-                        <span className="text-[11px] font-black text-[#1a5632]">{row.value}</span>
-                      </div>
-                    );
-                  })}
-                </div>
+                        <span className="font-bold tabular-nums text-[#16231b]">
+                          {formatLocalizedDigits(day.count, locale)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <p className="mt-2 text-[11px] text-[#9aa39b]">{t("activityNote")}</p>
+              </div>
+
+              <div>
+                <h2 className="mb-4 text-xs font-bold uppercase tracking-wider text-[#6b776d]">{t("systemTitle")}</h2>
+                <ul className="divide-y divide-[#eef0ec]">
+                  <li className="flex items-center justify-between py-2.5 text-sm">
+                    <span className="flex items-center gap-2 text-[#6b776d]"><Database size={14} />{t("database")}</span>
+                    <span className="font-bold tabular-nums text-[#16231b]">
+                      {db ? `${formatLocalizedDigits(db.responseTime, locale)} ms` : t("noData")}
+                    </span>
+                  </li>
+                  <li className="flex items-center justify-between py-2.5 text-sm">
+                    <span className="flex items-center gap-2 text-[#6b776d]"><RefreshCw size={14} />{t("sync")}</span>
+                    <span className="font-bold text-[#16231b]">
+                      {facebook
+                        ? facebook.status === "ok" ? t("syncActive") : t("syncIdle")
+                        : t("noData")}
+                    </span>
+                  </li>
+                  <li className="flex items-center justify-between py-2.5 text-sm">
+                    <span className="flex items-center gap-2 text-[#6b776d]"><Settings size={14} />{t("apiVersion")}</span>
+                    <span className="font-bold tabular-nums text-[#16231b]">{health?.checks?.api?.version ?? t("noData")}</span>
+                  </li>
+                </ul>
               </div>
             </section>
           </div>
@@ -474,14 +361,14 @@ export default function DashboardV2Page() {
       {/* Command palette */}
       {paletteOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 p-4 pt-24 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-start justify-center bg-[#16231b]/30 p-4 pt-24"
           onClick={() => setPaletteOpen(false)}
         >
           <div
-            className="w-full max-w-lg overflow-hidden rounded-2xl border border-[#e3e7e1] bg-white shadow-2xl"
+            className="w-full max-w-lg border border-[#d8ddd6] bg-white shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center gap-2 border-b border-[#eef0ec] px-4 py-3">
+            <div className="flex items-center gap-2 border-b border-[#e9ece7] px-4 py-3">
               <Search size={16} className="text-[#8b968d]" />
               <input
                 autoFocus
@@ -490,7 +377,7 @@ export default function DashboardV2Page() {
                 placeholder={t("searchPlaceholder")}
                 className="flex-1 bg-transparent text-sm outline-none"
               />
-              <button onClick={() => setPaletteOpen(false)} className="text-[#8b968d] hover:text-[#16231b]">
+              <button onClick={() => setPaletteOpen(false)} className="text-[#8b968d] hover:text-[#16231b]" aria-label={t("close")}>
                 <X size={16} />
               </button>
             </div>
@@ -507,7 +394,7 @@ export default function DashboardV2Page() {
                         setPaletteOpen(false);
                         router.push(item.href);
                       }}
-                      className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-[#4d5a50] hover:bg-[#f2f5f0] ${isRtl ? "text-right" : "text-left"}`}
+                      className={`flex w-full items-center gap-3 px-3 py-2.5 text-sm text-[#4d5a50] hover:bg-[#f2f5f0] ${isRtl ? "text-right" : "text-left"}`}
                     >
                       <Icon size={16} className="text-[#8b968d]" />
                       {t(`nav.${item.key}`)}
@@ -516,7 +403,7 @@ export default function DashboardV2Page() {
                 })
               )}
             </div>
-            <div className="border-t border-[#eef0ec] px-4 py-2 text-[10px] text-[#9aa39b]">{t("searchTitle")} · ESC</div>
+            <div className="border-t border-[#e9ece7] px-4 py-2 text-[10px] text-[#9aa39b]">{t("searchTitle")} · ESC</div>
           </div>
         </div>
       )}
