@@ -4,7 +4,7 @@ import { useSession, signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { Link, useRouter, usePathname } from "@/i18n/routing";
 import { LayoutDashboard, CheckSquare, Users, FileText, LogOut, Menu, X, MessageSquare, Sparkles, MessageCircle, Mail, Calendar, HandHeart, Globe, Megaphone, User, BarChart3, Shield, Image as ImageIcon, Facebook, Heart, Building2, Smartphone, Search, ChevronDown, ChevronRight, ArrowUpRight, Printer, Command } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { SgnLogo } from "@/components/sgn-logo";
 import { NotificationBell } from "@/components/notification-bell";
@@ -17,6 +17,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const { data: session, status } = useSession();
   const router = useRouter();
   const t = useTranslations("dashboard");
+  const locale = useLocale();
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [commandOpen, setCommandOpen] = useState(false);
@@ -142,7 +143,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const allNavItems = navGroups.flatMap(group => group.items);
   const crumbs: { label: string; href: string }[] = [{ label: t("title"), href: "/dashboard" }];
   let crumbPath = "";
-  for (const segment of pathname.split("/").filter(Boolean).slice(1)) {
+  for (const segment of pathname.split("/").filter(Boolean).filter(s => s !== locale && s !== "dashboard")) {
     crumbPath += `/${segment}`;
     const match = allNavItems.find(item => item.href === crumbPath);
     if (match) crumbs.push({ label: match.label, href: crumbPath });
