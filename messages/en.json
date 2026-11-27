@@ -2341,7 +2341,8 @@
       "events": "Events",
       "pages": "Posts",
       "sync": "Sync",
-      "settings": "Settings"
+      "settings": "Settings",
+      "system": "System status"
     },
     "tasksTitle": "Needs your attention",
     "tasksNote": "Real items from platform data, ordered by importance",
@@ -2372,6 +2373,79 @@
     "error": "Could not load data",
     "retry": "Retry",
     "loading": "Loading...",
-    "logoLetter": "S"
+    "logoLetter": "S",
+    "breadcrumbTasks": "Tasks",
+    "breadcrumbMembers": "Members",
+    "breadcrumbMessages": "Messages",
+    "breadcrumbSystem": "System status",
+    "pages": {
+      "members": {
+        "title": "Members",
+        "note": "Recently registered members — search by name, email or city",
+        "searchPlaceholder": "Quick search...",
+        "total": "Total",
+        "empty": "No members match your search",
+        "table": {
+          "name": "Name",
+          "city": "City",
+          "status": "Status",
+          "contact": "Contact",
+          "joined": "Joined"
+        },
+        "status": {
+          "approved": "Approved",
+          "pending": "Pending review",
+          "rejected": "Rejected",
+          "other": "Other"
+        }
+      },
+      "tasks": {
+        "title": "Tasks",
+        "note": "A simple work queue: waiting, in progress, and done",
+        "columns": {
+          "pending": "Waiting",
+          "progress": "In progress",
+          "done": "Done"
+        },
+        "priority": {
+          "high": "High",
+          "medium": "Medium",
+          "low": "Low"
+        },
+        "start": "Start",
+        "complete": "Complete",
+        "empty": "No tasks here"
+      },
+      "messages": {
+        "title": "Inbox",
+        "note": "Messages submitted by residents through the website",
+        "unread": "Unread",
+        "unreadOne": "New",
+        "read": "Read",
+        "anonymous": "Anonymous sender",
+        "markRead": "Mark as read",
+        "empty": "No messages right now"
+      },
+      "system": {
+        "title": "System status",
+        "note": "Read directly from the platform health check — no estimates",
+        "overall": "Overall status",
+        "ok": "Healthy",
+        "degraded": "Needs attention",
+        "errorState": "Error",
+        "needsAction": "Action needed",
+        "liveData": "Live data",
+        "database": "Database",
+        "milliseconds": "ms",
+        "apiVersion": "API version",
+        "syncToken": "Sync token",
+        "active": "Active",
+        "expiring": "Expiring soon",
+        "expired": "Invalid",
+        "days": "days",
+        "uptime": "Uptime",
+        "seconds": "seconds"
+      }
+    }
   }
 }

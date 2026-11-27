@@ -1388,7 +1388,8 @@
       "events": "Evenementen",
       "pages": "Berichten",
       "sync": "Synchronisatie",
-      "settings": "Instellingen"
+      "settings": "Instellingen",
+      "system": "Systeemstatus"
     },
     "tasksTitle": "Vraagt uw aandacht",
     "tasksNote": "Echte items uit platformgegevens, gesorteerd op belangrijkheid",
@@ -1419,6 +1420,79 @@
     "error": "Gegevens konden niet worden geladen",
     "retry": "Opnieuw",
     "loading": "Laden...",
-    "logoLetter": "S"
+    "logoLetter": "S",
+    "breadcrumbTasks": "Taken",
+    "breadcrumbMembers": "Leden",
+    "breadcrumbMessages": "Berichten",
+    "breadcrumbSystem": "Systeemstatus",
+    "pages": {
+      "members": {
+        "title": "Leden",
+        "note": "Recent geregistreerde leden — zoek op naam, e-mail of plaats",
+        "searchPlaceholder": "Snel zoeken...",
+        "total": "Totaal",
+        "empty": "Geen leden gevonden",
+        "table": {
+          "name": "Naam",
+          "city": "Plaats",
+          "status": "Status",
+          "contact": "Contact",
+          "joined": "Geregistreerd"
+        },
+        "status": {
+          "approved": "Goedgekeurd",
+          "pending": "Wacht op beoordeling",
+          "rejected": "Afgewezen",
+          "other": "Overig"
+        }
+      },
+      "tasks": {
+        "title": "Taken",
+        "note": "Een eenvoudige werklijst: wachtend, bezig en afgerond",
+        "columns": {
+          "pending": "Wachtend",
+          "progress": "Bezig",
+          "done": "Afgerond"
+        },
+        "priority": {
+          "high": "Hoog",
+          "medium": "Gemiddeld",
+          "low": "Laag"
+        },
+        "start": "Starten",
+        "complete": "Afronden",
+        "empty": "Geen taken hier"
+      },
+      "messages": {
+        "title": "Inbox",
+        "note": "Berichten van bewoners via de website",
+        "unread": "Ongelezen",
+        "unreadOne": "Nieuw",
+        "read": "Gelezen",
+        "anonymous": "Anonieme afzender",
+        "markRead": "Markeer als gelezen",
+        "empty": "Er zijn geen berichten"
+      },
+      "system": {
+        "title": "Systeemstatus",
+        "note": "Direct uit de gezondheidscontrole van het platform — geen schattingen",
+        "overall": "Algemene status",
+        "ok": "Gezond",
+        "degraded": "Aandacht nodig",
+        "errorState": "Fout",
+        "needsAction": "Actie nodig",
+        "liveData": "Live gegevens",
+        "database": "Database",
+        "milliseconds": "ms",
+        "apiVersion": "API-versie",
+        "syncToken": "Sync-token",
+        "active": "Actief",
+        "expiring": "Verloopt binnenkort",
+        "expired": "Ongeldig",
+        "days": "dagen",
+        "uptime": "Uptime",
+        "seconds": "seconden"
+      }
+    }
   }
 }
