@@ -1468,7 +1468,15 @@
         },
         "start": "Start",
         "complete": "Complete",
-        "empty": "No tasks here"
+        "empty": "No tasks here",
+        "createTitle": "New task",
+        "editTitle": "Edit task",
+        "fields": {
+          "title": "Title",
+          "description": "Description",
+          "priority": "Priority",
+          "status": "Status"
+        }
       },
       "messages": {
         "title": "Inbox",
@@ -1513,7 +1521,17 @@
         "past": "Past",
         "hide": "Hide",
         "publish": "Publish",
-        "empty": "No events here"
+        "empty": "No events here",
+        "createTitle": "New event",
+        "editTitle": "Edit event",
+        "defaultCategory": "Event",
+        "fields": {
+          "title": "Title",
+          "description": "Description",
+          "date": "Date",
+          "location": "Location",
+          "category": "Category"
+        }
       },
       "content": {
         "title": "Content",
@@ -1529,7 +1547,16 @@
         "hidden": "Hidden",
         "hide": "Hide",
         "publish": "Publish",
-        "empty": "No matching posts"
+        "empty": "No matching posts",
+        "createTitle": "New post",
+        "editTitle": "Edit post",
+        "defaultCategory": "Community news",
+        "fields": {
+          "title": "Title",
+          "excerpt": "Excerpt",
+          "content": "Content",
+          "category": "Category"
+        }
       },
       "finance": {
         "title": "Finance",
@@ -1559,7 +1586,11 @@
         "searchPlaceholder": "Search by email...",
         "delete": "Delete subscriber",
         "confirmDelete": "Delete this subscriber permanently?",
-        "empty": "No subscribers right now"
+        "empty": "No subscribers right now",
+        "createTitle": "Add subscriber",
+        "fields": {
+          "email": "Email address"
+        }
       },
       "ads": {
         "title": "Ads",
@@ -1572,7 +1603,18 @@
         "ends": "Ends on",
         "pause": "Pause",
         "activate": "Activate",
-        "empty": "No ads right now"
+        "empty": "No ads right now",
+        "createTitle": "New ad",
+        "editTitle": "Edit ad",
+        "fields": {
+          "title": "Title",
+          "image": "Image URL",
+          "link": "Destination URL",
+          "position": "Position",
+          "startDate": "Start date",
+          "endDate": "End date",
+          "active": "Active"
+        }
       },
       "surveys": {
         "title": "Surveys",
@@ -1584,7 +1626,17 @@
         "activate": "Activate",
         "totalVotes": "Total votes",
         "noOptions": "This survey has no options",
-        "empty": "No surveys right now"
+        "empty": "No surveys right now",
+        "createTitle": "New survey",
+        "editTitle": "Edit survey",
+        "optionsRequired": "Add at least one option",
+        "fields": {
+          "title": "Title",
+          "description": "Description",
+          "options": "Options (one per line)",
+          "optionsHint": "Options are only added when creating",
+          "active": "Active"
+        }
       }
     },
     "breadcrumbEvents": "Events",
@@ -1592,6 +1644,12 @@
     "breadcrumbFinance": "Finance",
     "breadcrumbSubscribers": "Subscribers",
     "breadcrumbAds": "Ads",
-    "breadcrumbSurveys": "Surveys"
+    "breadcrumbSurveys": "Surveys",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirmDelete": "Delete this item permanently?",
+    "saveFailed": "Could not save — check your sign-in and permissions"
   }
 }

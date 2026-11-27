@@ -5,7 +5,11 @@ import { useLocale, useTranslations } from "next-intl";
 import { formatLocalizedDigits } from "@/lib/language-guard";
 import { V2Shell } from "@/components/dashboard/v2-shell";
 import { V2Intro, V2Message, V2Panel, V2Pill } from "@/components/dashboard/v2-ui";
-import { RefreshCw, Search, Trash2 } from "lucide-react";
+import {
+  V2Dialog, V2Field, V2FormActions, V2FormError, V2IconButton, V2PrimaryButton,
+  v2Api, v2InputClass,
+} from "@/components/dashboard/v2-form";
+import { Plus, RefreshCw, Search, Trash2 } from "lucide-react";
 
 type Subscriber = { id: string; email: string; createdAt: string };
 
@@ -18,15 +22,16 @@ export default function V2SubscribersPage() {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [busy, setBusy] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [adding, setAdding] = useState(false);
+  const [email, setEmail] = useState("");
+  const [formError, setFormError] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(false);
     try {
-      const res = await fetch("/api/subscribe", { cache: "no-store" });
-      if (!res.ok) throw new Error("subscribers");
-      setItems(await res.json());
+      setItems(await v2Api<Subscriber[]>("/api/subscribe"));
     } catch {
       setError(true);
     } finally {
@@ -38,21 +43,46 @@ export default function V2SubscribersPage() {
     void load();
   }, [load]);
 
-  async function remove(item: Subscriber) {
-    if (!window.confirm(tp("confirmDelete"))) return;
-    setBusy(item.id);
+  function openAdd() {
+    setEmail("");
+    setFormError("");
+    setAdding(true);
+  }
+
+  async function save(event: React.FormEvent) {
+    event.preventDefault();
+    if (!email.trim()) return;
+    setBusy(true);
+    setFormError("");
     try {
-      const res = await fetch("/api/subscribe", {
+      await v2Api("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+      setAdding(false);
+      await load();
+    } catch {
+      setFormError(t("saveFailed"));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function remove(item: Subscriber) {
+    if (!window.confirm(t("confirmDelete"))) return;
+    setBusy(true);
+    try {
+      await v2Api("/api/subscribe", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: item.id }),
       });
-      if (!res.ok) throw new Error("delete");
       await load();
     } catch {
       setError(true);
     } finally {
-      setBusy(null);
+      setBusy(false);
     }
   }
 
@@ -74,6 +104,9 @@ export default function V2SubscribersPage() {
               className="w-40 bg-transparent text-xs outline-none"
             />
           </div>
+          <V2PrimaryButton label={tp("createTitle")} onClick={openAdd}>
+            <Plus size={15} />
+          </V2PrimaryButton>
           <button
             onClick={() => void load()}
             title={t("retry")}
@@ -102,19 +135,37 @@ export default function V2SubscribersPage() {
                     {formatLocalizedDigits(item.createdAt.slice(0, 10), locale)}
                   </p>
                 </div>
-                <button
-                  disabled={busy === item.id}
-                  onClick={() => void remove(item)}
-                  title={tp("delete")}
-                  aria-label={tp("delete")}
-                  className="rounded-lg border border-[#e6ddc9] p-2 text-[#b42318] hover:bg-[#fbe9e7] disabled:opacity-50"
-                >
+                <V2IconButton label={tp("delete")} onClick={() => void remove(item)} danger disabled={busy}>
                   <Trash2 size={14} />
-                </button>
+                </V2IconButton>
               </div>
             ))
           )}
         </V2Panel>
+      )}
+
+      {adding && (
+        <V2Dialog title={tp("createTitle")} closeLabel={t("close")} onClose={() => setAdding(false)}>
+          <form onSubmit={(event) => void save(event)}>
+            {formError && <V2FormError text={formError} />}
+            <V2Field label={tp("fields.email")}>
+              <input
+                required
+                type="email"
+                dir="ltr"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className={v2InputClass}
+              />
+            </V2Field>
+            <V2FormActions
+              saveLabel={t("save")}
+              cancelLabel={t("cancel")}
+              busy={busy}
+              onCancel={() => setAdding(false)}
+            />
+          </form>
+        </V2Dialog>
       )}
     </V2Shell>
   );

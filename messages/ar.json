@@ -2421,7 +2421,15 @@
         },
         "start": "ابدأ",
         "complete": "أتمم",
-        "empty": "لا توجد مهام هنا"
+        "empty": "لا توجد مهام هنا",
+        "createTitle": "مهمة جديدة",
+        "editTitle": "تعديل المهمة",
+        "fields": {
+          "title": "العنوان",
+          "description": "الوصف",
+          "priority": "الأولوية",
+          "status": "الحالة"
+        }
       },
       "messages": {
         "title": "صندوق الرسائل",
@@ -2466,7 +2474,17 @@
         "past": "انتهت",
         "hide": "إخفاء",
         "publish": "نشر",
-        "empty": "لا توجد فعاليات هنا"
+        "empty": "لا توجد فعاليات هنا",
+        "createTitle": "فعالية جديدة",
+        "editTitle": "تعديل الفعالية",
+        "defaultCategory": "فعالية",
+        "fields": {
+          "title": "العنوان",
+          "description": "الوصف",
+          "date": "التاريخ",
+          "location": "المكان",
+          "category": "التصنيف"
+        }
       },
       "content": {
         "title": "المحتوى",
@@ -2482,7 +2500,16 @@
         "hidden": "مخفي",
         "hide": "إخفاء",
         "publish": "نشر",
-        "empty": "لا توجد مقالات مطابقة"
+        "empty": "لا توجد مقالات مطابقة",
+        "createTitle": "مقال جديد",
+        "editTitle": "تعديل المقال",
+        "defaultCategory": "أخبار الجالية",
+        "fields": {
+          "title": "العنوان",
+          "excerpt": "المقتطف",
+          "content": "المحتوى",
+          "category": "التصنيف"
+        }
       },
       "finance": {
         "title": "الشؤون المالية",
@@ -2512,7 +2539,11 @@
         "searchPlaceholder": "ابحث بالبريد...",
         "delete": "حذف المشترك",
         "confirmDelete": "هل تريد حذف هذا المشترك نهائياً؟",
-        "empty": "لا يوجد مشتركون حالياً"
+        "empty": "لا يوجد مشتركون حالياً",
+        "createTitle": "إضافة مشترك",
+        "fields": {
+          "email": "البريد الإلكتروني"
+        }
       },
       "ads": {
         "title": "الإعلانات",
@@ -2525,7 +2556,18 @@
         "ends": "ينتهي في",
         "pause": "إيقاف",
         "activate": "تفعيل",
-        "empty": "لا توجد إعلانات حالياً"
+        "empty": "لا توجد إعلانات حالياً",
+        "createTitle": "إعلان جديد",
+        "editTitle": "تعديل الإعلان",
+        "fields": {
+          "title": "العنوان",
+          "image": "رابط الصورة",
+          "link": "رابط الوجهة",
+          "position": "الموضع",
+          "startDate": "تاريخ البدء",
+          "endDate": "تاريخ الانتهاء",
+          "active": "نشط"
+        }
       },
       "surveys": {
         "title": "الاستبيانات",
@@ -2537,7 +2579,17 @@
         "activate": "تفعيل",
         "totalVotes": "إجمالي الأصوات",
         "noOptions": "لا توجد خيارات لهذا الاستبيان",
-        "empty": "لا توجد استبيانات حالياً"
+        "empty": "لا توجد استبيانات حالياً",
+        "createTitle": "استبيان جديد",
+        "editTitle": "تعديل الاستبيان",
+        "optionsRequired": "أضف خياراً واحداً على الأقل",
+        "fields": {
+          "title": "العنوان",
+          "description": "الوصف",
+          "options": "الخيارات (سطر لكل خيار)",
+          "optionsHint": "تُضاف الخيارات عند الإنشاء فقط",
+          "active": "نشط"
+        }
       }
     },
     "breadcrumbEvents": "الفعاليات",
@@ -2545,6 +2597,12 @@
     "breadcrumbFinance": "الشؤون المالية",
     "breadcrumbSubscribers": "المشتركون",
     "breadcrumbAds": "الإعلانات",
-    "breadcrumbSurveys": "الاستبيانات"
+    "breadcrumbSurveys": "الاستبيانات",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "confirmDelete": "هل تريد الحذف نهائياً؟",
+    "saveFailed": "تعذّر الحفظ — تحقق من تسجيل الدخول والصلاحيات"
   }
 }

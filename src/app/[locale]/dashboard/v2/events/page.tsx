@@ -5,7 +5,11 @@ import { useLocale, useTranslations } from "next-intl";
 import { formatLocalizedDigits } from "@/lib/language-guard";
 import { V2Shell } from "@/components/dashboard/v2-shell";
 import { V2Intro, V2Message, V2Panel, V2Pill } from "@/components/dashboard/v2-ui";
-import { Calendar, MapPin, RefreshCw } from "lucide-react";
+import {
+  V2Dialog, V2Field, V2FormActions, V2FormError, V2IconButton, V2PrimaryButton,
+  v2Api, v2InputClass,
+} from "@/components/dashboard/v2-form";
+import { Calendar, MapPin, Pencil, Plus, RefreshCw, Trash2 } from "lucide-react";
 
 type EventItem = {
   id: string;
@@ -17,6 +21,9 @@ type EventItem = {
   published?: boolean;
 };
 
+type FormState = { title: string; description: string; date: string; location: string; category: string };
+const emptyForm: FormState = { title: "", description: "", date: "", location: "", category: "" };
+
 export default function V2EventsPage() {
   const t = useTranslations("dashboardV2");
   const tp = useTranslations("dashboardV2.pages.events");
@@ -26,15 +33,16 @@ export default function V2EventsPage() {
   const [tab, setTab] = useState<"all" | "upcoming">("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [busy, setBusy] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [editing, setEditing] = useState<EventItem | "new" | null>(null);
+  const [form, setForm] = useState<FormState>(emptyForm);
+  const [formError, setFormError] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(false);
     try {
-      const res = await fetch("/api/events?limit=25", { cache: "no-store" });
-      if (!res.ok) throw new Error("events");
-      const data = await res.json();
+      const data = await v2Api<{ events?: EventItem[] }>("/api/events?limit=25");
       setEvents(data.events ?? []);
     } catch {
       setError(true);
@@ -47,20 +55,87 @@ export default function V2EventsPage() {
     void load();
   }, [load]);
 
-  async function togglePublished(item: EventItem) {
-    setBusy(item.id);
+  function openNew() {
+    setForm(emptyForm);
+    setFormError("");
+    setEditing("new");
+  }
+
+  function openEdit(item: EventItem) {
+    setForm({
+      title: item.title,
+      description: item.description ?? "",
+      date: item.date.slice(0, 10),
+      location: item.location ?? "",
+      category: item.category ?? "",
+    });
+    setFormError("");
+    setEditing(item);
+  }
+
+  function setField(key: keyof FormState, value: string) {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  }
+
+  async function save(event: React.FormEvent) {
+    event.preventDefault();
+    if (!form.title.trim() || !form.date || !editing) return;
+    setBusy(true);
+    setFormError("");
     try {
-      const res = await fetch("/api/events", {
-        method: "PATCH",
+      const payload = { ...form, category: form.category || tp("defaultCategory") };
+      if (editing === "new") {
+        await v2Api("/api/events", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      } else {
+        await v2Api("/api/events", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: editing.id, ...payload }),
+        });
+      }
+      setEditing(null);
+      await load();
+    } catch {
+      setFormError(t("saveFailed"));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function remove(item: EventItem) {
+    if (!window.confirm(t("confirmDelete"))) return;
+    setBusy(true);
+    try {
+      await v2Api("/api/events", {
+        method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: item.id, published: !item.published }),
+        body: JSON.stringify({ id: item.id }),
       });
-      if (!res.ok) throw new Error("patch");
       await load();
     } catch {
       setError(true);
     } finally {
-      setBusy(null);
+      setBusy(false);
+    }
+  }
+
+  async function togglePublished(item: EventItem) {
+    setBusy(true);
+    try {
+      await v2Api("/api/events", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: item.id, published: !item.published }),
+      });
+      await load();
+    } catch {
+      setError(true);
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -93,6 +168,9 @@ export default function V2EventsPage() {
               </button>
             ))}
           </div>
+          <V2PrimaryButton label={tp("createTitle")} onClick={openNew}>
+            <Plus size={15} />
+          </V2PrimaryButton>
           <button
             onClick={() => void load()}
             title={t("retry")}
@@ -131,13 +209,19 @@ export default function V2EventsPage() {
                     <V2Pill tone={isUpcoming ? "warn" : "neutral"}>
                       {isUpcoming ? tp("upcoming") : tp("past")}
                     </V2Pill>
+                    <V2IconButton label={t("edit")} onClick={() => openEdit(item)} disabled={busy}>
+                      <Pencil size={13} />
+                    </V2IconButton>
+                    <V2IconButton label={t("delete")} onClick={() => void remove(item)} danger disabled={busy}>
+                      <Trash2 size={13} />
+                    </V2IconButton>
                   </div>
                 </div>
                 {item.description && (
                   <p className="mt-3 text-xs leading-relaxed text-[#6f7a70]">{item.description}</p>
                 )}
                 <button
-                  disabled={busy === item.id}
+                  disabled={busy}
                   onClick={() => void togglePublished(item)}
                   className="mt-4 rounded-lg border border-[#e6ddc9] px-3 py-1.5 text-[11px] font-black text-[#1a5632] hover:bg-[#f5ecd6] disabled:opacity-50"
                 >
@@ -147,6 +231,41 @@ export default function V2EventsPage() {
             );
           })}
         </V2Panel>
+      )}
+
+      {editing && (
+        <V2Dialog
+          title={editing === "new" ? tp("createTitle") : tp("editTitle")}
+          closeLabel={t("close")}
+          onClose={() => setEditing(null)}
+        >
+          <form onSubmit={(event) => void save(event)}>
+            {formError && <V2FormError text={formError} />}
+            <V2Field label={tp("fields.title")}>
+              <input required value={form.title} onChange={(e) => setField("title", e.target.value)} className={v2InputClass} />
+            </V2Field>
+            <V2Field label={tp("fields.description")}>
+              <textarea rows={3} value={form.description} onChange={(e) => setField("description", e.target.value)} className={v2InputClass} />
+            </V2Field>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <V2Field label={tp("fields.date")}>
+                <input required type="date" value={form.date} onChange={(e) => setField("date", e.target.value)} className={v2InputClass} />
+              </V2Field>
+              <V2Field label={tp("fields.location")}>
+                <input value={form.location} onChange={(e) => setField("location", e.target.value)} className={v2InputClass} />
+              </V2Field>
+            </div>
+            <V2Field label={tp("fields.category")}>
+              <input value={form.category} onChange={(e) => setField("category", e.target.value)} className={v2InputClass} />
+            </V2Field>
+            <V2FormActions
+              saveLabel={t("save")}
+              cancelLabel={t("cancel")}
+              busy={busy}
+              onCancel={() => setEditing(null)}
+            />
+          </form>
+        </V2Dialog>
       )}
     </V2Shell>
   );

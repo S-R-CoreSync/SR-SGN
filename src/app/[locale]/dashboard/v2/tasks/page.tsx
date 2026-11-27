@@ -5,7 +5,11 @@ import { useLocale, useTranslations } from "next-intl";
 import { formatLocalizedDigits } from "@/lib/language-guard";
 import { V2Shell } from "@/components/dashboard/v2-shell";
 import { V2Intro, V2Message, V2Pill } from "@/components/dashboard/v2-ui";
-import { ArrowLeft, ArrowRight, CheckSquare, RefreshCw } from "lucide-react";
+import {
+  V2Dialog, V2Field, V2FormActions, V2FormError, V2IconButton, V2PrimaryButton,
+  v2Api, v2InputClass,
+} from "@/components/dashboard/v2-form";
+import { ArrowLeft, ArrowRight, CheckSquare, Pencil, Plus, RefreshCw, Trash2 } from "lucide-react";
 
 type Task = {
   id: string;
@@ -15,6 +19,9 @@ type Task = {
   priority: string;
   createdAt: string;
 };
+
+type FormState = { title: string; description: string; priority: string; status: string };
+const emptyForm: FormState = { title: "", description: "", priority: "medium", status: "pending" };
 
 function columnOf(status: string): "pending" | "progress" | "done" {
   const value = status.toLowerCase();
@@ -39,15 +46,16 @@ export default function V2TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [busy, setBusy] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [editing, setEditing] = useState<Task | "new" | null>(null);
+  const [form, setForm] = useState<FormState>(emptyForm);
+  const [formError, setFormError] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(false);
     try {
-      const res = await fetch("/api/tasks", { cache: "no-store" });
-      if (!res.ok) throw new Error("tasks");
-      setTasks(await res.json());
+      setTasks(await v2Api<Task[]>("/api/tasks"));
     } catch {
       setError(true);
     } finally {
@@ -59,20 +67,85 @@ export default function V2TasksPage() {
     void load();
   }, [load]);
 
-  async function move(task: Task, status: string) {
-    setBusy(task.id);
+  function openNew() {
+    setForm(emptyForm);
+    setFormError("");
+    setEditing("new");
+  }
+
+  function openEdit(task: Task) {
+    setForm({
+      title: task.title,
+      description: task.description ?? "",
+      priority: task.priority,
+      status: task.status,
+    });
+    setFormError("");
+    setEditing(task);
+  }
+
+  function setField(key: keyof FormState, value: string) {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  }
+
+  async function save(event: React.FormEvent) {
+    event.preventDefault();
+    if (!form.title.trim() || !editing) return;
+    setBusy(true);
+    setFormError("");
     try {
-      const res = await fetch("/api/tasks", {
-        method: "PATCH",
+      if (editing === "new") {
+        await v2Api("/api/tasks", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(form),
+        });
+      } else {
+        await v2Api("/api/tasks", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: editing.id, ...form }),
+        });
+      }
+      setEditing(null);
+      await load();
+    } catch {
+      setFormError(t("saveFailed"));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function remove(task: Task) {
+    if (!window.confirm(t("confirmDelete"))) return;
+    setBusy(true);
+    try {
+      await v2Api("/api/tasks", {
+        method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: task.id, status }),
+        body: JSON.stringify({ id: task.id }),
       });
-      if (!res.ok) throw new Error("patch");
       await load();
     } catch {
       setError(true);
     } finally {
-      setBusy(null);
+      setBusy(false);
+    }
+  }
+
+  async function move(task: Task, status: string) {
+    setBusy(true);
+    try {
+      await v2Api("/api/tasks", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: task.id, status }),
+      });
+      await load();
+    } catch {
+      setError(true);
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -85,14 +158,19 @@ export default function V2TasksPage() {
   return (
     <V2Shell active="/dashboard/v2/tasks" section={t("breadcrumbTasks")}>
       <V2Intro title={tp("title")} note={tp("note")}>
-        <button
-          onClick={() => void load()}
-          title={t("retry")}
-          aria-label={t("retry")}
-          className="rounded-xl border border-[#e6ddc9] bg-white p-2 text-[#6f7a70] shadow-sm hover:bg-[#f5ecd6]"
-        >
-          <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
-        </button>
+        <div className="flex items-center gap-2">
+          <V2PrimaryButton label={tp("createTitle")} onClick={openNew}>
+            <Plus size={15} />
+          </V2PrimaryButton>
+          <button
+            onClick={() => void load()}
+            title={t("retry")}
+            aria-label={t("retry")}
+            className="rounded-xl border border-[#e6ddc9] bg-white p-2 text-[#6f7a70] shadow-sm hover:bg-[#f5ecd6]"
+          >
+            <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
+          </button>
+        </div>
       </V2Intro>
 
       {error ? (
@@ -104,10 +182,7 @@ export default function V2TasksPage() {
           {columns.map((column) => {
             const items = tasks.filter((task) => columnOf(task.status) === column.key);
             return (
-              <section
-                key={column.key}
-                className="rounded-2xl border border-[#e6ddc9] bg-white p-5 shadow-sm"
-              >
+              <section key={column.key} className="rounded-2xl border border-[#e6ddc9] bg-white p-5 shadow-sm">
                 <div className="mb-4 flex items-center justify-between border-b border-[#f0ead9] pb-3">
                   <h2 className="text-sm font-black">{tp(`columns.${column.key}`)}</h2>
                   <span className="rounded-full bg-[#f5ecd6] px-2.5 py-1 text-[10px] font-black text-[#8a6a1f]">
@@ -130,24 +205,32 @@ export default function V2TasksPage() {
                           {task.description && (
                             <p className="mt-2 text-xs leading-relaxed text-[#8a958b]">{task.description}</p>
                           )}
-                          <div className="mt-4 flex items-center justify-between border-t border-[#f0ead9] pt-3">
+                          <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-[#f0ead9] pt-3">
                             <span className="text-[10px] tabular-nums text-[#9aa399]">
                               {formatLocalizedDigits(task.createdAt.slice(0, 10), locale)}
                             </span>
-                            {column.key !== "done" && (
-                              <button
-                                disabled={busy === task.id}
-                                onClick={() => void move(task, column.status)}
-                                className="flex items-center gap-1 text-[11px] font-black text-[#1a5632] hover:underline disabled:opacity-50"
-                              >
-                                {tp(column.key === "pending" ? "start" : "complete")}
-                                {column.key === "pending" ? (
-                                  isRtl ? <ArrowLeft size={13} className="rotate-180" /> : <ArrowRight size={13} />
-                                ) : (
-                                  <CheckSquare size={13} />
-                                )}
-                              </button>
-                            )}
+                            <div className="flex items-center gap-2">
+                              <V2IconButton label={t("edit")} onClick={() => openEdit(task)} disabled={busy}>
+                                <Pencil size={13} />
+                              </V2IconButton>
+                              <V2IconButton label={t("delete")} onClick={() => void remove(task)} danger disabled={busy}>
+                                <Trash2 size={13} />
+                              </V2IconButton>
+                              {column.key !== "done" && (
+                                <button
+                                  disabled={busy}
+                                  onClick={() => void move(task, column.status)}
+                                  className="flex items-center gap-1 text-[11px] font-black text-[#1a5632] hover:underline disabled:opacity-50"
+                                >
+                                  {tp(column.key === "pending" ? "start" : "complete")}
+                                  {column.key === "pending" ? (
+                                    isRtl ? <ArrowLeft size={13} className="rotate-180" /> : <ArrowRight size={13} />
+                                  ) : (
+                                    <CheckSquare size={13} />
+                                  )}
+                                </button>
+                              )}
+                            </div>
                           </div>
                         </article>
                       );
@@ -158,6 +241,56 @@ export default function V2TasksPage() {
             );
           })}
         </div>
+      )}
+
+      {editing && (
+        <V2Dialog
+          title={editing === "new" ? tp("createTitle") : tp("editTitle")}
+          closeLabel={t("close")}
+          onClose={() => setEditing(null)}
+        >
+          <form onSubmit={(event) => void save(event)}>
+            {formError && <V2FormError text={formError} />}
+            <V2Field label={tp("fields.title")}>
+              <input
+                required
+                value={form.title}
+                onChange={(e) => setField("title", e.target.value)}
+                className={v2InputClass}
+              />
+            </V2Field>
+            <V2Field label={tp("fields.description")}>
+              <textarea
+                rows={3}
+                value={form.description}
+                onChange={(e) => setField("description", e.target.value)}
+                className={v2InputClass}
+              />
+            </V2Field>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <V2Field label={tp("fields.priority")}>
+                <select value={form.priority} onChange={(e) => setField("priority", e.target.value)} className={v2InputClass}>
+                  <option value="low">{tp("priority.low")}</option>
+                  <option value="medium">{tp("priority.medium")}</option>
+                  <option value="high">{tp("priority.high")}</option>
+                </select>
+              </V2Field>
+              <V2Field label={tp("fields.status")}>
+                <select value={form.status} onChange={(e) => setField("status", e.target.value)} className={v2InputClass}>
+                  <option value="pending">{tp("columns.pending")}</option>
+                  <option value="in_progress">{tp("columns.progress")}</option>
+                  <option value="completed">{tp("columns.done")}</option>
+                </select>
+              </V2Field>
+            </div>
+            <V2FormActions
+              saveLabel={t("save")}
+              cancelLabel={t("cancel")}
+              busy={busy}
+              onCancel={() => setEditing(null)}
+            />
+          </form>
+        </V2Dialog>
       )}
     </V2Shell>
   );

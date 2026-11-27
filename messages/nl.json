@@ -2421,7 +2421,15 @@
         },
         "start": "Starten",
         "complete": "Afronden",
-        "empty": "Geen taken hier"
+        "empty": "Geen taken hier",
+        "createTitle": "Nieuwe taak",
+        "editTitle": "Taak bewerken",
+        "fields": {
+          "title": "Titel",
+          "description": "Beschrijving",
+          "priority": "Prioriteit",
+          "status": "Status"
+        }
       },
       "messages": {
         "title": "Inbox",
@@ -2466,7 +2474,17 @@
         "past": "Afgelopen",
         "hide": "Verbergen",
         "publish": "Publiceren",
-        "empty": "Geen evenementen hier"
+        "empty": "Geen evenementen hier",
+        "createTitle": "Nieuw evenement",
+        "editTitle": "Evenement bewerken",
+        "defaultCategory": "Evenement",
+        "fields": {
+          "title": "Titel",
+          "description": "Beschrijving",
+          "date": "Datum",
+          "location": "Locatie",
+          "category": "Categorie"
+        }
       },
       "content": {
         "title": "Inhoud",
@@ -2482,7 +2500,16 @@
         "hidden": "Verborgen",
         "hide": "Verbergen",
         "publish": "Publiceren",
-        "empty": "Geen passende berichten"
+        "empty": "Geen passende berichten",
+        "createTitle": "Nieuw bericht",
+        "editTitle": "Bericht bewerken",
+        "defaultCategory": "Nieuws van de gemeenschap",
+        "fields": {
+          "title": "Titel",
+          "excerpt": "Samenvatting",
+          "content": "Inhoud",
+          "category": "Categorie"
+        }
       },
       "finance": {
         "title": "Financiën",
@@ -2512,7 +2539,11 @@
         "searchPlaceholder": "Zoek op e-mail...",
         "delete": "Abonnee verwijderen",
         "confirmDelete": "Deze abonnee definitief verwijderen?",
-        "empty": "Er zijn geen abonnees"
+        "empty": "Er zijn geen abonnees",
+        "createTitle": "Abonnee toevoegen",
+        "fields": {
+          "email": "E-mailadres"
+        }
       },
       "ads": {
         "title": "Advertenties",
@@ -2525,7 +2556,18 @@
         "ends": "Eindigt op",
         "pause": "Pauzeren",
         "activate": "Activeren",
-        "empty": "Er zijn geen advertenties"
+        "empty": "Er zijn geen advertenties",
+        "createTitle": "Nieuwe advertentie",
+        "editTitle": "Advertentie bewerken",
+        "fields": {
+          "title": "Titel",
+          "image": "Afbeeldings-URL",
+          "link": "Bestemmings-URL",
+          "position": "Positie",
+          "startDate": "Startdatum",
+          "endDate": "Einddatum",
+          "active": "Actief"
+        }
       },
       "surveys": {
         "title": "Enquêtes",
@@ -2537,7 +2579,17 @@
         "activate": "Activeren",
         "totalVotes": "Totaal stemmen",
         "noOptions": "Deze enquête heeft geen opties",
-        "empty": "Er zijn geen enquêtes"
+        "empty": "Er zijn geen enquêtes",
+        "createTitle": "Nieuwe enquête",
+        "editTitle": "Enquête bewerken",
+        "optionsRequired": "Voeg minimaal één optie toe",
+        "fields": {
+          "title": "Titel",
+          "description": "Beschrijving",
+          "options": "Opties (één per regel)",
+          "optionsHint": "Opties worden alleen bij aanmaken toegevoegd",
+          "active": "Actief"
+        }
       }
     },
     "breadcrumbEvents": "Evenementen",
@@ -2545,6 +2597,12 @@
     "breadcrumbFinance": "Financiën",
     "breadcrumbSubscribers": "Abonnees",
     "breadcrumbAds": "Advertenties",
-    "breadcrumbSurveys": "Enquêtes"
+    "breadcrumbSurveys": "Enquêtes",
+    "save": "Opslaan",
+    "cancel": "Annuleren",
+    "edit": "Bewerken",
+    "delete": "Verwijderen",
+    "confirmDelete": "Dit item definitief verwijderen?",
+    "saveFailed": "Opslaan mislukt — controleer je aanmelding en rechten"
   }
 }
