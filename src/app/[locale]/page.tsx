@@ -67,5 +67,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
     console.error("[Home] Failed to fetch posts:", e);
   }
 
-  return <HomePageClient posts={posts} videoPosts={videoPosts} />;
+  // Single time reference for SSR and hydration (prevents relative-time mismatch).
+  const renderedAt = Date.now();
+  return <HomePageClient posts={posts} videoPosts={videoPosts} renderedAt={renderedAt} />;
 }

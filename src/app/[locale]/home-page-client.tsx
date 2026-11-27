@@ -1,7 +1,7 @@
 "use client";
 
-import { useTranslations, useLocale } from "next-intl";
-import { formatLocalizedDigits } from "@/lib/language-guard";
+import { useTranslations } from "next-intl";
+import { relativeTimeKey, relativeTimeParts } from "@/lib/relative-time";
 import { TopBar } from "@/components/home/top-bar";
 import { SiteHeader } from "@/components/home/site-header";
 import { BreakingNews } from "@/components/home/breaking-news";
@@ -35,20 +35,17 @@ interface PostData {
 interface HomePageClientProps {
   posts: PostData[];
   videoPosts: PostData[];
+  /** Server generation timestamp; reused during hydration to avoid a relative-time mismatch. */
+  renderedAt: number;
 }
 
-export function HomePageClient({ posts, videoPosts }: HomePageClientProps) {
+export function HomePageClient({ posts, videoPosts, renderedAt }: HomePageClientProps) {
   const t = useTranslations();
-  const locale = useLocale();
 
+  // Pure calculation from one fixed reference: SSR and hydration render identical text.
   function timeAgo(date: any) {
-    const diff = Date.now() - new Date(date).getTime();
-    const mins = Math.floor(diff / 60000);
-    if (mins < 60) return t("common.ago_minute", { count: formatLocalizedDigits(mins || 1, locale) });
-    const hrs = Math.floor(mins / 60);
-    if (hrs < 24) return t("common.ago_hour", { count: formatLocalizedDigits(hrs, locale) });
-    const days = Math.floor(hrs / 24);
-    return t("common.ago_day", { count: formatLocalizedDigits(days, locale) });
+    const { unit, count } = relativeTimeParts(date, renderedAt);
+    return t(relativeTimeKey(unit), { count });
   }
 
   const featured = posts.slice(0, 4).map((p) => ({
