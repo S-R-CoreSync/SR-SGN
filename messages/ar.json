@@ -2332,7 +2332,8 @@
       "today": "اليوم",
       "community": "الجالية",
       "system": "النظام",
-      "finance": "المالية"
+      "finance": "المالية",
+      "operations": "العمليات"
     },
     "nav": {
       "overview": "نظرة عامة",
@@ -2345,7 +2346,10 @@
       "settings": "الإعدادات",
       "system": "حالة النظام",
       "content": "المحتوى",
-      "finance": "الشؤون المالية"
+      "finance": "الشؤون المالية",
+      "subscribers": "المشتركون",
+      "ads": "الإعلانات",
+      "surveys": "الاستبيانات"
     },
     "tasksTitle": "يحتاج انتباهك",
     "tasksNote": "أمور حقيقية من بيانات المنصة، مرتبة حسب الأهمية",
@@ -2500,10 +2504,47 @@
           "pending": "بانتظار",
           "failed": "غير ناجح"
         }
+      },
+      "subscribers": {
+        "title": "المشتركون",
+        "note": "قائمة البريد المُشترك في نشرة الجالية",
+        "total": "الإجمالي",
+        "searchPlaceholder": "ابحث بالبريد...",
+        "delete": "حذف المشترك",
+        "confirmDelete": "هل تريد حذف هذا المشترك نهائياً؟",
+        "empty": "لا يوجد مشتركون حالياً"
+      },
+      "ads": {
+        "title": "الإعلانات",
+        "note": "الحملات الإعلانية داخل الموقع وحالة تفعيلها",
+        "active": "مفعّلة",
+        "clicks": "النقرات",
+        "activeOne": "نشط",
+        "paused": "موقوف",
+        "position": "الموضع",
+        "ends": "ينتهي في",
+        "pause": "إيقاف",
+        "activate": "تفعيل",
+        "empty": "لا توجد إعلانات حالياً"
+      },
+      "surveys": {
+        "title": "الاستبيانات",
+        "note": "استبيانات الجالية ونتائج التصويت لكل خيار",
+        "active": "نشطة",
+        "activeOne": "نشط",
+        "paused": "موقوف",
+        "pause": "إيقاف",
+        "activate": "تفعيل",
+        "totalVotes": "إجمالي الأصوات",
+        "noOptions": "لا توجد خيارات لهذا الاستبيان",
+        "empty": "لا توجد استبيانات حالياً"
       }
     },
     "breadcrumbEvents": "الفعاليات",
     "breadcrumbContent": "المحتوى",
-    "breadcrumbFinance": "الشؤون المالية"
+    "breadcrumbFinance": "الشؤون المالية",
+    "breadcrumbSubscribers": "المشتركون",
+    "breadcrumbAds": "الإعلانات",
+    "breadcrumbSurveys": "الاستبيانات"
   }
 }

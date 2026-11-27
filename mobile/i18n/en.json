@@ -1379,7 +1379,8 @@
       "today": "Today",
       "community": "Community",
       "system": "System",
-      "finance": "Finance"
+      "finance": "Finance",
+      "operations": "Operations"
     },
     "nav": {
       "overview": "Overview",
@@ -1392,7 +1393,10 @@
       "settings": "Settings",
       "system": "System status",
       "content": "Content",
-      "finance": "Finance"
+      "finance": "Finance",
+      "subscribers": "Subscribers",
+      "ads": "Ads",
+      "surveys": "Surveys"
     },
     "tasksTitle": "Needs your attention",
     "tasksNote": "Real items from platform data, ordered by importance",
@@ -1547,10 +1551,47 @@
           "pending": "Pending",
           "failed": "Failed"
         }
+      },
+      "subscribers": {
+        "title": "Subscribers",
+        "note": "Email list subscribed to the community newsletter",
+        "total": "Total",
+        "searchPlaceholder": "Search by email...",
+        "delete": "Delete subscriber",
+        "confirmDelete": "Delete this subscriber permanently?",
+        "empty": "No subscribers right now"
+      },
+      "ads": {
+        "title": "Ads",
+        "note": "Website ad campaigns and their activation status",
+        "active": "Active",
+        "clicks": "Clicks",
+        "activeOne": "Active",
+        "paused": "Paused",
+        "position": "Position",
+        "ends": "Ends on",
+        "pause": "Pause",
+        "activate": "Activate",
+        "empty": "No ads right now"
+      },
+      "surveys": {
+        "title": "Surveys",
+        "note": "Community surveys and vote counts per option",
+        "active": "Active",
+        "activeOne": "Active",
+        "paused": "Paused",
+        "pause": "Pause",
+        "activate": "Activate",
+        "totalVotes": "Total votes",
+        "noOptions": "This survey has no options",
+        "empty": "No surveys right now"
       }
     },
     "breadcrumbEvents": "Events",
     "breadcrumbContent": "Content",
-    "breadcrumbFinance": "Finance"
+    "breadcrumbFinance": "Finance",
+    "breadcrumbSubscribers": "Subscribers",
+    "breadcrumbAds": "Ads",
+    "breadcrumbSurveys": "Surveys"
   }
 }

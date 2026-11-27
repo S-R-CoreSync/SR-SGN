@@ -1379,7 +1379,8 @@
       "today": "Vandaag",
       "community": "Gemeenschap",
       "system": "Systeem",
-      "finance": "Financiën"
+      "finance": "Financiën",
+      "operations": "Operaties"
     },
     "nav": {
       "overview": "Overzicht",
@@ -1392,7 +1393,10 @@
       "settings": "Instellingen",
       "system": "Systeemstatus",
       "content": "Inhoud",
-      "finance": "Financiën"
+      "finance": "Financiën",
+      "subscribers": "Abonnees",
+      "ads": "Advertenties",
+      "surveys": "Enquêtes"
     },
     "tasksTitle": "Vraagt uw aandacht",
     "tasksNote": "Echte items uit platformgegevens, gesorteerd op belangrijkheid",
@@ -1547,10 +1551,47 @@
           "pending": "Wachtend",
           "failed": "Mislukt"
         }
+      },
+      "subscribers": {
+        "title": "Abonnees",
+        "note": "E-maillijst voor de nieuwsbrief van de gemeenschap",
+        "total": "Totaal",
+        "searchPlaceholder": "Zoek op e-mail...",
+        "delete": "Abonnee verwijderen",
+        "confirmDelete": "Deze abonnee definitief verwijderen?",
+        "empty": "Er zijn geen abonnees"
+      },
+      "ads": {
+        "title": "Advertenties",
+        "note": "Advertentiecampagnes op de website en hun status",
+        "active": "Actief",
+        "clicks": "Klikken",
+        "activeOne": "Actief",
+        "paused": "Gepauzeerd",
+        "position": "Positie",
+        "ends": "Eindigt op",
+        "pause": "Pauzeren",
+        "activate": "Activeren",
+        "empty": "Er zijn geen advertenties"
+      },
+      "surveys": {
+        "title": "Enquêtes",
+        "note": "Enquêtes van de gemeenschap en stemmen per optie",
+        "active": "Actief",
+        "activeOne": "Actief",
+        "paused": "Gepauzeerd",
+        "pause": "Pauzeren",
+        "activate": "Activeren",
+        "totalVotes": "Totaal stemmen",
+        "noOptions": "Deze enquête heeft geen opties",
+        "empty": "Er zijn geen enquêtes"
       }
     },
     "breadcrumbEvents": "Evenementen",
     "breadcrumbContent": "Inhoud",
-    "breadcrumbFinance": "Financiën"
+    "breadcrumbFinance": "Financiën",
+    "breadcrumbSubscribers": "Abonnees",
+    "breadcrumbAds": "Advertenties",
+    "breadcrumbSurveys": "Enquêtes"
   }
 }
