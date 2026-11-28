@@ -7,8 +7,9 @@ import { Link, useRouter } from "@/i18n/routing";
 import { useLocale, useTranslations } from "next-intl";
 import { formatLocalizedDigits } from "@/lib/language-guard";
 import {
-  ArrowLeft, Calendar, CheckSquare, ClipboardList, Database, FileText, Image as ImageIcon,
-  Landmark, LayoutDashboard, Mail, MessageSquare, MousePointerClick, Search, Shield, Users,
+  ArrowLeft, BarChart3, Calendar, CheckSquare, ClipboardList, Database, Facebook, FileText,
+  Folder, Heart, Image as ImageIcon, Landmark, LayoutDashboard, Mail, MessageSquare,
+  MousePointerClick, ScrollText, Search, Shield, SlidersHorizontal, Smartphone, UserCog, Users,
   Wallet, X,
 } from "lucide-react";
 
@@ -31,6 +32,7 @@ const groups: { key: string; items: NavItem[] }[] = [
       { key: "messages", href: "/dashboard/v2/messages", icon: Mail },
       { key: "events", href: "/dashboard/v2/events", icon: Calendar },
       { key: "content", href: "/dashboard/v2/content", icon: FileText },
+      { key: "volunteers", href: "/dashboard/v2/volunteers", icon: Heart },
     ],
   },
   {
@@ -39,6 +41,10 @@ const groups: { key: string; items: NavItem[] }[] = [
       { key: "subscribers", href: "/dashboard/v2/subscribers", icon: Mail },
       { key: "ads", href: "/dashboard/v2/ads", icon: MousePointerClick },
       { key: "surveys", href: "/dashboard/v2/surveys", icon: ClipboardList },
+      { key: "regulations", href: "/dashboard/v2/regulations", icon: ScrollText },
+      { key: "vault", href: "/dashboard/v2/vault", icon: Folder },
+      { key: "membershipSettings", href: "/dashboard/v2/membership-settings", icon: SlidersHorizontal },
+      { key: "facebookSync", href: "/dashboard/v2/facebook-sync", icon: Facebook },
     ],
   },
   {
@@ -47,6 +53,9 @@ const groups: { key: string; items: NavItem[] }[] = [
       { key: "system", href: "/dashboard/v2/system", icon: Database },
       { key: "users", href: "/dashboard/v2/users", icon: Shield },
       { key: "media", href: "/dashboard/v2/media", icon: ImageIcon },
+      { key: "stats", href: "/dashboard/v2/stats", icon: BarChart3 },
+      { key: "settings", href: "/dashboard/v2/settings", icon: UserCog },
+      { key: "mobileControl", href: "/dashboard/v2/mobile-control", icon: Smartphone },
     ],
   },
   {

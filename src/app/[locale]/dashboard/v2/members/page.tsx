@@ -5,7 +5,8 @@ import { useLocale, useTranslations } from "next-intl";
 import { formatLocalizedDigits } from "@/lib/language-guard";
 import { V2Shell } from "@/components/dashboard/v2-shell";
 import { V2Intro, V2Message, V2Panel, V2Pill } from "@/components/dashboard/v2-ui";
-import { RefreshCw, Search } from "lucide-react";
+import { V2IconButton, v2Api } from "@/components/dashboard/v2-form";
+import { Check, Download, RefreshCw, Search, X } from "lucide-react";
 
 type Member = {
   id: string;
@@ -39,6 +40,7 @@ export default function V2MembersPage() {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -60,6 +62,22 @@ export default function V2MembersPage() {
     void load();
   }, [load]);
 
+  async function setStatus(member: Member, status: "accepted" | "rejected") {
+    setBusy(true);
+    try {
+      await v2Api(`/api/members/${member.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      await load();
+    } catch {
+      setError(true);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   const visible = members.filter((member) => {
     const value = query.trim().toLowerCase();
     if (!value) return true;
@@ -80,6 +98,15 @@ export default function V2MembersPage() {
               className="w-44 bg-transparent text-xs outline-none"
             />
           </div>
+          <a
+            href="/api/members/export"
+            download
+            title={tp("export")}
+            aria-label={tp("export")}
+            className="rounded-xl border border-[#e6ddc9] bg-white p-2 text-[#6f7a70] shadow-sm hover:bg-[#f5ecd6]"
+          >
+            <Download size={15} />
+          </a>
           <button
             onClick={() => void load()}
             title={t("retry")}
@@ -118,6 +145,7 @@ export default function V2MembersPage() {
                     <th className="py-2.5 text-right">{tp("table.status")}</th>
                     <th className="py-2.5 text-right">{tp("table.contact")}</th>
                     <th className="py-2.5 text-right">{tp("table.joined")}</th>
+                    <th className="py-2.5 text-right">{tp("table.actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -133,6 +161,25 @@ export default function V2MembersPage() {
                         <td className="py-3.5 text-xs text-[#6f7a70]">{member.email || member.whatsapp || "—"}</td>
                         <td className="py-3.5 text-xs tabular-nums text-[#8a958b]">
                           {formatLocalizedDigits(member.createdAt.slice(0, 10), locale)}
+                        </td>
+                        <td className="py-3.5">
+                          <div className="flex items-center gap-1.5">
+                            <V2IconButton
+                              label={tp("approve")}
+                              onClick={() => void setStatus(member, "accepted")}
+                              disabled={busy || info.key === "approved"}
+                            >
+                              <Check size={13} />
+                            </V2IconButton>
+                            <V2IconButton
+                              label={tp("reject")}
+                              onClick={() => void setStatus(member, "rejected")}
+                              danger
+                              disabled={busy || info.key === "rejected"}
+                            >
+                              <X size={13} />
+                            </V2IconButton>
+                          </div>
                         </td>
                       </tr>
                     );

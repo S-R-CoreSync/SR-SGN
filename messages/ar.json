@@ -2355,6 +2355,20 @@
       "comments": "التعليقات",
       "users": "المستخدمون والصلاحيات",
       "media": "الوسائط"
+    ,
+      "stats": "الإحصائيات"
+    ,
+      "volunteers": "المتطوعون"
+    ,
+      "regulations": "اللائحة"
+    ,
+      "vault": "خزنة المستندات"
+    ,
+      "membershipSettings": "إعدادات العضوية"
+    ,
+      "facebookSync": "مزامنة فيسبوك"
+    ,
+      "mobileControl": "تحكم التطبيق"
     },
     "tasksTitle": "يحتاج انتباهك",
     "tasksNote": "أمور حقيقية من بيانات المنصة، مرتبة حسب الأهمية",
@@ -2403,6 +2417,8 @@
           "status": "الحالة",
           "contact": "وسيلة التواصل",
           "joined": "تاريخ التسجيل"
+        ,
+          "actions": "إجراءات"
         },
         "status": {
           "approved": "معتمد",
@@ -2410,6 +2426,12 @@
           "rejected": "مرفوض",
           "other": "حالة أخرى"
         }
+      ,
+        "export": "تصدير الأعضاء"
+      ,
+        "approve": "قبول العضو"
+      ,
+        "reject": "رفض العضو"
       },
       "tasks": {
         "title": "المهام",
@@ -2536,6 +2558,10 @@
           "pending": "بانتظار",
           "failed": "غير ناجح"
         }
+      ,
+        "markPaid": "تحديد كمحصّل"
+      ,
+        "markFailed": "تحديد كغير ناجح"
       },
       "subscribers": {
         "title": "المشتركون",
@@ -2601,6 +2627,192 @@
       "comments": {"title":"التعليقات","note":"مراجعة تعليقات الجالية واعتمادها من بيانات المنصة مباشرة","total":"الإجمالي","pending":"بانتظار الاعتماد","searchPlaceholder":"ابحث بالكاتب أو النص...","empty":"لا توجد تعليقات حالياً","approved":"معتمد","waiting":"بانتظار","approve":"اعتماد","unapprove":"إلغاء الاعتماد","replies":"ردود"},
       "users": {"title":"المستخدمون والصلاحيات","note":"حسابات المنصة والأدوار والصلاحيات الفردية — تحكم كامل بالبيانات الحقيقية","tabs":{"users":"المستخدمون","roles":"الأدوار"},"searchPlaceholder":"ابحث بالاسم أو البريد...","createRole":"دور جديد","editRole":"تعديل الدور","total":"الإجمالي","emptyUsers":"لا يوجد مستخدمون مطابقون","emptyRoles":"لا توجد أدوار حالياً","permissionCount":"عدد الصلاحيات","allCount":"كل الصلاحيات المتاحة","permissions":"الصلاحيات","editPermissions":"تحرير صلاحيات المستخدم","roles":{"member":"عضو","admin":"مدير"},"table":{"name":"الاسم","email":"البريد","role":"الدور","joined":"تاريخ التسجيل","actions":"إجراءات"},"fields":{"roleName":"اسم الدور","roleDescription":"الوصف"}},
       "media": {"title":"الوسائط","note":"الصور المستخدمة فعلياً في المقالات والمرفوعات المحلية","total":"الإجمالي","fromPosts":"من المقالات","fromUploads":"مرفوعات","upload":"رفع صورة","uploadHint":"الرفع ينشئ رابطاً مؤقتاً للصورة ولا يضيفها إلى مكتبة المنصة؛ انسخ الرابط واستخدمه حيث تحتاجه.","empty":"لا توجد صور حالياً","uploadResult":"نتيجة الرفع","copyHint":"هذا رابط بيانات مؤقت — انسخه قبل إغلاق النافذة","copy":"نسخ الرابط","copied":"تم النسخ"}
+    ,
+      "volunteers": {
+        "title": "المتطوعون",
+        "note": "سجل المتطوعين المسجلين — قراءة من بيانات المنصة",
+        "total": "الإجمالي",
+        "searchPlaceholder": "ابحث بالاسم أو البريد...",
+        "empty": "لا يوجد متطوعون حالياً",
+        "registered": "مسجّل"
+      }
+    ,
+      "settings": {
+        "title": "إعدادات الحساب",
+        "note": "بيانات حسابك الشخصية كما هي مسجّلة في المنصة",
+        "edit": "تعديل الملف",
+        "empty": "لا توجد بيانات حساب",
+        "postsCount": "عدد المقالات",
+        "fields": {
+          "name": "الاسم",
+          "bio": "نبذة",
+          "phone": "الجوال",
+          "location": "المكان",
+          "website": "الموقع",
+          "image": "رابط الصورة"
+        },
+        "roles": {
+          "admin": "مدير",
+          "moderator": "مشرف",
+          "contributor": "مساهم",
+          "member": "عضو"
+        }
+      }
+    ,
+      "vault": {
+        "title": "خزنة المستندات",
+        "note": "مراجعة مستندات الأعضاء واعتمادها من بيانات حقيقية",
+        "total": "الإجمالي",
+        "pending": "بانتظار المراجعة",
+        "empty": "لا توجد مستندات حالياً",
+        "openDocument": "فتح المستند",
+        "approve": "اعتماد",
+        "reject": "رفض",
+        "table": {
+          "member": "العضو",
+          "document": "المستند",
+          "status": "الحالة",
+          "date": "التاريخ",
+          "actions": "إجراءات"
+        },
+        "status": {
+          "pending": "بانتظار",
+          "approved": "معتمد",
+          "rejected": "مرفوض"
+        }
+      }
+    ,
+      "membershipSettings": {
+        "title": "إعدادات العضوية",
+        "note": "الحقول الظاهرة في نموذج الانتساب — الحفظ يكتب الإعدادات الفعلية",
+        "saved": "تم حفظ الإعدادات",
+        "unsaved": "تغييرات غير محفوظة",
+        "upToDate": "لا توجد تغييرات",
+        "hiddenHint": "تُحفظ الإعدادات التقنية الأخرى دون عرضها هنا.",
+        "keys": {
+          "nameAr": "الاسم بالعربية",
+          "nameNl": "الاسم بالهولندية",
+          "birthYear": "سنة الميلاد",
+          "gender": "الجنس",
+          "originCity": "المدينة الأصلية",
+          "whatsapp": "واتساب",
+          "email": "البريد الإلكتروني",
+          "nlProvincie": "المقاطعة في هولندا",
+          "nlCity": "المدينة في هولندا",
+          "expNl": "الخبرة في هولندا",
+          "expOutside": "الخبرة خارج هولندا",
+          "educationLevel": "المستوى التعليمي",
+          "profession": "المهنة",
+          "skills": "المهارات",
+          "maritalStatus": "الحالة الاجتماعية"
+        }
+      }
+    ,
+      "stats": {
+        "title": "إحصائيات الأعضاء",
+        "note": "أرقام محسوبة من سجل الأعضاء الفعلي — بلا بيانات مقدّرة",
+        "total": "إجمالي الأعضاء",
+        "empty": "لا توجد بيانات كافية",
+        "genderTitle": "توزيع الجنس",
+        "genderNote": "من الحقول المسجّلة للأعضاء",
+        "gender": {
+          "male": "ذكر",
+          "female": "أنثى"
+        },
+        "ageTitle": "الفئات العمرية",
+        "ageNote": "محسوبة من سنوات الميلاد المسجّلة",
+        "ages": {
+          "under25": "أقل من ٢٥ سنة",
+          "age25to34": "من ٢٥ إلى ٣٤ سنة",
+          "age35to44": "من ٣٥ إلى ٤٤ سنة",
+          "age45to54": "من ٤٥ إلى ٥٤ سنة",
+          "above55": "٥٥ سنة فأكثر"
+        },
+        "provinceTitle": "المقاطعات الهولندية",
+        "provinceNote": "أكثر المقاطعات تسجيلاً",
+        "topProvince": "أعلى مقاطعة",
+        "originTitle": "المحافظات الأصلية",
+        "originNote": "حسب بيانات الانتساب المسجّلة"
+      }
+    ,
+      "facebookSync": {
+        "title": "مزامنة فيسبوك",
+        "note": "حالة الربط وتشغيل جلب منشورات الصفحة من مصدرها الرسمي",
+        "connected": "الصفحة مرتبطة",
+        "needsAttention": "يحتاج متابعة",
+        "runSync": "تشغيل المزامنة",
+        "statusTitle": "حالة الربط",
+        "statusNote": "قراءة مباشرة من إعدادات المنصة",
+        "checks": {
+          "configured": "الإعداد موجود",
+          "tokenValid": "التوكن صالح",
+          "pageAccess": "صلاحية الصفحة"
+        },
+        "yes": "نعم",
+        "no": "لا",
+        "pageSlug": "اسم الصفحة",
+        "pageId": "رقم الصفحة",
+        "connectPage": "ربط الصفحة",
+        "resultTitle": "نتيجة المزامنة",
+        "resultNote": "أحدث تشغيل يدوي",
+        "success": "نجحت",
+        "failed": "فشلت",
+        "fetched": "المُسترجعة",
+        "new": "الجديدة",
+        "skipped": "المتخطّاة"
+      }
+    ,
+      "regulations": {
+        "title": "اللائحة",
+        "note": "نص اللائحة المسجّل في المنصة مع إمكانية التعديل ورفع الإصدار",
+        "version": "الإصدار",
+        "published": "منشورة",
+        "hidden": "مخفية",
+        "empty": "لا توجد لائحة مسجّلة",
+        "otherLanguage": "اللائحة المسجّلة بلغة أخرى — لا تُعرض هنا التزاماً بالعزل اللغوي",
+        "editTitle": "تعديل اللائحة",
+        "saveHint": "يُحفظ النص ويرتفع رقم الإصدار تلقائياً عند الحفظ.",
+        "section": "قسم",
+        "addSection": "إضافة قسم",
+        "fields": {
+          "title": "العنوان",
+          "body": "النص"
+        }
+      }
+    ,
+      "mobileControl": {
+        "title": "تحكم التطبيق",
+        "note": "إعدادات التطبيق وإرسال الإشعارات — لا تُعدّل ترجمات التطبيق من هنا",
+        "tabs": {
+          "settings": "الإعدادات",
+          "push": "إشعار جماعي"
+        },
+        "empty": "لا توجد إعدادات",
+        "saved": "تم حفظ الإعدادات",
+        "bannerTitle": "شريط الترحيب",
+        "bannerNote": "ما يظهر للمستخدم عند فتح التطبيق",
+        "bannerVisible": "إظهار الشريط",
+        "bannerImage": "رابط صورة الشريط",
+        "versionTitle": "إصدار التطبيق",
+        "versionNote": "تنبيه التحديث للمستخدمين",
+        "versionLatest": "آخر إصدار",
+        "versionRequired": "تحديث إلزامي",
+        "themeTitle": "ألوان التطبيق",
+        "themeNote": "قيمالألوان المسجّلة",
+        "theme": {
+          "primary": "الأساسي",
+          "accent": "التمييز",
+          "background": "الخلفية"
+        },
+        "pushTitle": "إرسال إشعار",
+        "pushNote": "يُرسل إلى المستخدمين الذين سجّلوا رمز الإشعارات",
+        "pushTitleField": "عنوان الإشعار",
+        "pushBodyField": "نص الإشعار",
+        "province": "المقاطعة",
+        "city": "المدينة",
+        "send": "إرسال",
+        "sentCount": "عدد المستلمين"
+      }
     },
     "breadcrumbEvents": "الفعاليات",
     "breadcrumbContent": "المحتوى",
@@ -2621,5 +2833,21 @@
     "breadcrumbMedia": "الوسائط",
     "permissions": {"news.create":"إنشاء الأخبار","news.edit":"تعديل الأخبار","news.delete":"حذف الأخبار","news.publish":"نشر الأخبار","news.feature":"تمييز الأخبار","events.create":"إنشاء الفعاليات","events.edit":"تعديل الفعاليات","events.delete":"حذف الفعاليات","events.publish":"نشر الفعاليات","tasks.create":"إنشاء المهام","tasks.edit":"تعديل المهام","tasks.delete":"حذف المهام","tasks.assign":"إسناد المهام","comments.approve":"اعتماد التعليقات","comments.delete":"حذف التعليقات","comments.manage":"إدارة التعليقات","ads.create":"إنشاء الإعلانات","ads.edit":"تعديل الإعلانات","ads.delete":"حذف الإعلانات","surveys.create":"إنشاء الاستبيانات","surveys.edit":"تعديل الاستبيانات","surveys.delete":"حذف الاستبيانات","surveys.view_results":"عرض نتائج الاستبيانات","media.upload":"رفع الوسائط","media.delete":"حذف الوسائط","pages.create":"إنشاء الصفحات","pages.edit":"تعديل الصفحات","pages.delete":"حذف الصفحات","pages.publish":"نشر الصفحات","users.view":"عرض المستخدمين","users.edit_role":"تعديل أدوار المستخدمين","users.delete":"حذف المستخدمين","settings.view":"عرض الإعدادات","settings.edit":"تعديل الإعدادات","roles.manage":"إدارة الأدوار","volunteers.view":"عرض المتطوعين","volunteers.manage":"إدارة المتطوعين","subscribers.view":"عرض المشتركين","subscribers.export":"تصدير المشتركين","landing.create":"إنشاء صفحات الهبوط","landing.edit":"تعديل صفحات الهبوط","landing.delete":"حذف صفحات الهبوط","landing.publish":"نشر صفحات الهبوط","regulations.edit":"تعديل اللوائح","faqs.manage":"إدارة الأسئلة الشائعة"},
     "modules": {"news":"الأخبار","events":"الفعاليات","tasks":"المهام","comments":"التعليقات","ads":"الإعلانات","surveys":"الاستبيانات","media":"الوسائط","pages":"الصفحات","users":"المستخدمون","settings":"الإعدادات","roles":"الأدوار","volunteers":"المتطوعون","subscribers":"المشتركون","landing":"صفحات الهبوط","regulations":"اللوائح","faqs":"الأسئلة الشائعة"}
+  ,
+    "breadcrumbStats": "الإحصائيات"
+  ,
+    "breadcrumbVolunteers": "المتطوعون"
+  ,
+    "breadcrumbRegulations": "اللائحة"
+  ,
+    "breadcrumbVault": "خزنة المستندات"
+  ,
+    "breadcrumbMembershipSettings": "إعدادات العضوية"
+  ,
+    "breadcrumbFacebookSync": "مزامنة فيسبوك"
+  ,
+    "breadcrumbSettings": "إعدادات الحساب"
+  ,
+    "breadcrumbMobileControl": "تحكم التطبيق"
   }
 }

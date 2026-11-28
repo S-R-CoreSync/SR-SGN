@@ -2355,6 +2355,20 @@
       "comments": "Reacties",
       "users": "Gebruikers en rechten",
       "media": "Media"
+    ,
+      "stats": "Statistieken"
+    ,
+      "volunteers": "Vrijwilligers"
+    ,
+      "regulations": "Reglementen"
+    ,
+      "vault": "Documentenkluis"
+    ,
+      "membershipSettings": "Lidmaatschapsinstellingen"
+    ,
+      "facebookSync": "Facebook-synchronisatie"
+    ,
+      "mobileControl": "App-beheer"
     },
     "tasksTitle": "Vraagt uw aandacht",
     "tasksNote": "Echte items uit platformgegevens, gesorteerd op belangrijkheid",
@@ -2403,6 +2417,8 @@
           "status": "Status",
           "contact": "Contact",
           "joined": "Geregistreerd"
+        ,
+          "actions": "Acties"
         },
         "status": {
           "approved": "Goedgekeurd",
@@ -2410,6 +2426,12 @@
           "rejected": "Afgewezen",
           "other": "Overig"
         }
+      ,
+        "export": "Leden exporteren"
+      ,
+        "approve": "Lid goedkeuren"
+      ,
+        "reject": "Lid afwijzen"
       },
       "tasks": {
         "title": "Taken",
@@ -2536,6 +2558,10 @@
           "pending": "Wachtend",
           "failed": "Mislukt"
         }
+      ,
+        "markPaid": "Als betaald markeren"
+      ,
+        "markFailed": "Als mislukt markeren"
       },
       "subscribers": {
         "title": "Abonnees",
@@ -2601,6 +2627,192 @@
       "comments": {"title":"Reacties","note":"Reacties van de gemeenschap beoordelen en goedkeuren met echte gegevens","total":"Totaal","pending":"Wachten op goedkeuring","searchPlaceholder":"Zoeken op auteur of tekst...","empty":"Nog geen reacties","approved":"Goedgekeurd","waiting":"In afwachting","approve":"Goedkeuren","unapprove":"Goedkeuring intrekken","replies":"Antwoorden"},
       "users": {"title":"Gebruikers en rechten","note":"Accounts, rollen en individuele rechten met echte bediening","tabs":{"users":"Gebruikers","roles":"Rollen"},"searchPlaceholder":"Zoeken op naam of e-mail...","createRole":"Nieuwe rol","editRole":"Rol bewerken","total":"Totaal","emptyUsers":"Geen overeenkomende gebruikers","emptyRoles":"Nog geen rollen","permissionCount":"Aantal rechten","allCount":"Alle beschikbare rechten","permissions":"Rechten","editPermissions":"Gebruikersrechten bewerken","roles":{"member":"Lid","admin":"Beheerder"},"table":{"name":"Naam","email":"E-mail","role":"Rol","joined":"Geregistreerd","actions":"Acties"},"fields":{"roleName":"Rolnaam","roleDescription":"Beschrijving"}},
       "media": {"title":"Media","note":"Afbeeldingen die echt in artikelen en lokale uploads worden gebruikt","total":"Totaal","fromPosts":"Uit artikelen","fromUploads":"Uploads","upload":"Afbeelding uploaden","uploadHint":"Uploaden maakt een tijdelijke link en voegt de afbeelding niet toe aan de bibliotheek. Kopieer de link en gebruik die waar nodig.","empty":"Nog geen afbeeldingen","uploadResult":"Uploadresultaat","copyHint":"Dit is een tijdelijke datalink - kopieer die voordat u het venster sluit","copy":"Link kopieren","copied":"Gekopieerd"}
+    ,
+      "volunteers": {
+        "title": "Vrijwilligers",
+        "note": "Geregistreerde vrijwilligers uit echte platformgegevens",
+        "total": "Totaal",
+        "searchPlaceholder": "Zoeken op naam of e-mail...",
+        "empty": "Nog geen vrijwilligers",
+        "registered": "Geregistreerd"
+      }
+    ,
+      "settings": {
+        "title": "Accountinstellingen",
+        "note": "Uw persoonlijke accountgegevens zoals opgeslagen",
+        "edit": "Profiel bewerken",
+        "empty": "Geen accountgegevens",
+        "postsCount": "Aantal artikelen",
+        "fields": {
+          "name": "Naam",
+          "bio": "Biografie",
+          "phone": "Telefoon",
+          "location": "Locatie",
+          "website": "Website",
+          "image": "Afbeeldings-URL"
+        },
+        "roles": {
+          "admin": "Beheerder",
+          "moderator": "Moderator",
+          "contributor": "Bijdrager",
+          "member": "Lid"
+        }
+      }
+    ,
+      "vault": {
+        "title": "Documentenkluis",
+        "note": "Documenten van leden beoordelen en goedkeuren met echte gegevens",
+        "total": "Totaal",
+        "pending": "Wachten op beoordeling",
+        "empty": "Nog geen documenten",
+        "openDocument": "Document openen",
+        "approve": "Goedkeuren",
+        "reject": "Afwijzen",
+        "table": {
+          "member": "Lid",
+          "document": "Document",
+          "status": "Status",
+          "date": "Datum",
+          "actions": "Acties"
+        },
+        "status": {
+          "pending": "In afwachting",
+          "approved": "Goedgekeurd",
+          "rejected": "Afgewezen"
+        }
+      }
+    ,
+      "membershipSettings": {
+        "title": "Lidmaatschapsinstellingen",
+        "note": "Velden van het inschrijfformulier - opslaan schrijft echte instellingen",
+        "saved": "Instellingen opgeslagen",
+        "unsaved": "Niet-opgeslagen wijzigingen",
+        "upToDate": "Geen wijzigingen",
+        "hiddenHint": "Andere technische instellingen blijven bewaard zonder hier te worden getoond.",
+        "keys": {
+          "nameAr": "Arabische naam",
+          "nameNl": "Nederlandse naam",
+          "birthYear": "Geboortejaar",
+          "gender": "Geslacht",
+          "originCity": "Herkomststad",
+          "whatsapp": "WhatsApp",
+          "email": "E-mailadres",
+          "nlProvincie": "Nederlandse provincie",
+          "nlCity": "Nederlandse stad",
+          "expNl": "Ervaring in Nederland",
+          "expOutside": "Ervaring in het buitenland",
+          "educationLevel": "Opleidingsniveau",
+          "profession": "Beroep",
+          "skills": "Vaardigheden",
+          "maritalStatus": "Burgerlijke staat"
+        }
+      }
+    ,
+      "stats": {
+        "title": "Ledenstatistieken",
+        "note": "Cijfers berekend uit echte ledengegevens, geen schattingen",
+        "total": "Totaal leden",
+        "empty": "Onvoldoende gegevens",
+        "genderTitle": "Geslachtsverdeling",
+        "genderNote": "Uit geregistreerde ledenvelden",
+        "gender": {
+          "male": "Man",
+          "female": "Vrouw"
+        },
+        "ageTitle": "Leeftijdsgroepen",
+        "ageNote": "Berekend uit geregistreerde geboortejaren",
+        "ages": {
+          "under25": "Onder 25",
+          "age25to34": "25 tot 34",
+          "age35to44": "35 tot 44",
+          "age45to54": "45 tot 54",
+          "above55": "55 en ouder"
+        },
+        "provinceTitle": "Nederlandse provincies",
+        "provinceNote": "Meest geregistreerde provincies",
+        "topProvince": "Topprovincie",
+        "originTitle": "Herkomstprovincies",
+        "originNote": "Uit lidmaatschapsgegevens"
+      }
+    ,
+      "facebookSync": {
+        "title": "Facebook-synchronisatie",
+        "note": "Verbindingsstatus en handmatige import van paginaberichten uit de officiële bron",
+        "connected": "Pagina verbonden",
+        "needsAttention": "Needs aandacht",
+        "runSync": "Synchronisatie starten",
+        "statusTitle": "Verbindingsstatus",
+        "statusNote": "Direct gelezen uit platforminstellingen",
+        "checks": {
+          "configured": "Geconfigureerd",
+          "tokenValid": "Token geldig",
+          "pageAccess": "Paginatoegang"
+        },
+        "yes": "Ja",
+        "no": "Nee",
+        "pageSlug": "Pagina naam",
+        "pageId": "Pagina-ID",
+        "connectPage": "Pagina verbinden",
+        "resultTitle": "Synchronisatieresultaat",
+        "resultNote": "Laatste handmatige run",
+        "success": "Geslaagd",
+        "failed": "Mislukt",
+        "fetched": "Opgehaald",
+        "new": "Nieuw",
+        "skipped": "Overgeslagen"
+      }
+    ,
+      "regulations": {
+        "title": "Reglementen",
+        "note": "Opgeslagen reglementtekst met bewerking en versieverhoging",
+        "version": "Versie",
+        "published": "Gepubliceerd",
+        "hidden": "Verborgen",
+        "empty": "Geen reglement opgeslagen",
+        "otherLanguage": "Het opgeslagen reglement is in een andere taal - hier verborgen voor taalscheiding",
+        "editTitle": "Reglementen bewerken",
+        "saveHint": "De tekst wordt opgeslagen en het versienummer stijgt automatisch.",
+        "section": "Sectie",
+        "addSection": "Sectie toevoegen",
+        "fields": {
+          "title": "Titel",
+          "body": "Tekst"
+        }
+      }
+    ,
+      "mobileControl": {
+        "title": "App-beheer",
+        "note": "App-instellingen en pushmeldingen - appvertalingen worden hier niet bewerkt",
+        "tabs": {
+          "settings": "Instellingen",
+          "push": "Pushmelding"
+        },
+        "empty": "Geen instellingen",
+        "saved": "Instellingen opgeslagen",
+        "bannerTitle": "Welkomstbanner",
+        "bannerNote": "Wordt getoond bij het openen van de app",
+        "bannerVisible": "Banner tonen",
+        "bannerImage": "Bannerafbeelding-URL",
+        "versionTitle": "App-versie",
+        "versionNote": "Updatewaarschuwing voor gebruikers",
+        "versionLatest": "Laatste versie",
+        "versionRequired": "Verplichte update",
+        "themeTitle": "App-kleuren",
+        "themeNote": "Opgeslagen kleurwaarden",
+        "theme": {
+          "primary": "Primair",
+          "accent": "Accent",
+          "background": "Achtergrond"
+        },
+        "pushTitle": "Melding versturen",
+        "pushNote": "Verzonden naar gebruikers met een push-token",
+        "pushTitleField": "Meldingstitel",
+        "pushBodyField": "Meldingstekst",
+        "province": "Provincie",
+        "city": "Stad",
+        "send": "Verzenden",
+        "sentCount": "Ontvangers"
+      }
     },
     "breadcrumbEvents": "Evenementen",
     "breadcrumbContent": "Inhoud",
@@ -2621,5 +2833,21 @@
     "breadcrumbMedia": "Media",
     "permissions": {"news.create":"Nieuws maken","news.edit":"Nieuws bewerken","news.delete":"Nieuws verwijderen","news.publish":"Nieuws publiceren","news.feature":"Nieuws uitlichten","events.create":"Evenementen maken","events.edit":"Evenementen bewerken","events.delete":"Evenementen verwijderen","events.publish":"Evenementen publiceren","tasks.create":"Taken maken","tasks.edit":"Taken bewerken","tasks.delete":"Taken verwijderen","tasks.assign":"Taken toewijzen","comments.approve":"Reacties goedkeuren","comments.delete":"Reacties verwijderen","comments.manage":"Reacties beheren","ads.create":"Advertenties maken","ads.edit":"Advertenties bewerken","ads.delete":"Advertenties verwijderen","surveys.create":"Enquetes maken","surveys.edit":"Enquetes bewerken","surveys.delete":"Enquetes verwijderen","surveys.view_results":"Enqueteresultaten bekijken","media.upload":"Media uploaden","media.delete":"Media verwijderen","pages.create":"Pagina's maken","pages.edit":"Pagina's bewerken","pages.delete":"Pagina's verwijderen","pages.publish":"Pagina's publiceren","users.view":"Gebruikers bekijken","users.edit_role":"Gebruikersrollen bewerken","users.delete":"Gebruikers verwijderen","settings.view":"Instellingen bekijken","settings.edit":"Instellingen bewerken","roles.manage":"Rollen beheren","volunteers.view":"Vrijwilligers bekijken","volunteers.manage":"Vrijwilligers beheren","subscribers.view":"Abonnees bekijken","subscribers.export":"Abonnees exporteren","landing.create":"Landingspagina's maken","landing.edit":"Landingspagina's bewerken","landing.delete":"Landingspagina's verwijderen","landing.publish":"Landingspagina's publiceren","regulations.edit":"Reglementen bewerken","faqs.manage":"Veelgestelde vragen beheren"},
     "modules": {"news":"Nieuws","events":"Evenementen","tasks":"Taken","comments":"Reacties","ads":"Advertenties","surveys":"Enquetes","media":"Media","pages":"Pagina's","users":"Gebruikers","settings":"Instellingen","roles":"Rollen","volunteers":"Vrijwilligers","subscribers":"Abonnees","landing":"Landingspagina's","regulations":"Reglementen","faqs":"Veelgestelde vragen"}
+  ,
+    "breadcrumbStats": "Statistieken"
+  ,
+    "breadcrumbVolunteers": "Vrijwilligers"
+  ,
+    "breadcrumbRegulations": "Reglementen"
+  ,
+    "breadcrumbVault": "Documentenkluis"
+  ,
+    "breadcrumbMembershipSettings": "Lidmaatschapsinstellingen"
+  ,
+    "breadcrumbFacebookSync": "Facebook-synchronisatie"
+  ,
+    "breadcrumbSettings": "Accountinstellingen"
+  ,
+    "breadcrumbMobileControl": "App-beheer"
   }
 }

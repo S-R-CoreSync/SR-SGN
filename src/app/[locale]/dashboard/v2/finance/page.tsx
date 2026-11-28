@@ -5,7 +5,8 @@ import { useLocale, useTranslations } from "next-intl";
 import { formatLocalizedDigits } from "@/lib/language-guard";
 import { V2Shell } from "@/components/dashboard/v2-shell";
 import { V2Intro, V2Message, V2Panel, V2Pill } from "@/components/dashboard/v2-ui";
-import { RefreshCw } from "lucide-react";
+import { V2IconButton, v2Api } from "@/components/dashboard/v2-form";
+import { Check, RefreshCw, X } from "lucide-react";
 
 type Donation = {
   id: string;
@@ -46,6 +47,7 @@ export default function V2FinancePage() {
   const [donations, setDonations] = useState<Donation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -69,6 +71,22 @@ export default function V2FinancePage() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  async function updateStatus(item: Donation, status: "completed" | "failed") {
+    setBusy(true);
+    try {
+      await v2Api(`/api/donations/${item.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      await load();
+    } catch {
+      setError(true);
+    } finally {
+      setBusy(false);
+    }
+  }
 
   const months = (stats?.monthlyTotals ?? []).slice(0, 6).reverse();
   const monthMax = Math.max(1, ...months.map((m) => m.total));
@@ -156,6 +174,25 @@ export default function V2FinancePage() {
                           {number(donation.amount)} {donation.currency === "EUR" ? tp("euro") : donation.currency}
                         </span>
                         <V2Pill tone={statusTone(donation.status)}>{tp(`status.${statusKey(donation.status)}`)}</V2Pill>
+                        {statusKey(donation.status) === "pending" && (
+                          <div className="flex items-center gap-1.5">
+                            <V2IconButton
+                              label={tp("markPaid")}
+                              onClick={() => void updateStatus(donation, "completed")}
+                              disabled={busy}
+                            >
+                              <Check size={13} />
+                            </V2IconButton>
+                            <V2IconButton
+                              label={tp("markFailed")}
+                              onClick={() => void updateStatus(donation, "failed")}
+                              danger
+                              disabled={busy}
+                            >
+                              <X size={13} />
+                            </V2IconButton>
+                          </div>
+                        )}
                       </div>
                     </li>
                   ))}
