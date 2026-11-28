@@ -23,7 +23,7 @@ export async function GET() {
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id || !(await requireAuthorize(session.user.id, "pages.create"))) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  const { title, content, excerpt, image, category, tags, source, featured, slug, publishTo, membersOnly } = await req.json();
+  const { title, content, excerpt, image, category, tags, source, featured, slug, publishTo, membersOnly, suggestionId } = await req.json();
   const post = await prisma.post.create({
     data: {
       title,
@@ -39,6 +39,32 @@ export async function POST(req: Request) {
       authorId: (session.user as any).id,
     },
   });
+
+  // A suggested draft is marked as applied only when the editor actually saves the post.
+  if (typeof suggestionId === "string" && suggestionId) {
+    try {
+      const approval = await prisma.aIApproval.findFirst({
+        where: { id: suggestionId, kind: "content_draft", status: "pending", requestedBy: session.user.id },
+        select: { id: true },
+      });
+      if (approval) {
+        await prisma.aIApproval.update({
+          where: { id: approval.id },
+          data: { status: "approved", reviewedBy: session.user.id, reviewedAt: new Date(), reviewNote: t(req, 'ai.contentDraftAppliedActivity') },
+        });
+        await prisma.activityLog.create({
+          data: {
+            memberId: session.user.id as string,
+            userId: session.user.id as string,
+            action: t(req, 'ai.contentDraftAppliedActivity'),
+            details: post.title.slice(0, 200),
+          },
+        });
+      }
+    } catch (error) {
+      logger.error("API/pages", "Could not record AI draft approval:", error);
+    }
+  }
 
   // Trigger social media sharing webhook if platforms are selected
   if (publishTo && Array.isArray(publishTo) && publishTo.length > 0) {

@@ -1683,7 +1683,12 @@
   },
   "ai": {
     "defaultSuggestPrompt": "Stel taken voor voor de gemeenschap",
-    "suggestError": "AI-service is momenteel niet beschikbaar. Zorg dat u de API-sleutel heeft ingesteld."
+    "suggestError": "AI-service is momenteel niet beschikbaar. Zorg dat u de API-sleutel heeft ingesteld.",
+    "contentDraftActivity": "AI-artikelconcept voorgesteld",
+    "contentDraftAppliedActivity": "AI-concept toegepast",
+    "contentDraftFailed": "Concept kon niet worden gegenereerd. Controleer de AI-instellingen.",
+    "contentDraftLanguageFailed": "Het voorgestelde concept past niet bij de taal van het onderdeel. Probeer opnieuw.",
+    "contentDraftInvalidIdea": "Schrijf een duidelijker idee voordat je een concept aanvraagt."
   },
   "sync": {
     "facebook": {
@@ -2587,7 +2592,16 @@
           "whatsapp": "WhatsApp",
           "youtube": "YouTube",
           "tiktok": "TikTok"
-        }
+        },
+        "aiTitle": "Suggestieassistent",
+        "aiNote": "Schrijft een eerste concept van je idee, alleen ter beoordeling — er wordt niets gepubliceerd voordat je het opslaat.",
+        "aiIdeaPlaceholder": "Beschrijf het artikelidee...",
+        "aiSuggest": "Concept voorstellen",
+        "aiBusy": "Concept wordt voorgesteld...",
+        "aiDraftNote": "Voorgesteld concept — nog niet opgeslagen",
+        "aiAdopt": "Formulier met het concept vullen",
+        "aiAdoptedHint": "Het concept staat nu in het formulier. Controleer het en druk op Opslaan om het artikel te maken.",
+        "aiNoNumbersHint": "De AI voegt geen cijfers toe; vul echte getallen zelf in."
       },
       "finance": {
         "title": "Financiën",

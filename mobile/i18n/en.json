@@ -1,4 +1,5 @@
 {
+  "ai": {"contentDraftActivity":"AI post draft suggested","contentDraftAppliedActivity":"AI suggested draft applied","contentDraftFailed":"Could not generate the draft. Check the AI provider settings.","contentDraftLanguageFailed":"The suggested draft does not match the section language. Try again.","contentDraftInvalidIdea":"Write a clearer idea before requesting a draft."},
   "app": {
     "name": "Syrian Community in the Netherlands",
     "version": "Version 1.0.0"
@@ -1635,7 +1636,16 @@
           "whatsapp": "WhatsApp",
           "youtube": "YouTube",
           "tiktok": "TikTok"
-        }
+        },
+        "aiTitle": "Suggestion assistant",
+        "aiNote": "Writes a first draft from your idea for review only — no post is created until you save it.",
+        "aiIdeaPlaceholder": "Describe the post idea...",
+        "aiSuggest": "Suggest a draft",
+        "aiBusy": "Suggesting...",
+        "aiDraftNote": "Suggested draft — not saved yet",
+        "aiAdopt": "Fill the form with the draft",
+        "aiAdoptedHint": "The draft is now in the form. Review it, then press Save to create the post.",
+        "aiNoNumbersHint": "AI adds no numbers; add any real figures yourself."
       },
       "finance": {
         "title": "Finance",

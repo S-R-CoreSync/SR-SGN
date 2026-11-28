@@ -548,7 +548,7 @@ export default function V2MembersPage() {
                   return locale === "ar" ? (arabic ? text : "") : (arabic ? "" : text);
                 };
                 const action = visible(log.action || log.type);
-                const description = visible(log.description);
+                const description = visible(log.details);
                 return (
                 <div key={log.id} className="rounded-xl border border-[#f0ead9] bg-[#fdfcf9] p-3">
                   <p className="text-xs font-bold text-[#203026]">{action || "—"}</p>

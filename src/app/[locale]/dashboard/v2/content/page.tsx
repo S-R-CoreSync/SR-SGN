@@ -2,14 +2,14 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { formatLocalizedDigits } from "@/lib/language-guard";
+import { formatLocalizedDigits, isPureLocaleText } from "@/lib/language-guard";
 import { V2Shell } from "@/components/dashboard/v2-shell";
 import { V2Intro, V2Message, V2Panel, V2Pill } from "@/components/dashboard/v2-ui";
 import {
   V2Dialog, V2Field, V2FormActions, V2FormError, V2IconButton, V2PrimaryButton,
   v2Api, v2InputClass,
 } from "@/components/dashboard/v2-form";
-import { Eye, Pencil, Plus, RefreshCw, Search, Star, Trash2, Upload } from "lucide-react";
+import { Eye, Pencil, Plus, RefreshCw, Search, Sparkles, Star, Trash2, Upload } from "lucide-react";
 
 type Post = {
   id: string;
@@ -29,6 +29,8 @@ type Post = {
 };
 
 const SHARE_PLATFORMS = ["facebook", "instagram", "x", "telegram", "whatsapp", "youtube", "tiktok"] as const;
+
+type Draft = { title: string; excerpt: string; content: string; tags: string };
 
 type FormState = {
   title: string; excerpt: string; content: string; category: string;
@@ -53,6 +55,11 @@ export default function V2ContentPage() {
   const [editing, setEditing] = useState<Post | "new" | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [formError, setFormError] = useState("");
+  const [idea, setIdea] = useState("");
+  const [draft, setDraft] = useState<Draft | null>(null);
+  const [suggestionId, setSuggestionId] = useState("");
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiNotice, setAiNotice] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -73,6 +80,10 @@ export default function V2ContentPage() {
   function openNew() {
     setForm(emptyForm);
     setFormError("");
+    setIdea("");
+    setDraft(null);
+    setSuggestionId("");
+    setAiNotice("");
     setEditing("new");
   }
 
@@ -91,6 +102,10 @@ export default function V2ContentPage() {
       publishTo: [],
     });
     setFormError("");
+    setIdea(post.title);
+    setDraft(null);
+    setSuggestionId("");
+    setAiNotice("");
     setEditing(post);
   }
 
@@ -124,6 +139,50 @@ export default function V2ContentPage() {
     }));
   }
 
+  async function suggestDraft() {
+    if (!idea.trim()) return;
+    setAiBusy(true);
+    setAiNotice("");
+    setDraft(null);
+    setSuggestionId("");
+    try {
+      const result = await v2Api<{ draft: Draft; suggestionId: string }>("/api/ai/content-draft", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idea: idea.trim() }),
+      });
+      const safe: Draft = {
+        title: isPureLocaleText(result.draft.title, locale) ? result.draft.title : "",
+        excerpt: isPureLocaleText(result.draft.excerpt, locale) ? result.draft.excerpt : "",
+        content: isPureLocaleText(result.draft.content, locale) ? result.draft.content : "",
+        tags: isPureLocaleText(result.draft.tags, locale) ? result.draft.tags : "",
+      };
+      if (!safe.title || !safe.content) {
+        setAiNotice(t("error"));
+        return;
+      }
+      setDraft(safe);
+      setSuggestionId(result.suggestionId);
+    } catch (e) {
+      setAiNotice(e instanceof Error ? e.message : t("error"));
+    } finally {
+      setAiBusy(false);
+    }
+  }
+
+  function adoptDraft() {
+    if (!draft) return;
+    setForm((prev) => ({
+      ...prev,
+      title: draft.title,
+      excerpt: draft.excerpt,
+      content: draft.content,
+      tags: draft.tags,
+    }));
+    setDraft(null);
+    setAiNotice(tp("aiAdoptedHint"));
+  }
+
   async function save(event: React.FormEvent) {
     event.preventDefault();
     if (!form.title.trim() || !form.content.trim() || !editing) return;
@@ -140,7 +199,7 @@ export default function V2ContentPage() {
         await v2Api("/api/pages", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...payload, publishTo }),
+          body: JSON.stringify({ ...payload, publishTo, suggestionId: suggestionId || undefined }),
         });
       } else {
         await v2Api("/api/pages", {
@@ -294,6 +353,63 @@ export default function V2ContentPage() {
           onClose={() => setEditing(null)}
         >
           <form onSubmit={(event) => void save(event)}>
+            <div className="mb-5 rounded-xl border border-[#e6ddc9] bg-[#fdfcf9] p-3">
+              <p className="mb-1 flex items-center gap-2 text-xs font-black text-[#1a5632]">
+                <Sparkles size={14} className="text-[#8a6a1f]" />
+                {tp("aiTitle")}
+              </p>
+              <p className="mb-3 text-[10px] leading-relaxed text-[#8a958b]">{tp("aiNote")}</p>
+              <div className="flex flex-wrap gap-2">
+                <textarea
+                  rows={2}
+                  dir={locale === "ar" ? "rtl" : "ltr"}
+                  value={idea}
+                  onChange={(event) => setIdea(event.target.value)}
+                  placeholder={tp("aiIdeaPlaceholder")}
+                  className={`${v2InputClass} min-w-[200px] flex-1`}
+                />
+                <button
+                  type="button"
+                  disabled={aiBusy || !idea.trim()}
+                  onClick={() => void suggestDraft()}
+                  className="flex items-center gap-2 rounded-xl border border-[#e6ddc9] bg-white px-4 py-2 text-xs font-black text-[#1a5632] shadow-sm hover:bg-[#f5ecd6] disabled:opacity-50"
+                >
+                  <Sparkles size={14} />
+                  {aiBusy ? tp("aiBusy") : tp("aiSuggest")}
+                </button>
+              </div>
+              <p className="mt-2 text-[10px] text-[#9aa399]">{tp("aiNoNumbersHint")}</p>
+              {aiNotice && (
+                <p className="mt-3 rounded-lg border border-[#f2c9c4] bg-[#fbe9e7] px-3 py-2 text-[11px] font-bold text-[#b42318]">
+                  {isPureLocaleText(aiNotice, locale) ? aiNotice : t("error")}
+                </p>
+              )}
+              {draft && (
+                <div className="mt-3 rounded-lg border border-[#d8e6d9] bg-white p-3">
+                  <p className="mb-2 text-[10px] font-black text-[#8a6a1f]">{tp("aiDraftNote")}</p>
+                  <p className="text-xs font-bold text-[#203026]">{draft.title}</p>
+                  <p className="mt-1 text-[11px] text-[#6f7a70]">{draft.excerpt}</p>
+                  <p className="mt-1 line-clamp-3 text-[11px] leading-relaxed text-[#8a958b]">{draft.content}</p>
+                  {draft.tags && <p className="mt-1 text-[10px] text-[#8a958b]">{draft.tags}</p>}
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={adoptDraft}
+                      className="rounded-lg bg-[#123b24] px-3 py-2 text-[11px] font-black text-white hover:bg-[#1a5632]"
+                    >
+                      {tp("aiAdopt")}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDraft(null)}
+                      className="rounded-lg border border-[#e6ddc9] px-3 py-2 text-[11px] font-bold text-[#6f7a70] hover:bg-[#f5ecd6]"
+                    >
+                      {t("cancel")}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
             {formError && <V2FormError text={formError} />}
             <V2Field label={tp("fields.title")}>
               <input required value={form.title} onChange={(e) => setField("title", e.target.value)} className={v2InputClass} />
