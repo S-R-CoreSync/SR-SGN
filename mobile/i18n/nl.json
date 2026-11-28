@@ -1,5 +1,5 @@
 {
-  "ai": {"contentDraftActivity":"AI-artikelconcept voorgesteld","contentDraftAppliedActivity":"AI-concept toegepast","contentDraftFailed":"Concept kon niet worden gegenereerd. Controleer de AI-instellingen.","contentDraftLanguageFailed":"Het voorgestelde concept past niet bij de taal van het onderdeel. Probeer opnieuw.","contentDraftInvalidIdea":"Schrijf een duidelijker idee voordat je een concept aanvraagt."},
+  "ai": {"contentDraftActivity":"AI-artikelconcept voorgesteld","contentDraftAppliedActivity":"AI-concept toegepast","contentDraftFailed":"Concept kon niet worden gegenereerd. Controleer de AI-instellingen.","contentDraftLanguageFailed":"Het voorgestelde concept past niet bij de taal van het onderdeel. Probeer opnieuw.","contentDraftInvalidIdea":"Schrijf een duidelijker idee voordat je een concept aanvraagt.","commentReviewActivity":"AI-commentaarreview voorgesteld","contactReviewActivity":"AI-contactberichtreview voorgesteld","inboxReviewFailed":"Item kon niet worden geanalyseerd. Controleer de AI-instellingen.","inboxReviewLanguageFailed":"Het voorstel past niet bij de taal van het onderdeel. Probeer opnieuw.","inboxReviewNotFound":"Het item bestaat niet meer."},
   "app": {
     "name": "Syrische Gemeenschap in Nederland",
     "version": "Versie 1.0.0"
@@ -1546,7 +1546,22 @@
         "read": "Gelezen",
         "anonymous": "Anonieme afzender",
         "markRead": "Markeer als gelezen",
-        "empty": "Er zijn geen berichten"
+        "empty": "Er zijn geen berichten",
+        "review": "AI-suggestie",
+        "reviewTitle": "Reviewconcept",
+        "reviewNote": "Alleen een suggestie — niet goedgekeurd of verzonden.",
+        "reviewCategoryLabel": "Voorgestelde categorie",
+        "reviewSummaryLabel": "Samenvatting",
+        "reviewReplyLabel": "Voorgesteld antwoord",
+        "copyReply": "Antwoord kopiëren",
+        "copied": "Gekopieerd",
+        "reviewCategory": {
+          "inquiry": "Vraag",
+          "complaint": "Klacht",
+          "praise": "Lof",
+          "spam": "Spam",
+          "other": "Overig"
+        }
       },
       "system": {
         "title": "Systeemstatus",
@@ -1816,7 +1831,7 @@
         }
       },
       "board": {"title":"Bestuursleden","note":"Bestuursleden, uitnodigingen en gekoppelde accounts uit echte platformgegevens","total":"Totaal","linked":"Gekoppelde accounts","invited":"Uitgenodigd","inviteSent":"Uitnodiging verzonden","inviteFailed":"Uitnodiging kon niet worden verzonden - controleer het adres en de rechten","inviteHint":"Uitnodigingen gaan per e-mail en worden alleen na een geslaagde verzending vastgelegd","createTitle":"Nieuw lid","editTitle":"Lid bewerken","invite":"Uitnodiging versturen","empty":"Nog geen bestuursleden","table":{"photo":"Foto","name":"Naam","title":"Functie","role":"Rol","contact":"Contact","invited":"Uitgenodigd op","actions":"Acties"},"roles":{"admin":"Beheerder","moderator":"Moderator","contributor":"Bijdrager","member":"Lid"},"fields":{"nameAr":"Arabische naam","nameEn":"Engelse naam","titleAr":"Arabische functie","titleEn":"Engelse functie","email":"E-mailadres","phone":"Telefoonnummer","role":"Rol","website":"Website","image":"Afbeeldings-URL"},"uploadImage":"Afbeelding uploaden","uploadHintLocal":"Uploaden zet de afbeelding om in een data-URL en slaat die direct op bij het lid.","linkAccount":"Account koppelen","linkTitle":"Account van een bestuurslid koppelen","selectUser":"Kies een gebruiker","linkedAs":"Gekoppeld account: {email}","unlink":"Ontkoppelen","linkSaved":"Koppeling opgeslagen","linkFailed":"Koppeling kon niet worden opgeslagen","noUsers":"Geen overeenkomende accounts","accountFallback":"Geregistreerd account"},
-      "comments": {"title":"Reacties","note":"Reacties van de gemeenschap beoordelen en goedkeuren met echte gegevens","total":"Totaal","pending":"Wachten op goedkeuring","searchPlaceholder":"Zoeken op auteur of tekst...","empty":"Nog geen reacties","approved":"Goedgekeurd","waiting":"In afwachting","approve":"Goedkeuren","unapprove":"Goedkeuring intrekken","replies":"Antwoorden"},
+      "comments": {"title":"Reacties","note":"Reacties van de gemeenschap beoordelen en goedkeuren met echte gegevens","total":"Totaal","pending":"Wachten op goedkeuring","searchPlaceholder":"Zoeken op auteur of tekst...","empty":"Nog geen reacties","approved":"Goedgekeurd","waiting":"In afwachting","approve":"Goedkeuren","unapprove":"Goedkeuring intrekken","replies":"Antwoorden","review":"AI-suggestie","reviewTitle":"Reviewconcept","reviewNote":"Alleen een suggestie — niet goedgekeurd of verzonden.","reviewCategoryLabel":"Voorgestelde categorie","reviewSummaryLabel":"Samenvatting","reviewReplyLabel":"Voorgesteld antwoord","copyReply":"Antwoord kopiëren","copied":"Gekopieerd","reviewCategory":{"inquiry":"Vraag","complaint":"Klacht","praise":"Lof","spam":"Spam","other":"Overig"}},
       "users": {"title":"Gebruikers en rechten","note":"Accounts, rollen en individuele rechten met echte bediening","tabs":{"users":"Gebruikers","roles":"Rollen"},"searchPlaceholder":"Zoeken op naam of e-mail...","createRole":"Nieuwe rol","editRole":"Rol bewerken","total":"Totaal","emptyUsers":"Geen overeenkomende gebruikers","emptyRoles":"Nog geen rollen","permissionCount":"Aantal rechten","allCount":"Alle beschikbare rechten","permissions":"Rechten","editPermissions":"Gebruikersrechten bewerken","roles":{"member":"Lid","admin":"Beheerder"},"table":{"name":"Naam","email":"E-mail","role":"Rol","joined":"Geregistreerd","actions":"Acties"},"fields":{"roleName":"Rolnaam","roleDescription":"Beschrijving"}},
       "media": {"title":"Media","note":"Afbeeldingen die echt in artikelen en lokale uploads worden gebruikt","total":"Totaal","fromPosts":"Uit artikelen","fromUploads":"Uploads","upload":"Afbeelding uploaden","uploadHint":"Uploaden maakt een tijdelijke link en voegt de afbeelding niet toe aan de bibliotheek. Kopieer de link en gebruik die waar nodig.","empty":"Nog geen afbeeldingen","uploadResult":"Uploadresultaat","copyHint":"Dit is een tijdelijke datalink - kopieer die voordat u het venster sluit","copy":"Link kopieren","copied":"Gekopieerd","deleteImage":"Afbeelding verwijderen","deleteHint":"Alleen lokale uploads kunnen worden verwijderd; artikelafbeeldingen worden via het artikel verwijderd."}
     ,

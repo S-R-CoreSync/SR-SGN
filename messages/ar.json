@@ -1688,7 +1688,12 @@
     "contentDraftAppliedActivity": "اعتماد مسودة مقترحة بالذكاء الاصطناعي",
     "contentDraftFailed": "تعذّر توليد المسودة. تأكد من إعداد مزوّد الذكاء الاصطناعي.",
     "contentDraftLanguageFailed": "المسودة المقترحة غير مطابقة للغة القسم. حاول من جديد.",
-    "contentDraftInvalidIdea": "اكتب فكرة أوضح قبل طلب المسودة."
+    "contentDraftInvalidIdea": "اكتب فكرة أوضح قبل طلب المسودة.",
+    "commentReviewActivity": "مراجعة تعليق بمساعد الذكاء الاصطناعي",
+    "contactReviewActivity": "مراجعة رسالة تواصل بمساعد الذكاء الاصطناعي",
+    "inboxReviewFailed": "تعذّر تحليل العنصر. تأكد من إعداد مزوّد الذكاء الاصطناعي.",
+    "inboxReviewLanguageFailed": "الاقتراح غير مطابق للغة القسم. حاول من جديد.",
+    "inboxReviewNotFound": "العنصر غير موجود أو حُذف."
   },
   "sync": {
     "facebook": {
@@ -2502,7 +2507,22 @@
         "read": "مقروءة",
         "anonymous": "مرسل بدون اسم",
         "markRead": "تعليم كمقروءة",
-        "empty": "لا توجد رسائل حالياً"
+        "empty": "لا توجد رسائل حالياً",
+        "review": "مراجعة مقترحة",
+        "reviewTitle": "اقتراح المراجعة",
+        "reviewNote": "اقتراح للمراجعة فقط — لا يُعتمد ولا يُرسل.",
+        "reviewCategoryLabel": "التصنيف المقترح",
+        "reviewSummaryLabel": "الملخص",
+        "reviewReplyLabel": "رد مقترح",
+        "copyReply": "نسخ الرد",
+        "copied": "تم النسخ",
+        "reviewCategory": {
+          "inquiry": "استفسار",
+          "complaint": "شكوى",
+          "praise": "ثناء",
+          "spam": "غير مرغوب",
+          "other": "أخرى"
+        }
       },
       "system": {
         "title": "حالة النظام",
@@ -2772,7 +2792,7 @@
         }
       },
       "board": {"title":"مجلس الإدارة","note":"أعضاء المجلس وسجل دعواتهم وربط حساباتهم — بيانات فعلية من المنصة","total":"الإجمالي","linked":"حسابات مربوطة","invited":"مدعوون","inviteSent":"أُرسلت الدعوة بنجاح","inviteFailed":"تعذّر إرسال الدعوة — تحقق من البريد والصلاحيات","inviteHint":"الدعوة تُرسل بالبريد وتُسجّل بعد نجاح الإرسال فقط","createTitle":"عضو جديد","editTitle":"تعديل العضو","invite":"إرسال دعوة","empty":"لا يوجد أعضاء حالياً","table":{"photo":"الصورة","name":"الاسم","title":"المنصب","role":"الدور","contact":"وسيلة التواصل","invited":"تاريخ الدعوة","actions":"إجراءات"},"roles":{"admin":"مدير","moderator":"مشرف","contributor":"مساهم","member":"عضو"},"fields":{"nameAr":"الاسم بالعربية","nameEn":"الاسم بالإنجليزية","titleAr":"المنصب بالعربية","titleEn":"المنصب بالإنجليزية","email":"البريد الإلكتروني","phone":"الجوال","role":"الدور","website":"الموقع","image":"رابط الصورة"},"uploadImage":"رفع صورة","uploadHintLocal":"الرفع يحوّل الصورة إلى رابط بيانات ويُحفظ مع العضو مباشرة.","linkAccount":"ربط حساب","linkTitle":"ربط حساب عضو المجلس","selectUser":"اختر المستخدم","linkedAs":"الحساب المربوط: {email}","unlink":"فك الربط","linkSaved":"تم حفظ الربط","linkFailed":"تعذّر حفظ الربط","noUsers":"لا توجد حسابات مطابقة","accountFallback":"حساب مسجّل"},
-      "comments": {"title":"التعليقات","note":"مراجعة تعليقات الجالية واعتمادها من بيانات المنصة مباشرة","total":"الإجمالي","pending":"بانتظار الاعتماد","searchPlaceholder":"ابحث بالكاتب أو النص...","empty":"لا توجد تعليقات حالياً","approved":"معتمد","waiting":"بانتظار","approve":"اعتماد","unapprove":"إلغاء الاعتماد","replies":"ردود"},
+      "comments": {"title":"التعليقات","note":"مراجعة تعليقات الجالية واعتمادها من بيانات المنصة مباشرة","total":"الإجمالي","pending":"بانتظار الاعتماد","searchPlaceholder":"ابحث بالكاتب أو النص...","empty":"لا توجد تعليقات حالياً","approved":"معتمد","waiting":"بانتظار","approve":"اعتماد","unapprove":"إلغاء الاعتماد","replies":"ردود","review":"مراجعة مقترحة","reviewTitle":"اقتراح المراجعة","reviewNote":"اقتراح للمراجعة فقط — لا يُعتمد ولا يُرسل.","reviewCategoryLabel":"التصنيف المقترح","reviewSummaryLabel":"الملخص","reviewReplyLabel":"رد مقترح","copyReply":"نسخ الرد","copied":"تم النسخ","reviewCategory":{"inquiry":"استفسار","complaint":"شكوى","praise":"ثناء","spam":"غير مرغوب","other":"أخرى"}},
       "users": {"title":"المستخدمون والصلاحيات","note":"حسابات المنصة والأدوار والصلاحيات الفردية — تحكم كامل بالبيانات الحقيقية","tabs":{"users":"المستخدمون","roles":"الأدوار"},"searchPlaceholder":"ابحث بالاسم أو البريد...","createRole":"دور جديد","editRole":"تعديل الدور","total":"الإجمالي","emptyUsers":"لا يوجد مستخدمون مطابقون","emptyRoles":"لا توجد أدوار حالياً","permissionCount":"عدد الصلاحيات","allCount":"كل الصلاحيات المتاحة","permissions":"الصلاحيات","editPermissions":"تحرير صلاحيات المستخدم","roles":{"member":"عضو","admin":"مدير"},"table":{"name":"الاسم","email":"البريد","role":"الدور","joined":"تاريخ التسجيل","actions":"إجراءات"},"fields":{"roleName":"اسم الدور","roleDescription":"الوصف"}},
       "media": {"title":"الوسائط","note":"الصور المستخدمة فعلياً في المقالات والمرفوعات المحلية","total":"الإجمالي","fromPosts":"من المقالات","fromUploads":"مرفوعات","upload":"رفع صورة","uploadHint":"الرفع ينشئ رابطاً مؤقتاً للصورة ولا يضيفها إلى مكتبة المنصة؛ انسخ الرابط واستخدمه حيث تحتاجه.","empty":"لا توجد صور حالياً","uploadResult":"نتيجة الرفع","copyHint":"هذا رابط بيانات مؤقت — انسخه قبل إغلاق النافذة","copy":"نسخ الرابط","copied":"تم النسخ","deleteImage":"حذف الصورة","deleteHint":"تُحذف المرفوعات المحلية فقط؛ صور المقالات تُحذف من المقال نفسه."}
     ,

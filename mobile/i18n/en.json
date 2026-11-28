@@ -1,5 +1,5 @@
 {
-  "ai": {"contentDraftActivity":"AI post draft suggested","contentDraftAppliedActivity":"AI suggested draft applied","contentDraftFailed":"Could not generate the draft. Check the AI provider settings.","contentDraftLanguageFailed":"The suggested draft does not match the section language. Try again.","contentDraftInvalidIdea":"Write a clearer idea before requesting a draft."},
+  "ai": {"contentDraftActivity":"AI post draft suggested","contentDraftAppliedActivity":"AI suggested draft applied","contentDraftFailed":"Could not generate the draft. Check the AI provider settings.","contentDraftLanguageFailed":"The suggested draft does not match the section language. Try again.","contentDraftInvalidIdea":"Write a clearer idea before requesting a draft.","commentReviewActivity":"AI comment review suggested","contactReviewActivity":"AI contact message review suggested","inboxReviewFailed":"Could not analyse the item. Check the AI provider settings.","inboxReviewLanguageFailed":"The suggestion does not match the section language. Try again.","inboxReviewNotFound":"The item no longer exists."},
   "app": {
     "name": "Syrian Community in the Netherlands",
     "version": "Version 1.0.0"
@@ -1546,7 +1546,22 @@
         "read": "Read",
         "anonymous": "Anonymous sender",
         "markRead": "Mark as read",
-        "empty": "No messages right now"
+        "empty": "No messages right now",
+        "review": "AI suggestion",
+        "reviewTitle": "Review suggestion",
+        "reviewNote": "Suggestion for review only — not approved or sent.",
+        "reviewCategoryLabel": "Suggested category",
+        "reviewSummaryLabel": "Summary",
+        "reviewReplyLabel": "Suggested reply",
+        "copyReply": "Copy reply",
+        "copied": "Copied",
+        "reviewCategory": {
+          "inquiry": "Inquiry",
+          "complaint": "Complaint",
+          "praise": "Praise",
+          "spam": "Spam",
+          "other": "Other"
+        }
       },
       "system": {
         "title": "System status",
@@ -1816,7 +1831,7 @@
         }
       },
       "board": {"title":"Board members","note":"Board members, invitation records and linked accounts from live platform data","total":"Total","linked":"Linked accounts","invited":"Invited","inviteSent":"Invitation sent successfully","inviteFailed":"Could not send the invitation - check the address and permissions","inviteHint":"Invitations are sent by email and recorded only after a successful send","createTitle":"New member","editTitle":"Edit member","invite":"Send invitation","empty":"No board members yet","table":{"photo":"Photo","name":"Name","title":"Position","role":"Role","contact":"Contact","invited":"Invited on","actions":"Actions"},"roles":{"admin":"Admin","moderator":"Moderator","contributor":"Contributor","member":"Member"},"fields":{"nameAr":"Arabic name","nameEn":"English name","titleAr":"Arabic position","titleEn":"English position","email":"Email address","phone":"Phone number","role":"Role","website":"Website","image":"Image URL"},"uploadImage":"Upload image","uploadHintLocal":"Uploading converts the image to a data URL and saves it on the member directly.","linkAccount":"Link account","linkTitle":"Link a board member account","selectUser":"Choose a user","linkedAs":"Linked account: {email}","unlink":"Unlink","linkSaved":"Link saved","linkFailed":"Could not save the link","noUsers":"No matching accounts","accountFallback":"Registered account"},
-      "comments": {"title":"Comments","note":"Review and approve community comments from live platform data","total":"Total","pending":"Awaiting approval","searchPlaceholder":"Search by author or text...","empty":"No comments yet","approved":"Approved","waiting":"Pending","approve":"Approve","unapprove":"Unapprove","replies":"Replies"},
+      "comments": {"title":"Comments","note":"Review and approve community comments from live platform data","total":"Total","pending":"Awaiting approval","searchPlaceholder":"Search by author or text...","empty":"No comments yet","approved":"Approved","waiting":"Pending","approve":"Approve","unapprove":"Unapprove","replies":"Replies","review":"AI suggestion","reviewTitle":"Review suggestion","reviewNote":"Suggestion for review only — not approved or sent.","reviewCategoryLabel":"Suggested category","reviewSummaryLabel":"Summary","reviewReplyLabel":"Suggested reply","copyReply":"Copy reply","copied":"Copied","reviewCategory":{"inquiry":"Inquiry","complaint":"Complaint","praise":"Praise","spam":"Spam","other":"Other"}},
       "users": {"title":"Users & permissions","note":"Platform accounts, roles and individual permissions with real controls","tabs":{"users":"Users","roles":"Roles"},"searchPlaceholder":"Search by name or email...","createRole":"New role","editRole":"Edit role","total":"Total","emptyUsers":"No matching users","emptyRoles":"No roles yet","permissionCount":"Permission count","allCount":"All available permissions","permissions":"Permissions","editPermissions":"Edit user permissions","roles":{"member":"Member","admin":"Admin"},"table":{"name":"Name","email":"Email","role":"Role","joined":"Joined","actions":"Actions"},"fields":{"roleName":"Role name","roleDescription":"Description"}},
       "media": {"title":"Media","note":"Images actually used in posts and local uploads","total":"Total","fromPosts":"From posts","fromUploads":"Uploads","upload":"Upload image","uploadHint":"Uploading creates a temporary image link and does not add it to the platform library. Copy the link and use it where needed.","empty":"No images yet","uploadResult":"Upload result","copyHint":"This is a temporary data link - copy it before closing the dialog","copy":"Copy link","copied":"Copied","deleteImage":"Delete image","deleteHint":"Only local uploads can be deleted; post images are removed from the post itself."}
     ,
