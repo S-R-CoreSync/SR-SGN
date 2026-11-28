@@ -1625,6 +1625,9 @@
           "failed": "Mislukt"
         }
       ,
+        "pageInfo": "Pagina {current} van {total}",
+        "prevPage": "Vorige pagina",
+        "nextPage": "Volgende pagina",
         "markPaid": "Als betaald markeren"
       ,
         "markFailed": "Als mislukt markeren"

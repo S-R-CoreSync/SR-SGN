@@ -6,7 +6,9 @@ import { formatLocalizedDigits } from "@/lib/language-guard";
 import { V2Shell } from "@/components/dashboard/v2-shell";
 import { V2Intro, V2Message, V2Panel, V2Pill } from "@/components/dashboard/v2-ui";
 import { V2IconButton, v2Api } from "@/components/dashboard/v2-form";
-import { Check, RefreshCw, X } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, RefreshCw, X } from "lucide-react";
+
+const PAGE_SIZE = 20;
 
 type Donation = {
   id: string;
@@ -42,9 +44,12 @@ export default function V2FinancePage() {
   const t = useTranslations("dashboardV2");
   const tp = useTranslations("dashboardV2.pages.finance");
   const locale = useLocale();
+  const isRtl = locale === "ar";
 
   const [stats, setStats] = useState<FinanceStats | null>(null);
   const [donations, setDonations] = useState<Donation[]>([]);
+  const [total, setTotal] = useState(0);
+  const [skip, setSkip] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -55,18 +60,19 @@ export default function V2FinancePage() {
     try {
       const [statsRes, listRes] = await Promise.all([
         fetch("/api/donations/stats", { cache: "no-store" }),
-        fetch("/api/donations?take=12", { cache: "no-store" }),
+        fetch(`/api/donations?take=${PAGE_SIZE}&skip=${skip}`, { cache: "no-store" }),
       ]);
       if (!statsRes.ok || !listRes.ok) throw new Error("finance");
       const [statsData, listData] = await Promise.all([statsRes.json(), listRes.json()]);
       setStats(statsData);
       setDonations(listData.donations ?? []);
+      setTotal(listData.total ?? 0);
     } catch {
       setError(true);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [skip]);
 
   useEffect(() => {
     void load();
@@ -198,6 +204,36 @@ export default function V2FinancePage() {
                   ))}
                 </ul>
               )}
+              <div className="mt-5 flex items-center justify-between border-t border-[#f0ead9] pt-4">
+                <p className="text-[11px] font-bold text-[#8a958b]">
+                  {tp("pageInfo", {
+                    current: formatLocalizedDigits(Math.floor(skip / PAGE_SIZE) + 1, locale),
+                    total: formatLocalizedDigits(Math.max(1, Math.ceil(total / PAGE_SIZE)), locale),
+                  })}
+                </p>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    disabled={skip === 0 || busy}
+                    onClick={() => setSkip(Math.max(0, skip - PAGE_SIZE))}
+                    title={tp("prevPage")}
+                    aria-label={tp("prevPage")}
+                    className="rounded-lg border border-[#e6ddc9] p-1.5 text-[#6f7a70] hover:bg-[#f5ecd6] disabled:opacity-40"
+                  >
+                    <ChevronLeft size={15} className={isRtl ? "rotate-180" : ""} />
+                  </button>
+                  <button
+                    type="button"
+                    disabled={skip + PAGE_SIZE >= total || busy}
+                    onClick={() => setSkip(skip + PAGE_SIZE)}
+                    title={tp("nextPage")}
+                    aria-label={tp("nextPage")}
+                    className="rounded-lg border border-[#e6ddc9] p-1.5 text-[#6f7a70] hover:bg-[#f5ecd6] disabled:opacity-40"
+                  >
+                    <ChevronRight size={15} className={isRtl ? "rotate-180" : ""} />
+                  </button>
+                </div>
+              </div>
             </V2Panel>
           </div>
         </div>

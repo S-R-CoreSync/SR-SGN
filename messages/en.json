@@ -2578,6 +2578,9 @@
           "failed": "Failed"
         }
       ,
+        "pageInfo": "Page {current} of {total}",
+        "prevPage": "Previous page",
+        "nextPage": "Next page",
         "markPaid": "Mark as paid"
       ,
         "markFailed": "Mark as failed"
