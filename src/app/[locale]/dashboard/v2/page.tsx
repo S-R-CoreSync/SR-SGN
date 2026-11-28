@@ -22,6 +22,7 @@ type Stats = {
   totalViews: number;
   membersByStatus: Record<string, number>;
   usersByDay: Daily[];
+  membersByDay: Daily[];
   commentsByDay: Daily[];
 };
 
@@ -100,9 +101,12 @@ export default function DashboardV2Page() {
     : 0;
 
   const last14 = (daily: Daily[] | undefined) => (daily ?? []).slice(-14).map((d) => d.count);
+  // عدد الأعضاء من سجل الأعضاء نفسه، لا من عدد حسابات المستخدمين.
+  const memberCount = stats ? Object.values(stats.membersByStatus).reduce((sum, count) => sum + count, 0) : 0;
   const kpis = [
-    { key: "members", value: stats?.users ?? 0, daily: stats?.usersByDay, color: "#1a5632", icon: Users, href: "/dashboard/v2/members" },
-    { key: "views", value: stats?.totalViews ?? 0, daily: stats?.commentsByDay, color: "#b8892c", icon: ArrowUpRight, href: "/news" },
+    { key: "members", value: memberCount, daily: stats?.membersByDay, color: "#1a5632", icon: Users, href: "/dashboard/v2/members" },
+    // لا يوجد viewsByDay في الـ API — نعرض الرقم فقط بدل رسم اتجاه من بيانات التعليقات.
+    { key: "views", value: stats?.totalViews ?? 0, daily: undefined, color: "#b8892c", icon: ArrowUpRight, href: "/news" },
     { key: "volunteers", value: stats?.volunteers ?? 0, daily: undefined, color: "#2f6b4f", icon: Users, href: "/dashboard/v2/volunteers" },
     { key: "posts", value: stats?.posts ?? 0, daily: undefined, color: "#8a6a1f", icon: FileText, href: "/dashboard/v2/content" },
   ];
@@ -245,10 +249,53 @@ export default function DashboardV2Page() {
             </div>
           </section>
 
+          <section id="ai-assistant" className="rounded-2xl border border-[#e3d3ad] bg-[#fdfcf9] p-6 shadow-sm">
+            <div className="mb-2 flex items-center gap-2">
+              <Sparkles size={17} className="text-[#8a6a1f]" />
+              <h2 className="text-sm font-black">{t("aiHubTitle")}</h2>
+            </div>
+            <p className="mb-5 text-xs leading-relaxed text-[#8a958b]">{t("aiHubNote")}</p>
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              {[
+                { key: "content", href: "/dashboard/v2/content", icon: FileText },
+                { key: "comments", href: "/dashboard/v2/comments", icon: MessageSquare },
+                { key: "messages", href: "/dashboard/v2/messages", icon: Mail },
+                { key: "identity", href: "/dashboard/v2/members", icon: ShieldCheck },
+              ].map((card) => {
+                const Icon = card.icon;
+                return (
+                  <Link
+                    key={card.key}
+                    href={card.href as "/dashboard/v2/content"}
+                    className="group rounded-xl border border-[#e6ddc9] bg-white p-4 transition-all hover:-translate-y-0.5 hover:border-[#c8a84e]"
+                  >
+                    <div className="flex items-center justify-between">
+                      <Icon size={18} className="text-[#1a5632]" />
+                      <ArrowUpRight size={14} className="text-[#c8a84e] opacity-50 group-hover:opacity-100" />
+                    </div>
+                    <p className="mt-3 text-xs font-black">{t(`aiHubCards.${card.key}.title`)}</p>
+                    <p className="mt-1 text-[11px] leading-relaxed text-[#8a958b]">{t(`aiHubCards.${card.key}.note`)}</p>
+                    <p className="mt-3 text-[11px] font-bold text-[#1a5632]">{t("view")}</p>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+
           <section className="grid gap-5 lg:grid-cols-3">
             <div className="rounded-2xl border border-[#e6ddc9] bg-white p-6 shadow-sm lg:col-span-2">
               <h2 className="text-sm font-black">{t("activityTitle")}</h2>
               <p className="mt-1 text-[11px] text-[#8a958b]">{t("activityNote")}</p>
+              <div className="mt-4 flex flex-wrap items-center gap-4 text-[10px] font-bold text-[#6f7a70]">
+                <span className="flex items-center gap-1.5">
+                  <span className="h-2.5 w-2.5 rounded-sm bg-[#1a5632]" />
+                  {t("legendUsers")}
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="h-2.5 w-2.5 rounded-sm bg-[#c8a84e]" />
+                  {t("legendComments")}
+                </span>
+              </div>
               <div className="mt-6 flex h-36 items-end justify-between gap-2" dir="ltr">
                 {activity.map((day, index) => {
                   const second = activityComments[index]?.count ?? 0;
@@ -299,38 +346,6 @@ export default function DashboardV2Page() {
             </div>
           </section>
 
-          <section id="ai-assistant" className="rounded-2xl border border-[#e3d3ad] bg-[#fdfcf9] p-6 shadow-sm">
-            <div className="mb-2 flex items-center gap-2">
-              <Sparkles size={17} className="text-[#8a6a1f]" />
-              <h2 className="text-sm font-black">{t("aiHubTitle")}</h2>
-            </div>
-            <p className="mb-5 text-xs leading-relaxed text-[#8a958b]">{t("aiHubNote")}</p>
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              {[
-                { key: "content", href: "/dashboard/v2/content", icon: FileText },
-                { key: "comments", href: "/dashboard/v2/comments", icon: MessageSquare },
-                { key: "messages", href: "/dashboard/v2/messages", icon: Mail },
-                { key: "identity", href: "/dashboard/v2/members", icon: ShieldCheck },
-              ].map((card) => {
-                const Icon = card.icon;
-                return (
-                  <Link
-                    key={card.key}
-                    href={card.href as "/dashboard/v2/content"}
-                    className="group rounded-xl border border-[#e6ddc9] bg-white p-4 transition-all hover:-translate-y-0.5 hover:border-[#c8a84e]"
-                  >
-                    <div className="flex items-center justify-between">
-                      <Icon size={18} className="text-[#1a5632]" />
-                      <ArrowUpRight size={14} className="text-[#c8a84e] opacity-50 group-hover:opacity-100" />
-                    </div>
-                    <p className="mt-3 text-xs font-black">{t(`aiHubCards.${card.key}.title`)}</p>
-                    <p className="mt-1 text-[11px] leading-relaxed text-[#8a958b]">{t(`aiHubCards.${card.key}.note`)}</p>
-                    <p className="mt-3 text-[11px] font-bold text-[#1a5632]">{t("view")}</p>
-                  </Link>
-                );
-              })}
-            </div>
-          </section>
         </div>
       )}
     </V2Shell>

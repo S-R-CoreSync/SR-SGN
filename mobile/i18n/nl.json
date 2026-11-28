@@ -2321,6 +2321,9 @@
         "title": "Identiteitsadvies",
         "note": "Kaartlezen met vastgelegde menselijke beslissing — de status van het lid verandert niet."
       }
-    }
+    },
+    "legendUsers": "Nieuwe aanmeldingen",
+    "legendComments": "Reacties",
+    "signOut": "Uitloggen"
   }
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
@@ -9,7 +9,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { formatLocalizedDigits } from "@/lib/language-guard";
 import {
   BarChart3, Calendar, CheckSquare, ClipboardList, Database, Facebook, FileText, House,
-  Folder, Heart, Image as ImageIcon, Landmark, LayoutDashboard, Mail, Menu, MessageSquare,
+  Folder, Heart, Image as ImageIcon, Landmark, LayoutDashboard, LogOut, Mail, Menu, MessageSquare,
   MousePointerClick, Printer, ScrollText, Search, Shield, SlidersHorizontal, Smartphone, Sparkles, UserCog, Users,
   Wallet, X,
 } from "lucide-react";
@@ -206,6 +206,16 @@ export function V2Shell({
           <House size={13} />
           {t("backToHome")}
         </Link>
+        {session && (
+          <button
+            type="button"
+            onClick={() => void signOut({ callbackUrl: "/login" })}
+            className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-white/15 px-3 py-2 text-[11px] font-bold text-white/70 hover:bg-white/5 hover:text-white"
+          >
+            <LogOut size={13} />
+            {t("signOut")}
+          </button>
+        )}
       </div>
     </>
   );

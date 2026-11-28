@@ -3303,6 +3303,9 @@
         "title": "Identity suggestion",
         "note": "Card reading with a recorded human decision — the member status never changes."
       }
-    }
+    },
+    "legendUsers": "New signups",
+    "legendComments": "Comments",
+    "signOut": "Sign out"
   }
 }
