@@ -2,12 +2,12 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { formatLocalizedDigits, hasArabicCharacters } from "@/lib/language-guard";
+import { formatLocalizedDigits, hasArabicCharacters, isPureLocaleText } from "@/lib/language-guard";
 import { V2Shell } from "@/components/dashboard/v2-shell";
 import { V2Intro, V2Message, V2Panel, V2Pill } from "@/components/dashboard/v2-ui";
 import { V2Dialog, V2Field, V2IconButton, v2Api, v2InputClass } from "@/components/dashboard/v2-form";
 import {
-  Check, ChevronLeft, ChevronRight, Download, History, Mail, RefreshCw, Search, Upload, X,
+  Check, ChevronLeft, ChevronRight, Download, History, Mail, RefreshCw, Search, Shield, Upload, X,
 } from "lucide-react";
 
 const PAGE_SIZE = 50;
@@ -23,8 +23,11 @@ type Member = {
   originCity?: string | null;
   nlCity?: string | null;
   status?: string | null;
+  encryptedIdCard?: string | null;
   createdAt: string;
 };
+
+type IdentityReview = { outcome: string; confidence: string; reason: string };
 
 type MembersResponse = { members: Member[]; total: number };
 
@@ -66,6 +69,12 @@ export default function V2MembersPage() {
   const [activityOpen, setActivityOpen] = useState(false);
   const [activityLogs, setActivityLogs] = useState<any[]>([]);
   const [activityLoading, setActivityLoading] = useState(false);
+  const [identityMember, setIdentityMember] = useState<Member | null>(null);
+  const [identityReview, setIdentityReview] = useState<IdentityReview | null>(null);
+  const [identityId, setIdentityId] = useState("");
+  const [identityBusy, setIdentityBusy] = useState(false);
+  const [identityError, setIdentityError] = useState("");
+  const [identityDecided, setIdentityDecided] = useState("");
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -204,6 +213,51 @@ export default function V2MembersPage() {
       setActivityLogs([]);
     } finally {
       setActivityLoading(false);
+    }
+  }
+
+  async function openIdentity(member: Member) {
+    setIdentityMember(member);
+    setIdentityReview(null);
+    setIdentityId("");
+    setIdentityError("");
+    setIdentityDecided("");
+    setIdentityBusy(true);
+    try {
+      const result = await v2Api<{ review: IdentityReview; suggestionId: string }>("/api/ai/identity-review", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ memberId: member.id }),
+      });
+      const review = result.review;
+      setIdentityReview({
+        outcome: isPureLocaleText(review.outcome, locale) ? review.outcome : "",
+        confidence: isPureLocaleText(review.confidence, locale) ? review.confidence : "",
+        reason: isPureLocaleText(review.reason, locale) ? review.reason : "",
+      });
+      setIdentityId(result.suggestionId);
+    } catch (e) {
+      setIdentityError(e instanceof Error ? e.message : t("error"));
+    } finally {
+      setIdentityBusy(false);
+    }
+  }
+
+  async function decideIdentity(decision: "confirmed" | "rejected") {
+    if (!identityId || identityBusy) return;
+    setIdentityBusy(true);
+    setIdentityError("");
+    try {
+      await v2Api(`/api/ai/identity-review/${encodeURIComponent(identityId)}/decide`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ decision }),
+      });
+      setIdentityDecided(tp("identityDecided"));
+    } catch (e) {
+      setIdentityError(e instanceof Error ? e.message : t("error"));
+    } finally {
+      setIdentityBusy(false);
     }
   }
 
@@ -398,6 +452,15 @@ export default function V2MembersPage() {
                         </td>
                         <td className="py-3.5">
                           <div className="flex items-center gap-1.5">
+                            {member.encryptedIdCard && (
+                              <V2IconButton
+                                label={tp("identityReview")}
+                                onClick={() => void openIdentity(member)}
+                                disabled={busy}
+                              >
+                                <Shield size={13} />
+                              </V2IconButton>
+                            )}
                             <V2IconButton
                               label={tp("approve")}
                               onClick={() => void setStatus(member, "accepted")}
@@ -561,6 +624,74 @@ export default function V2MembersPage() {
               })}
             </div>
           )}
+        </V2Dialog>
+      )}
+
+      {identityMember && (
+        <V2Dialog title={tp("identityTitle")} closeLabel={t("close")} onClose={() => setIdentityMember(null)}>
+          <p className="mb-4 text-xs leading-relaxed text-[#6f7a70]">{tp("identityNote")}</p>
+          <p className="mb-4 text-sm font-black text-[#203026]">
+            {locale === "ar" ? identityMember.nameAr || identityMember.nameNl : identityMember.nameNl || identityMember.nameAr}
+          </p>
+          {identityBusy && !identityReview ? (
+            <p className="py-6 text-center text-xs text-[#9aa399]">{tp("identityBusy")}</p>
+          ) : identityError ? (
+            <p className="rounded-xl border border-[#f2c9c4] bg-[#fbe9e7] px-3 py-2 text-xs font-bold text-[#b42318]">
+              {isPureLocaleText(identityError, locale) ? identityError : t("error")}
+            </p>
+          ) : identityReview ? (
+            <div className="space-y-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-[11px] font-bold text-[#8a958b]">{tp("identityOutcomeLabel")}:</span>
+                <V2Pill tone={identityReview.outcome === "match" ? "good" : identityReview.outcome === "mismatch" ? "bad" : "warn"}>
+                  {tp(`ai.identityOutcome.${identityReview.outcome}`)}
+                </V2Pill>
+                <span className="text-[11px] font-bold text-[#8a958b]">{tp("identityConfidenceLabel")}:</span>
+                <V2Pill tone="neutral">{tp(`ai.identityConfidence.${identityReview.confidence}`)}</V2Pill>
+              </div>
+              {identityReview.reason && (
+                <p className="rounded-xl border border-[#e6ddc9] bg-[#fdfcf9] p-3 text-xs leading-relaxed text-[#6f7a70]">
+                  <span className="font-black text-[#1a5632]">{tp("identityReasonLabel")}: </span>
+                  {identityReview.reason}
+                </p>
+              )}
+              <p className="text-[11px] font-bold text-[#8a958b]">{tp("identityDecisionLabel")}</p>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  disabled={!identityId || Boolean(identityDecided) || identityBusy}
+                  onClick={() => void decideIdentity("confirmed")}
+                  className="rounded-xl border border-[#d8e6d9] bg-[#f1f8f1] px-4 py-2.5 text-xs font-black text-[#1a5632] hover:bg-[#e4f0e4] disabled:opacity-50"
+                >
+                  {tp("identityConfirm")}
+                </button>
+                <button
+                  type="button"
+                  disabled={!identityId || Boolean(identityDecided) || identityBusy}
+                  onClick={() => void decideIdentity("rejected")}
+                  className="rounded-xl border border-[#f2c9c4] bg-[#fbe9e7] px-4 py-2.5 text-xs font-black text-[#b42318] hover:bg-[#f6dcd8] disabled:opacity-50"
+                >
+                  {tp("identityReject")}
+                </button>
+              </div>
+              {identityDecided && (
+                <p className="rounded-xl border border-[#d8e6d9] bg-[#f1f8f1] px-3 py-2 text-xs font-bold text-[#1a5632]">
+                  {identityDecided}
+                </p>
+              )}
+            </div>
+          ) : (
+            <p className="py-6 text-center text-xs text-[#9aa399]">{tp("identityDecisionPending")}</p>
+          )}
+          <div className="mt-5 flex justify-end">
+            <button
+              type="button"
+              onClick={() => setIdentityMember(null)}
+              className="rounded-xl border border-[#e6ddc9] px-4 py-2.5 text-xs font-bold text-[#6f7a70] hover:bg-[#f5ecd6]"
+            >
+              {t("close")}
+            </button>
+          </div>
         </V2Dialog>
       )}
     </V2Shell>

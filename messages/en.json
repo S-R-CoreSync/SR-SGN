@@ -1693,7 +1693,28 @@
     "contactReviewActivity": "AI contact message review suggested",
     "inboxReviewFailed": "Could not analyse the item. Check the AI provider settings.",
     "inboxReviewLanguageFailed": "The suggestion does not match the section language. Try again.",
-    "inboxReviewNotFound": "The item no longer exists."
+    "inboxReviewNotFound": "The item no longer exists.",
+    "identityReviewActivity": "AI identity review suggested",
+    "identityDecisionActivity": "Human decision on AI identity suggestion",
+    "identityReasonMatch": "The name and birth year extracted from the card match the member record.",
+    "identityReasonMismatch": "The details extracted from the card do not match the member record. Review the card manually.",
+    "identityReasonUnclear": "The card could not be read clearly. Review it manually.",
+    "identityFailed": "Could not generate the suggestion. Check that the card-reading model is running.",
+    "identityNotFound": "No identity card is on file for this member.",
+    "identityOutcome": {
+      "match": "Match",
+      "mismatch": "Mismatch",
+      "unclear": "Unclear"
+    },
+    "identityConfidence": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "identityDecision": {
+      "confirmed": "Reviewer accepted the suggestion",
+      "rejected": "Reviewer rejected the suggestion"
+    }
   },
   "sync": {
     "facebook": {
@@ -2468,7 +2489,19 @@
         "sentDone": "Sent to {sent} of {total}",
         "activity": "Activity log",
         "activityEmpty": "No activity recorded",
-        "activityAll": "All members"
+        "activityAll": "All members",
+        "identityReview": "Identity suggestion",
+        "identityTitle": "Suggested identity review",
+        "identityNote": "Suggestion for review only — the member status does not change. The decision is yours.",
+        "identityBusy": "Analysing the card...",
+        "identityOutcomeLabel": "Suggested result",
+        "identityConfidenceLabel": "Confidence",
+        "identityReasonLabel": "Reason",
+        "identityDecisionLabel": "Your decision",
+        "identityConfirm": "Record approval",
+        "identityReject": "Record rejection",
+        "identityDecided": "Your decision was recorded. The member status did not change.",
+        "identityDecisionPending": "Wait for the suggestion before recording a decision."
       },
       "tasks": {
         "title": "Tasks",

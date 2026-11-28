@@ -1693,7 +1693,28 @@
     "contactReviewActivity": "AI-contactberichtreview voorgesteld",
     "inboxReviewFailed": "Item kon niet worden geanalyseerd. Controleer de AI-instellingen.",
     "inboxReviewLanguageFailed": "Het voorstel past niet bij de taal van het onderdeel. Probeer opnieuw.",
-    "inboxReviewNotFound": "Het item bestaat niet meer."
+    "inboxReviewNotFound": "Het item bestaat niet meer.",
+    "identityReviewActivity": "AI-identiteitscontrole voorgesteld",
+    "identityDecisionActivity": "Menselijke beslissing over AI-identiteitsadvies",
+    "identityReasonMatch": "De naam en het geboortejaar op de kaart komen overeen met de gegevens van het lid.",
+    "identityReasonMismatch": "De gegevens op de kaart komen niet overeen met de gegevens van het lid. Controleer de kaart handmatig.",
+    "identityReasonUnclear": "De kaart kon niet duidelijk worden gelezen. Controleer deze handmatig.",
+    "identityFailed": "Advies kon niet worden gegenereerd. Controleer of het kaartleesmodel actief is.",
+    "identityNotFound": "Er is geen identiteitskaart bekend voor dit lid.",
+    "identityOutcome": {
+      "match": "Overeenkomend",
+      "mismatch": "Niet overeenkomend",
+      "unclear": "On duidelijk"
+    },
+    "identityConfidence": {
+      "high": "Hoog",
+      "medium": "Gemiddeld",
+      "low": "Laag"
+    },
+    "identityDecision": {
+      "confirmed": "Beoordelaar ging akkoord met het advies",
+      "rejected": "Beoordelaar verwierp het advies"
+    }
   },
   "sync": {
     "facebook": {
@@ -2468,7 +2489,19 @@
         "sentDone": "Verzonden naar {sent} van {total}",
         "activity": "Activiteitenlog",
         "activityEmpty": "Geen activiteiten vastgelegd",
-        "activityAll": "Alle leden"
+        "activityAll": "Alle leden",
+        "identityReview": "Identiteitsadvies",
+        "identityTitle": "Voorgestelde identiteitscontrole",
+        "identityNote": "Alleen een advies — de status van het lid verandert niet. De beslissing is aan jou.",
+        "identityBusy": "Kaart wordt geanalyseerd...",
+        "identityOutcomeLabel": "Voorgesteld resultaat",
+        "identityConfidenceLabel": "Betrouwbaarheid",
+        "identityReasonLabel": "Reden",
+        "identityDecisionLabel": "Jouw beslissing",
+        "identityConfirm": "Goedkeuring vastleggen",
+        "identityReject": "Afwijzing vastleggen",
+        "identityDecided": "Je beslissing is vastgelegd. De status van het lid is niet gewijzigd.",
+        "identityDecisionPending": "Wacht op het advies voordat je een beslissing vastlegt."
       },
       "tasks": {
         "title": "Taken",

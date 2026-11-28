@@ -1693,7 +1693,28 @@
     "contactReviewActivity": "مراجعة رسالة تواصل بمساعد الذكاء الاصطناعي",
     "inboxReviewFailed": "تعذّر تحليل العنصر. تأكد من إعداد مزوّد الذكاء الاصطناعي.",
     "inboxReviewLanguageFailed": "الاقتراح غير مطابق للغة القسم. حاول من جديد.",
-    "inboxReviewNotFound": "العنصر غير موجود أو حُذف."
+    "inboxReviewNotFound": "العنصر غير موجود أو حُذف.",
+    "identityReviewActivity": "توصية تحقق هوية بالذكاء الاصطناعي",
+    "identityDecisionActivity": "قرار بشري على توصية تحقق الهوية",
+    "identityReasonMatch": "الاسم وسنة الميلاد المستخرجان من البطاقة مطابقان لبيانات العضو.",
+    "identityReasonMismatch": "البيانات المستخرجة من البطاقة غير مطابقة لبيانات العضو. راجع البطاقة يدوياً.",
+    "identityReasonUnclear": "تعذّرت قراءة البطاقة بوضوح. راجعها يدوياً.",
+    "identityFailed": "تعذّر توليد التوصية. تأكد من تشغيل موديل قراءة البطاقة.",
+    "identityNotFound": "لا توجد بطاقة هوية لهذا العضو.",
+    "identityOutcome": {
+      "match": "مطابق",
+      "mismatch": "غير مطابق",
+      "unclear": "غير واضح"
+    },
+    "identityConfidence": {
+      "high": "عالية",
+      "medium": "متوسطة",
+      "low": "منخفضة"
+    },
+    "identityDecision": {
+      "confirmed": "وافق المراجع على التوصية",
+      "rejected": "رفض المراجع التوصية"
+    }
   },
   "sync": {
     "facebook": {
@@ -2468,7 +2489,19 @@
         "sentDone": "أُرسلت إلى {sent} من {total}",
         "activity": "سجل النشاط",
         "activityEmpty": "لا يوجد نشاط مسجّل",
-        "activityAll": "كل الأعضاء"
+        "activityAll": "كل الأعضاء",
+        "identityReview": "توصية الهوية",
+        "identityTitle": "مراجعة هوية مقترحة",
+        "identityNote": "التوصية للمراجعة فقط — لا تُغيّر حالة العضو. القرار لك.",
+        "identityBusy": "جارٍ تحليل البطاقة...",
+        "identityOutcomeLabel": "النتيجة المقترحة",
+        "identityConfidenceLabel": "درجة الوضوح",
+        "identityReasonLabel": "السبب",
+        "identityDecisionLabel": "قرارك",
+        "identityConfirm": "تسجيل موافقة",
+        "identityReject": "تسجيل رفض",
+        "identityDecided": "سُجّل قرارك. لم تتغيّر حالة العضو.",
+        "identityDecisionPending": "انتظر التوصية قبل تسجيل القرار."
       },
       "tasks": {
         "title": "المهام",
