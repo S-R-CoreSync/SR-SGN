@@ -1601,7 +1601,15 @@
         "expired": "Ongeldig",
         "days": "dagen",
         "uptime": "Uptime",
-        "seconds": "seconden"
+        "seconds": "seconden",
+        "syncTitle": "Bronnen synchroniseren",
+        "syncNote": "Eén geregistreerde bron handmatig uitvoeren",
+        "syncSource": "Bron",
+        "syncLimit": "Maximum aantal items",
+        "syncNow": "Sync starten",
+        "syncBusy": "Bezig...",
+        "syncDone": "Sync afgerond: {count} resultaten",
+        "syncFailed": "Sync mislukt."
       },
       "events": {
         "title": "Evenementen",
@@ -1707,7 +1715,9 @@
         "prevPage": "Vorige pagina",
         "nextPage": "Volgende pagina",
         "markPaid": "Als betaald markeren",
-        "markFailed": "Als mislukt markeren"
+        "markFailed": "Als mislukt markeren",
+        "exportCsv": "CSV exporteren",
+        "exportFailed": "Exporteren mislukt."
       },
       "subscribers": {
         "title": "Abonnees",
@@ -1988,7 +1998,18 @@
         "total": "Totaal",
         "searchPlaceholder": "Zoeken op naam of e-mail...",
         "empty": "Nog geen vrijwilligers",
-        "registered": "Geregistreerd"
+        "registered": "Geregistreerd",
+        "statusLabel": "Status",
+        "statusFilter": "Filteren op status",
+        "allStatuses": "Alle statussen",
+        "status": {
+          "new": "Nieuw",
+          "contacted": "Contact opgenomen",
+          "approved": "Goedgekeurd",
+          "rejected": "Afgewezen"
+        },
+        "statusSaved": "Status opgeslagen.",
+        "replyByEmail": "Antwoorden per e-mail"
       },
       "settings": {
         "title": "Accountinstellingen",
@@ -2064,7 +2085,8 @@
           "profession": "Beroep",
           "skills": "Vaardigheden",
           "maritalStatus": "Burgerlijke staat"
-        }
+        },
+        "discard": "Wijzigingen annuleren"
       },
       "stats": {
         "title": "Ledenstatistieken",
@@ -2090,7 +2112,11 @@
         "provinceNote": "Meest geregistreerde provincies",
         "topProvince": "Topprovincie",
         "originTitle": "Herkomstprovincies",
-        "originNote": "Uit lidmaatschapsgegevens"
+        "originNote": "Uit lidmaatschapsgegevens",
+        "exportCsv": "CSV exporteren",
+        "csvSection": "Sectie",
+        "csvLabel": "Categorie",
+        "csvCount": "Aantal"
       },
       "facebookSync": {
         "title": "Facebook-synchronisatie",
@@ -2180,7 +2206,8 @@
         "province": "Provincie",
         "city": "Stad",
         "send": "Verzenden",
-        "sentCount": "Ontvangers"
+        "sentCount": "Ontvangers",
+        "discard": "Wijzigingen annuleren"
       }
     },
     "breadcrumbEvents": "Evenementen",

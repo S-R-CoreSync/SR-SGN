@@ -2583,7 +2583,15 @@
         "expired": "غير صالح",
         "days": "يوم",
         "uptime": "زمن التشغيل",
-        "seconds": "ثانية"
+        "seconds": "ثانية",
+        "syncTitle": "مزامنة المصادر",
+        "syncNote": "تشغيل مصدر واحد يدوياً من المصادر المسجّلة",
+        "syncSource": "المصدر",
+        "syncLimit": "الحد الأقصى للعناصر",
+        "syncNow": "تشغيل المزامنة",
+        "syncBusy": "جارٍ التشغيل...",
+        "syncDone": "انتهت المزامنة: {count} نتيجة",
+        "syncFailed": "فشلت المزامنة."
       },
       "events": {
         "title": "الفعاليات",
@@ -2689,7 +2697,9 @@
         "prevPage": "الصفحة السابقة",
         "nextPage": "الصفحة التالية",
         "markPaid": "تحديد كمحصّل",
-        "markFailed": "تحديد كغير ناجح"
+        "markFailed": "تحديد كغير ناجح",
+        "exportCsv": "تصدير CSV",
+        "exportFailed": "تعذّر التصدير."
       },
       "subscribers": {
         "title": "المشتركون",
@@ -2970,7 +2980,18 @@
         "total": "الإجمالي",
         "searchPlaceholder": "ابحث بالاسم أو البريد...",
         "empty": "لا يوجد متطوعون حالياً",
-        "registered": "مسجّل"
+        "registered": "مسجّل",
+        "statusLabel": "الحالة",
+        "statusFilter": "تصفية حسب الحالة",
+        "allStatuses": "كل الحالات",
+        "status": {
+          "new": "جديد",
+          "contacted": "تم التواصل",
+          "approved": "معتمد",
+          "rejected": "مرفوض"
+        },
+        "statusSaved": "حُفظت الحالة.",
+        "replyByEmail": "رد بالبريد"
       },
       "settings": {
         "title": "إعدادات الحساب",
@@ -3046,7 +3067,8 @@
           "profession": "المهنة",
           "skills": "المهارات",
           "maritalStatus": "الحالة الاجتماعية"
-        }
+        },
+        "discard": "إلغاء التغييرات"
       },
       "stats": {
         "title": "إحصائيات الأعضاء",
@@ -3072,7 +3094,11 @@
         "provinceNote": "أكثر المقاطعات تسجيلاً",
         "topProvince": "أعلى مقاطعة",
         "originTitle": "المحافظات الأصلية",
-        "originNote": "حسب بيانات الانتساب المسجّلة"
+        "originNote": "حسب بيانات الانتساب المسجّلة",
+        "exportCsv": "تصدير CSV",
+        "csvSection": "القسم",
+        "csvLabel": "التصنيف",
+        "csvCount": "العدد"
       },
       "facebookSync": {
         "title": "مزامنة فيسبوك",
@@ -3162,7 +3188,8 @@
         "province": "المقاطعة",
         "city": "المدينة",
         "send": "إرسال",
-        "sentCount": "عدد المستلمين"
+        "sentCount": "عدد المستلمين",
+        "discard": "إلغاء التغييرات"
       }
     },
     "breadcrumbEvents": "الفعاليات",

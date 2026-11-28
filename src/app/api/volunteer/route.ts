@@ -34,8 +34,12 @@ export async function GET(req: NextRequest) {
     const limit = Math.min(Number(searchParams.get("limit")) || 50, 200);
     const offset = Number(searchParams.get("offset")) || 0;
     const search = searchParams.get("search");
+    const status = searchParams.get("status");
 
     const where: any = {};
+    if (status && ["new", "contacted", "approved", "rejected"].includes(status)) {
+      where.status = status;
+    }
     if (search) {
       where.OR = [
         { name: { contains: search } },

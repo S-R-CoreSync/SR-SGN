@@ -85,12 +85,14 @@ export default function V2MembershipSettingsPage() {
             {t("save")}
           </button>
           <button
+            type="button"
             onClick={() => void load()}
-            title={t("retry")}
-            aria-label={t("retry")}
-            className="rounded-xl border border-[#e6ddc9] bg-white p-2 text-[#6f7a70] shadow-sm hover:bg-[#f5ecd6]"
+            disabled={busy || !changed}
+            title={tp("discard")}
+            className="flex items-center gap-1.5 rounded-xl border border-[#e6ddc9] bg-white px-3 py-2 text-[11px] font-black text-[#6f7a70] shadow-sm hover:bg-[#f5ecd6] disabled:opacity-50"
           >
-            <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
+            <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
+            {tp("discard")}
           </button>
         </div>
       </V2Intro>

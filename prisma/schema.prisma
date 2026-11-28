@@ -324,6 +324,7 @@ model Volunteer {
   skills       String?
   availability String?
   message      String?
+  status       String   @default("new")
   createdAt    DateTime @default(now())
 }
 

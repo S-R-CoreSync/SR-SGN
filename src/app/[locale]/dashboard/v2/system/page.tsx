@@ -2,10 +2,11 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { formatLocalizedDigits } from "@/lib/language-guard";
+import { formatLocalizedDigits, isPureLocaleText } from "@/lib/language-guard";
 import { V2Shell } from "@/components/dashboard/v2-shell";
 import { V2Intro, V2Message, V2Panel, V2Pill } from "@/components/dashboard/v2-ui";
-import { Activity, Database, RefreshCw, Settings, ShieldCheck } from "lucide-react";
+import { v2Api, v2InputClass } from "@/components/dashboard/v2-form";
+import { Activity, Database, Play, RefreshCw, Settings, ShieldCheck } from "lucide-react";
 
 type Health = {
   status: "ok" | "degraded" | "error";
@@ -25,14 +26,30 @@ export default function V2SystemPage() {
   const [health, setHealth] = useState<Health | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [sources, setSources] = useState<string[]>([]);
+  const [source, setSource] = useState("");
+  const [limit, setLimit] = useState("5");
+  const [syncBusy, setSyncBusy] = useState(false);
+  const [syncNotice, setSyncNotice] = useState("");
+  const [syncError, setSyncError] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(false);
     try {
-      const res = await fetch("/api/health?sources=true", { cache: "no-store" });
-      if (!res.ok) throw new Error("health");
-      setHealth(await res.json());
+      const [healthRes, sourcesRes] = await Promise.all([
+        fetch("/api/health?sources=true", { cache: "no-store" }),
+        fetch("/api/sync", { cache: "no-store" }),
+      ]);
+      if (!healthRes.ok) throw new Error("health");
+      setHealth(await healthRes.json());
+      if (sourcesRes.ok) {
+        const data = await sourcesRes.json();
+        // نعرض اسم المصدر اللاتيني فقط — لا نمرّر تصنيفات عربية إلى /en و/nl.
+        const names: string[] = (data.sources ?? []).map((item: { name?: string }) => item.name).filter(Boolean);
+        setSources(names);
+        setSource((current) => current || names[0] || "");
+      }
     } catch {
       setError(true);
     } finally {
@@ -43,6 +60,26 @@ export default function V2SystemPage() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  async function runSync() {
+    if (!source || syncBusy) return;
+    setSyncBusy(true);
+    setSyncNotice("");
+    setSyncError("");
+    try {
+      const result = await v2Api<{ results?: unknown[]; quotaExhausted?: boolean }>("/api/sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ source, limit: Math.max(1, Math.min(Number(limit) || 5, 50)) }),
+      });
+      if (result.quotaExhausted) throw new Error("quota");
+      setSyncNotice(tp("syncDone", { count: formatLocalizedDigits(result.results?.length ?? 0, locale) }));
+    } catch (e) {
+      setSyncError(e instanceof Error ? e.message : tp("syncFailed"));
+    } finally {
+      setSyncBusy(false);
+    }
+  }
 
   const overallTone = health?.status === "ok" ? "good" : health?.status === "degraded" ? "warn" : "bad";
   const db = health?.checks?.database;
@@ -141,6 +178,54 @@ export default function V2SystemPage() {
               })}
             </ul>
           </V2Panel>
+
+          {sources.length > 0 && (
+            <V2Panel title={tp("syncTitle")} note={tp("syncNote")}>
+              <div className="mt-5 flex flex-wrap items-end gap-3">
+                <label className="min-w-48 flex-1">
+                  <span className="mb-1.5 block text-[10px] font-black text-[#8a958b]">{tp("syncSource")}</span>
+                  <select
+                    dir="ltr"
+                    value={source}
+                    onChange={(event) => setSource(event.target.value)}
+                    className={v2InputClass}
+                  >
+                    {sources.map((name) => <option key={name} value={name}>{name}</option>)}
+                  </select>
+                </label>
+                <label className="w-32">
+                  <span className="mb-1.5 block text-[10px] font-black text-[#8a958b]">{tp("syncLimit")}</span>
+                  <input
+                    dir="ltr"
+                    type="number"
+                    min={1}
+                    max={50}
+                    value={limit}
+                    onChange={(event) => setLimit(event.target.value)}
+                    className={v2InputClass}
+                  />
+                </label>
+                <button
+                  type="button"
+                  onClick={() => void runSync()}
+                  disabled={syncBusy || !source}
+                  className="flex items-center gap-1.5 rounded-xl bg-[#1a5632] px-4 py-2.5 text-xs font-black text-white hover:bg-[#123b24] disabled:opacity-50"
+                >
+                  {syncBusy ? tp("syncBusy") : <><Play size={13} />{tp("syncNow")}</>}
+                </button>
+              </div>
+              {syncNotice && (
+                <p className="mt-4 rounded-xl border border-[#d8e6d9] bg-[#f1f8f1] px-3 py-2 text-xs font-bold text-[#1a5632]">
+                  {isPureLocaleText(syncNotice, locale) ? syncNotice : tp("syncFailed")}
+                </p>
+              )}
+              {syncError && (
+                <p className="mt-4 rounded-xl border border-[#f3d5d1] bg-[#fff5f4] px-3 py-2 text-xs font-bold text-[#b42318]">
+                  {tp("syncFailed")}
+                </p>
+              )}
+            </V2Panel>
+          )}
         </div>
       )}
     </V2Shell>

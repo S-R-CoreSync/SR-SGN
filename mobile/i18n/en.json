@@ -1601,7 +1601,15 @@
         "expired": "Invalid",
         "days": "days",
         "uptime": "Uptime",
-        "seconds": "seconds"
+        "seconds": "seconds",
+        "syncTitle": "Source sync",
+        "syncNote": "Run one registered source manually",
+        "syncSource": "Source",
+        "syncLimit": "Item limit",
+        "syncNow": "Run sync",
+        "syncBusy": "Running...",
+        "syncDone": "Sync finished: {count} results",
+        "syncFailed": "Sync failed."
       },
       "events": {
         "title": "Events",
@@ -1707,7 +1715,9 @@
         "prevPage": "Previous page",
         "nextPage": "Next page",
         "markPaid": "Mark as paid",
-        "markFailed": "Mark as failed"
+        "markFailed": "Mark as failed",
+        "exportCsv": "Export CSV",
+        "exportFailed": "Export failed."
       },
       "subscribers": {
         "title": "Subscribers",
@@ -1988,7 +1998,18 @@
         "total": "Total",
         "searchPlaceholder": "Search by name or email...",
         "empty": "No volunteers yet",
-        "registered": "Registered"
+        "registered": "Registered",
+        "statusLabel": "Status",
+        "statusFilter": "Filter by status",
+        "allStatuses": "All statuses",
+        "status": {
+          "new": "New",
+          "contacted": "Contacted",
+          "approved": "Approved",
+          "rejected": "Rejected"
+        },
+        "statusSaved": "Status saved.",
+        "replyByEmail": "Reply by email"
       },
       "settings": {
         "title": "Account settings",
@@ -2064,7 +2085,8 @@
           "profession": "Profession",
           "skills": "Skills",
           "maritalStatus": "Marital status"
-        }
+        },
+        "discard": "Discard changes"
       },
       "stats": {
         "title": "Member statistics",
@@ -2090,7 +2112,11 @@
         "provinceNote": "Most registered provinces",
         "topProvince": "Top province",
         "originTitle": "Origin governorates",
-        "originNote": "From membership records"
+        "originNote": "From membership records",
+        "exportCsv": "Export CSV",
+        "csvSection": "Section",
+        "csvLabel": "Label",
+        "csvCount": "Count"
       },
       "facebookSync": {
         "title": "Facebook sync",
@@ -2180,7 +2206,8 @@
         "province": "Province",
         "city": "City",
         "send": "Send",
-        "sentCount": "Recipients"
+        "sentCount": "Recipients",
+        "discard": "Discard changes"
       }
     },
     "breadcrumbEvents": "Events",

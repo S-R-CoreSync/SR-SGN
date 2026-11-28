@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { formatLocalizedDigits, hasArabicCharacters } from "@/lib/language-guard";
 import { V2Shell } from "@/components/dashboard/v2-shell";
 import { V2Intro, V2Message, V2Panel, V2Pill } from "@/components/dashboard/v2-ui";
-import { RefreshCw } from "lucide-react";
+import { Download, RefreshCw } from "lucide-react";
 
 type CountItem = { name: string; count: number; percentage?: number };
 type Stats = {
@@ -49,6 +49,29 @@ export default function V2StatsPage() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  function exportCsv() {
+    const cell = (value: string | number) => {
+      const text = String(value);
+      return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+    };
+    const rows: [string, string, number][] = [
+      ...(stats?.genderData ?? []).map((item) => [tp("genderTitle"), tp(`gender.${item.name}`), item.count] as [string, string, number]),
+      ...(stats?.ageGroupData ?? []).map((item) => [tp("ageTitle"), tp(`ages.${item.name}`), item.count] as [string, string, number]),
+      ...(stats?.provinceData ?? []).map((item) => [tp("provinceTitle"), item.name, item.count] as [string, string, number]),
+      ...(stats?.governorateData ?? []).map((item) => [tp("originTitle"), item.name, item.count] as [string, string, number]),
+    ];
+    const csv = [
+      [tp("csvSection"), tp("csvLabel"), tp("csvCount")].join(","),
+      ...rows.map((row) => row.map(cell).join(",")),
+    ].join("\r\n");
+    const url = URL.createObjectURL(new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "member-stats.csv";
+    link.click();
+    URL.revokeObjectURL(url);
+  }
 
   if (error) {
     return (
@@ -102,6 +125,15 @@ export default function V2StatsPage() {
       <V2Intro title={tp("title")} note={tp("note")}>
         <div className="flex items-center gap-2">
           <V2Pill tone="neutral">{tp("total")}: {formatLocalizedDigits(stats?.total ?? 0, locale)}</V2Pill>
+          <button
+            type="button"
+            onClick={exportCsv}
+            title={tp("exportCsv")}
+            className="flex items-center gap-1.5 rounded-xl border border-[#d8e6d9] bg-[#f1f8f1] px-3 py-2 text-[11px] font-black text-[#1a5632] hover:bg-[#e4f0e4]"
+          >
+            <Download size={13} />
+            {tp("exportCsv")}
+          </button>
           <button
             onClick={() => void load()}
             title={t("retry")}
