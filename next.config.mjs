@@ -91,6 +91,50 @@ const nextConfig = {
       },
     ],
   },
+  // اللوحة القديمة تبقى ملفاتها احتياطاً، لكن كل روابطها تُوجَّه إلى نسخة v2.
+  // التحويل 307 (مؤقت) حتى يبقى الرجوع ممكناً بلا تخزين كاش دائم عند الزوار.
+  redirects: async () => {
+    const legacyDashboardTargets = {
+      "": "/dashboard/v2",
+      ads: "/dashboard/v2/ads",
+      board: "/dashboard/v2/board",
+      comments: "/dashboard/v2/comments",
+      donations: "/dashboard/v2/finance",
+      events: "/dashboard/v2/events",
+      "facebook-sync": "/dashboard/v2/facebook-sync",
+      landing: "/",
+      media: "/dashboard/v2/media",
+      "member-profile": "/dashboard/v2/settings",
+      members: "/dashboard/v2/members",
+      "members/vault": "/dashboard/v2/vault",
+      "membership-settings": "/dashboard/v2/membership-settings",
+      messages: "/dashboard/v2/messages",
+      "mobile-control": "/dashboard/v2/mobile-control",
+      pages: "/dashboard/v2/content",
+      regulations: "/dashboard/v2/regulations",
+      revenue: "/dashboard/v2/finance",
+      roles: "/dashboard/v2/users",
+      settings: "/dashboard/v2/settings",
+      stats: "/dashboard/v2/stats",
+      subscribers: "/dashboard/v2/subscribers",
+      surveys: "/dashboard/v2/surveys",
+      tasks: "/dashboard/v2/tasks",
+      users: "/dashboard/v2/users",
+      volunteers: "/dashboard/v2/volunteers",
+      // أقسام الذكاء الاصطناعي لا تظهر في الواجهة الجديدة إطلاقاً.
+      ai: "/dashboard/v2",
+      "documents-generator": "/dashboard/v2",
+    };
+
+    return Object.entries(legacyDashboardTargets).flatMap(([legacy, destination]) => {
+      const source = legacy ? `/dashboard/${legacy}` : "/dashboard";
+      const localizedDestination = destination === "/" ? "/:locale" : `/:locale${destination}`;
+      return [
+        { source, destination, permanent: false },
+        { source: `/:locale(ar|en|nl)${source}`, destination: localizedDestination, permanent: false },
+      ];
+    });
+  },
   headers: async () => [
     {
       source: "/:path*",

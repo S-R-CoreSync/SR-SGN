@@ -25,18 +25,18 @@ export async function GET(request: Request) {
   jar.delete("fb_oauth_state");
 
   if (!expectedState || !state || state !== expectedState) {
-    return NextResponse.redirect(new URL("/dashboard/facebook-sync?error=invalid_state", request.url));
+    return NextResponse.redirect(new URL("/dashboard/v2/facebook-sync?error=invalid_state", request.url));
   }
 
   if (!code) {
-    return NextResponse.redirect(new URL("/dashboard/facebook-sync?error=no_code", request.url));
+    return NextResponse.redirect(new URL("/dashboard/v2/facebook-sync?error=no_code", request.url));
   }
 
   const clientId = process.env.FACEBOOK_CLIENT_ID;
   const clientSecret = process.env.FACEBOOK_CLIENT_SECRET;
 
   if (!clientId || !clientSecret) {
-    return NextResponse.redirect(new URL("/dashboard/facebook-sync?error=missing_credentials", request.url));
+    return NextResponse.redirect(new URL("/dashboard/v2/facebook-sync?error=missing_credentials", request.url));
   }
 
   const origin = `${url.protocol}//${url.host}`;
@@ -50,7 +50,7 @@ export async function GET(request: Request) {
 
     if (tokenData.error) {
       logger.error("API/auth/facebook-page/callback", "Token exchange error:", tokenData.error);
-      return NextResponse.redirect(new URL(`/dashboard/facebook-sync?error=${encodeURIComponent(tokenData.error.message)}`, request.url));
+      return NextResponse.redirect(new URL(`/dashboard/v2/facebook-sync?error=${encodeURIComponent(tokenData.error.message)}`, request.url));
     }
 
     const userAccessToken = tokenData.access_token;
@@ -63,13 +63,13 @@ export async function GET(request: Request) {
 
     if (accountsData.error) {
       logger.error("API/auth/facebook-page/callback", "Accounts fetch error:", accountsData.error);
-      return NextResponse.redirect(new URL(`/dashboard/facebook-sync?error=${encodeURIComponent(accountsData.error.message)}`, request.url));
+      return NextResponse.redirect(new URL(`/dashboard/v2/facebook-sync?error=${encodeURIComponent(accountsData.error.message)}`, request.url));
     }
 
     const page = accountsData.data?.find((p: any) => p.id === pageId);
 
     if (!page) {
-      return NextResponse.redirect(new URL("/dashboard/facebook-sync?error=page_not_found", request.url));
+      return NextResponse.redirect(new URL("/dashboard/v2/facebook-sync?error=page_not_found", request.url));
     }
 
     const pageAccessToken = page.access_token;
@@ -92,9 +92,9 @@ export async function GET(request: Request) {
 
     fs.writeFileSync(envPath, envContent);
 
-    return NextResponse.redirect(new URL("/dashboard/facebook-sync?success=token_saved", request.url));
+    return NextResponse.redirect(new URL("/dashboard/v2/facebook-sync?success=token_saved", request.url));
   } catch (error) {
     logger.error("API/auth/facebook-page/callback", "Callback error:", error);
-    return NextResponse.redirect(new URL("/dashboard/facebook-sync?error=internal_error", request.url));
+    return NextResponse.redirect(new URL("/dashboard/v2/facebook-sync?error=internal_error", request.url));
   }
 }

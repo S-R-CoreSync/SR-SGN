@@ -46,7 +46,7 @@ export function NotificationToaster() {
             {t('unread', { count })}
           </p>
           <Link 
-            href="/dashboard" 
+            href="/dashboard/v2" 
             className="text-[11px] text-[#1a5632] dark:text-emerald-400 font-bold hover:underline mt-1 inline-block" 
             onClick={() => setOpen(false)}
           >

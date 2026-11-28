@@ -109,7 +109,7 @@ export const authOptions = {
   session: { strategy: "jwt" },
   pages: {
     signIn: "/login",
-    newUser: "/dashboard",
+    newUser: "/dashboard/v2",
     error: "/login",
   },
   providers: [

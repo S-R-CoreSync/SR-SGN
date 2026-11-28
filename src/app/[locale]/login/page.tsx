@@ -43,7 +43,7 @@ export default function LoginPage() {
     if (res?.error) {
       setAuthError(t("loginError"));
     } else {
-      router.push("/dashboard");
+      router.push("/dashboard/v2");
     }
   };
 

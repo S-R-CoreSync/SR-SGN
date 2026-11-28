@@ -64,7 +64,7 @@ export async function POST(req: Request) {
         userId: a.id,
         title: t(req, 'api.newApplication'),
         message: t(req, 'api.newApplicationBy').replace('{name}', nameAr),
-        link: "/dashboard/members",
+        link: "/dashboard/v2/members",
       })),
     });
     const locale = (req as any).cookies?.get?.('NEXT_LOCALE')?.value || 'ar';

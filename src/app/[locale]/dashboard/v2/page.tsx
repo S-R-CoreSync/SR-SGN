@@ -102,7 +102,7 @@ export default function DashboardV2Page() {
   const kpis = [
     { key: "members", value: stats?.users ?? 0, daily: stats?.usersByDay, color: "#1a5632", icon: Users, href: "/dashboard/v2/members" },
     { key: "views", value: stats?.totalViews ?? 0, daily: stats?.commentsByDay, color: "#b8892c", icon: ArrowUpRight, href: "/news" },
-    { key: "volunteers", value: stats?.volunteers ?? 0, daily: undefined, color: "#2f6b4f", icon: Users, href: "/dashboard/volunteers" },
+    { key: "volunteers", value: stats?.volunteers ?? 0, daily: undefined, color: "#2f6b4f", icon: Users, href: "/dashboard/v2/volunteers" },
     { key: "posts", value: stats?.posts ?? 0, daily: undefined, color: "#8a6a1f", icon: FileText, href: "/dashboard/v2/content" },
   ];
 

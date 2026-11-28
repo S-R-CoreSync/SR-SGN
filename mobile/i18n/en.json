@@ -1896,5 +1896,7 @@
     "breadcrumbSettings": "Account settings"
   ,
     "breadcrumbMobileControl": "App control"
+  ,
+    "backToHome": "Back to home"
   }
 }

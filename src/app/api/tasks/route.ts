@@ -18,7 +18,7 @@ async function notifyAssigned(assignedTo: string, taskId: string, taskTitle: str
       userId: assignedTo,
       title: t('notification.newTask'),
       message: t('notification.newTaskMessage', { title: taskTitle }),
-      link: `/dashboard/tasks`,
+      link: `/dashboard/v2/tasks`,
     },
   });
 }

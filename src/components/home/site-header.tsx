@@ -347,14 +347,14 @@ export function SiteHeader() {
                         {t("chat.title")}
                       </Link>
                       {(session.user as any)?.role === "admin" && (
-                        <Link href="/dashboard" onClick={() => setUserMenuOpen(false)} className={`block w-full ${isRtl ? "text-right" : "text-left"} px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800 font-medium`}>
+                        <Link href="/dashboard/v2" onClick={() => setUserMenuOpen(false)} className={`block w-full ${isRtl ? "text-right" : "text-left"} px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800 font-medium`}>
                           {t("nav.dashboard")}
                         </Link>
                       )}
-                      <Link href="/dashboard/member-profile" onClick={() => setUserMenuOpen(false)} className={`block w-full ${isRtl ? "text-right" : "text-left"} px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800`}>
+                      <Link href="/dashboard/v2/settings" onClick={() => setUserMenuOpen(false)} className={`block w-full ${isRtl ? "text-right" : "text-left"} px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800`}>
                         {t("dashboard.memberProfile")}
                       </Link>
-                      <Link href="/dashboard/settings" onClick={() => setUserMenuOpen(false)} className={`block w-full ${isRtl ? "text-right" : "text-left"} px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800`}>
+                      <Link href="/dashboard/v2/settings" onClick={() => setUserMenuOpen(false)} className={`block w-full ${isRtl ? "text-right" : "text-left"} px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800`}>
                         {t("dashboard.settings")}
                       </Link>
                       <hr className="my-1 border-gray-50 dark:border-slate-800" />
@@ -572,7 +572,7 @@ export function SiteHeader() {
                 </Link>
                 {(session.user as any)?.role === "admin" && (
                   <Link
-                    href="/dashboard"
+                    href="/dashboard/v2"
                     onClick={() => setOpen(false)}
                     className="block py-1.5 text-xs font-bold text-[#1a5632] dark:text-emerald-400 hover:underline"
                   >
@@ -580,7 +580,7 @@ export function SiteHeader() {
                   </Link>
                 )}
                 <Link
-                  href="/dashboard/member-profile"
+                  href="/dashboard/v2/settings"
                   onClick={() => setOpen(false)}
                   className="block py-1.5 text-xs font-medium text-card-foreground hover:underline"
                 >

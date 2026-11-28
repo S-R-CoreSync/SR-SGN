@@ -48,7 +48,7 @@ export async function POST(req: Request) {
           userId: admin.id,
           title: t(req, 'api.newDonation'),
           message: t(req, 'api.newDonationMessage', { amount: `€${amount}`, name }),
-          link: "/dashboard/donations",
+          link: "/dashboard/v2/finance",
         },
       });
     }

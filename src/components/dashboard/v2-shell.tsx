@@ -7,7 +7,7 @@ import { Link, useRouter } from "@/i18n/routing";
 import { useLocale, useTranslations } from "next-intl";
 import { formatLocalizedDigits } from "@/lib/language-guard";
 import {
-  ArrowLeft, BarChart3, Calendar, CheckSquare, ClipboardList, Database, Facebook, FileText,
+  BarChart3, Calendar, CheckSquare, ClipboardList, Database, Facebook, FileText, House,
   Folder, Heart, Image as ImageIcon, Landmark, LayoutDashboard, Mail, MessageSquare,
   MousePointerClick, ScrollText, Search, Shield, SlidersHorizontal, Smartphone, UserCog, Users,
   Wallet, X,
@@ -171,11 +171,11 @@ export function V2Shell({
             </div>
           </div>
           <Link
-            href="/dashboard"
+            href={`/${locale}`}
             className="flex items-center justify-center gap-2 rounded-xl border border-white/15 px-3 py-2 text-[11px] font-bold text-white/70 hover:bg-white/5 hover:text-white"
           >
-            <ArrowLeft size={13} className={isRtl ? "rotate-180" : ""} />
-            {t("backToClassic")}
+            <House size={13} />
+            {t("backToHome")}
           </Link>
         </div>
       </aside>

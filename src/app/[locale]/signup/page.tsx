@@ -38,7 +38,7 @@ export default function SignupPage() {
     } else {
       // تسجيل الدخول تلقائياً بعد إنشاء الحساب
       await signIn("credentials", { email: data.email, password: data.password, redirect: false });
-      router.push("/dashboard");
+      router.push("/dashboard/v2");
     }
   };
 
