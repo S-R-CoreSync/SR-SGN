@@ -2368,7 +2368,8 @@
     ,
       "facebookSync": "Facebook sync"
     ,
-      "mobileControl": "App control"
+      "mobileControl": "App control",
+      "documentsGenerator": "Official Documents & Paperwork"
     },
     "tasksTitle": "Needs your attention",
     "tasksNote": "Real items from platform data, ordered by importance",
@@ -2649,7 +2650,87 @@
         }
       }
     ,
-      "board": {"title":"Board members","note":"Board members, invitation records and linked accounts from live platform data","total":"Total","linked":"Linked accounts","invited":"Invited","inviteSent":"Invitation sent successfully","inviteFailed":"Could not send the invitation - check the address and permissions","inviteHint":"Invitations are sent by email and recorded only after a successful send","createTitle":"New member","editTitle":"Edit member","invite":"Send invitation","empty":"No board members yet","table":{"name":"Name","title":"Position","role":"Role","contact":"Contact","invited":"Invited on","actions":"Actions"},"roles":{"admin":"Admin","moderator":"Moderator","contributor":"Contributor","member":"Member"},"fields":{"nameAr":"Arabic name","nameEn":"English name","titleAr":"Arabic position","titleEn":"English position","email":"Email address","phone":"Phone number","role":"Role","website":"Website","image":"Image URL"}},
+      "documents-generator": {
+        "title": "Official document generator",
+        "note": "Documents built from real platform members and volunteers - no automated drafting",
+        "templateLabel": "Document type",
+        "categoryLabel": "Document category",
+        "templateHelp": "Editable legal clauses are available for the volunteer agreement. Other templates produce a formal letter with the subject you enter.",
+        "templateCategory": {
+          "volunteer": "Volunteering",
+          "membership": "Membership",
+          "board": "Board",
+          "statements": "Statements"
+        },
+        "templateTitles": {
+          "volunteerAgreement": "Official volunteer agreement under Dutch law",
+          "membershipApplication": "Official membership application form",
+          "confidentialityAvg": "Confidentiality and personal data undertaking (AVG)",
+          "boardResolution": "Official board resolution",
+          "volunteerCertificate": "Certificate of volunteer hours and experience",
+          "membershipStatement": "Official membership statement for authorities",
+          "officialAuthorization": "Official authorization and representation letter",
+          "boardMinutes": "Official board meeting minutes"
+        },
+        "subjectLabel": "Document subject",
+        "subjectPlaceholder": "Enter the document subject",
+        "notesLabel": "Additional notes",
+        "notesPlaceholder": "Any details you want added to the document",
+        "langLabel": "Document language",
+        "langNl": "Dutch",
+        "langAr": "Arabic",
+        "langBilingual": "Bilingual (Arabic/Dutch)",
+        "langHint": "Bilingual mode is available in the Arabic section only.",
+        "firstParty": "First party (SGN)",
+        "secondParty": "Second party",
+        "signatoryLabel": "Signatory for SGN",
+        "signatoryPlaceholder": "Choose a board member",
+        "partyPlaceholder": "Choose a member or volunteer",
+        "partySearch": "Search by name or email...",
+        "sourceMember": "Member",
+        "sourceVolunteer": "Volunteer",
+        "noParties": "No matching members or volunteers",
+        "loadError": "Could not load platform data",
+        "fieldsHeading": "Second party details",
+        "nameLabel": "Name",
+        "addressLabel": "Address",
+        "cityLabel": "City",
+        "emailLabel": "Email",
+        "phoneLabel": "Phone",
+        "refLabel": "Document reference",
+        "dateLabel": "Issue date",
+        "cityIssueLabel": "Place of issue",
+        "sealLabel": "Include the SGN seal",
+        "qrLabel": "Include document reference",
+        "articlesHeading": "Agreement clauses (editable)",
+        "addArticle": "Add clause",
+        "resetArticles": "Restore original clauses",
+        "deleteArticle": "Delete clause",
+        "newArticleTitle": "New clause",
+        "newArticleBody": "Clause text",
+        "previewTitle": "Document preview",
+        "previewNote": "The preview follows the selected document language; printing uses the same content.",
+        "docTitle": "Volunteer agreement",
+        "docGenericTitle": "Official document",
+        "preamble": "Having reviewed the details of both parties below, the parties agree as follows:",
+        "declaration": "I confirm that the information provided is correct.",
+        "signatureFirst": "Signature of SGN representative",
+        "signatureSecond": "Signature of second party",
+        "print": "Print / Save as PDF",
+        "signSaved": "Signature added to the document",
+        "qrNote": "Document reference",
+        "emptySelection": "Choose the signatory and the second party first",
+        "departmentLabel": "Department",
+        "hoursLabel": "Hours per week",
+        "departments": {
+          "media": "Media & communication",
+          "ict": "ICT",
+          "events": "Events",
+          "projects": "Projects",
+          "other": "Other"
+        }
+      },
+      "board": {"title":"Board members","note":"Board members, invitation records and linked accounts from live platform data","total":"Total","linked":"Linked accounts","invited":"Invited","inviteSent":"Invitation sent successfully","inviteFailed":"Could not send the invitation - check the address and permissions","inviteHint":"Invitations are sent by email and recorded only after a successful send","createTitle":"New member","editTitle":"Edit member","invite":"Send invitation","empty":"No board members yet","table":{"photo":"Photo","name":"Name","title":"Position","role":"Role","contact":"Contact","invited":"Invited on","actions":"Actions"},"roles":{"admin":"Admin","moderator":"Moderator","contributor":"Contributor","member":"Member"},"fields":{"nameAr":"Arabic name","nameEn":"English name","titleAr":"Arabic position","titleEn":"English position","email":"Email address","phone":"Phone number","role":"Role","website":"Website","image":"Image URL"}},
       "comments": {"title":"Comments","note":"Review and approve community comments from live platform data","total":"Total","pending":"Awaiting approval","searchPlaceholder":"Search by author or text...","empty":"No comments yet","approved":"Approved","waiting":"Pending","approve":"Approve","unapprove":"Unapprove","replies":"Replies"},
       "users": {"title":"Users & permissions","note":"Platform accounts, roles and individual permissions with real controls","tabs":{"users":"Users","roles":"Roles"},"searchPlaceholder":"Search by name or email...","createRole":"New role","editRole":"Edit role","total":"Total","emptyUsers":"No matching users","emptyRoles":"No roles yet","permissionCount":"Permission count","allCount":"All available permissions","permissions":"Permissions","editPermissions":"Edit user permissions","roles":{"member":"Member","admin":"Admin"},"table":{"name":"Name","email":"Email","role":"Role","joined":"Joined","actions":"Actions"},"fields":{"roleName":"Role name","roleDescription":"Description"}},
       "media": {"title":"Media","note":"Images actually used in posts and local uploads","total":"Total","fromPosts":"From posts","fromUploads":"Uploads","upload":"Upload image","uploadHint":"Uploading creates a temporary image link and does not add it to the platform library. Copy the link and use it where needed.","empty":"No images yet","uploadResult":"Upload result","copyHint":"This is a temporary data link - copy it before closing the dialog","copy":"Copy link","copied":"Copied"}
@@ -2881,6 +2962,8 @@
     "breadcrumbFacebookSync": "Facebook sync"
   ,
     "breadcrumbSettings": "Account settings"
+  ,
+    "breadcrumbDocumentsGenerator": "Official documents"
   ,
     "breadcrumbMobileControl": "App control"
   ,

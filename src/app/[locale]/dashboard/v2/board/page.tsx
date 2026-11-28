@@ -197,6 +197,7 @@ export default function V2BoardPage() {
             <table className="w-full min-w-[760px] border-collapse text-sm">
               <thead>
                 <tr className="border-b border-[#e6ddc9] text-[11px] font-black text-[#9aa399]">
+                  <th className="py-2.5 text-right">{tp("table.photo")}</th>
                   <th className="py-2.5 text-right">{tp("table.name")}</th>
                   <th className="py-2.5 text-right">{tp("table.title")}</th>
                   <th className="py-2.5 text-right">{tp("table.role")}</th>
@@ -208,6 +209,20 @@ export default function V2BoardPage() {
               <tbody>
                 {members.map((member) => (
                   <tr key={member.id} className="border-b border-[#f0ead9]">
+                    <td className="py-3.5">
+                      {member.image ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={member.image}
+                          alt=""
+                          className="h-10 w-10 rounded-full border border-[#e6ddc9] object-cover"
+                        />
+                      ) : (
+                        <span className="flex h-10 w-10 items-center justify-center rounded-full border border-dashed border-[#e6ddc9] text-[11px] text-[#9aa399]">
+                          —
+                        </span>
+                      )}
+                    </td>
                     <td className="py-3.5 font-bold text-[#203026]">
                       {locale === "ar" ? member.nameAr || member.nameEn : member.nameEn || member.nameAr}
                     </td>

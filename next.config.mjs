@@ -98,6 +98,7 @@ const nextConfig = {
       "": "/dashboard/v2",
       ads: "/dashboard/v2/ads",
       board: "/dashboard/v2/board",
+      "documents-generator": "/dashboard/v2/documents-generator",
       comments: "/dashboard/v2/comments",
       donations: "/dashboard/v2/finance",
       events: "/dashboard/v2/events",
@@ -121,9 +122,8 @@ const nextConfig = {
       tasks: "/dashboard/v2/tasks",
       users: "/dashboard/v2/users",
       volunteers: "/dashboard/v2/volunteers",
-      // أقسام الذكاء الاصطناعي لا تظهر في الواجهة الجديدة إطلاقاً.
+      // قسم الذكاء الاصطناعي لا يظهر في الواجهة الجديدة إطلاقاً.
       ai: "/dashboard/v2",
-      "documents-generator": "/dashboard/v2",
     };
 
     return Object.entries(legacyDashboardTargets).flatMap(([legacy, destination]) => {

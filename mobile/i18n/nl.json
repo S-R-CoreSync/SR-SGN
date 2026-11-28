@@ -1415,7 +1415,8 @@
     ,
       "facebookSync": "Facebook-synchronisatie"
     ,
-      "mobileControl": "App-beheer"
+      "mobileControl": "App-beheer",
+      "documentsGenerator": "Officiële Documenten & Papierwerk"
     },
     "tasksTitle": "Vraagt uw aandacht",
     "tasksNote": "Echte items uit platformgegevens, gesorteerd op belangrijkheid",
@@ -1696,7 +1697,87 @@
         }
       }
     ,
-      "board": {"title":"Bestuursleden","note":"Bestuursleden, uitnodigingen en gekoppelde accounts uit echte platformgegevens","total":"Totaal","linked":"Gekoppelde accounts","invited":"Uitgenodigd","inviteSent":"Uitnodiging verzonden","inviteFailed":"Uitnodiging kon niet worden verzonden - controleer het adres en de rechten","inviteHint":"Uitnodigingen gaan per e-mail en worden alleen na een geslaagde verzending vastgelegd","createTitle":"Nieuw lid","editTitle":"Lid bewerken","invite":"Uitnodiging versturen","empty":"Nog geen bestuursleden","table":{"name":"Naam","title":"Functie","role":"Rol","contact":"Contact","invited":"Uitgenodigd op","actions":"Acties"},"roles":{"admin":"Beheerder","moderator":"Moderator","contributor":"Bijdrager","member":"Lid"},"fields":{"nameAr":"Arabische naam","nameEn":"Engelse naam","titleAr":"Arabische functie","titleEn":"Engelse functie","email":"E-mailadres","phone":"Telefoonnummer","role":"Rol","website":"Website","image":"Afbeeldings-URL"}},
+      "documents-generator": {
+        "title": "Officiële documentengenerator",
+        "note": "Documenten op basis van echte leden en vrijwilligers - zonder automatische tekstgeneratie",
+        "templateLabel": "Documenttype",
+        "categoryLabel": "Documentcategorie",
+        "templateHelp": "Bewerkbare juridische artikelen zijn beschikbaar voor de vrijwilligersovereenkomst. De overige sjablonen maken een formele brief met uw eigen onderwerp.",
+        "templateCategory": {
+          "volunteer": "Vrijwilligerswerk",
+          "membership": "Lidmaatschap",
+          "board": "Bestuur",
+          "statements": "Verklaringen"
+        },
+        "templateTitles": {
+          "volunteerAgreement": "Vrijwilligersovereenkomst conform Nederlandse Wetgeving",
+          "membershipApplication": "Aanvraagformulier Lidmaatschap en Verklaring",
+          "confidentialityAvg": "Geheimhoudingsverklaring en Privacybeleid (AVG/GDPR)",
+          "boardResolution": "Officieel Bestuursbesluit van het Bestuur",
+          "volunteerCertificate": "Vrijwilligerscertificaat en Participatieverklaring",
+          "membershipStatement": "Officiële Lidmaatschapsverklaring voor Instanties",
+          "officialAuthorization": "Officiële Machtiging en Vertegenwoordiging",
+          "boardMinutes": "Notulen van de Bestuursvergadering"
+        },
+        "subjectLabel": "Onderwerp van het document",
+        "subjectPlaceholder": "Vul het onderwerp in",
+        "notesLabel": "Aanvullende notities",
+        "notesPlaceholder": "Eventuele details die u wilt toevoegen",
+        "langLabel": "Taal van het document",
+        "langNl": "Nederlands",
+        "langAr": "Arabisch",
+        "langBilingual": "Twee talen (Arabisch/Nederlands)",
+        "langHint": "De tweetalige modus is alleen beschikbaar in de Arabische sectie.",
+        "firstParty": "Eerste partij (SGN)",
+        "secondParty": "Tweede partij",
+        "signatoryLabel": "Ondertekenaar namens SGN",
+        "signatoryPlaceholder": "Kies een bestuurslid",
+        "partyPlaceholder": "Kies een lid of vrijwilliger",
+        "partySearch": "Zoek op naam of e-mail...",
+        "sourceMember": "Lid",
+        "sourceVolunteer": "Vrijwilliger",
+        "noParties": "Geen overeenkomende leden of vrijwilligers",
+        "loadError": "Gegevens konden niet worden geladen",
+        "fieldsHeading": "Gegevens tweede partij",
+        "nameLabel": "Naam",
+        "addressLabel": "Adres",
+        "cityLabel": "Plaats",
+        "emailLabel": "E-mail",
+        "phoneLabel": "Telefoon",
+        "refLabel": "Documentnummer",
+        "dateLabel": "Uitgavedatum",
+        "cityIssueLabel": "Plaats van uitgave",
+        "sealLabel": "SGN-stempel toevoegen",
+        "qrLabel": "Documentreferentie toevoegen",
+        "articlesHeading": "Overeenkomstartikelen (bewerkbaar)",
+        "addArticle": "Artikel toevoegen",
+        "resetArticles": "Oorspronkelijke artikelen herstellen",
+        "deleteArticle": "Artikel verwijderen",
+        "newArticleTitle": "Nieuw artikel",
+        "newArticleBody": "Artikeltekst",
+        "previewTitle": "Documentvoorbeeld",
+        "previewNote": "Het voorbeeld volgt de gekozen documenttaal; afdrukken gebruikt dezelfde inhoud.",
+        "docTitle": "Vrijwilligersovereenkomst",
+        "docGenericTitle": "Officieel document",
+        "preamble": "Na kennisname van de gegevens van beide partijen hieronder, komen de partijen het volgende overeen:",
+        "declaration": "Ik bevestig dat de verstrekte gegevens juist zijn.",
+        "signatureFirst": "Handtekening vertegenwoordiger SGN",
+        "signatureSecond": "Handtekening tweede partij",
+        "print": "Afdrukken / opslaan als PDF",
+        "signSaved": "Handtekening toegevoegd aan het document",
+        "qrNote": "Documentreferentie",
+        "emptySelection": "Kies eerst de ondertekenaar en de tweede partij",
+        "departmentLabel": "Afdeling",
+        "hoursLabel": "Uren per week",
+        "departments": {
+          "media": "Media & Communicatie",
+          "ict": "ICT",
+          "events": "Evenementen",
+          "projects": "Projecten",
+          "other": "Overig"
+        }
+      },
+      "board": {"title":"Bestuursleden","note":"Bestuursleden, uitnodigingen en gekoppelde accounts uit echte platformgegevens","total":"Totaal","linked":"Gekoppelde accounts","invited":"Uitgenodigd","inviteSent":"Uitnodiging verzonden","inviteFailed":"Uitnodiging kon niet worden verzonden - controleer het adres en de rechten","inviteHint":"Uitnodigingen gaan per e-mail en worden alleen na een geslaagde verzending vastgelegd","createTitle":"Nieuw lid","editTitle":"Lid bewerken","invite":"Uitnodiging versturen","empty":"Nog geen bestuursleden","table":{"photo":"Foto","name":"Naam","title":"Functie","role":"Rol","contact":"Contact","invited":"Uitgenodigd op","actions":"Acties"},"roles":{"admin":"Beheerder","moderator":"Moderator","contributor":"Bijdrager","member":"Lid"},"fields":{"nameAr":"Arabische naam","nameEn":"Engelse naam","titleAr":"Arabische functie","titleEn":"Engelse functie","email":"E-mailadres","phone":"Telefoonnummer","role":"Rol","website":"Website","image":"Afbeeldings-URL"}},
       "comments": {"title":"Reacties","note":"Reacties van de gemeenschap beoordelen en goedkeuren met echte gegevens","total":"Totaal","pending":"Wachten op goedkeuring","searchPlaceholder":"Zoeken op auteur of tekst...","empty":"Nog geen reacties","approved":"Goedgekeurd","waiting":"In afwachting","approve":"Goedkeuren","unapprove":"Goedkeuring intrekken","replies":"Antwoorden"},
       "users": {"title":"Gebruikers en rechten","note":"Accounts, rollen en individuele rechten met echte bediening","tabs":{"users":"Gebruikers","roles":"Rollen"},"searchPlaceholder":"Zoeken op naam of e-mail...","createRole":"Nieuwe rol","editRole":"Rol bewerken","total":"Totaal","emptyUsers":"Geen overeenkomende gebruikers","emptyRoles":"Nog geen rollen","permissionCount":"Aantal rechten","allCount":"Alle beschikbare rechten","permissions":"Rechten","editPermissions":"Gebruikersrechten bewerken","roles":{"member":"Lid","admin":"Beheerder"},"table":{"name":"Naam","email":"E-mail","role":"Rol","joined":"Geregistreerd","actions":"Acties"},"fields":{"roleName":"Rolnaam","roleDescription":"Beschrijving"}},
       "media": {"title":"Media","note":"Afbeeldingen die echt in artikelen en lokale uploads worden gebruikt","total":"Totaal","fromPosts":"Uit artikelen","fromUploads":"Uploads","upload":"Afbeelding uploaden","uploadHint":"Uploaden maakt een tijdelijke link en voegt de afbeelding niet toe aan de bibliotheek. Kopieer de link en gebruik die waar nodig.","empty":"Nog geen afbeeldingen","uploadResult":"Uploadresultaat","copyHint":"Dit is een tijdelijke datalink - kopieer die voordat u het venster sluit","copy":"Link kopieren","copied":"Gekopieerd"}
@@ -1928,6 +2009,8 @@
     "breadcrumbFacebookSync": "Facebook-synchronisatie"
   ,
     "breadcrumbSettings": "Accountinstellingen"
+  ,
+    "breadcrumbDocumentsGenerator": "Officiële documenten"
   ,
     "breadcrumbMobileControl": "App-beheer"
   ,

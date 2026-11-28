@@ -9,7 +9,7 @@ import { formatLocalizedDigits } from "@/lib/language-guard";
 import {
   BarChart3, Calendar, CheckSquare, ClipboardList, Database, Facebook, FileText, House,
   Folder, Heart, Image as ImageIcon, Landmark, LayoutDashboard, Mail, MessageSquare,
-  MousePointerClick, ScrollText, Search, Shield, SlidersHorizontal, Smartphone, UserCog, Users,
+  MousePointerClick, Printer, ScrollText, Search, Shield, SlidersHorizontal, Smartphone, UserCog, Users,
   Wallet, X,
 } from "lucide-react";
 
@@ -44,6 +44,7 @@ const groups: { key: string; items: NavItem[] }[] = [
       { key: "regulations", href: "/dashboard/v2/regulations", icon: ScrollText },
       { key: "vault", href: "/dashboard/v2/vault", icon: Folder },
       { key: "membershipSettings", href: "/dashboard/v2/membership-settings", icon: SlidersHorizontal },
+      { key: "documentsGenerator", href: "/dashboard/v2/documents-generator", icon: Printer },
       { key: "facebookSync", href: "/dashboard/v2/facebook-sync", icon: Facebook },
     ],
   },

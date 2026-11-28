@@ -1415,7 +1415,8 @@
     ,
       "facebookSync": "مزامنة فيسبوك"
     ,
-      "mobileControl": "تحكم التطبيق"
+      "mobileControl": "تحكم التطبيق",
+      "documentsGenerator": "الورقيات والنماذج الرسمية"
     },
     "tasksTitle": "يحتاج انتباهك",
     "tasksNote": "أمور حقيقية من بيانات المنصة، مرتبة حسب الأهمية",
@@ -1696,7 +1697,87 @@
         }
       }
     ,
-      "board": {"title":"مجلس الإدارة","note":"أعضاء المجلس وسجل دعواتهم وربط حساباتهم — بيانات فعلية من المنصة","total":"الإجمالي","linked":"حسابات مربوطة","invited":"مدعوون","inviteSent":"أُرسلت الدعوة بنجاح","inviteFailed":"تعذّر إرسال الدعوة — تحقق من البريد والصلاحيات","inviteHint":"الدعوة تُرسل بالبريد وتُسجّل بعد نجاح الإرسال فقط","createTitle":"عضو جديد","editTitle":"تعديل العضو","invite":"إرسال دعوة","empty":"لا يوجد أعضاء حالياً","table":{"name":"الاسم","title":"المنصب","role":"الدور","contact":"وسيلة التواصل","invited":"تاريخ الدعوة","actions":"إجراءات"},"roles":{"admin":"مدير","moderator":"مشرف","contributor":"مساهم","member":"عضو"},"fields":{"nameAr":"الاسم بالعربية","nameEn":"الاسم بالإنجليزية","titleAr":"المنصب بالعربية","titleEn":"المنصب بالإنجليزية","email":"البريد الإلكتروني","phone":"الجوال","role":"الدور","website":"الموقع","image":"رابط الصورة"}},
+      "documents-generator": {
+        "title": "توليد الورقيات الرسمية",
+        "note": "وثائق تُبنى من أعضاء ومتطوعي المنصة الحقيقيين — دون أي توليد آلي للنصوص",
+        "templateLabel": "نوع الوثيقة",
+        "categoryLabel": "تصنيف الوثيقة",
+        "templateHelp": "البنود القانونية القابلة للتعديل متوفرة في اتفاقية التطوع. بقية القوالب تُجهّز كرسائل رسمية بالموضوع الذي تدخله.",
+        "templateCategory": {
+          "volunteer": "عمل تطوعي",
+          "membership": "عضوية",
+          "board": "مجلس الإدارة",
+          "statements": "شهادات وإفادات"
+        },
+        "templateTitles": {
+          "volunteerAgreement": "اتفاقية تطوع رسمية وفق القانون الهولندي",
+          "membershipApplication": "استمارة وطلب انتساب رسمي للجالية",
+          "confidentialityAvg": "تعهد سرية وحماية البيانات الشخصية (AVG)",
+          "boardResolution": "قرار مجلس إدارة رسمي وموثق",
+          "volunteerCertificate": "شهادة إثبات ساعات وخبرة عمل تطوعي",
+          "membershipStatement": "إفادة عضوية رسمية موجهة للدوائر الرسمية",
+          "officialAuthorization": "كتاب تفويض وتمثيل إداري وقانوني",
+          "boardMinutes": "محضر اجتماع مجلس الإدارة الرسمي"
+        },
+        "subjectLabel": "موضوع الوثيقة",
+        "subjectPlaceholder": "اكتب موضوع الوثيقة",
+        "notesLabel": "ملاحظات إضافية",
+        "notesPlaceholder": "أي تفاصيل تود إضافتها للوثيقة",
+        "langLabel": "لغة الوثيقة",
+        "langNl": "الهولندية",
+        "langAr": "العربية",
+        "langBilingual": "ثنائية (عربي/هولندي)",
+        "langHint": "الخيار الثنائي متاح في القسم العربي فقط.",
+        "firstParty": "الطرف الأول (الجالية)",
+        "secondParty": "الطرف الثاني",
+        "signatoryLabel": "الموقّع عن الجالية",
+        "signatoryPlaceholder": "اختر من أعضاء المجلس",
+        "partyPlaceholder": "اختر عضواً أو متطوعاً",
+        "partySearch": "ابحث بالاسم أو البريد...",
+        "sourceMember": "عضو",
+        "sourceVolunteer": "متطوع",
+        "noParties": "لا توجد بيانات أعضاء أو متطوعين مطابقة",
+        "loadError": "تعذّر تحميل بيانات المنصة",
+        "fieldsHeading": "بيانات الطرف الثاني",
+        "nameLabel": "الاسم",
+        "addressLabel": "العنوان",
+        "cityLabel": "المدينة",
+        "emailLabel": "البريد",
+        "phoneLabel": "الجوال",
+        "refLabel": "رقم الوثيقة",
+        "dateLabel": "تاريخ الإصدار",
+        "cityIssueLabel": "مكان الإصدار",
+        "sealLabel": "إضافة ختم الجالية",
+        "qrLabel": "إضافة مرجع الوثيقة",
+        "articlesHeading": "بنود الاتفاقية (قابلة للتعديل)",
+        "addArticle": "إضافة بند",
+        "resetArticles": "استعادة البنود الأصلية",
+        "deleteArticle": "حذف البند",
+        "newArticleTitle": "بند جديد",
+        "newArticleBody": "نص البند",
+        "previewTitle": "معاينة الوثيقة",
+        "previewNote": "المعاينة بلغة الوثيقة المختارة، والطباعة تستخدم المحتوى نفسه.",
+        "docTitle": "اتفاقية عمل تطوعي",
+        "docGenericTitle": "وثيقة رسمية",
+        "preamble": "بعد الاطلاع على بيانات الطرفين أدناه، يتفق الطرفان على ما يلي:",
+        "declaration": "أقرّ بأن البيانات المذكورة صحيحة.",
+        "signatureFirst": "توقيع ممثل الجالية",
+        "signatureSecond": "توقيع الطرف الثاني",
+        "print": "طباعة / حفظ PDF",
+        "signSaved": "تم إدراج التوقيع في الوثيقة",
+        "qrNote": "مرجع الوثيقة",
+        "emptySelection": "اختر الموقّع والطرف الثاني أولاً",
+        "departmentLabel": "القسم",
+        "hoursLabel": "الساعات الأسبوعية",
+        "departments": {
+          "media": "الإعلام والتواصل",
+          "ict": "تقنية المعلومات",
+          "events": "الفعاليات",
+          "projects": "المشاريع",
+          "other": "أخرى"
+        }
+      },
+      "board": {"title":"مجلس الإدارة","note":"أعضاء المجلس وسجل دعواتهم وربط حساباتهم — بيانات فعلية من المنصة","total":"الإجمالي","linked":"حسابات مربوطة","invited":"مدعوون","inviteSent":"أُرسلت الدعوة بنجاح","inviteFailed":"تعذّر إرسال الدعوة — تحقق من البريد والصلاحيات","inviteHint":"الدعوة تُرسل بالبريد وتُسجّل بعد نجاح الإرسال فقط","createTitle":"عضو جديد","editTitle":"تعديل العضو","invite":"إرسال دعوة","empty":"لا يوجد أعضاء حالياً","table":{"photo":"الصورة","name":"الاسم","title":"المنصب","role":"الدور","contact":"وسيلة التواصل","invited":"تاريخ الدعوة","actions":"إجراءات"},"roles":{"admin":"مدير","moderator":"مشرف","contributor":"مساهم","member":"عضو"},"fields":{"nameAr":"الاسم بالعربية","nameEn":"الاسم بالإنجليزية","titleAr":"المنصب بالعربية","titleEn":"المنصب بالإنجليزية","email":"البريد الإلكتروني","phone":"الجوال","role":"الدور","website":"الموقع","image":"رابط الصورة"}},
       "comments": {"title":"التعليقات","note":"مراجعة تعليقات الجالية واعتمادها من بيانات المنصة مباشرة","total":"الإجمالي","pending":"بانتظار الاعتماد","searchPlaceholder":"ابحث بالكاتب أو النص...","empty":"لا توجد تعليقات حالياً","approved":"معتمد","waiting":"بانتظار","approve":"اعتماد","unapprove":"إلغاء الاعتماد","replies":"ردود"},
       "users": {"title":"المستخدمون والصلاحيات","note":"حسابات المنصة والأدوار والصلاحيات الفردية — تحكم كامل بالبيانات الحقيقية","tabs":{"users":"المستخدمون","roles":"الأدوار"},"searchPlaceholder":"ابحث بالاسم أو البريد...","createRole":"دور جديد","editRole":"تعديل الدور","total":"الإجمالي","emptyUsers":"لا يوجد مستخدمون مطابقون","emptyRoles":"لا توجد أدوار حالياً","permissionCount":"عدد الصلاحيات","allCount":"كل الصلاحيات المتاحة","permissions":"الصلاحيات","editPermissions":"تحرير صلاحيات المستخدم","roles":{"member":"عضو","admin":"مدير"},"table":{"name":"الاسم","email":"البريد","role":"الدور","joined":"تاريخ التسجيل","actions":"إجراءات"},"fields":{"roleName":"اسم الدور","roleDescription":"الوصف"}},
       "media": {"title":"الوسائط","note":"الصور المستخدمة فعلياً في المقالات والمرفوعات المحلية","total":"الإجمالي","fromPosts":"من المقالات","fromUploads":"مرفوعات","upload":"رفع صورة","uploadHint":"الرفع ينشئ رابطاً مؤقتاً للصورة ولا يضيفها إلى مكتبة المنصة؛ انسخ الرابط واستخدمه حيث تحتاجه.","empty":"لا توجد صور حالياً","uploadResult":"نتيجة الرفع","copyHint":"هذا رابط بيانات مؤقت — انسخه قبل إغلاق النافذة","copy":"نسخ الرابط","copied":"تم النسخ"}
@@ -1928,6 +2009,8 @@
     "breadcrumbFacebookSync": "مزامنة فيسبوك"
   ,
     "breadcrumbSettings": "إعدادات الحساب"
+  ,
+    "breadcrumbDocumentsGenerator": "الورقيات والنماذج الرسمية"
   ,
     "breadcrumbMobileControl": "تحكم التطبيق"
   ,
