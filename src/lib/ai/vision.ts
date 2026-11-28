@@ -104,17 +104,20 @@ async function tryAnthropic(text: string, mimeType: string, data: string, system
   return readJson(res, (body) => body?.content?.[0]?.text);
 }
 
+export type VisionProviderName = "openai" | "gemini" | "anthropic" | "ollama";
+
 /** يُرجع نص JSON من مزوّد رؤية متاح. يرمي استثناءً فقط إذا فشل الجميع. */
 export async function generateVisionJson(
   parts: VisionPart[],
   systemPrompt?: string,
+  onAttempt?: (provider: VisionProviderName, ok: boolean) => void,
 ): Promise<string> {
   const text = parts.filter((part): part is { text: string } => "text" in part).map((part) => part.text).join("\n");
   const image = parts.find((part): part is { inlineData: { mimeType: string; data: string } } => "inlineData" in part);
   if (!image) throw new Error("image_required");
   const { mimeType, data } = image.inlineData;
 
-  const attempts: [string, () => Promise<string>][] = [
+  const attempts: [VisionProviderName, () => Promise<string>][] = [
     ["openai", () => tryOpenAI(text, mimeType, data)],
     ["gemini", () => tryGemini(text, mimeType, data, systemPrompt || "")],
     ["anthropic", () => tryAnthropic(text, mimeType, data, systemPrompt || "")],
@@ -123,8 +126,11 @@ export async function generateVisionJson(
 
   for (const [name, run] of attempts) {
     try {
-      return await run();
+      const result = await run();
+      onAttempt?.(name, true);
+      return result;
     } catch (error) {
+      onAttempt?.(name, false);
       logger.warn("AI/vision", `${name} vision attempt failed`, error instanceof Error ? error.message : "unknown");
     }
   }
