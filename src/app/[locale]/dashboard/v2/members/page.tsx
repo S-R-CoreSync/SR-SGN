@@ -1,13 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { formatLocalizedDigits, hasArabicCharacters, isPureLocaleText } from "@/lib/language-guard";
 import { V2Shell } from "@/components/dashboard/v2-shell";
 import { V2Intro, V2Message, V2Panel, V2Pill } from "@/components/dashboard/v2-ui";
-import { V2Dialog, V2Field, V2IconButton, v2Api, v2InputClass } from "@/components/dashboard/v2-form";
+import { V2Dialog, V2Field, V2FormActions, V2FormError, V2IconButton, v2Api, v2InputClass } from "@/components/dashboard/v2-form";
 import {
-  Check, ChevronLeft, ChevronRight, Download, History, Mail, RefreshCw, Search, Shield, Upload, X,
+  Check, ChevronLeft, ChevronRight, Download, History, Mail, Pencil, RefreshCw, Search, Shield, Upload, X,
 } from "lucide-react";
 
 const PAGE_SIZE = 50;
@@ -28,6 +28,15 @@ type Member = {
 };
 
 type IdentityReview = { outcome: string; confidence: string; reason: string };
+
+type MemberEdit = {
+  nameAr: string;
+  nameNl: string;
+  email: string;
+  whatsapp: string;
+  originCity: string;
+  nlCity: string;
+};
 
 type MembersResponse = { members: Member[]; total: number };
 
@@ -75,6 +84,13 @@ export default function V2MembersPage() {
   const [identityBusy, setIdentityBusy] = useState(false);
   const [identityError, setIdentityError] = useState("");
   const [identityDecided, setIdentityDecided] = useState("");
+  const [editingMember, setEditingMember] = useState<Member | null>(null);
+  const [editForm, setEditForm] = useState<MemberEdit>({
+    nameAr: "", nameNl: "", email: "", whatsapp: "", originCity: "", nlCity: "",
+  });
+  const [editBusy, setEditBusy] = useState(false);
+  const [editError, setEditError] = useState("");
+  const [editDone, setEditDone] = useState("");
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -258,6 +274,53 @@ export default function V2MembersPage() {
       setIdentityError(e instanceof Error ? e.message : t("error"));
     } finally {
       setIdentityBusy(false);
+    }
+  }
+
+  function openEditMember(member: Member) {
+    setEditForm({
+      nameAr: member.nameAr || "",
+      nameNl: member.nameNl || "",
+      email: member.email || "",
+      whatsapp: member.whatsapp || "",
+      originCity: member.originCity || "",
+      nlCity: member.nlCity || "",
+    });
+    setEditError("");
+    setEditDone("");
+    setEditingMember(member);
+  }
+
+  async function saveMember(event: FormEvent) {
+    event.preventDefault();
+    if (!editingMember) return;
+    setEditBusy(true);
+    setEditError("");
+    const payload: Record<string, string> = {
+      email: editForm.email.trim(),
+      whatsapp: editForm.whatsapp.trim(),
+    };
+    // حقل الاسم/المدينة الموافق للغة فقط — منع ظهور نص عربي في /en و/nl.
+    if (locale === "ar") {
+      payload.nameAr = editForm.nameAr.trim();
+      payload.originCity = editForm.originCity.trim();
+    } else {
+      payload.nameNl = editForm.nameNl.trim();
+      payload.nlCity = editForm.nlCity.trim();
+    }
+    try {
+      await v2Api(`/api/members/${encodeURIComponent(editingMember.id)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      setEditDone(tp("editDone"));
+      setEditingMember(null);
+      await load();
+    } catch (e) {
+      setEditError(e instanceof Error ? e.message : t("error"));
+    } finally {
+      setEditBusy(false);
     }
   }
 
@@ -452,6 +515,13 @@ export default function V2MembersPage() {
                         </td>
                         <td className="py-3.5">
                           <div className="flex items-center gap-1.5">
+                            <V2IconButton
+                              label={tp("edit")}
+                              onClick={() => openEditMember(member)}
+                              disabled={busy}
+                            >
+                              <Pencil size={13} />
+                            </V2IconButton>
                             {member.encryptedIdCard && (
                               <button
                                 type="button"
@@ -695,6 +765,59 @@ export default function V2MembersPage() {
               {t("close")}
             </button>
           </div>
+        </V2Dialog>
+      )}
+
+      {editDone && (
+        <p className="mt-4 rounded-xl border border-[#d8e6d9] bg-[#f1f8f1] px-3 py-2 text-xs font-bold text-[#1a5632]">
+          {isPureLocaleText(editDone, locale) ? editDone : t("error")}
+        </p>
+      )}
+
+      {editingMember && (
+        <V2Dialog title={tp("edit")} closeLabel={t("close")} onClose={() => setEditingMember(null)}>
+          <p className="mb-4 text-xs leading-relaxed text-[#8a958b]">{tp("editNote")}</p>
+          <form onSubmit={(event) => void saveMember(event)}>
+            {editError && (
+              <V2FormError text={isPureLocaleText(editError, locale) ? editError : t("error")} />
+            )}
+            <V2Field label={locale === "ar" ? tp("fields.nameAr") : tp("fields.nameNl")}>
+              <input
+                dir={locale === "ar" ? "rtl" : "ltr"}
+                value={locale === "ar" ? editForm.nameAr : editForm.nameNl}
+                onChange={(e) =>
+                  setEditForm((prev) =>
+                    locale === "ar" ? { ...prev, nameAr: e.target.value } : { ...prev, nameNl: e.target.value },
+                  )
+                }
+                className={v2InputClass}
+              />
+            </V2Field>
+            <V2Field label={tp("fields.email")}>
+              <input type="email" dir="ltr" value={editForm.email} onChange={(e) => setEditForm((prev) => ({ ...prev, email: e.target.value }))} className={v2InputClass} />
+            </V2Field>
+            <V2Field label={tp("fields.whatsapp")}>
+              <input dir="ltr" value={editForm.whatsapp} onChange={(e) => setEditForm((prev) => ({ ...prev, whatsapp: e.target.value }))} className={v2InputClass} />
+            </V2Field>
+            <V2Field label={locale === "ar" ? tp("fields.originCity") : tp("fields.nlCity")}>
+              <input
+                dir={locale === "ar" ? "rtl" : "ltr"}
+                value={locale === "ar" ? editForm.originCity : editForm.nlCity}
+                onChange={(e) =>
+                  setEditForm((prev) =>
+                    locale === "ar" ? { ...prev, originCity: e.target.value } : { ...prev, nlCity: e.target.value },
+                  )
+                }
+                className={v2InputClass}
+              />
+            </V2Field>
+            <V2FormActions
+              saveLabel={t("save")}
+              cancelLabel={t("cancel")}
+              busy={editBusy}
+              onCancel={() => setEditingMember(null)}
+            />
+          </form>
         </V2Dialog>
       )}
     </V2Shell>

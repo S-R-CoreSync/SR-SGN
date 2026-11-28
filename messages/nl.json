@@ -2494,7 +2494,18 @@
         "identityConfirm": "Goedkeuring vastleggen",
         "identityReject": "Afwijzing vastleggen",
         "identityDecided": "Je beslissing is vastgelegd. De status van het lid is niet gewijzigd.",
-        "identityDecisionPending": "Wacht op het advies voordat je een beslissing vastlegt."
+        "identityDecisionPending": "Wacht op het advies voordat je een beslissing vastlegt.",
+        "edit": "Lid bewerken",
+        "editNote": "Bewerk de opgeslagen gegevens van het lid. De status van het lid verandert niet.",
+        "editDone": "Gegevens van het lid opgeslagen.",
+        "fields": {
+          "nameAr": "Arabische naam",
+          "nameNl": "Latijnse naam",
+          "email": "E-mail",
+          "whatsapp": "Telefoonnummer",
+          "originCity": "Stad van herkomst",
+          "nlCity": "Woonplaats in Nederland"
+        }
       },
       "tasks": {
         "title": "Taken",
@@ -2549,7 +2560,10 @@
           "spam": "Spam",
           "other": "Overig"
         },
-        "aiSuggest": "AI-beoordeling"
+        "aiSuggest": "AI-beoordeling",
+        "replyByEmail": "Antwoorden per e-mail",
+        "replySubject": "Re: je bericht",
+        "replyGreeting": "Hallo, bedankt voor je bericht."
       },
       "system": {
         "title": "Systeemstatus",
@@ -2894,7 +2908,12 @@
           "spam": "Spam",
           "other": "Overig"
         },
-        "aiSuggest": "AI-beoordeling"
+        "aiSuggest": "AI-beoordeling",
+        "reply": "Antwoord",
+        "replyTitle": "Antwoord beheerder",
+        "replyNote": "Het antwoord wordt direct onder jouw naam op het artikel geplaatst. Controleer de tekst vóór verzenden.",
+        "replyPlaceholder": "Schrijf een antwoord...",
+        "replySaved": "Antwoord geplaatst."
       },
       "users": {
         "title": "Gebruikers en rechten",

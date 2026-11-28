@@ -1,12 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { formatLocalizedDigits, isPureLocaleText } from "@/lib/language-guard";
 import { V2Shell } from "@/components/dashboard/v2-shell";
 import { V2Intro, V2Message, V2Panel, V2Pill } from "@/components/dashboard/v2-ui";
-import { V2IconButton, v2Api } from "@/components/dashboard/v2-form";
-import { Check, Copy, RefreshCw, Search, Sparkles, Trash2, X } from "lucide-react";
+import { V2Dialog, V2Field, V2FormActions, V2FormError, V2IconButton, v2Api, v2InputClass } from "@/components/dashboard/v2-form";
+import { Check, Copy, MessageSquare, RefreshCw, Search, Sparkles, Trash2, X } from "lucide-react";
 
 type Comment = {
   id: string;
@@ -37,6 +37,11 @@ export default function V2CommentsPage() {
   const [reviewBusy, setReviewBusy] = useState(false);
   const [reviewError, setReviewError] = useState("");
   const [copied, setCopied] = useState(false);
+  const [replyFor, setReplyFor] = useState<Comment | null>(null);
+  const [replyText, setReplyText] = useState("");
+  const [replyBusy, setReplyBusy] = useState(false);
+  const [replyError, setReplyError] = useState("");
+  const [replyDone, setReplyDone] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -125,6 +130,34 @@ export default function V2CommentsPage() {
     }
   }
 
+  function openReply(item: Comment) {
+    setReplyFor(item);
+    setReplyText(reviewFor === item.id && review?.reply ? review.reply : "");
+    setReplyError("");
+    setReplyDone("");
+  }
+
+  async function sendReply(event: FormEvent) {
+    event.preventDefault();
+    if (!replyFor || !replyText.trim()) return;
+    setReplyBusy(true);
+    setReplyError("");
+    try {
+      await v2Api(`/api/comments/${encodeURIComponent(replyFor.id)}/reply`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: replyText.trim() }),
+      });
+      setReplyDone(tp("replySaved"));
+      setReplyFor(null);
+      await load();
+    } catch (e) {
+      setReplyError(e instanceof Error ? e.message : t("error"));
+    } finally {
+      setReplyBusy(false);
+    }
+  }
+
   const pending = comments.filter((item) => !item.approved).length;
 
   return (
@@ -186,6 +219,16 @@ export default function V2CommentsPage() {
                     <Sparkles size={13} className={reviewBusy && reviewFor === item.id ? "animate-pulse" : ""} />
                     {tp("aiSuggest")}
                   </button>
+                  <button
+                    type="button"
+                    title={tp("reply")}
+                    disabled={busy}
+                    onClick={() => openReply(item)}
+                    className="flex items-center gap-1.5 whitespace-nowrap rounded-xl border border-[#d8e6d9] bg-[#f1f8f1] px-3 py-2 text-[11px] font-black text-[#1a5632] shadow-sm hover:bg-[#e4f0e4] disabled:opacity-50"
+                  >
+                    <MessageSquare size={13} />
+                    {tp("reply")}
+                  </button>
                   <V2IconButton
                     label={item.approved ? tp("unapprove") : tp("approve")}
                     onClick={() => void setApproved(item, !item.approved)}
@@ -241,6 +284,39 @@ export default function V2CommentsPage() {
             </article>
           ))}
         </V2Panel>
+      )}
+
+      {replyDone && (
+        <p className="mt-4 rounded-xl border border-[#d8e6d9] bg-[#f1f8f1] px-3 py-2 text-xs font-bold text-[#1a5632]">
+          {isPureLocaleText(replyDone, locale) ? replyDone : t("error")}
+        </p>
+      )}
+
+      {replyFor && (
+        <V2Dialog title={tp("replyTitle")} closeLabel={t("close")} onClose={() => setReplyFor(null)}>
+          <p className="mb-4 text-xs leading-relaxed text-[#8a958b]">{tp("replyNote")}</p>
+          <form onSubmit={(event) => void sendReply(event)}>
+            {replyError && (
+              <V2FormError text={isPureLocaleText(replyError, locale) ? replyError : t("error")} />
+            )}
+            <V2Field label={tp("reply")}>
+              <textarea
+                rows={5}
+                dir={locale === "ar" ? "rtl" : "ltr"}
+                value={replyText}
+                onChange={(e) => setReplyText(e.target.value)}
+                placeholder={tp("replyPlaceholder")}
+                className={v2InputClass}
+              />
+            </V2Field>
+            <V2FormActions
+              saveLabel={t("save")}
+              cancelLabel={t("cancel")}
+              busy={replyBusy}
+              onCancel={() => setReplyFor(null)}
+            />
+          </form>
+        </V2Dialog>
       )}
     </V2Shell>
   );

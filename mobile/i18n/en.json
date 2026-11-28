@@ -1512,7 +1512,18 @@
         "identityConfirm": "Record approval",
         "identityReject": "Record rejection",
         "identityDecided": "Your decision was recorded. The member status did not change.",
-        "identityDecisionPending": "Wait for the suggestion before recording a decision."
+        "identityDecisionPending": "Wait for the suggestion before recording a decision.",
+        "edit": "Edit member",
+        "editNote": "Edit the saved details of the member. The member status does not change.",
+        "editDone": "Member details saved.",
+        "fields": {
+          "nameAr": "Arabic name",
+          "nameNl": "Latin name",
+          "email": "Email",
+          "whatsapp": "Phone number",
+          "originCity": "City of origin",
+          "nlCity": "City in the Netherlands"
+        }
       },
       "tasks": {
         "title": "Tasks",
@@ -1567,7 +1578,10 @@
           "spam": "Spam",
           "other": "Other"
         },
-        "aiSuggest": "AI review"
+        "aiSuggest": "AI review",
+        "replyByEmail": "Reply by email",
+        "replySubject": "Re: your message",
+        "replyGreeting": "Hello, thank you for contacting us."
       },
       "system": {
         "title": "System status",
@@ -1912,7 +1926,12 @@
           "spam": "Spam",
           "other": "Other"
         },
-        "aiSuggest": "AI review"
+        "aiSuggest": "AI review",
+        "reply": "Reply",
+        "replyTitle": "Moderator reply",
+        "replyNote": "The reply is published on the article under your name. Review the text before sending.",
+        "replyPlaceholder": "Write a reply...",
+        "replySaved": "Reply published."
       },
       "users": {
         "title": "Users & permissions",

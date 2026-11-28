@@ -6,7 +6,7 @@ import { formatLocalizedDigits, isPureLocaleText } from "@/lib/language-guard";
 import { V2Shell } from "@/components/dashboard/v2-shell";
 import { V2Intro, V2Message, V2Panel, V2Pill } from "@/components/dashboard/v2-ui";
 import { V2IconButton, v2Api } from "@/components/dashboard/v2-form";
-import { Check, Copy, RefreshCw, Sparkles, Trash2 } from "lucide-react";
+import { Check, Copy, Mail, RefreshCw, Sparkles, Trash2 } from "lucide-react";
 
 type Contact = {
   id: string;
@@ -118,6 +118,15 @@ export default function V2MessagesPage() {
     }
   }
 
+  function replyByEmail(item: Contact) {
+    if (!item.email) return;
+    const quoted = item.message
+      ? `\n\n---\n${item.subject || ""}\n${item.message}`.slice(0, 600)
+      : "";
+    const body = `${tp("replyGreeting")}${quoted}`;
+    window.location.href = `mailto:${encodeURIComponent(item.email)}?subject=${encodeURIComponent(tp("replySubject"))}&body=${encodeURIComponent(body)}`;
+  }
+
   const unread = messages.filter((item) => !item.read).length;
 
   return (
@@ -171,6 +180,17 @@ export default function V2MessagesPage() {
                     <Sparkles size={13} className={reviewBusy && reviewFor === item.id ? "animate-pulse" : ""} />
                     {tp("aiSuggest")}
                   </button>
+                  {item.email && (
+                    <button
+                      type="button"
+                      title={tp("replyByEmail")}
+                      onClick={() => replyByEmail(item)}
+                      className="flex items-center gap-1.5 whitespace-nowrap rounded-xl border border-[#d8e6d9] bg-[#f1f8f1] px-3 py-2 text-[11px] font-black text-[#1a5632] hover:bg-[#e4f0e4]"
+                    >
+                      <Mail size={13} />
+                      {tp("replyByEmail")}
+                    </button>
+                  )}
                   <V2IconButton label={t("delete")} onClick={() => void remove(item)} danger disabled={busy}>
                     <Trash2 size={13} />
                   </V2IconButton>
