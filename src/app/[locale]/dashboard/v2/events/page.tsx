@@ -9,7 +9,9 @@ import {
   V2Dialog, V2Field, V2FormActions, V2FormError, V2IconButton, V2PrimaryButton,
   v2Api, v2InputClass,
 } from "@/components/dashboard/v2-form";
-import { Calendar, MapPin, Pencil, Plus, RefreshCw, Trash2 } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, MapPin, Pencil, Plus, RefreshCw, Search, Trash2 } from "lucide-react";
+
+const PAGE_SIZE = 20;
 
 type EventItem = {
   id: string;
@@ -28,9 +30,14 @@ export default function V2EventsPage() {
   const t = useTranslations("dashboardV2");
   const tp = useTranslations("dashboardV2.pages.events");
   const locale = useLocale();
+  const isRtl = locale === "ar";
 
   const [events, setEvents] = useState<EventItem[]>([]);
+  const [total, setTotal] = useState(0);
   const [tab, setTab] = useState<"all" | "upcoming">("all");
+  const [query, setQuery] = useState("");
+  const [search, setSearch] = useState("");
+  const [offset, setOffset] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -38,18 +45,30 @@ export default function V2EventsPage() {
   const [form, setForm] = useState<FormState>(emptyForm);
   const [formError, setFormError] = useState("");
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearch(query.trim());
+      setOffset(0);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [query]);
+
   const load = useCallback(async () => {
     setLoading(true);
     setError(false);
     try {
-      const data = await v2Api<{ events?: EventItem[] }>("/api/events?limit=25");
+      const params = new URLSearchParams({ limit: String(PAGE_SIZE), offset: String(offset) });
+      if (tab === "upcoming") params.set("upcoming", "true");
+      if (search) params.set("search", search);
+      const data = await v2Api<{ events?: EventItem[]; total?: number }>(`/api/events?${params.toString()}`);
       setEvents(data.events ?? []);
+      setTotal(data.total ?? 0);
     } catch {
       setError(true);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [offset, tab, search]);
 
   useEffect(() => {
     void load();
@@ -139,9 +158,8 @@ export default function V2EventsPage() {
     }
   }
 
-  const visible = tab === "all"
-    ? events
-    : events.filter((item) => new Date(item.date).getTime() >= Date.now());
+  const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const page = Math.floor(offset / PAGE_SIZE) + 1;
 
   const formatDate = (value: string) =>
     formatLocalizedDigits(
@@ -154,12 +172,21 @@ export default function V2EventsPage() {
   return (
     <V2Shell active="/dashboard/v2/events" section={t("breadcrumbEvents")}>
       <V2Intro title={tp("title")} note={tp("note")}>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-2 rounded-xl border border-[#e6ddc9] bg-white px-3 py-2 shadow-sm">
+            <Search size={15} className="text-[#8a6a1f]" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={tp("searchPlaceholder")}
+              className="w-36 bg-transparent text-xs outline-none"
+            />
+          </div>
           <div className="flex rounded-xl border border-[#e6ddc9] bg-white p-1 shadow-sm">
             {(["all", "upcoming"] as const).map((key) => (
               <button
                 key={key}
-                onClick={() => setTab(key)}
+                onClick={() => { setTab(key); setOffset(0); }}
                 className={`rounded-lg px-3 py-1.5 text-[11px] font-black transition-colors ${
                   tab === key ? "bg-[#123b24] text-white" : "text-[#6f7a70] hover:bg-[#f5ecd6]"
                 }`}
@@ -186,11 +213,11 @@ export default function V2EventsPage() {
         <V2Message text={t("error")} error />
       ) : loading ? (
         <V2Message text={t("loading")} />
-      ) : visible.length === 0 ? (
+      ) : events.length === 0 ? (
         <V2Message text={tp("empty")} />
       ) : (
         <V2Panel className="divide-y divide-[#f0ead9]">
-          {visible.map((item) => {
+          {events.map((item) => {
             const isUpcoming = new Date(item.date).getTime() >= Date.now();
             return (
               <article key={item.id} className="py-5 first:pt-0 last:pb-0">
@@ -232,6 +259,37 @@ export default function V2EventsPage() {
           })}
         </V2Panel>
       )}
+
+      <div className="mt-5 flex items-center justify-between rounded-2xl border border-[#e6ddc9] bg-white px-5 py-3 shadow-sm">
+        <p className="text-[11px] font-bold text-[#8a958b]">
+          {tp("pageInfo", {
+            current: formatLocalizedDigits(page, locale),
+            total: formatLocalizedDigits(pageCount, locale),
+          })}
+        </p>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            disabled={offset === 0 || busy}
+            onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))}
+            title={tp("prevPage")}
+            aria-label={tp("prevPage")}
+            className="rounded-lg border border-[#e6ddc9] p-1.5 text-[#6f7a70] hover:bg-[#f5ecd6] disabled:opacity-40"
+          >
+            <ChevronLeft size={15} className={isRtl ? "rotate-180" : ""} />
+          </button>
+          <button
+            type="button"
+            disabled={page >= pageCount || busy}
+            onClick={() => setOffset(offset + PAGE_SIZE)}
+            title={tp("nextPage")}
+            aria-label={tp("nextPage")}
+            className="rounded-lg border border-[#e6ddc9] p-1.5 text-[#6f7a70] hover:bg-[#f5ecd6] disabled:opacity-40"
+          >
+            <ChevronRight size={15} className={isRtl ? "rotate-180" : ""} />
+          </button>
+        </div>
+      </div>
 
       {editing && (
         <V2Dialog
