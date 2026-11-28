@@ -1397,6 +1397,11 @@
       "subscribers": "Subscribers",
       "ads": "Ads",
       "surveys": "Surveys"
+    ,
+      "board": "Board",
+      "comments": "Comments",
+      "users": "Users & permissions",
+      "media": "Media"
     },
     "tasksTitle": "Needs your attention",
     "tasksNote": "Real items from platform data, ordered by importance",
@@ -1638,6 +1643,11 @@
           "active": "Active"
         }
       }
+    ,
+      "board": {"title":"Board members","note":"Board members, invitation records and linked accounts from live platform data","total":"Total","linked":"Linked accounts","invited":"Invited","inviteSent":"Invitation sent successfully","inviteFailed":"Could not send the invitation - check the address and permissions","inviteHint":"Invitations are sent by email and recorded only after a successful send","createTitle":"New member","editTitle":"Edit member","invite":"Send invitation","empty":"No board members yet","table":{"name":"Name","title":"Position","role":"Role","contact":"Contact","invited":"Invited on","actions":"Actions"},"roles":{"admin":"Admin","moderator":"Moderator","contributor":"Contributor","member":"Member"},"fields":{"nameAr":"Arabic name","nameEn":"English name","titleAr":"Arabic position","titleEn":"English position","email":"Email address","phone":"Phone number","role":"Role","website":"Website","image":"Image URL"}},
+      "comments": {"title":"Comments","note":"Review and approve community comments from live platform data","total":"Total","pending":"Awaiting approval","searchPlaceholder":"Search by author or text...","empty":"No comments yet","approved":"Approved","waiting":"Pending","approve":"Approve","unapprove":"Unapprove","replies":"Replies"},
+      "users": {"title":"Users & permissions","note":"Platform accounts, roles and individual permissions with real controls","tabs":{"users":"Users","roles":"Roles"},"searchPlaceholder":"Search by name or email...","createRole":"New role","editRole":"Edit role","total":"Total","emptyUsers":"No matching users","emptyRoles":"No roles yet","permissionCount":"Permission count","allCount":"All available permissions","permissions":"Permissions","editPermissions":"Edit user permissions","roles":{"member":"Member","admin":"Admin"},"table":{"name":"Name","email":"Email","role":"Role","joined":"Joined","actions":"Actions"},"fields":{"roleName":"Role name","roleDescription":"Description"}},
+      "media": {"title":"Media","note":"Images actually used in posts and local uploads","total":"Total","fromPosts":"From posts","fromUploads":"Uploads","upload":"Upload image","uploadHint":"Uploading creates a temporary image link and does not add it to the platform library. Copy the link and use it where needed.","empty":"No images yet","uploadResult":"Upload result","copyHint":"This is a temporary data link - copy it before closing the dialog","copy":"Copy link","copied":"Copied"}
     },
     "breadcrumbEvents": "Events",
     "breadcrumbContent": "Content",
@@ -1651,5 +1661,12 @@
     "delete": "Delete",
     "confirmDelete": "Delete this item permanently?",
     "saveFailed": "Could not save — check your sign-in and permissions"
+  ,
+    "breadcrumbBoard": "Board",
+    "breadcrumbComments": "Comments",
+    "breadcrumbUsers": "Users & permissions",
+    "breadcrumbMedia": "Media",
+    "permissions": {"news.create":"Create news","news.edit":"Edit news","news.delete":"Delete news","news.publish":"Publish news","news.feature":"Feature news","events.create":"Create events","events.edit":"Edit events","events.delete":"Delete events","events.publish":"Publish events","tasks.create":"Create tasks","tasks.edit":"Edit tasks","tasks.delete":"Delete tasks","tasks.assign":"Assign tasks","comments.approve":"Approve comments","comments.delete":"Delete comments","comments.manage":"Manage comments","ads.create":"Create ads","ads.edit":"Edit ads","ads.delete":"Delete ads","surveys.create":"Create surveys","surveys.edit":"Edit surveys","surveys.delete":"Delete surveys","surveys.view_results":"View survey results","media.upload":"Upload media","media.delete":"Delete media","pages.create":"Create pages","pages.edit":"Edit pages","pages.delete":"Delete pages","pages.publish":"Publish pages","users.view":"View users","users.edit_role":"Edit user roles","users.delete":"Delete users","settings.view":"View settings","settings.edit":"Edit settings","roles.manage":"Manage roles","volunteers.view":"View volunteers","volunteers.manage":"Manage volunteers","subscribers.view":"View subscribers","subscribers.export":"Export subscribers","landing.create":"Create landing pages","landing.edit":"Edit landing pages","landing.delete":"Delete landing pages","landing.publish":"Publish landing pages","regulations.edit":"Edit regulations","faqs.manage":"Manage FAQs"},
+    "modules": {"news":"News","events":"Events","tasks":"Tasks","comments":"Comments","ads":"Ads","surveys":"Surveys","media":"Media","pages":"Pages","users":"Users","settings":"Settings","roles":"Roles","volunteers":"Volunteers","subscribers":"Subscribers","landing":"Landing pages","regulations":"Regulations","faqs":"FAQs"}
   }
 }

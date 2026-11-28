@@ -2350,6 +2350,11 @@
       "subscribers": "Abonnees",
       "ads": "Advertenties",
       "surveys": "Enquêtes"
+    ,
+      "board": "Bestuur",
+      "comments": "Reacties",
+      "users": "Gebruikers en rechten",
+      "media": "Media"
     },
     "tasksTitle": "Vraagt uw aandacht",
     "tasksNote": "Echte items uit platformgegevens, gesorteerd op belangrijkheid",
@@ -2591,6 +2596,11 @@
           "active": "Actief"
         }
       }
+    ,
+      "board": {"title":"Bestuursleden","note":"Bestuursleden, uitnodigingen en gekoppelde accounts uit echte platformgegevens","total":"Totaal","linked":"Gekoppelde accounts","invited":"Uitgenodigd","inviteSent":"Uitnodiging verzonden","inviteFailed":"Uitnodiging kon niet worden verzonden - controleer het adres en de rechten","inviteHint":"Uitnodigingen gaan per e-mail en worden alleen na een geslaagde verzending vastgelegd","createTitle":"Nieuw lid","editTitle":"Lid bewerken","invite":"Uitnodiging versturen","empty":"Nog geen bestuursleden","table":{"name":"Naam","title":"Functie","role":"Rol","contact":"Contact","invited":"Uitgenodigd op","actions":"Acties"},"roles":{"admin":"Beheerder","moderator":"Moderator","contributor":"Bijdrager","member":"Lid"},"fields":{"nameAr":"Arabische naam","nameEn":"Engelse naam","titleAr":"Arabische functie","titleEn":"Engelse functie","email":"E-mailadres","phone":"Telefoonnummer","role":"Rol","website":"Website","image":"Afbeeldings-URL"}},
+      "comments": {"title":"Reacties","note":"Reacties van de gemeenschap beoordelen en goedkeuren met echte gegevens","total":"Totaal","pending":"Wachten op goedkeuring","searchPlaceholder":"Zoeken op auteur of tekst...","empty":"Nog geen reacties","approved":"Goedgekeurd","waiting":"In afwachting","approve":"Goedkeuren","unapprove":"Goedkeuring intrekken","replies":"Antwoorden"},
+      "users": {"title":"Gebruikers en rechten","note":"Accounts, rollen en individuele rechten met echte bediening","tabs":{"users":"Gebruikers","roles":"Rollen"},"searchPlaceholder":"Zoeken op naam of e-mail...","createRole":"Nieuwe rol","editRole":"Rol bewerken","total":"Totaal","emptyUsers":"Geen overeenkomende gebruikers","emptyRoles":"Nog geen rollen","permissionCount":"Aantal rechten","allCount":"Alle beschikbare rechten","permissions":"Rechten","editPermissions":"Gebruikersrechten bewerken","roles":{"member":"Lid","admin":"Beheerder"},"table":{"name":"Naam","email":"E-mail","role":"Rol","joined":"Geregistreerd","actions":"Acties"},"fields":{"roleName":"Rolnaam","roleDescription":"Beschrijving"}},
+      "media": {"title":"Media","note":"Afbeeldingen die echt in artikelen en lokale uploads worden gebruikt","total":"Totaal","fromPosts":"Uit artikelen","fromUploads":"Uploads","upload":"Afbeelding uploaden","uploadHint":"Uploaden maakt een tijdelijke link en voegt de afbeelding niet toe aan de bibliotheek. Kopieer de link en gebruik die waar nodig.","empty":"Nog geen afbeeldingen","uploadResult":"Uploadresultaat","copyHint":"Dit is een tijdelijke datalink - kopieer die voordat u het venster sluit","copy":"Link kopieren","copied":"Gekopieerd"}
     },
     "breadcrumbEvents": "Evenementen",
     "breadcrumbContent": "Inhoud",
@@ -2604,5 +2614,12 @@
     "delete": "Verwijderen",
     "confirmDelete": "Dit item definitief verwijderen?",
     "saveFailed": "Opslaan mislukt — controleer je aanmelding en rechten"
+  ,
+    "breadcrumbBoard": "Bestuur",
+    "breadcrumbComments": "Reacties",
+    "breadcrumbUsers": "Gebruikers en rechten",
+    "breadcrumbMedia": "Media",
+    "permissions": {"news.create":"Nieuws maken","news.edit":"Nieuws bewerken","news.delete":"Nieuws verwijderen","news.publish":"Nieuws publiceren","news.feature":"Nieuws uitlichten","events.create":"Evenementen maken","events.edit":"Evenementen bewerken","events.delete":"Evenementen verwijderen","events.publish":"Evenementen publiceren","tasks.create":"Taken maken","tasks.edit":"Taken bewerken","tasks.delete":"Taken verwijderen","tasks.assign":"Taken toewijzen","comments.approve":"Reacties goedkeuren","comments.delete":"Reacties verwijderen","comments.manage":"Reacties beheren","ads.create":"Advertenties maken","ads.edit":"Advertenties bewerken","ads.delete":"Advertenties verwijderen","surveys.create":"Enquetes maken","surveys.edit":"Enquetes bewerken","surveys.delete":"Enquetes verwijderen","surveys.view_results":"Enqueteresultaten bekijken","media.upload":"Media uploaden","media.delete":"Media verwijderen","pages.create":"Pagina's maken","pages.edit":"Pagina's bewerken","pages.delete":"Pagina's verwijderen","pages.publish":"Pagina's publiceren","users.view":"Gebruikers bekijken","users.edit_role":"Gebruikersrollen bewerken","users.delete":"Gebruikers verwijderen","settings.view":"Instellingen bekijken","settings.edit":"Instellingen bewerken","roles.manage":"Rollen beheren","volunteers.view":"Vrijwilligers bekijken","volunteers.manage":"Vrijwilligers beheren","subscribers.view":"Abonnees bekijken","subscribers.export":"Abonnees exporteren","landing.create":"Landingspagina's maken","landing.edit":"Landingspagina's bewerken","landing.delete":"Landingspagina's verwijderen","landing.publish":"Landingspagina's publiceren","regulations.edit":"Reglementen bewerken","faqs.manage":"Veelgestelde vragen beheren"},
+    "modules": {"news":"Nieuws","events":"Evenementen","tasks":"Taken","comments":"Reacties","ads":"Advertenties","surveys":"Enquetes","media":"Media","pages":"Pagina's","users":"Gebruikers","settings":"Instellingen","roles":"Rollen","volunteers":"Vrijwilligers","subscribers":"Abonnees","landing":"Landingspagina's","regulations":"Reglementen","faqs":"Veelgestelde vragen"}
   }
 }

@@ -1397,6 +1397,11 @@
       "subscribers": "المشتركون",
       "ads": "الإعلانات",
       "surveys": "الاستبيانات"
+    ,
+      "board": "مجلس الإدارة",
+      "comments": "التعليقات",
+      "users": "المستخدمون والصلاحيات",
+      "media": "الوسائط"
     },
     "tasksTitle": "يحتاج انتباهك",
     "tasksNote": "أمور حقيقية من بيانات المنصة، مرتبة حسب الأهمية",
@@ -1638,6 +1643,11 @@
           "active": "نشط"
         }
       }
+    ,
+      "board": {"title":"مجلس الإدارة","note":"أعضاء المجلس وسجل دعواتهم وربط حساباتهم — بيانات فعلية من المنصة","total":"الإجمالي","linked":"حسابات مربوطة","invited":"مدعوون","inviteSent":"أُرسلت الدعوة بنجاح","inviteFailed":"تعذّر إرسال الدعوة — تحقق من البريد والصلاحيات","inviteHint":"الدعوة تُرسل بالبريد وتُسجّل بعد نجاح الإرسال فقط","createTitle":"عضو جديد","editTitle":"تعديل العضو","invite":"إرسال دعوة","empty":"لا يوجد أعضاء حالياً","table":{"name":"الاسم","title":"المنصب","role":"الدور","contact":"وسيلة التواصل","invited":"تاريخ الدعوة","actions":"إجراءات"},"roles":{"admin":"مدير","moderator":"مشرف","contributor":"مساهم","member":"عضو"},"fields":{"nameAr":"الاسم بالعربية","nameEn":"الاسم بالإنجليزية","titleAr":"المنصب بالعربية","titleEn":"المنصب بالإنجليزية","email":"البريد الإلكتروني","phone":"الجوال","role":"الدور","website":"الموقع","image":"رابط الصورة"}},
+      "comments": {"title":"التعليقات","note":"مراجعة تعليقات الجالية واعتمادها من بيانات المنصة مباشرة","total":"الإجمالي","pending":"بانتظار الاعتماد","searchPlaceholder":"ابحث بالكاتب أو النص...","empty":"لا توجد تعليقات حالياً","approved":"معتمد","waiting":"بانتظار","approve":"اعتماد","unapprove":"إلغاء الاعتماد","replies":"ردود"},
+      "users": {"title":"المستخدمون والصلاحيات","note":"حسابات المنصة والأدوار والصلاحيات الفردية — تحكم كامل بالبيانات الحقيقية","tabs":{"users":"المستخدمون","roles":"الأدوار"},"searchPlaceholder":"ابحث بالاسم أو البريد...","createRole":"دور جديد","editRole":"تعديل الدور","total":"الإجمالي","emptyUsers":"لا يوجد مستخدمون مطابقون","emptyRoles":"لا توجد أدوار حالياً","permissionCount":"عدد الصلاحيات","allCount":"كل الصلاحيات المتاحة","permissions":"الصلاحيات","editPermissions":"تحرير صلاحيات المستخدم","roles":{"member":"عضو","admin":"مدير"},"table":{"name":"الاسم","email":"البريد","role":"الدور","joined":"تاريخ التسجيل","actions":"إجراءات"},"fields":{"roleName":"اسم الدور","roleDescription":"الوصف"}},
+      "media": {"title":"الوسائط","note":"الصور المستخدمة فعلياً في المقالات والمرفوعات المحلية","total":"الإجمالي","fromPosts":"من المقالات","fromUploads":"مرفوعات","upload":"رفع صورة","uploadHint":"الرفع ينشئ رابطاً مؤقتاً للصورة ولا يضيفها إلى مكتبة المنصة؛ انسخ الرابط واستخدمه حيث تحتاجه.","empty":"لا توجد صور حالياً","uploadResult":"نتيجة الرفع","copyHint":"هذا رابط بيانات مؤقت — انسخه قبل إغلاق النافذة","copy":"نسخ الرابط","copied":"تم النسخ"}
     },
     "breadcrumbEvents": "الفعاليات",
     "breadcrumbContent": "المحتوى",
@@ -1651,5 +1661,12 @@
     "delete": "حذف",
     "confirmDelete": "هل تريد الحذف نهائياً؟",
     "saveFailed": "تعذّر الحفظ — تحقق من تسجيل الدخول والصلاحيات"
+  ,
+    "breadcrumbBoard": "مجلس الإدارة",
+    "breadcrumbComments": "التعليقات",
+    "breadcrumbUsers": "المستخدمون والصلاحيات",
+    "breadcrumbMedia": "الوسائط",
+    "permissions": {"news.create":"إنشاء الأخبار","news.edit":"تعديل الأخبار","news.delete":"حذف الأخبار","news.publish":"نشر الأخبار","news.feature":"تمييز الأخبار","events.create":"إنشاء الفعاليات","events.edit":"تعديل الفعاليات","events.delete":"حذف الفعاليات","events.publish":"نشر الفعاليات","tasks.create":"إنشاء المهام","tasks.edit":"تعديل المهام","tasks.delete":"حذف المهام","tasks.assign":"إسناد المهام","comments.approve":"اعتماد التعليقات","comments.delete":"حذف التعليقات","comments.manage":"إدارة التعليقات","ads.create":"إنشاء الإعلانات","ads.edit":"تعديل الإعلانات","ads.delete":"حذف الإعلانات","surveys.create":"إنشاء الاستبيانات","surveys.edit":"تعديل الاستبيانات","surveys.delete":"حذف الاستبيانات","surveys.view_results":"عرض نتائج الاستبيانات","media.upload":"رفع الوسائط","media.delete":"حذف الوسائط","pages.create":"إنشاء الصفحات","pages.edit":"تعديل الصفحات","pages.delete":"حذف الصفحات","pages.publish":"نشر الصفحات","users.view":"عرض المستخدمين","users.edit_role":"تعديل أدوار المستخدمين","users.delete":"حذف المستخدمين","settings.view":"عرض الإعدادات","settings.edit":"تعديل الإعدادات","roles.manage":"إدارة الأدوار","volunteers.view":"عرض المتطوعين","volunteers.manage":"إدارة المتطوعين","subscribers.view":"عرض المشتركين","subscribers.export":"تصدير المشتركين","landing.create":"إنشاء صفحات الهبوط","landing.edit":"تعديل صفحات الهبوط","landing.delete":"حذف صفحات الهبوط","landing.publish":"نشر صفحات الهبوط","regulations.edit":"تعديل اللوائح","faqs.manage":"إدارة الأسئلة الشائعة"},
+    "modules": {"news":"الأخبار","events":"الفعاليات","tasks":"المهام","comments":"التعليقات","ads":"الإعلانات","surveys":"الاستبيانات","media":"الوسائط","pages":"الصفحات","users":"المستخدمون","settings":"الإعدادات","roles":"الأدوار","volunteers":"المتطوعون","subscribers":"المشتركون","landing":"صفحات الهبوط","regulations":"اللوائح","faqs":"الأسئلة الشائعة"}
   }
 }

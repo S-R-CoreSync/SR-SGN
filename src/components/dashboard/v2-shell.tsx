@@ -7,8 +7,9 @@ import { Link, useRouter } from "@/i18n/routing";
 import { useLocale, useTranslations } from "next-intl";
 import { formatLocalizedDigits } from "@/lib/language-guard";
 import {
-  ArrowLeft, Calendar, CheckSquare, ClipboardList, Database, FileText, LayoutDashboard, Mail,
-  MousePointerClick, Search, Users, Wallet, X,
+  ArrowLeft, Calendar, CheckSquare, ClipboardList, Database, FileText, Image as ImageIcon,
+  Landmark, LayoutDashboard, Mail, MessageSquare, MousePointerClick, Search, Shield, Users,
+  Wallet, X,
 } from "lucide-react";
 
 type NavItem = { key: string; href: string; icon: typeof Users };
@@ -25,6 +26,8 @@ const groups: { key: string; items: NavItem[] }[] = [
     key: "community",
     items: [
       { key: "members", href: "/dashboard/v2/members", icon: Users },
+      { key: "board", href: "/dashboard/v2/board", icon: Landmark },
+      { key: "comments", href: "/dashboard/v2/comments", icon: MessageSquare },
       { key: "messages", href: "/dashboard/v2/messages", icon: Mail },
       { key: "events", href: "/dashboard/v2/events", icon: Calendar },
       { key: "content", href: "/dashboard/v2/content", icon: FileText },
@@ -40,7 +43,11 @@ const groups: { key: string; items: NavItem[] }[] = [
   },
   {
     key: "system",
-    items: [{ key: "system", href: "/dashboard/v2/system", icon: Database }],
+    items: [
+      { key: "system", href: "/dashboard/v2/system", icon: Database },
+      { key: "users", href: "/dashboard/v2/users", icon: Shield },
+      { key: "media", href: "/dashboard/v2/media", icon: ImageIcon },
+    ],
   },
   {
     key: "finance",
