@@ -89,11 +89,7 @@ export async function GET() {
     count: p._count,
   }));
 
-  // Vitality calculation
-  let vitalityScore = 82;
-  if (newMembersThisWeek > 0) vitalityScore += Math.min(8, newMembersThisWeek * 2);
-  if (newUsersThisWeek > 0) vitalityScore += Math.min(5, newUsersThisWeek);
-  vitalityScore = Math.min(99, Math.max(75, vitalityScore));
+  // لا نُنتج مؤشر حيوية مقدّراً — كل رقم هنا يأتي من عدّ فعلي في قاعدة البيانات.
 
   return NextResponse.json({
     tasks, users, messages, events, subscribers, posts, comments, volunteers, ads, boardMembers,
@@ -102,7 +98,6 @@ export async function GET() {
     membersByStatus,
     newUsersThisWeek,
     newMembersThisWeek,
-    vitalityScore,
     provinceDistribution,
     topPosts: topPosts.map((p: any) => ({ title: p.title, views: p.views, slug: p.slug })),
     postsByCategory,

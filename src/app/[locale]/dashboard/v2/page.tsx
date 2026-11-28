@@ -111,10 +111,10 @@ export default function DashboardV2Page() {
     { key: "posts", value: stats?.posts ?? 0, daily: undefined, color: "#8a6a1f", icon: FileText, href: "/dashboard/v2/content" },
   ];
 
+  // المقالات معروضة أصلاً في نبض الجالية — لا نكررها في «يحتاج انتباهك».
   const actions = [
     { key: "approvals", value: pending, href: "/dashboard/v2/members", icon: CheckSquare },
     { key: "messages", value: stats?.messages ?? 0, href: "/dashboard/v2/messages", icon: Mail },
-    { key: "posts", value: stats?.posts ?? 0, href: "/dashboard/v2/content", icon: FileText },
   ];
 
   const activity = (stats?.usersByDay ?? []).slice(-7);
@@ -180,7 +180,7 @@ export default function DashboardV2Page() {
                 {formatLocalizedDigits(actions.length, locale)}
               </span>
             </div>
-            <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2">
               {actions.map((action) => {
                 const Icon = action.icon;
                 return (
