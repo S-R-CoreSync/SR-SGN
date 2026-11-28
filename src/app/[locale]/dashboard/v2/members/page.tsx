@@ -2,11 +2,13 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { formatLocalizedDigits } from "@/lib/language-guard";
+import { formatLocalizedDigits, hasArabicCharacters } from "@/lib/language-guard";
 import { V2Shell } from "@/components/dashboard/v2-shell";
 import { V2Intro, V2Message, V2Panel, V2Pill } from "@/components/dashboard/v2-ui";
-import { V2Dialog, V2IconButton, v2Api } from "@/components/dashboard/v2-form";
-import { Check, ChevronLeft, ChevronRight, Download, RefreshCw, Search, Upload, X } from "lucide-react";
+import { V2Dialog, V2Field, V2IconButton, v2Api, v2InputClass } from "@/components/dashboard/v2-form";
+import {
+  Check, ChevronLeft, ChevronRight, Download, History, Mail, RefreshCw, Search, Upload, X,
+} from "lucide-react";
 
 const PAGE_SIZE = 50;
 
@@ -56,6 +58,14 @@ export default function V2MembersPage() {
   const [importBusy, setImportBusy] = useState(false);
   const [importError, setImportError] = useState("");
   const [importResult, setImportResult] = useState<{ imported: number; skipped: number } | null>(null);
+  const [broadcastOpen, setBroadcastOpen] = useState(false);
+  const [broadcastSubject, setBroadcastSubject] = useState("");
+  const [broadcastMessage, setBroadcastMessage] = useState("");
+  const [broadcastBusy, setBroadcastBusy] = useState(false);
+  const [broadcastNotice, setBroadcastNotice] = useState("");
+  const [activityOpen, setActivityOpen] = useState(false);
+  const [activityLogs, setActivityLogs] = useState<any[]>([]);
+  const [activityLoading, setActivityLoading] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -153,6 +163,50 @@ export default function V2MembersPage() {
     setImportOpen(true);
   }
 
+  function openBroadcast() {
+    setBroadcastSubject("");
+    setBroadcastMessage("");
+    setBroadcastNotice("");
+    setBroadcastOpen(true);
+  }
+
+  async function sendBroadcast() {
+    if (!broadcastSubject.trim() || !broadcastMessage.trim()) return;
+    setBroadcastBusy(true);
+    setBroadcastNotice("");
+    try {
+      const result = await v2Api<{ sent: number; total: number }>("/api/members/email-broadcast", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: statusFilter === "all" ? "all" : statusFilter,
+          subject: broadcastSubject.trim(),
+          message: broadcastMessage.trim(),
+        }),
+      });
+      setBroadcastNotice(tp("sentDone", {
+        sent: formatLocalizedDigits(result.sent, locale),
+        total: formatLocalizedDigits(result.total, locale),
+      }));
+    } catch (e) {
+      setBroadcastNotice(e instanceof Error ? e.message : t("error"));
+    } finally {
+      setBroadcastBusy(false);
+    }
+  }
+
+  async function openActivity() {
+    setActivityOpen(true);
+    setActivityLoading(true);
+    try {
+      setActivityLogs(await v2Api<any[]>("/api/members/activity?limit=50"));
+    } catch {
+      setActivityLogs([]);
+    } finally {
+      setActivityLoading(false);
+    }
+  }
+
   function toggle(id: string) {
     setSelected((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]));
   }
@@ -197,6 +251,24 @@ export default function V2MembersPage() {
             <option value="accepted">{tp("filterAccepted")}</option>
             <option value="rejected">{tp("filterRejected")}</option>
           </select>
+          <button
+            type="button"
+            onClick={openBroadcast}
+            title={tp("broadcast")}
+            aria-label={tp("broadcast")}
+            className="rounded-xl border border-[#e6ddc9] bg-white p-2 text-[#6f7a70] shadow-sm hover:bg-[#f5ecd6]"
+          >
+            <Mail size={15} />
+          </button>
+          <button
+            type="button"
+            onClick={() => void openActivity()}
+            title={tp("activity")}
+            aria-label={tp("activity")}
+            className="rounded-xl border border-[#e6ddc9] bg-white p-2 text-[#6f7a70] shadow-sm hover:bg-[#f5ecd6]"
+          >
+            <History size={15} />
+          </button>
           <a
             href="/api/members/export"
             download
@@ -423,6 +495,72 @@ export default function V2MembersPage() {
               {tp("importSubmit")}
             </button>
           </div>
+        </V2Dialog>
+      )}
+
+      {broadcastOpen && (
+        <V2Dialog title={tp("broadcastTitle")} closeLabel={t("close")} onClose={() => setBroadcastOpen(false)}>
+          <p className="mb-4 text-xs leading-relaxed text-[#6f7a70]">{tp("broadcastNote")}</p>
+          <V2Field label={tp("subject")}>
+            <input value={broadcastSubject} onChange={(e) => setBroadcastSubject(e.target.value)} className={v2InputClass} />
+          </V2Field>
+          <V2Field label={tp("message")}>
+            <textarea rows={6} dir="ltr" value={broadcastMessage} onChange={(e) => setBroadcastMessage(e.target.value)} className={`${v2InputClass} mt-3 font-mono text-xs`} />
+          </V2Field>
+          {broadcastNotice && (
+            <p className="mt-3 rounded-xl border border-[#d8e6d9] bg-[#f1f8f1] px-3 py-2 text-xs font-bold text-[#1a5632]">
+              {broadcastNotice}
+            </p>
+          )}
+          <div className="mt-5 flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setBroadcastOpen(false)}
+              className="rounded-xl border border-[#e6ddc9] px-4 py-2.5 text-xs font-bold text-[#6f7a70] hover:bg-[#f5ecd6]"
+            >
+              {t("close")}
+            </button>
+            <button
+              type="button"
+              disabled={broadcastBusy || !broadcastSubject.trim() || !broadcastMessage.trim()}
+              onClick={() => void sendBroadcast()}
+              className="rounded-xl bg-[#123b24] px-4 py-2.5 text-xs font-black text-white shadow-sm hover:bg-[#1a5632] disabled:opacity-50"
+            >
+              {broadcastBusy ? tp("sending") : tp("send")}
+            </button>
+          </div>
+        </V2Dialog>
+      )}
+
+      {activityOpen && (
+        <V2Dialog title={tp("activity")} closeLabel={t("close")} onClose={() => setActivityOpen(false)}>
+          {activityLoading ? (
+            <p className="py-8 text-center text-xs text-[#9aa399]">{t("loading")}</p>
+          ) : activityLogs.length === 0 ? (
+            <p className="py-8 text-center text-xs text-[#9aa399]">{tp("activityEmpty")}</p>
+          ) : (
+            <div className="max-h-[60vh] space-y-2 overflow-y-auto">
+              {activityLogs.map((log) => {
+                const visible = (value: unknown) => {
+                  const text = String(value ?? "");
+                  if (!text) return "";
+                  const arabic = hasArabicCharacters(text);
+                  return locale === "ar" ? (arabic ? text : "") : (arabic ? "" : text);
+                };
+                const action = visible(log.action || log.type);
+                const description = visible(log.description);
+                return (
+                <div key={log.id} className="rounded-xl border border-[#f0ead9] bg-[#fdfcf9] p-3">
+                  <p className="text-xs font-bold text-[#203026]">{action || "—"}</p>
+                  {description && <p className="mt-1 text-[11px] text-[#6f7a70]">{description}</p>}
+                  <p className="mt-1 text-[10px] tabular-nums text-[#9aa399]">
+                    {log.createdAt ? formatLocalizedDigits(log.createdAt.slice(0, 10), locale) : "—"}
+                  </p>
+                </div>
+                );
+              })}
+            </div>
+          )}
         </V2Dialog>
       )}
     </V2Shell>

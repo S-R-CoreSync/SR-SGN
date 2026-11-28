@@ -7,7 +7,7 @@ import SafeImage from "@/components/ui/safe-image";
 import { V2Shell } from "@/components/dashboard/v2-shell";
 import { V2Intro, V2Message, V2Panel, V2Pill } from "@/components/dashboard/v2-ui";
 import { V2Dialog, V2FormError, V2IconButton, v2Api } from "@/components/dashboard/v2-form";
-import { Copy, RefreshCw, Upload } from "lucide-react";
+import { Copy, RefreshCw, Trash2, Upload } from "lucide-react";
 
 type MediaItem = {
   url: string;
@@ -30,6 +30,7 @@ export default function V2MediaPage() {
   const [uploadError, setUploadError] = useState("");
   const [generatedUrl, setGeneratedUrl] = useState("");
   const [copied, setCopied] = useState(false);
+  const [deleting, setDeleting] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -75,6 +76,28 @@ export default function V2MediaPage() {
     }
   }
 
+  function uploadSlug(item: MediaItem) {
+    if (item.source !== "upload") return null;
+    const prefix = "/uploads/";
+    if (!item.url.startsWith(prefix)) return null;
+    return item.url.slice(prefix.length).split("?")[0];
+  }
+
+  async function remove(item: MediaItem) {
+    const slug = uploadSlug(item);
+    if (!slug || !window.confirm(t("confirmDelete"))) return;
+    setDeleting(slug);
+    setUploadError("");
+    try {
+      await v2Api(`/api/uploads/${encodeURIComponent(slug)}`, { method: "DELETE" });
+      await load();
+    } catch {
+      setUploadError(t("saveFailed"));
+    } finally {
+      setDeleting("");
+    }
+  }
+
   const postCount = items.filter((item) => item.source === "post").length;
   const uploadCount = items.filter((item) => item.source === "upload").length;
 
@@ -103,7 +126,7 @@ export default function V2MediaPage() {
       </V2Intro>
 
       <p className="mb-5 rounded-xl border border-[#e6ddc9] bg-[#f5ecd6] px-4 py-3 text-xs font-bold text-[#6b5417]">
-        {tp("uploadHint")}
+        {tp("uploadHint")} {tp("deleteHint")}
       </p>
 
       {error ? (
@@ -142,6 +165,18 @@ export default function V2MediaPage() {
                   </div>
                   {item.category && (
                     <p className="mt-2 truncate text-[10px] text-[#8a958b]">{item.category}</p>
+                  )}
+                  {uploadSlug(item) && (
+                    <div className="mt-3 flex justify-end border-t border-[#f0ead9] pt-2">
+                      <V2IconButton
+                        label={tp("deleteImage")}
+                        danger
+                        disabled={Boolean(deleting)}
+                        onClick={() => void remove(item)}
+                      >
+                        <Trash2 size={13} />
+                      </V2IconButton>
+                    </div>
                   )}
                 </div>
               </article>

@@ -2417,8 +2417,7 @@
           "city": "Plaats",
           "status": "Status",
           "contact": "Contact",
-          "joined": "Geregistreerd"
-        ,
+          "joined": "Geregistreerd",
           "actions": "Acties"
         },
         "status": {
@@ -2426,8 +2425,7 @@
           "pending": "Wacht op beoordeling",
           "rejected": "Afgewezen",
           "other": "Overig"
-        }
-      ,
+        },
         "filterLabel": "Filter op status",
         "filterAll": "Alle statussen",
         "filterPending": "In afwachting",
@@ -2447,11 +2445,20 @@
         "importNote": "Upload een CSV-bestand met komma's als scheiding. Verplichte kolommen: nameAr, whatsapp, birthYear. Onvolledige rijen worden automatisch overgeslagen.",
         "importSubmit": "Import starten",
         "importDone": "{imported} leden geïmporteerd, {skipped} rijen overgeslagen",
-        "export": "Leden exporteren"
-      ,
-        "approve": "Lid goedkeuren"
-      ,
-        "reject": "Lid afwijzen"
+        "export": "Leden exporteren",
+        "approve": "Lid goedkeuren",
+        "reject": "Lid afwijzen",
+        "broadcast": "E-mailverzending",
+        "broadcastTitle": "Bulke-mailbericht",
+        "broadcastNote": "Het bericht wordt verzonden naar leden met de gekozen status die een e-mailadres hebben.",
+        "subject": "Onderwerp",
+        "message": "Bericht (HTML)",
+        "send": "Verzenden",
+        "sending": "Verzenden...",
+        "sentDone": "Verzonden naar {sent} van {total}",
+        "activity": "Activiteitenlog",
+        "activityEmpty": "Geen activiteiten vastgelegd",
+        "activityAll": "Alle leden"
       },
       "tasks": {
         "title": "Taken",
@@ -2476,7 +2483,11 @@
           "description": "Beschrijving",
           "priority": "Prioriteit",
           "status": "Status"
-        }
+        },
+        "assignedToLabel": "Toegewezen aan",
+        "unassigned": "Niet toegewezen",
+        "assignedTo": "Toegewezen aan: {name}",
+        "accountFallback": "Geregistreerd account"
       },
       "messages": {
         "title": "Inbox",
@@ -2560,6 +2571,22 @@
           "excerpt": "Samenvatting",
           "content": "Inhoud",
           "category": "Categorie"
+        },
+        "imageLabel": "Artikelafbeelding",
+        "tagsLabel": "Tags",
+        "sourceLabel": "Bron",
+        "slugLabel": "URL-slug",
+        "uploadImage": "Afbeelding uploaden",
+        "membersOnly": "Alleen voor leden",
+        "socialTitle": "Publiceren op netwerken",
+        "share": {
+          "facebook": "Facebook",
+          "instagram": "Instagram",
+          "x": "X",
+          "telegram": "Telegram",
+          "whatsapp": "WhatsApp",
+          "youtube": "YouTube",
+          "tiktok": "TikTok"
         }
       },
       "finance": {
@@ -2730,10 +2757,10 @@
           "other": "Overig"
         }
       },
-      "board": {"title":"Bestuursleden","note":"Bestuursleden, uitnodigingen en gekoppelde accounts uit echte platformgegevens","total":"Totaal","linked":"Gekoppelde accounts","invited":"Uitgenodigd","inviteSent":"Uitnodiging verzonden","inviteFailed":"Uitnodiging kon niet worden verzonden - controleer het adres en de rechten","inviteHint":"Uitnodigingen gaan per e-mail en worden alleen na een geslaagde verzending vastgelegd","createTitle":"Nieuw lid","editTitle":"Lid bewerken","invite":"Uitnodiging versturen","empty":"Nog geen bestuursleden","table":{"photo":"Foto","name":"Naam","title":"Functie","role":"Rol","contact":"Contact","invited":"Uitgenodigd op","actions":"Acties"},"roles":{"admin":"Beheerder","moderator":"Moderator","contributor":"Bijdrager","member":"Lid"},"fields":{"nameAr":"Arabische naam","nameEn":"Engelse naam","titleAr":"Arabische functie","titleEn":"Engelse functie","email":"E-mailadres","phone":"Telefoonnummer","role":"Rol","website":"Website","image":"Afbeeldings-URL"}},
+      "board": {"title":"Bestuursleden","note":"Bestuursleden, uitnodigingen en gekoppelde accounts uit echte platformgegevens","total":"Totaal","linked":"Gekoppelde accounts","invited":"Uitgenodigd","inviteSent":"Uitnodiging verzonden","inviteFailed":"Uitnodiging kon niet worden verzonden - controleer het adres en de rechten","inviteHint":"Uitnodigingen gaan per e-mail en worden alleen na een geslaagde verzending vastgelegd","createTitle":"Nieuw lid","editTitle":"Lid bewerken","invite":"Uitnodiging versturen","empty":"Nog geen bestuursleden","table":{"photo":"Foto","name":"Naam","title":"Functie","role":"Rol","contact":"Contact","invited":"Uitgenodigd op","actions":"Acties"},"roles":{"admin":"Beheerder","moderator":"Moderator","contributor":"Bijdrager","member":"Lid"},"fields":{"nameAr":"Arabische naam","nameEn":"Engelse naam","titleAr":"Arabische functie","titleEn":"Engelse functie","email":"E-mailadres","phone":"Telefoonnummer","role":"Rol","website":"Website","image":"Afbeeldings-URL"},"uploadImage":"Afbeelding uploaden","uploadHintLocal":"Uploaden zet de afbeelding om in een data-URL en slaat die direct op bij het lid.","linkAccount":"Account koppelen","linkTitle":"Account van een bestuurslid koppelen","selectUser":"Kies een gebruiker","linkedAs":"Gekoppeld account: {email}","unlink":"Ontkoppelen","linkSaved":"Koppeling opgeslagen","linkFailed":"Koppeling kon niet worden opgeslagen","noUsers":"Geen overeenkomende accounts","accountFallback":"Geregistreerd account"},
       "comments": {"title":"Reacties","note":"Reacties van de gemeenschap beoordelen en goedkeuren met echte gegevens","total":"Totaal","pending":"Wachten op goedkeuring","searchPlaceholder":"Zoeken op auteur of tekst...","empty":"Nog geen reacties","approved":"Goedgekeurd","waiting":"In afwachting","approve":"Goedkeuren","unapprove":"Goedkeuring intrekken","replies":"Antwoorden"},
       "users": {"title":"Gebruikers en rechten","note":"Accounts, rollen en individuele rechten met echte bediening","tabs":{"users":"Gebruikers","roles":"Rollen"},"searchPlaceholder":"Zoeken op naam of e-mail...","createRole":"Nieuwe rol","editRole":"Rol bewerken","total":"Totaal","emptyUsers":"Geen overeenkomende gebruikers","emptyRoles":"Nog geen rollen","permissionCount":"Aantal rechten","allCount":"Alle beschikbare rechten","permissions":"Rechten","editPermissions":"Gebruikersrechten bewerken","roles":{"member":"Lid","admin":"Beheerder"},"table":{"name":"Naam","email":"E-mail","role":"Rol","joined":"Geregistreerd","actions":"Acties"},"fields":{"roleName":"Rolnaam","roleDescription":"Beschrijving"}},
-      "media": {"title":"Media","note":"Afbeeldingen die echt in artikelen en lokale uploads worden gebruikt","total":"Totaal","fromPosts":"Uit artikelen","fromUploads":"Uploads","upload":"Afbeelding uploaden","uploadHint":"Uploaden maakt een tijdelijke link en voegt de afbeelding niet toe aan de bibliotheek. Kopieer de link en gebruik die waar nodig.","empty":"Nog geen afbeeldingen","uploadResult":"Uploadresultaat","copyHint":"Dit is een tijdelijke datalink - kopieer die voordat u het venster sluit","copy":"Link kopieren","copied":"Gekopieerd"}
+      "media": {"title":"Media","note":"Afbeeldingen die echt in artikelen en lokale uploads worden gebruikt","total":"Totaal","fromPosts":"Uit artikelen","fromUploads":"Uploads","upload":"Afbeelding uploaden","uploadHint":"Uploaden maakt een tijdelijke link en voegt de afbeelding niet toe aan de bibliotheek. Kopieer de link en gebruik die waar nodig.","empty":"Nog geen afbeeldingen","uploadResult":"Uploadresultaat","copyHint":"Dit is een tijdelijke datalink - kopieer die voordat u het venster sluit","copy":"Link kopieren","copied":"Gekopieerd","deleteImage":"Afbeelding verwijderen","deleteHint":"Alleen lokale uploads kunnen worden verwijderd; artikelafbeeldingen worden via het artikel verwijderd."}
     ,
       "volunteers": {
         "title": "Vrijwilligers",
@@ -2874,7 +2901,21 @@
         "failed": "Mislukt",
         "fetched": "Opgehaald",
         "new": "Nieuw",
-        "skipped": "Overgeslagen"
+        "skipped": "Overgeslagen",
+        "since": "Startdatum",
+        "verifyTitle": "Nieuwe token controleren",
+        "tokenPlaceholder": "Plak de paginatoken hier",
+        "verify": "Controleren",
+        "verifying": "Controleren...",
+        "tokenValid": "Token geldig. Rechten: {scopes}",
+        "tokenInvalid": "Ongeldige token: {error}",
+        "connectHint": "Automatische verbinding slaat de token op in de platforminstellingen en vereist beheerdersrechten.",
+        "callbackSuccess": "Paginatoken opgeslagen",
+        "callbackError": "Pagina kon niet worden verbonden: {error}",
+        "tokenSavedHint": "Werk ook FACEBOOK_PAGE_TOKEN bij op Vercel zodat de verbinding na publicatie blijft.",
+        "tokenValidShort": "Token geldig.",
+        "tokenInvalidShort": "Ongeldige token. Controleer de waarde en paginarechten.",
+        "callbackErrorShort": "Pagina kon niet worden verbonden. Controleer de toestemmingsinstellingen."
       }
     ,
       "regulations": {

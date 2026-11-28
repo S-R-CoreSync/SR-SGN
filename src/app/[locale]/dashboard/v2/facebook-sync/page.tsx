@@ -5,8 +5,8 @@ import { useLocale, useTranslations } from "next-intl";
 import { formatLocalizedDigits, hasArabicCharacters } from "@/lib/language-guard";
 import { V2Shell } from "@/components/dashboard/v2-shell";
 import { V2Intro, V2Message, V2Panel, V2Pill } from "@/components/dashboard/v2-ui";
-import { V2PrimaryButton, v2Api } from "@/components/dashboard/v2-form";
-import { RefreshCw } from "lucide-react";
+import { V2Field, V2PrimaryButton, v2Api, v2InputClass } from "@/components/dashboard/v2-form";
+import { CheckCircle2, KeyRound, Link2, RefreshCw } from "lucide-react";
 
 type FbStatus = {
   configured: boolean;
@@ -38,6 +38,27 @@ export default function V2FacebookSyncPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [since, setSince] = useState("");
+  const [token, setToken] = useState("");
+  const [tokenBusy, setTokenBusy] = useState(false);
+  const [tokenNotice, setTokenNotice] = useState<{ ok: boolean; text: string } | null>(null);
+  const [callbackNotice, setCallbackNotice] = useState<{ ok: boolean; text: string } | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const success = params.get("success");
+    const failure = params.get("error");
+    if (success === "token_saved") {
+      setCallbackNotice({ ok: true, text: `${tp("callbackSuccess")} ${tp("tokenSavedHint")}` });
+    } else if (failure) {
+      setCallbackNotice({
+        ok: false,
+        text: locale === "ar" ? tp("callbackErrorShort") : tp("callbackError", { error: failure }),
+      });
+    }
+    // Read once when the user returns from Facebook.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -59,15 +80,55 @@ export default function V2FacebookSyncPage() {
     setBusy(true);
     setResult(null);
     try {
+      const body: Record<string, string> = { action: "sync" };
+      if (since.trim()) body.since = since.trim();
       setResult(await v2Api<SyncResult>("/api/sync/facebook", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "sync" }),
+        body: JSON.stringify(body),
       }));
     } catch (e) {
       setResult({ success: false, errors: [e instanceof Error ? e.message : ""] });
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function verifyToken() {
+    if (!token.trim()) return;
+    setTokenBusy(true);
+    setTokenNotice(null);
+    try {
+      const data = await v2Api<{
+        success?: boolean;
+        scopes?: string[];
+        error?: string;
+        tokenValidMessage?: string;
+      }>("/api/sync/facebook", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "set_token", token: token.trim() }),
+      });
+      if (data.success) {
+        setTokenNotice({
+          ok: true,
+          text: locale === "ar" ? tp("tokenValidShort") : tp("tokenValid", { scopes: (data.scopes ?? []).join(", ") }),
+        });
+        setToken("");
+        await load();
+      } else {
+        setTokenNotice({
+          ok: false,
+          text: locale === "ar" ? tp("tokenInvalidShort") : tp("tokenInvalid", { error: data.error ?? "" }),
+        });
+      }
+    } catch (e) {
+      setTokenNotice({
+        ok: false,
+        text: locale === "ar" ? tp("tokenInvalidShort") : tp("tokenInvalid", { error: e instanceof Error ? e.message : "" }),
+      });
+    } finally {
+      setTokenBusy(false);
     }
   }
 
@@ -99,6 +160,19 @@ export default function V2FacebookSyncPage() {
         </div>
       </V2Intro>
 
+      {callbackNotice && (
+        <div
+          className={`mb-4 flex items-start gap-2 rounded-xl border px-4 py-3 text-xs font-bold ${
+            callbackNotice.ok
+              ? "border-[#d8e6d9] bg-[#f1f8f1] text-[#1a5632]"
+              : "border-[#f2c9c4] bg-[#fbe9e7] text-[#b42318]"
+          }`}
+        >
+          <CheckCircle2 size={14} className="mt-0.5 shrink-0" />
+          <span>{callbackNotice.text}</span>
+        </div>
+      )}
+
       {error ? (
         <V2Message text={t("error")} error />
       ) : loading ? (
@@ -126,15 +200,61 @@ export default function V2FacebookSyncPage() {
                 {tp("pageId")}: <span className="tabular-nums">{status?.pageId ? formatLocalizedDigits(status.pageId, locale) : "—"}</span>
               </span>
             </div>
-            {!status?.tokenValid && status?.authUrl && (
-              <a
-                href={status.authUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-5 inline-block rounded-xl border border-[#e6ddc9] px-4 py-2 text-xs font-black text-[#1a5632] hover:bg-[#f5ecd6]"
+            <div className="mt-5 grid gap-4 border-t border-[#f0ead9] pt-5 sm:grid-cols-2">
+              <V2Field label={tp("since")}>
+                <input
+                  type="date"
+                  dir="ltr"
+                  value={since}
+                  onChange={(event) => setSince(event.target.value)}
+                  className={v2InputClass}
+                />
+              </V2Field>
+              <div className="flex flex-col justify-end gap-2">
+                {status?.authUrl && (
+                  <a
+                    href={status.authUrl}
+                    className="flex w-fit items-center gap-2 rounded-xl bg-[#123b24] px-4 py-2.5 text-xs font-black text-white shadow-sm hover:bg-[#1a5632]"
+                  >
+                    <Link2 size={14} />
+                    {tp("connectPage")}
+                  </a>
+                )}
+                <p className="text-[10px] leading-relaxed text-[#8a958b]">{tp("connectHint")}</p>
+              </div>
+            </div>
+          </V2Panel>
+
+          <V2Panel title={tp("verifyTitle")}>
+            <div className="flex flex-wrap gap-2">
+              <input
+                type="password"
+                dir="ltr"
+                value={token}
+                onChange={(event) => setToken(event.target.value)}
+                placeholder={tp("tokenPlaceholder")}
+                className={`${v2InputClass} min-w-[240px] flex-1`}
+              />
+              <button
+                type="button"
+                disabled={tokenBusy || !token.trim()}
+                onClick={() => void verifyToken()}
+                className="flex items-center gap-2 rounded-xl border border-[#e6ddc9] bg-white px-4 py-2.5 text-xs font-black text-[#1a5632] shadow-sm hover:bg-[#f5ecd6] disabled:opacity-50"
               >
-                {tp("connectPage")}
-              </a>
+                <KeyRound size={14} />
+                {tokenBusy ? tp("verifying") : tp("verify")}
+              </button>
+            </div>
+            {tokenNotice && (
+              <p
+                className={`mt-3 rounded-xl px-3 py-2 text-xs font-bold ${
+                  tokenNotice.ok
+                    ? "border border-[#d8e6d9] bg-[#f1f8f1] text-[#1a5632]"
+                    : "border border-[#f2c9c4] bg-[#fbe9e7] text-[#b42318]"
+                }`}
+              >
+                {tokenNotice.text}
+              </p>
             )}
           </V2Panel>
 

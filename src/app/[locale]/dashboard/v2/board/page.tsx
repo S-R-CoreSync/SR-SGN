@@ -2,14 +2,16 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { formatLocalizedDigits } from "@/lib/language-guard";
+import { formatLocalizedDigits, hasArabicCharacters } from "@/lib/language-guard";
 import { V2Shell } from "@/components/dashboard/v2-shell";
 import { V2Intro, V2Message, V2Panel, V2Pill } from "@/components/dashboard/v2-ui";
 import {
   V2Dialog, V2Field, V2FormActions, V2FormError, V2IconButton, V2PrimaryButton,
   v2Api, v2InputClass,
 } from "@/components/dashboard/v2-form";
-import { Mail, Pencil, Plus, RefreshCw, Send, Trash2 } from "lucide-react";
+import {
+  ImagePlus, Link2, Mail, Pencil, Plus, RefreshCw, Send, Trash2, Unlink,
+} from "lucide-react";
 
 type BoardMember = {
   id: string;
@@ -25,6 +27,8 @@ type BoardMember = {
   invitedAt?: string | null;
   createdAt: string;
 };
+
+type AccountOption = { id: string; name?: string | null; email?: string | null; role?: string | null };
 
 type FormState = {
   nameAr: string; nameEn: string; titleAr: string; titleEn: string;
@@ -51,6 +55,11 @@ export default function V2BoardPage() {
   const [form, setForm] = useState<FormState>(emptyForm);
   const [formError, setFormError] = useState("");
   const [notice, setNotice] = useState("");
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [accounts, setAccounts] = useState<AccountOption[]>([]);
+  const [linking, setLinking] = useState<BoardMember | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState("");
+  const [linkBusy, setLinkBusy] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -159,6 +168,55 @@ export default function V2BoardPage() {
     }
   }
 
+  async function uploadImage(file: File | undefined) {
+    if (!file) return;
+    setUploadingImage(true);
+    setFormError("");
+    try {
+      const body = new FormData();
+      body.append("file", file);
+      const result = await v2Api<{ url?: string; error?: string }>("/api/board/upload", { method: "POST", body });
+      if (!result.url) throw new Error(result.error || "upload failed");
+      setField("image", result.url);
+    } catch (e) {
+      setFormError(e instanceof Error ? e.message : t("saveFailed"));
+    } finally {
+      setUploadingImage(false);
+    }
+  }
+
+  async function openLink(member: BoardMember) {
+    setSelectedUserId(member.userId ?? "");
+    setNotice("");
+    setLinking(member);
+    try {
+      const result = await v2Api<{ users?: AccountOption[] }>("/api/users?limit=200");
+      setAccounts(result.users ?? []);
+    } catch {
+      setAccounts([]);
+    }
+  }
+
+  async function saveLink() {
+    if (!linking) return;
+    setLinkBusy(true);
+    setNotice("");
+    try {
+      await v2Api(`/api/board/${linking.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: selectedUserId || null, role: linking.role || "member" }),
+      });
+      setNotice(tp("linkSaved"));
+      setLinking(null);
+      await load();
+    } catch {
+      setNotice(tp("linkFailed"));
+    } finally {
+      setLinkBusy(false);
+    }
+  }
+
   const invitedCount = members.filter((member) => member.invitedAt).length;
   const linkedCount = members.filter((member) => member.userId).length;
 
@@ -236,6 +294,9 @@ export default function V2BoardPage() {
                     </td>
                     <td className="py-3.5">
                       <div className="flex items-center gap-1.5">
+                        <V2IconButton label={tp("linkAccount")} onClick={() => void openLink(member)} disabled={busy}>
+                          <Link2 size={13} />
+                        </V2IconButton>
                         <V2IconButton label={tp("invite")} onClick={() => void invite(member)} disabled={busy || !member.email}>
                           <Send size={13} />
                         </V2IconButton>
@@ -302,6 +363,18 @@ export default function V2BoardPage() {
             <V2Field label={tp("fields.image")}>
               <input dir="ltr" value={form.image} onChange={(e) => setField("image", e.target.value)} className={v2InputClass} />
             </V2Field>
+            <label className="mb-3 flex w-fit cursor-pointer items-center gap-2 rounded-xl border border-[#e6ddc9] bg-white px-3 py-2 text-xs font-black text-[#1a5632] hover:bg-[#f5ecd6]">
+              {uploadingImage ? <RefreshCw size={14} className="animate-spin" /> : <ImagePlus size={14} />}
+              {tp("uploadImage")}
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                disabled={uploadingImage}
+                className="hidden"
+                onChange={(event) => void uploadImage(event.target.files?.[0])}
+              />
+            </label>
+            <p className="mb-3 text-[10px] text-[#9aa399]">{tp("uploadHintLocal")}</p>
             <div className="mb-2 flex items-center gap-2 text-[11px] text-[#9aa399]">
               <Mail size={13} />
               {tp("inviteHint")}
@@ -313,6 +386,53 @@ export default function V2BoardPage() {
               onCancel={() => setEditing(null)}
             />
           </form>
+        </V2Dialog>
+      )}
+
+      {linking && (
+        <V2Dialog title={tp("linkTitle")} closeLabel={t("close")} onClose={() => setLinking(null)}>
+          <p className="mb-4 text-xs font-black text-[#203026]">
+            {locale === "ar" ? linking.nameAr || linking.nameEn : linking.nameEn || linking.nameAr}
+          </p>
+          {linking.userId && (
+            <p className="mb-4 flex items-center gap-2 rounded-xl border border-[#d8e6d9] bg-[#f1f8f1] px-3 py-2 text-[11px] font-bold text-[#1a5632]">
+              <Link2 size={13} />
+              {locale === "ar"
+                ? tp("accountFallback")
+                : tp("linkedAs", { email: accounts.find((account) => account.id === linking.userId)?.email || linking.userId })}
+            </p>
+          )}
+          <V2Field label={tp("selectUser")}>
+            <select value={selectedUserId} onChange={(event) => setSelectedUserId(event.target.value)} className={v2InputClass}>
+              <option value="">{tp("unlink")}</option>
+              {accounts.length === 0 && <option value="" disabled>{tp("noUsers")}</option>}
+              {accounts.map((account, index) => (
+                <option key={account.id} value={account.id}>
+                  {locale === "ar"
+                    ? `${tp("accountFallback")} ${formatLocalizedDigits(index + 1, locale)}`
+                    : account.email || account.id}
+                </option>
+              ))}
+            </select>
+          </V2Field>
+          <div className="mt-5 flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setLinking(null)}
+              className="rounded-xl border border-[#e6ddc9] px-4 py-2.5 text-xs font-bold text-[#6f7a70] hover:bg-[#f5ecd6]"
+            >
+              {t("close")}
+            </button>
+            <button
+              type="button"
+              disabled={linkBusy}
+              onClick={() => void saveLink()}
+              className="flex items-center gap-2 rounded-xl bg-[#123b24] px-4 py-2.5 text-xs font-black text-white shadow-sm hover:bg-[#1a5632] disabled:opacity-50"
+            >
+              <Unlink size={14} />
+              {linkBusy ? t("loading") : tp("linkAccount")}
+            </button>
+          </div>
         </V2Dialog>
       )}
     </V2Shell>

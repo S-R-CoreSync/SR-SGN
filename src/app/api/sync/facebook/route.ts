@@ -52,8 +52,9 @@ export async function GET(req: Request) {
     }
   }
 
-  const urlObj = new URL(req.url)
-  const authUrl = `https://www.facebook.com/v19.0/dialog/oauth?client_id=${appId}&redirect_uri=${urlObj.origin}/dashboard/facebook-sync&scope=pages_read_engagement&response_type=token`
+  // المسار الآمن الوحيد: تدفق OAuth بـ code + state يتحقق منه في callback،
+  // وينتهي إلى /dashboard/v2/facebook-sync. لا نستخدم تدفق token في الـ fragment.
+  const authUrl = "/api/auth/facebook-page"
 
   return NextResponse.json({ configured: !!(pageId && token), pageId: pageId || null, pageSlug, tokenValid, hasPageAccess, tokenScopes, errorMsg, authUrl, appId })
 }

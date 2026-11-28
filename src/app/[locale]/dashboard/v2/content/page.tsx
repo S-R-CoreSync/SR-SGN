@@ -9,7 +9,7 @@ import {
   V2Dialog, V2Field, V2FormActions, V2FormError, V2IconButton, V2PrimaryButton,
   v2Api, v2InputClass,
 } from "@/components/dashboard/v2-form";
-import { Eye, Pencil, Plus, RefreshCw, Search, Star, Trash2 } from "lucide-react";
+import { Eye, Pencil, Plus, RefreshCw, Search, Star, Trash2, Upload } from "lucide-react";
 
 type Post = {
   id: string;
@@ -21,11 +21,24 @@ type Post = {
   views?: number | null;
   published?: boolean;
   featured?: boolean;
+  membersOnly?: boolean;
+  image?: string | null;
+  tags?: string | null;
+  source?: string | null;
   createdAt: string;
 };
 
-type FormState = { title: string; excerpt: string; content: string; category: string; featured: boolean };
-const emptyForm: FormState = { title: "", excerpt: "", content: "", category: "", featured: false };
+const SHARE_PLATFORMS = ["facebook", "instagram", "x", "telegram", "whatsapp", "youtube", "tiktok"] as const;
+
+type FormState = {
+  title: string; excerpt: string; content: string; category: string;
+  slug: string; image: string; tags: string; source: string;
+  featured: boolean; membersOnly: boolean; publishTo: string[];
+};
+const emptyForm: FormState = {
+  title: "", excerpt: "", content: "", category: "", slug: "", image: "", tags: "", source: "",
+  featured: false, membersOnly: false, publishTo: [],
+};
 
 export default function V2ContentPage() {
   const t = useTranslations("dashboardV2");
@@ -69,7 +82,13 @@ export default function V2ContentPage() {
       excerpt: post.excerpt ?? "",
       content: post.content ?? "",
       category: post.category ?? "",
+      slug: post.slug ?? "",
+      image: post.image ?? "",
+      tags: post.tags ?? "",
+      source: post.source ?? "",
       featured: Boolean(post.featured),
+      membersOnly: Boolean(post.membersOnly),
+      publishTo: [],
     });
     setFormError("");
     setEditing(post);
@@ -79,18 +98,49 @@ export default function V2ContentPage() {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
+  async function uploadImage(file: File | undefined) {
+    if (!file) return;
+    setBusy(true);
+    setFormError("");
+    try {
+      const body = new FormData();
+      body.append("file", file);
+      const result = await v2Api<{ url?: string }>("/api/upload", { method: "POST", body });
+      if (!result.url) throw new Error("missing url");
+      setField("image", result.url);
+    } catch {
+      setFormError(t("saveFailed"));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function toggleShare(platform: string) {
+    setForm((prev) => ({
+      ...prev,
+      publishTo: prev.publishTo.includes(platform)
+        ? prev.publishTo.filter((item) => item !== platform)
+        : [...prev.publishTo, platform],
+    }));
+  }
+
   async function save(event: React.FormEvent) {
     event.preventDefault();
     if (!form.title.trim() || !form.content.trim() || !editing) return;
     setBusy(true);
     setFormError("");
     try {
-      const payload = { ...form, category: form.category || tp("defaultCategory") };
+      const { publishTo, ...fields } = form;
+      const payload = {
+        ...fields,
+        category: form.category || tp("defaultCategory"),
+        slug: form.slug.trim() || `post-${Date.now().toString(36)}`,
+      };
       if (editing === "new") {
         await v2Api("/api/pages", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+          body: JSON.stringify({ ...payload, publishTo }),
         });
       } else {
         await v2Api("/api/pages", {
@@ -254,18 +304,76 @@ export default function V2ContentPage() {
             <V2Field label={tp("fields.content")}>
               <textarea required rows={6} value={form.content} onChange={(e) => setField("content", e.target.value)} className={v2InputClass} />
             </V2Field>
-            <V2Field label={tp("fields.category")}>
-              <input value={form.category} onChange={(e) => setField("category", e.target.value)} className={v2InputClass} />
-            </V2Field>
-            <label className="mb-2 flex items-center gap-2 text-xs font-black text-[#4d5a50]">
-              <input
-                type="checkbox"
-                checked={form.featured}
-                onChange={(e) => setField("featured", e.target.checked)}
-                className="h-4 w-4 accent-[#1a5632]"
-              />
-              {tp("featured")}
-            </label>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <V2Field label={tp("fields.category")}>
+                <input value={form.category} onChange={(e) => setField("category", e.target.value)} className={v2InputClass} />
+              </V2Field>
+              <V2Field label={tp("slugLabel")}>
+                <input dir="ltr" value={form.slug} onChange={(e) => setField("slug", e.target.value)} className={v2InputClass} />
+              </V2Field>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <V2Field label={tp("imageLabel")}>
+                <input dir="ltr" value={form.image} onChange={(e) => setField("image", e.target.value)} className={v2InputClass} />
+              </V2Field>
+              <V2Field label={tp("sourceLabel")}>
+                <input value={form.source} onChange={(e) => setField("source", e.target.value)} className={v2InputClass} />
+              </V2Field>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <V2Field label={tp("tagsLabel")}>
+                <input value={form.tags} onChange={(e) => setField("tags", e.target.value)} className={v2InputClass} />
+              </V2Field>
+              <label className="flex cursor-pointer items-end gap-2 rounded-xl border border-[#e6ddc9] bg-white px-3 py-2 text-xs font-black text-[#1a5632] hover:bg-[#f5ecd6]">
+                <Upload size={14} />
+                {tp("uploadImage")}
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/gif,image/webp,image/svg+xml"
+                  disabled={busy}
+                  className="hidden"
+                  onChange={(event) => void uploadImage(event.target.files?.[0])}
+                />
+              </label>
+            </div>
+            <div className="flex flex-wrap gap-4">
+              <label className="flex items-center gap-2 text-xs font-black text-[#4d5a50]">
+                <input
+                  type="checkbox"
+                  checked={form.featured}
+                  onChange={(e) => setField("featured", e.target.checked)}
+                  className="h-4 w-4 accent-[#1a5632]"
+                />
+                {tp("featured")}
+              </label>
+              <label className="flex items-center gap-2 text-xs font-black text-[#4d5a50]">
+                <input
+                  type="checkbox"
+                  checked={form.membersOnly}
+                  onChange={(e) => setField("membersOnly", e.target.checked)}
+                  className="h-4 w-4 accent-[#1a5632]"
+                />
+                {tp("membersOnly")}
+              </label>
+            </div>
+            {editing === "new" && (
+              <div className="rounded-xl border border-[#f0ead9] bg-[#fdfcf9] p-3">
+                <p className="mb-3 text-xs font-black text-[#4d5a50]">{tp("socialTitle")}</p>
+                <div className="grid gap-2 sm:grid-cols-3">
+                  {SHARE_PLATFORMS.map((platform) => (
+                    <label key={platform} className="flex items-center gap-2 text-[11px] font-bold text-[#6f7a70]">
+                      <input
+                        type="checkbox"
+                        checked={form.publishTo.includes(platform)}
+                        onChange={() => toggleShare(platform)}
+                        className="h-3.5 w-3.5 accent-[#1a5632]"
+                      />
+                      {tp(`share.${platform}`)}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
             <V2FormActions
               saveLabel={t("save")}
               cancelLabel={t("cancel")}

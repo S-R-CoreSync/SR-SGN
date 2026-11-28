@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { formatLocalizedDigits } from "@/lib/language-guard";
+import { formatLocalizedDigits, hasArabicCharacters } from "@/lib/language-guard";
 import { V2Shell } from "@/components/dashboard/v2-shell";
 import { V2Intro, V2Message, V2Pill } from "@/components/dashboard/v2-ui";
 import {
@@ -17,11 +17,14 @@ type Task = {
   description?: string | null;
   status: string;
   priority: string;
+  assignedTo?: string | null;
   createdAt: string;
 };
 
-type FormState = { title: string; description: string; priority: string; status: string };
-const emptyForm: FormState = { title: "", description: "", priority: "medium", status: "pending" };
+type AccountOption = { id: string; name?: string | null; email?: string | null };
+
+type FormState = { title: string; description: string; priority: string; status: string; assignedTo: string };
+const emptyForm: FormState = { title: "", description: "", priority: "medium", status: "pending", assignedTo: "" };
 
 function columnOf(status: string): "pending" | "progress" | "done" {
   const value = status.toLowerCase();
@@ -44,6 +47,7 @@ export default function V2TasksPage() {
   const isRtl = locale === "ar";
 
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [users, setUsers] = useState<AccountOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -67,6 +71,31 @@ export default function V2TasksPage() {
     void load();
   }, [load]);
 
+  useEffect(() => {
+    void (async () => {
+      try {
+        const result = await v2Api<{ users?: AccountOption[] }>("/api/users?limit=200");
+        setUsers(result.users ?? []);
+      } catch {
+        setUsers([]);
+      }
+    })();
+  }, []);
+
+  function accountLabel(id: string | null | undefined) {
+    if (!id) return tp("unassigned");
+    const index = users.findIndex((item) => item.id === id);
+    const account = users[index];
+    const name = account?.name || "";
+    if (hasArabicCharacters(name)) {
+      return locale === "ar" ? name : account?.email || id;
+    }
+    if (locale === "ar") {
+      return `${tp("accountFallback")} ${formatLocalizedDigits(Math.max(index + 1, 1), locale)}`;
+    }
+    return name || account?.email || id;
+  }
+
   function openNew() {
     setForm(emptyForm);
     setFormError("");
@@ -79,6 +108,7 @@ export default function V2TasksPage() {
       description: task.description ?? "",
       priority: task.priority,
       status: task.status,
+      assignedTo: task.assignedTo ?? "",
     });
     setFormError("");
     setEditing(task);
@@ -205,6 +235,9 @@ export default function V2TasksPage() {
                           {task.description && (
                             <p className="mt-2 text-xs leading-relaxed text-[#8a958b]">{task.description}</p>
                           )}
+                          <p className="mt-2 text-[10px] font-bold text-[#8a6a1f]">
+                            {tp("assignedTo", { name: accountLabel(task.assignedTo) })}
+                          </p>
                           <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-[#f0ead9] pt-3">
                             <span className="text-[10px] tabular-nums text-[#9aa399]">
                               {formatLocalizedDigits(task.createdAt.slice(0, 10), locale)}
@@ -267,6 +300,24 @@ export default function V2TasksPage() {
                 className={v2InputClass}
               />
             </V2Field>
+            <div className="mt-4">
+              <V2Field label={tp("assignedToLabel")}>
+                <select value={form.assignedTo} onChange={(e) => setField("assignedTo", e.target.value)} className={v2InputClass}>
+                  <option value="">{tp("unassigned")}</option>
+                  {users.map((user, index) => (
+                    <option key={user.id} value={user.id}>
+                      {locale === "ar"
+                        ? hasArabicCharacters(user.name || "")
+                          ? user.name
+                          : `${tp("accountFallback")} ${formatLocalizedDigits(index + 1, locale)}`
+                        : hasArabicCharacters(user.name || "")
+                          ? user.email || user.id
+                          : user.name || user.email || user.id}
+                    </option>
+                  ))}
+                </select>
+              </V2Field>
+            </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <V2Field label={tp("fields.priority")}>
                 <select value={form.priority} onChange={(e) => setField("priority", e.target.value)} className={v2InputClass}>

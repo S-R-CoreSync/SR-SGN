@@ -2417,8 +2417,7 @@
           "city": "City",
           "status": "Status",
           "contact": "Contact",
-          "joined": "Joined"
-        ,
+          "joined": "Joined",
           "actions": "Actions"
         },
         "status": {
@@ -2426,8 +2425,7 @@
           "pending": "Pending review",
           "rejected": "Rejected",
           "other": "Other"
-        }
-      ,
+        },
         "filterLabel": "Filter by status",
         "filterAll": "All statuses",
         "filterPending": "Pending",
@@ -2447,11 +2445,20 @@
         "importNote": "Upload a comma-separated CSV file. Required columns: nameAr, whatsapp, birthYear. Incomplete rows are skipped automatically.",
         "importSubmit": "Start import",
         "importDone": "Imported {imported} members, skipped {skipped} rows",
-        "export": "Export members"
-      ,
-        "approve": "Approve member"
-      ,
-        "reject": "Reject member"
+        "export": "Export members",
+        "approve": "Approve member",
+        "reject": "Reject member",
+        "broadcast": "Email broadcast",
+        "broadcastTitle": "Bulk email message",
+        "broadcastNote": "The message is sent to members of the selected status who have a registered email.",
+        "subject": "Subject",
+        "message": "Message (HTML)",
+        "send": "Send",
+        "sending": "Sending...",
+        "sentDone": "Sent to {sent} of {total}",
+        "activity": "Activity log",
+        "activityEmpty": "No activity recorded",
+        "activityAll": "All members"
       },
       "tasks": {
         "title": "Tasks",
@@ -2476,7 +2483,11 @@
           "description": "Description",
           "priority": "Priority",
           "status": "Status"
-        }
+        },
+        "assignedToLabel": "Assigned to",
+        "unassigned": "Unassigned",
+        "assignedTo": "Assigned to: {name}",
+        "accountFallback": "Registered account"
       },
       "messages": {
         "title": "Inbox",
@@ -2560,6 +2571,22 @@
           "excerpt": "Excerpt",
           "content": "Content",
           "category": "Category"
+        },
+        "imageLabel": "Post image",
+        "tagsLabel": "Tags",
+        "sourceLabel": "Source",
+        "slugLabel": "URL slug",
+        "uploadImage": "Upload image",
+        "membersOnly": "Members only",
+        "socialTitle": "Publish to networks",
+        "share": {
+          "facebook": "Facebook",
+          "instagram": "Instagram",
+          "x": "X",
+          "telegram": "Telegram",
+          "whatsapp": "WhatsApp",
+          "youtube": "YouTube",
+          "tiktok": "TikTok"
         }
       },
       "finance": {
@@ -2730,10 +2757,10 @@
           "other": "Other"
         }
       },
-      "board": {"title":"Board members","note":"Board members, invitation records and linked accounts from live platform data","total":"Total","linked":"Linked accounts","invited":"Invited","inviteSent":"Invitation sent successfully","inviteFailed":"Could not send the invitation - check the address and permissions","inviteHint":"Invitations are sent by email and recorded only after a successful send","createTitle":"New member","editTitle":"Edit member","invite":"Send invitation","empty":"No board members yet","table":{"photo":"Photo","name":"Name","title":"Position","role":"Role","contact":"Contact","invited":"Invited on","actions":"Actions"},"roles":{"admin":"Admin","moderator":"Moderator","contributor":"Contributor","member":"Member"},"fields":{"nameAr":"Arabic name","nameEn":"English name","titleAr":"Arabic position","titleEn":"English position","email":"Email address","phone":"Phone number","role":"Role","website":"Website","image":"Image URL"}},
+      "board": {"title":"Board members","note":"Board members, invitation records and linked accounts from live platform data","total":"Total","linked":"Linked accounts","invited":"Invited","inviteSent":"Invitation sent successfully","inviteFailed":"Could not send the invitation - check the address and permissions","inviteHint":"Invitations are sent by email and recorded only after a successful send","createTitle":"New member","editTitle":"Edit member","invite":"Send invitation","empty":"No board members yet","table":{"photo":"Photo","name":"Name","title":"Position","role":"Role","contact":"Contact","invited":"Invited on","actions":"Actions"},"roles":{"admin":"Admin","moderator":"Moderator","contributor":"Contributor","member":"Member"},"fields":{"nameAr":"Arabic name","nameEn":"English name","titleAr":"Arabic position","titleEn":"English position","email":"Email address","phone":"Phone number","role":"Role","website":"Website","image":"Image URL"},"uploadImage":"Upload image","uploadHintLocal":"Uploading converts the image to a data URL and saves it on the member directly.","linkAccount":"Link account","linkTitle":"Link a board member account","selectUser":"Choose a user","linkedAs":"Linked account: {email}","unlink":"Unlink","linkSaved":"Link saved","linkFailed":"Could not save the link","noUsers":"No matching accounts","accountFallback":"Registered account"},
       "comments": {"title":"Comments","note":"Review and approve community comments from live platform data","total":"Total","pending":"Awaiting approval","searchPlaceholder":"Search by author or text...","empty":"No comments yet","approved":"Approved","waiting":"Pending","approve":"Approve","unapprove":"Unapprove","replies":"Replies"},
       "users": {"title":"Users & permissions","note":"Platform accounts, roles and individual permissions with real controls","tabs":{"users":"Users","roles":"Roles"},"searchPlaceholder":"Search by name or email...","createRole":"New role","editRole":"Edit role","total":"Total","emptyUsers":"No matching users","emptyRoles":"No roles yet","permissionCount":"Permission count","allCount":"All available permissions","permissions":"Permissions","editPermissions":"Edit user permissions","roles":{"member":"Member","admin":"Admin"},"table":{"name":"Name","email":"Email","role":"Role","joined":"Joined","actions":"Actions"},"fields":{"roleName":"Role name","roleDescription":"Description"}},
-      "media": {"title":"Media","note":"Images actually used in posts and local uploads","total":"Total","fromPosts":"From posts","fromUploads":"Uploads","upload":"Upload image","uploadHint":"Uploading creates a temporary image link and does not add it to the platform library. Copy the link and use it where needed.","empty":"No images yet","uploadResult":"Upload result","copyHint":"This is a temporary data link - copy it before closing the dialog","copy":"Copy link","copied":"Copied"}
+      "media": {"title":"Media","note":"Images actually used in posts and local uploads","total":"Total","fromPosts":"From posts","fromUploads":"Uploads","upload":"Upload image","uploadHint":"Uploading creates a temporary image link and does not add it to the platform library. Copy the link and use it where needed.","empty":"No images yet","uploadResult":"Upload result","copyHint":"This is a temporary data link - copy it before closing the dialog","copy":"Copy link","copied":"Copied","deleteImage":"Delete image","deleteHint":"Only local uploads can be deleted; post images are removed from the post itself."}
     ,
       "volunteers": {
         "title": "Volunteers",
@@ -2874,7 +2901,21 @@
         "failed": "Failed",
         "fetched": "Fetched",
         "new": "New",
-        "skipped": "Skipped"
+        "skipped": "Skipped",
+        "since": "Start date",
+        "verifyTitle": "Verify a new token",
+        "tokenPlaceholder": "Paste the page token here",
+        "verify": "Verify",
+        "verifying": "Verifying...",
+        "tokenValid": "Token valid. Scopes: {scopes}",
+        "tokenInvalid": "Invalid token: {error}",
+        "connectHint": "Automatic connection saves the token to platform settings and requires admin access.",
+        "callbackSuccess": "Page token saved successfully",
+        "callbackError": "Could not connect the page: {error}",
+        "tokenSavedHint": "Also update FACEBOOK_PAGE_TOKEN on Vercel so the connection survives deployment.",
+        "tokenValidShort": "Token valid.",
+        "tokenInvalidShort": "Invalid token. Check the value and page permissions.",
+        "callbackErrorShort": "Could not connect the page. Check the consent settings."
       }
     ,
       "regulations": {
