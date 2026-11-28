@@ -453,13 +453,16 @@ export default function V2MembersPage() {
                         <td className="py-3.5">
                           <div className="flex items-center gap-1.5">
                             {member.encryptedIdCard && (
-                              <V2IconButton
-                                label={tp("identityReview")}
-                                onClick={() => void openIdentity(member)}
+                              <button
+                                type="button"
+                                title={tp("identityReview")}
                                 disabled={busy}
+                                onClick={() => void openIdentity(member)}
+                                className="flex items-center gap-1.5 whitespace-nowrap rounded-lg border border-[#e6ddc9] bg-[#fdfcf9] px-2.5 py-1.5 text-[11px] font-black text-[#8a6a1f] hover:bg-[#f5ecd6] disabled:opacity-50"
                               >
                                 <Shield size={13} />
-                              </V2IconButton>
+                                {tp("identityReview")}
+                              </button>
                             )}
                             <V2IconButton
                               label={tp("approve")}

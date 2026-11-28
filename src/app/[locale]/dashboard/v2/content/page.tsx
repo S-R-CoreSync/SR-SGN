@@ -264,6 +264,14 @@ export default function V2ContentPage() {
           <V2PrimaryButton label={tp("createTitle")} onClick={openNew}>
             <Plus size={15} />
           </V2PrimaryButton>
+          <button
+            type="button"
+            onClick={openNew}
+            className="flex items-center gap-2 rounded-xl border border-[#e6ddc9] bg-white px-4 py-2.5 text-xs font-black text-[#8a6a1f] shadow-sm hover:bg-[#f5ecd6]"
+          >
+            <Sparkles size={15} />
+            {tp("aiNewDraft")}
+          </button>
           <div className="flex items-center gap-2 rounded-xl border border-[#e6ddc9] bg-white px-3 py-2 shadow-sm">
             <Search size={15} className="text-[#8a6a1f]" />
             <input

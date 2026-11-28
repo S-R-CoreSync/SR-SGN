@@ -7,7 +7,8 @@ import { useLocale, useTranslations } from "next-intl";
 import { formatLocalizedDigits } from "@/lib/language-guard";
 import { V2Shell } from "@/components/dashboard/v2-shell";
 import {
-  ArrowUpRight, CheckSquare, Database, FileText, Mail, RefreshCw, Settings, Users,
+  ArrowUpRight, CheckSquare, Database, FileText, Mail, MessageSquare, RefreshCw, Settings,
+  ShieldCheck, Sparkles, Users,
 } from "lucide-react";
 
 type Daily = { date: string; count: number };
@@ -295,6 +296,39 @@ export default function DashboardV2Page() {
                   </span>
                 </li>
               </ul>
+            </div>
+          </section>
+
+          <section id="ai-assistant" className="rounded-2xl border border-[#e3d3ad] bg-[#fdfcf9] p-6 shadow-sm">
+            <div className="mb-2 flex items-center gap-2">
+              <Sparkles size={17} className="text-[#8a6a1f]" />
+              <h2 className="text-sm font-black">{t("aiHubTitle")}</h2>
+            </div>
+            <p className="mb-5 text-xs leading-relaxed text-[#8a958b]">{t("aiHubNote")}</p>
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              {[
+                { key: "content", href: "/dashboard/v2/content", icon: FileText },
+                { key: "comments", href: "/dashboard/v2/comments", icon: MessageSquare },
+                { key: "messages", href: "/dashboard/v2/messages", icon: Mail },
+                { key: "identity", href: "/dashboard/v2/members", icon: ShieldCheck },
+              ].map((card) => {
+                const Icon = card.icon;
+                return (
+                  <Link
+                    key={card.key}
+                    href={card.href as "/dashboard/v2/content"}
+                    className="group rounded-xl border border-[#e6ddc9] bg-white p-4 transition-all hover:-translate-y-0.5 hover:border-[#c8a84e]"
+                  >
+                    <div className="flex items-center justify-between">
+                      <Icon size={18} className="text-[#1a5632]" />
+                      <ArrowUpRight size={14} className="text-[#c8a84e] opacity-50 group-hover:opacity-100" />
+                    </div>
+                    <p className="mt-3 text-xs font-black">{t(`aiHubCards.${card.key}.title`)}</p>
+                    <p className="mt-1 text-[11px] leading-relaxed text-[#8a958b]">{t(`aiHubCards.${card.key}.note`)}</p>
+                    <p className="mt-3 text-[11px] font-bold text-[#1a5632]">{t("view")}</p>
+                  </Link>
+                );
+              })}
             </div>
           </section>
         </div>

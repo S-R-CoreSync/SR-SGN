@@ -1398,27 +1398,20 @@
       "finance": "الشؤون المالية",
       "subscribers": "المشتركون",
       "ads": "الإعلانات",
-      "surveys": "الاستبيانات"
-    ,
+      "surveys": "الاستبيانات",
       "board": "مجلس الإدارة",
       "comments": "التعليقات",
       "users": "المستخدمون والصلاحيات",
-      "media": "الوسائط"
-    ,
-      "stats": "الإحصائيات"
-    ,
-      "volunteers": "المتطوعون"
-    ,
-      "regulations": "اللائحة"
-    ,
-      "vault": "خزنة المستندات"
-    ,
-      "membershipSettings": "إعدادات العضوية"
-    ,
-      "facebookSync": "مزامنة فيسبوك"
-    ,
+      "media": "الوسائط",
+      "stats": "الإحصائيات",
+      "volunteers": "المتطوعون",
+      "regulations": "اللائحة",
+      "vault": "خزنة المستندات",
+      "membershipSettings": "إعدادات العضوية",
+      "facebookSync": "مزامنة فيسبوك",
       "mobileControl": "تحكم التطبيق",
-      "documentsGenerator": "الورقيات والنماذج الرسمية"
+      "documentsGenerator": "الورقيات والنماذج الرسمية",
+      "aiHub": "مساعد الذكاء"
     },
     "tasksTitle": "يحتاج انتباهك",
     "tasksNote": "أمور حقيقية من بيانات المنصة، مرتبة حسب الأهمية",
@@ -1573,7 +1566,8 @@
           "praise": "ثناء",
           "spam": "غير مرغوب",
           "other": "أخرى"
-        }
+        },
+        "aiSuggest": "مراجعة بالذكاء"
       },
       "system": {
         "title": "حالة النظام",
@@ -1672,7 +1666,8 @@
         "aiDraftNote": "مسودة مقترحة — لم تُحفظ بعد",
         "aiAdopt": "تعبئة النموذج بالمسودة",
         "aiAdoptedHint": "المسودة الآن في النموذج. راجعها ثم اضغط حفظ لإنشاء المقال.",
-        "aiNoNumbersHint": "لا يضيف الذكاء الاصطناعي أرقاماً؛ أضف أي أرقام حقيقية بنفسك."
+        "aiNoNumbersHint": "لا يضيف الذكاء الاصطناعي أرقاماً؛ أضف أي أرقام حقيقية بنفسك.",
+        "aiNewDraft": "مسودة مقترحة"
       },
       "finance": {
         "title": "الشؤون المالية",
@@ -1693,13 +1688,11 @@
           "success": "محصّل",
           "pending": "بانتظار",
           "failed": "غير ناجح"
-        }
-      ,
+        },
         "pageInfo": "صفحة {current} من {total}",
         "prevPage": "الصفحة السابقة",
         "nextPage": "الصفحة التالية",
-        "markPaid": "تحديد كمحصّل"
-      ,
+        "markPaid": "تحديد كمحصّل",
         "markFailed": "تحديد كغير ناجح"
       },
       "subscribers": {
@@ -1760,8 +1753,7 @@
           "optionsHint": "تُضاف الخيارات عند الإنشاء فقط",
           "active": "نشط"
         }
-      }
-    ,
+      },
       "documents-generator": {
         "title": "توليد الورقيات الرسمية",
         "note": "وثائق تُبنى من أعضاء ومتطوعي المنصة الحقيقيين — دون أي توليد آلي للنصوص",
@@ -1842,11 +1834,135 @@
           "other": "أخرى"
         }
       },
-      "board": {"title":"مجلس الإدارة","note":"أعضاء المجلس وسجل دعواتهم وربط حساباتهم — بيانات فعلية من المنصة","total":"الإجمالي","linked":"حسابات مربوطة","invited":"مدعوون","inviteSent":"أُرسلت الدعوة بنجاح","inviteFailed":"تعذّر إرسال الدعوة — تحقق من البريد والصلاحيات","inviteHint":"الدعوة تُرسل بالبريد وتُسجّل بعد نجاح الإرسال فقط","createTitle":"عضو جديد","editTitle":"تعديل العضو","invite":"إرسال دعوة","empty":"لا يوجد أعضاء حالياً","table":{"photo":"الصورة","name":"الاسم","title":"المنصب","role":"الدور","contact":"وسيلة التواصل","invited":"تاريخ الدعوة","actions":"إجراءات"},"roles":{"admin":"مدير","moderator":"مشرف","contributor":"مساهم","member":"عضو"},"fields":{"nameAr":"الاسم بالعربية","nameEn":"الاسم بالإنجليزية","titleAr":"المنصب بالعربية","titleEn":"المنصب بالإنجليزية","email":"البريد الإلكتروني","phone":"الجوال","role":"الدور","website":"الموقع","image":"رابط الصورة"},"uploadImage":"رفع صورة","uploadHintLocal":"الرفع يحوّل الصورة إلى رابط بيانات ويُحفظ مع العضو مباشرة.","linkAccount":"ربط حساب","linkTitle":"ربط حساب عضو المجلس","selectUser":"اختر المستخدم","linkedAs":"الحساب المربوط: {email}","unlink":"فك الربط","linkSaved":"تم حفظ الربط","linkFailed":"تعذّر حفظ الربط","noUsers":"لا توجد حسابات مطابقة","accountFallback":"حساب مسجّل"},
-      "comments": {"title":"التعليقات","note":"مراجعة تعليقات الجالية واعتمادها من بيانات المنصة مباشرة","total":"الإجمالي","pending":"بانتظار الاعتماد","searchPlaceholder":"ابحث بالكاتب أو النص...","empty":"لا توجد تعليقات حالياً","approved":"معتمد","waiting":"بانتظار","approve":"اعتماد","unapprove":"إلغاء الاعتماد","replies":"ردود","review":"مراجعة مقترحة","reviewTitle":"اقتراح المراجعة","reviewNote":"اقتراح للمراجعة فقط — لا يُعتمد ولا يُرسل.","reviewCategoryLabel":"التصنيف المقترح","reviewSummaryLabel":"الملخص","reviewReplyLabel":"رد مقترح","copyReply":"نسخ الرد","copied":"تم النسخ","reviewCategory":{"inquiry":"استفسار","complaint":"شكوى","praise":"ثناء","spam":"غير مرغوب","other":"أخرى"}},
-      "users": {"title":"المستخدمون والصلاحيات","note":"حسابات المنصة والأدوار والصلاحيات الفردية — تحكم كامل بالبيانات الحقيقية","tabs":{"users":"المستخدمون","roles":"الأدوار"},"searchPlaceholder":"ابحث بالاسم أو البريد...","createRole":"دور جديد","editRole":"تعديل الدور","total":"الإجمالي","emptyUsers":"لا يوجد مستخدمون مطابقون","emptyRoles":"لا توجد أدوار حالياً","permissionCount":"عدد الصلاحيات","allCount":"كل الصلاحيات المتاحة","permissions":"الصلاحيات","editPermissions":"تحرير صلاحيات المستخدم","roles":{"member":"عضو","admin":"مدير"},"table":{"name":"الاسم","email":"البريد","role":"الدور","joined":"تاريخ التسجيل","actions":"إجراءات"},"fields":{"roleName":"اسم الدور","roleDescription":"الوصف"}},
-      "media": {"title":"الوسائط","note":"الصور المستخدمة فعلياً في المقالات والمرفوعات المحلية","total":"الإجمالي","fromPosts":"من المقالات","fromUploads":"مرفوعات","upload":"رفع صورة","uploadHint":"الرفع ينشئ رابطاً مؤقتاً للصورة ولا يضيفها إلى مكتبة المنصة؛ انسخ الرابط واستخدمه حيث تحتاجه.","empty":"لا توجد صور حالياً","uploadResult":"نتيجة الرفع","copyHint":"هذا رابط بيانات مؤقت — انسخه قبل إغلاق النافذة","copy":"نسخ الرابط","copied":"تم النسخ","deleteImage":"حذف الصورة","deleteHint":"تُحذف المرفوعات المحلية فقط؛ صور المقالات تُحذف من المقال نفسه."}
-    ,
+      "board": {
+        "title": "مجلس الإدارة",
+        "note": "أعضاء المجلس وسجل دعواتهم وربط حساباتهم — بيانات فعلية من المنصة",
+        "total": "الإجمالي",
+        "linked": "حسابات مربوطة",
+        "invited": "مدعوون",
+        "inviteSent": "أُرسلت الدعوة بنجاح",
+        "inviteFailed": "تعذّر إرسال الدعوة — تحقق من البريد والصلاحيات",
+        "inviteHint": "الدعوة تُرسل بالبريد وتُسجّل بعد نجاح الإرسال فقط",
+        "createTitle": "عضو جديد",
+        "editTitle": "تعديل العضو",
+        "invite": "إرسال دعوة",
+        "empty": "لا يوجد أعضاء حالياً",
+        "table": {
+          "photo": "الصورة",
+          "name": "الاسم",
+          "title": "المنصب",
+          "role": "الدور",
+          "contact": "وسيلة التواصل",
+          "invited": "تاريخ الدعوة",
+          "actions": "إجراءات"
+        },
+        "roles": {
+          "admin": "مدير",
+          "moderator": "مشرف",
+          "contributor": "مساهم",
+          "member": "عضو"
+        },
+        "fields": {
+          "nameAr": "الاسم بالعربية",
+          "nameEn": "الاسم بالإنجليزية",
+          "titleAr": "المنصب بالعربية",
+          "titleEn": "المنصب بالإنجليزية",
+          "email": "البريد الإلكتروني",
+          "phone": "الجوال",
+          "role": "الدور",
+          "website": "الموقع",
+          "image": "رابط الصورة"
+        },
+        "uploadImage": "رفع صورة",
+        "uploadHintLocal": "الرفع يحوّل الصورة إلى رابط بيانات ويُحفظ مع العضو مباشرة.",
+        "linkAccount": "ربط حساب",
+        "linkTitle": "ربط حساب عضو المجلس",
+        "selectUser": "اختر المستخدم",
+        "linkedAs": "الحساب المربوط: {email}",
+        "unlink": "فك الربط",
+        "linkSaved": "تم حفظ الربط",
+        "linkFailed": "تعذّر حفظ الربط",
+        "noUsers": "لا توجد حسابات مطابقة",
+        "accountFallback": "حساب مسجّل"
+      },
+      "comments": {
+        "title": "التعليقات",
+        "note": "مراجعة تعليقات الجالية واعتمادها من بيانات المنصة مباشرة",
+        "total": "الإجمالي",
+        "pending": "بانتظار الاعتماد",
+        "searchPlaceholder": "ابحث بالكاتب أو النص...",
+        "empty": "لا توجد تعليقات حالياً",
+        "approved": "معتمد",
+        "waiting": "بانتظار",
+        "approve": "اعتماد",
+        "unapprove": "إلغاء الاعتماد",
+        "replies": "ردود",
+        "review": "مراجعة مقترحة",
+        "reviewTitle": "اقتراح المراجعة",
+        "reviewNote": "اقتراح للمراجعة فقط — لا يُعتمد ولا يُرسل.",
+        "reviewCategoryLabel": "التصنيف المقترح",
+        "reviewSummaryLabel": "الملخص",
+        "reviewReplyLabel": "رد مقترح",
+        "copyReply": "نسخ الرد",
+        "copied": "تم النسخ",
+        "reviewCategory": {
+          "inquiry": "استفسار",
+          "complaint": "شكوى",
+          "praise": "ثناء",
+          "spam": "غير مرغوب",
+          "other": "أخرى"
+        },
+        "aiSuggest": "مراجعة بالذكاء"
+      },
+      "users": {
+        "title": "المستخدمون والصلاحيات",
+        "note": "حسابات المنصة والأدوار والصلاحيات الفردية — تحكم كامل بالبيانات الحقيقية",
+        "tabs": {
+          "users": "المستخدمون",
+          "roles": "الأدوار"
+        },
+        "searchPlaceholder": "ابحث بالاسم أو البريد...",
+        "createRole": "دور جديد",
+        "editRole": "تعديل الدور",
+        "total": "الإجمالي",
+        "emptyUsers": "لا يوجد مستخدمون مطابقون",
+        "emptyRoles": "لا توجد أدوار حالياً",
+        "permissionCount": "عدد الصلاحيات",
+        "allCount": "كل الصلاحيات المتاحة",
+        "permissions": "الصلاحيات",
+        "editPermissions": "تحرير صلاحيات المستخدم",
+        "roles": {
+          "member": "عضو",
+          "admin": "مدير"
+        },
+        "table": {
+          "name": "الاسم",
+          "email": "البريد",
+          "role": "الدور",
+          "joined": "تاريخ التسجيل",
+          "actions": "إجراءات"
+        },
+        "fields": {
+          "roleName": "اسم الدور",
+          "roleDescription": "الوصف"
+        }
+      },
+      "media": {
+        "title": "الوسائط",
+        "note": "الصور المستخدمة فعلياً في المقالات والمرفوعات المحلية",
+        "total": "الإجمالي",
+        "fromPosts": "من المقالات",
+        "fromUploads": "مرفوعات",
+        "upload": "رفع صورة",
+        "uploadHint": "الرفع ينشئ رابطاً مؤقتاً للصورة ولا يضيفها إلى مكتبة المنصة؛ انسخ الرابط واستخدمه حيث تحتاجه.",
+        "empty": "لا توجد صور حالياً",
+        "uploadResult": "نتيجة الرفع",
+        "copyHint": "هذا رابط بيانات مؤقت — انسخه قبل إغلاق النافذة",
+        "copy": "نسخ الرابط",
+        "copied": "تم النسخ",
+        "deleteImage": "حذف الصورة",
+        "deleteHint": "تُحذف المرفوعات المحلية فقط؛ صور المقالات تُحذف من المقال نفسه."
+      },
       "volunteers": {
         "title": "المتطوعون",
         "note": "سجل المتطوعين المسجلين — قراءة من بيانات المنصة",
@@ -1854,8 +1970,7 @@
         "searchPlaceholder": "ابحث بالاسم أو البريد...",
         "empty": "لا يوجد متطوعون حالياً",
         "registered": "مسجّل"
-      }
-    ,
+      },
       "settings": {
         "title": "إعدادات الحساب",
         "memberTitle": "بطاقة العضوية",
@@ -1884,8 +1999,7 @@
           "contributor": "مساهم",
           "member": "عضو"
         }
-      }
-    ,
+      },
       "vault": {
         "title": "خزنة المستندات",
         "note": "مراجعة مستندات الأعضاء واعتمادها من بيانات حقيقية",
@@ -1907,8 +2021,7 @@
           "approved": "معتمد",
           "rejected": "مرفوض"
         }
-      }
-    ,
+      },
       "membershipSettings": {
         "title": "إعدادات العضوية",
         "note": "الحقول الظاهرة في نموذج الانتساب — الحفظ يكتب الإعدادات الفعلية",
@@ -1933,8 +2046,7 @@
           "skills": "المهارات",
           "maritalStatus": "الحالة الاجتماعية"
         }
-      }
-    ,
+      },
       "stats": {
         "title": "إحصائيات الأعضاء",
         "note": "أرقام محسوبة من سجل الأعضاء الفعلي — بلا بيانات مقدّرة",
@@ -1960,8 +2072,7 @@
         "topProvince": "أعلى مقاطعة",
         "originTitle": "المحافظات الأصلية",
         "originNote": "حسب بيانات الانتساب المسجّلة"
-      }
-    ,
+      },
       "facebookSync": {
         "title": "مزامنة فيسبوك",
         "note": "حالة الربط وتشغيل جلب منشورات الصفحة من مصدرها الرسمي",
@@ -2001,8 +2112,7 @@
         "tokenValidShort": "التوكن صالح.",
         "tokenInvalidShort": "التوكن غير صالح. راجع القيم وصلاحيات الصفحة.",
         "callbackErrorShort": "تعذّر ربط الصفحة. راجع إعدادات الموافقة."
-      }
-    ,
+      },
       "regulations": {
         "title": "اللائحة",
         "note": "نص اللائحة المسجّل في المنصة مع إمكانية التعديل ورفع الإصدار",
@@ -2019,8 +2129,7 @@
           "title": "العنوان",
           "body": "النص"
         }
-      }
-    ,
+      },
       "mobileControl": {
         "title": "تحكم التطبيق",
         "note": "إعدادات التطبيق وإرسال الإشعارات — لا تُعدّل ترجمات التطبيق من هنا",
@@ -2066,33 +2175,106 @@
     "edit": "تعديل",
     "delete": "حذف",
     "confirmDelete": "هل تريد الحذف نهائياً؟",
-    "saveFailed": "تعذّر الحفظ — تحقق من تسجيل الدخول والصلاحيات"
-  ,
+    "saveFailed": "تعذّر الحفظ — تحقق من تسجيل الدخول والصلاحيات",
     "breadcrumbBoard": "مجلس الإدارة",
     "breadcrumbComments": "التعليقات",
     "breadcrumbUsers": "المستخدمون والصلاحيات",
     "breadcrumbMedia": "الوسائط",
-    "permissions": {"news.create":"إنشاء الأخبار","news.edit":"تعديل الأخبار","news.delete":"حذف الأخبار","news.publish":"نشر الأخبار","news.feature":"تمييز الأخبار","events.create":"إنشاء الفعاليات","events.edit":"تعديل الفعاليات","events.delete":"حذف الفعاليات","events.publish":"نشر الفعاليات","tasks.create":"إنشاء المهام","tasks.edit":"تعديل المهام","tasks.delete":"حذف المهام","tasks.assign":"إسناد المهام","comments.approve":"اعتماد التعليقات","comments.delete":"حذف التعليقات","comments.manage":"إدارة التعليقات","ads.create":"إنشاء الإعلانات","ads.edit":"تعديل الإعلانات","ads.delete":"حذف الإعلانات","surveys.create":"إنشاء الاستبيانات","surveys.edit":"تعديل الاستبيانات","surveys.delete":"حذف الاستبيانات","surveys.view_results":"عرض نتائج الاستبيانات","media.upload":"رفع الوسائط","media.delete":"حذف الوسائط","pages.create":"إنشاء الصفحات","pages.edit":"تعديل الصفحات","pages.delete":"حذف الصفحات","pages.publish":"نشر الصفحات","users.view":"عرض المستخدمين","users.edit_role":"تعديل أدوار المستخدمين","users.delete":"حذف المستخدمين","settings.view":"عرض الإعدادات","settings.edit":"تعديل الإعدادات","roles.manage":"إدارة الأدوار","volunteers.view":"عرض المتطوعين","volunteers.manage":"إدارة المتطوعين","subscribers.view":"عرض المشتركين","subscribers.export":"تصدير المشتركين","landing.create":"إنشاء صفحات الهبوط","landing.edit":"تعديل صفحات الهبوط","landing.delete":"حذف صفحات الهبوط","landing.publish":"نشر صفحات الهبوط","regulations.edit":"تعديل اللوائح","faqs.manage":"إدارة الأسئلة الشائعة"},
-    "modules": {"news":"الأخبار","events":"الفعاليات","tasks":"المهام","comments":"التعليقات","ads":"الإعلانات","surveys":"الاستبيانات","media":"الوسائط","pages":"الصفحات","users":"المستخدمون","settings":"الإعدادات","roles":"الأدوار","volunteers":"المتطوعون","subscribers":"المشتركون","landing":"صفحات الهبوط","regulations":"اللوائح","faqs":"الأسئلة الشائعة"}
-  ,
-    "breadcrumbStats": "الإحصائيات"
-  ,
-    "breadcrumbVolunteers": "المتطوعون"
-  ,
-    "breadcrumbRegulations": "اللائحة"
-  ,
-    "breadcrumbVault": "خزنة المستندات"
-  ,
-    "breadcrumbMembershipSettings": "إعدادات العضوية"
-  ,
-    "breadcrumbFacebookSync": "مزامنة فيسبوك"
-  ,
-    "breadcrumbSettings": "إعدادات الحساب"
-  ,
-    "breadcrumbDocumentsGenerator": "الورقيات والنماذج الرسمية"
-  ,
-    "breadcrumbMobileControl": "تحكم التطبيق"
-  ,
-    "backToHome": "العودة للرئيسية"
+    "permissions": {
+      "news.create": "إنشاء الأخبار",
+      "news.edit": "تعديل الأخبار",
+      "news.delete": "حذف الأخبار",
+      "news.publish": "نشر الأخبار",
+      "news.feature": "تمييز الأخبار",
+      "events.create": "إنشاء الفعاليات",
+      "events.edit": "تعديل الفعاليات",
+      "events.delete": "حذف الفعاليات",
+      "events.publish": "نشر الفعاليات",
+      "tasks.create": "إنشاء المهام",
+      "tasks.edit": "تعديل المهام",
+      "tasks.delete": "حذف المهام",
+      "tasks.assign": "إسناد المهام",
+      "comments.approve": "اعتماد التعليقات",
+      "comments.delete": "حذف التعليقات",
+      "comments.manage": "إدارة التعليقات",
+      "ads.create": "إنشاء الإعلانات",
+      "ads.edit": "تعديل الإعلانات",
+      "ads.delete": "حذف الإعلانات",
+      "surveys.create": "إنشاء الاستبيانات",
+      "surveys.edit": "تعديل الاستبيانات",
+      "surveys.delete": "حذف الاستبيانات",
+      "surveys.view_results": "عرض نتائج الاستبيانات",
+      "media.upload": "رفع الوسائط",
+      "media.delete": "حذف الوسائط",
+      "pages.create": "إنشاء الصفحات",
+      "pages.edit": "تعديل الصفحات",
+      "pages.delete": "حذف الصفحات",
+      "pages.publish": "نشر الصفحات",
+      "users.view": "عرض المستخدمين",
+      "users.edit_role": "تعديل أدوار المستخدمين",
+      "users.delete": "حذف المستخدمين",
+      "settings.view": "عرض الإعدادات",
+      "settings.edit": "تعديل الإعدادات",
+      "roles.manage": "إدارة الأدوار",
+      "volunteers.view": "عرض المتطوعين",
+      "volunteers.manage": "إدارة المتطوعين",
+      "subscribers.view": "عرض المشتركين",
+      "subscribers.export": "تصدير المشتركين",
+      "landing.create": "إنشاء صفحات الهبوط",
+      "landing.edit": "تعديل صفحات الهبوط",
+      "landing.delete": "حذف صفحات الهبوط",
+      "landing.publish": "نشر صفحات الهبوط",
+      "regulations.edit": "تعديل اللوائح",
+      "faqs.manage": "إدارة الأسئلة الشائعة"
+    },
+    "modules": {
+      "news": "الأخبار",
+      "events": "الفعاليات",
+      "tasks": "المهام",
+      "comments": "التعليقات",
+      "ads": "الإعلانات",
+      "surveys": "الاستبيانات",
+      "media": "الوسائط",
+      "pages": "الصفحات",
+      "users": "المستخدمون",
+      "settings": "الإعدادات",
+      "roles": "الأدوار",
+      "volunteers": "المتطوعون",
+      "subscribers": "المشتركون",
+      "landing": "صفحات الهبوط",
+      "regulations": "اللوائح",
+      "faqs": "الأسئلة الشائعة"
+    },
+    "breadcrumbStats": "الإحصائيات",
+    "breadcrumbVolunteers": "المتطوعون",
+    "breadcrumbRegulations": "اللائحة",
+    "breadcrumbVault": "خزنة المستندات",
+    "breadcrumbMembershipSettings": "إعدادات العضوية",
+    "breadcrumbFacebookSync": "مزامنة فيسبوك",
+    "breadcrumbSettings": "إعدادات الحساب",
+    "breadcrumbDocumentsGenerator": "الورقيات والنماذج الرسمية",
+    "breadcrumbMobileControl": "تحكم التطبيق",
+    "backToHome": "العودة للرئيسية",
+    "menu": "القائمة",
+    "aiHubTitle": "اقتراحات الذكاء الاصطناعي",
+    "aiHubNote": "اقتراحات للمراجعة فقط — أنت من يقرر الاعتماد. لا يُنشر شيء تلقائياً.",
+    "aiHubCards": {
+      "content": {
+        "title": "مسودة محتوى",
+        "note": "اكتب فكرة وتحصل على مسودة للمراجعة قبل النشر."
+      },
+      "comments": {
+        "title": "مراجعة التعليقات",
+        "note": "تصنيف وملخّص ورد مقترح — انسخ الرد بعد مراجعتك."
+      },
+      "messages": {
+        "title": "مراجعة الرسائل",
+        "note": "ملخّص ورد مقترح لرسائل التواصل — بلا إرسال آلي."
+      },
+      "identity": {
+        "title": "توصية الهوية",
+        "note": "قراءة البطاقة وتوصية بقرار بشري مسجّل — بلا تغيير حالة العضو."
+      }
+    }
   }
 }

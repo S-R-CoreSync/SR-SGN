@@ -1398,27 +1398,20 @@
       "finance": "Financiën",
       "subscribers": "Abonnees",
       "ads": "Advertenties",
-      "surveys": "Enquêtes"
-    ,
+      "surveys": "Enquêtes",
       "board": "Bestuur",
       "comments": "Reacties",
       "users": "Gebruikers en rechten",
-      "media": "Media"
-    ,
-      "stats": "Statistieken"
-    ,
-      "volunteers": "Vrijwilligers"
-    ,
-      "regulations": "Reglementen"
-    ,
-      "vault": "Documentenkluis"
-    ,
-      "membershipSettings": "Lidmaatschapsinstellingen"
-    ,
-      "facebookSync": "Facebook-synchronisatie"
-    ,
+      "media": "Media",
+      "stats": "Statistieken",
+      "volunteers": "Vrijwilligers",
+      "regulations": "Reglementen",
+      "vault": "Documentenkluis",
+      "membershipSettings": "Lidmaatschapsinstellingen",
+      "facebookSync": "Facebook-synchronisatie",
       "mobileControl": "App-beheer",
-      "documentsGenerator": "Officiële Documenten & Papierwerk"
+      "documentsGenerator": "Officiële Documenten & Papierwerk",
+      "aiHub": "AI-assistent"
     },
     "tasksTitle": "Vraagt uw aandacht",
     "tasksNote": "Echte items uit platformgegevens, gesorteerd op belangrijkheid",
@@ -1573,7 +1566,8 @@
           "praise": "Lof",
           "spam": "Spam",
           "other": "Overig"
-        }
+        },
+        "aiSuggest": "AI-beoordeling"
       },
       "system": {
         "title": "Systeemstatus",
@@ -1672,7 +1666,8 @@
         "aiDraftNote": "Voorgesteld concept — nog niet opgeslagen",
         "aiAdopt": "Formulier met het concept vullen",
         "aiAdoptedHint": "Het concept staat nu in het formulier. Controleer het en druk op Opslaan om het artikel te maken.",
-        "aiNoNumbersHint": "De AI voegt geen cijfers toe; vul echte getallen zelf in."
+        "aiNoNumbersHint": "De AI voegt geen cijfers toe; vul echte getallen zelf in.",
+        "aiNewDraft": "AI-concept"
       },
       "finance": {
         "title": "Financiën",
@@ -1693,13 +1688,11 @@
           "success": "Ontvangen",
           "pending": "Wachtend",
           "failed": "Mislukt"
-        }
-      ,
+        },
         "pageInfo": "Pagina {current} van {total}",
         "prevPage": "Vorige pagina",
         "nextPage": "Volgende pagina",
-        "markPaid": "Als betaald markeren"
-      ,
+        "markPaid": "Als betaald markeren",
         "markFailed": "Als mislukt markeren"
       },
       "subscribers": {
@@ -1760,8 +1753,7 @@
           "optionsHint": "Opties worden alleen bij aanmaken toegevoegd",
           "active": "Actief"
         }
-      }
-    ,
+      },
       "documents-generator": {
         "title": "Officiële documentengenerator",
         "note": "Documenten op basis van echte leden en vrijwilligers - zonder automatische tekstgeneratie",
@@ -1842,11 +1834,135 @@
           "other": "Overig"
         }
       },
-      "board": {"title":"Bestuursleden","note":"Bestuursleden, uitnodigingen en gekoppelde accounts uit echte platformgegevens","total":"Totaal","linked":"Gekoppelde accounts","invited":"Uitgenodigd","inviteSent":"Uitnodiging verzonden","inviteFailed":"Uitnodiging kon niet worden verzonden - controleer het adres en de rechten","inviteHint":"Uitnodigingen gaan per e-mail en worden alleen na een geslaagde verzending vastgelegd","createTitle":"Nieuw lid","editTitle":"Lid bewerken","invite":"Uitnodiging versturen","empty":"Nog geen bestuursleden","table":{"photo":"Foto","name":"Naam","title":"Functie","role":"Rol","contact":"Contact","invited":"Uitgenodigd op","actions":"Acties"},"roles":{"admin":"Beheerder","moderator":"Moderator","contributor":"Bijdrager","member":"Lid"},"fields":{"nameAr":"Arabische naam","nameEn":"Engelse naam","titleAr":"Arabische functie","titleEn":"Engelse functie","email":"E-mailadres","phone":"Telefoonnummer","role":"Rol","website":"Website","image":"Afbeeldings-URL"},"uploadImage":"Afbeelding uploaden","uploadHintLocal":"Uploaden zet de afbeelding om in een data-URL en slaat die direct op bij het lid.","linkAccount":"Account koppelen","linkTitle":"Account van een bestuurslid koppelen","selectUser":"Kies een gebruiker","linkedAs":"Gekoppeld account: {email}","unlink":"Ontkoppelen","linkSaved":"Koppeling opgeslagen","linkFailed":"Koppeling kon niet worden opgeslagen","noUsers":"Geen overeenkomende accounts","accountFallback":"Geregistreerd account"},
-      "comments": {"title":"Reacties","note":"Reacties van de gemeenschap beoordelen en goedkeuren met echte gegevens","total":"Totaal","pending":"Wachten op goedkeuring","searchPlaceholder":"Zoeken op auteur of tekst...","empty":"Nog geen reacties","approved":"Goedgekeurd","waiting":"In afwachting","approve":"Goedkeuren","unapprove":"Goedkeuring intrekken","replies":"Antwoorden","review":"AI-suggestie","reviewTitle":"Reviewconcept","reviewNote":"Alleen een suggestie — niet goedgekeurd of verzonden.","reviewCategoryLabel":"Voorgestelde categorie","reviewSummaryLabel":"Samenvatting","reviewReplyLabel":"Voorgesteld antwoord","copyReply":"Antwoord kopiëren","copied":"Gekopieerd","reviewCategory":{"inquiry":"Vraag","complaint":"Klacht","praise":"Lof","spam":"Spam","other":"Overig"}},
-      "users": {"title":"Gebruikers en rechten","note":"Accounts, rollen en individuele rechten met echte bediening","tabs":{"users":"Gebruikers","roles":"Rollen"},"searchPlaceholder":"Zoeken op naam of e-mail...","createRole":"Nieuwe rol","editRole":"Rol bewerken","total":"Totaal","emptyUsers":"Geen overeenkomende gebruikers","emptyRoles":"Nog geen rollen","permissionCount":"Aantal rechten","allCount":"Alle beschikbare rechten","permissions":"Rechten","editPermissions":"Gebruikersrechten bewerken","roles":{"member":"Lid","admin":"Beheerder"},"table":{"name":"Naam","email":"E-mail","role":"Rol","joined":"Geregistreerd","actions":"Acties"},"fields":{"roleName":"Rolnaam","roleDescription":"Beschrijving"}},
-      "media": {"title":"Media","note":"Afbeeldingen die echt in artikelen en lokale uploads worden gebruikt","total":"Totaal","fromPosts":"Uit artikelen","fromUploads":"Uploads","upload":"Afbeelding uploaden","uploadHint":"Uploaden maakt een tijdelijke link en voegt de afbeelding niet toe aan de bibliotheek. Kopieer de link en gebruik die waar nodig.","empty":"Nog geen afbeeldingen","uploadResult":"Uploadresultaat","copyHint":"Dit is een tijdelijke datalink - kopieer die voordat u het venster sluit","copy":"Link kopieren","copied":"Gekopieerd","deleteImage":"Afbeelding verwijderen","deleteHint":"Alleen lokale uploads kunnen worden verwijderd; artikelafbeeldingen worden via het artikel verwijderd."}
-    ,
+      "board": {
+        "title": "Bestuursleden",
+        "note": "Bestuursleden, uitnodigingen en gekoppelde accounts uit echte platformgegevens",
+        "total": "Totaal",
+        "linked": "Gekoppelde accounts",
+        "invited": "Uitgenodigd",
+        "inviteSent": "Uitnodiging verzonden",
+        "inviteFailed": "Uitnodiging kon niet worden verzonden - controleer het adres en de rechten",
+        "inviteHint": "Uitnodigingen gaan per e-mail en worden alleen na een geslaagde verzending vastgelegd",
+        "createTitle": "Nieuw lid",
+        "editTitle": "Lid bewerken",
+        "invite": "Uitnodiging versturen",
+        "empty": "Nog geen bestuursleden",
+        "table": {
+          "photo": "Foto",
+          "name": "Naam",
+          "title": "Functie",
+          "role": "Rol",
+          "contact": "Contact",
+          "invited": "Uitgenodigd op",
+          "actions": "Acties"
+        },
+        "roles": {
+          "admin": "Beheerder",
+          "moderator": "Moderator",
+          "contributor": "Bijdrager",
+          "member": "Lid"
+        },
+        "fields": {
+          "nameAr": "Arabische naam",
+          "nameEn": "Engelse naam",
+          "titleAr": "Arabische functie",
+          "titleEn": "Engelse functie",
+          "email": "E-mailadres",
+          "phone": "Telefoonnummer",
+          "role": "Rol",
+          "website": "Website",
+          "image": "Afbeeldings-URL"
+        },
+        "uploadImage": "Afbeelding uploaden",
+        "uploadHintLocal": "Uploaden zet de afbeelding om in een data-URL en slaat die direct op bij het lid.",
+        "linkAccount": "Account koppelen",
+        "linkTitle": "Account van een bestuurslid koppelen",
+        "selectUser": "Kies een gebruiker",
+        "linkedAs": "Gekoppeld account: {email}",
+        "unlink": "Ontkoppelen",
+        "linkSaved": "Koppeling opgeslagen",
+        "linkFailed": "Koppeling kon niet worden opgeslagen",
+        "noUsers": "Geen overeenkomende accounts",
+        "accountFallback": "Geregistreerd account"
+      },
+      "comments": {
+        "title": "Reacties",
+        "note": "Reacties van de gemeenschap beoordelen en goedkeuren met echte gegevens",
+        "total": "Totaal",
+        "pending": "Wachten op goedkeuring",
+        "searchPlaceholder": "Zoeken op auteur of tekst...",
+        "empty": "Nog geen reacties",
+        "approved": "Goedgekeurd",
+        "waiting": "In afwachting",
+        "approve": "Goedkeuren",
+        "unapprove": "Goedkeuring intrekken",
+        "replies": "Antwoorden",
+        "review": "AI-suggestie",
+        "reviewTitle": "Reviewconcept",
+        "reviewNote": "Alleen een suggestie — niet goedgekeurd of verzonden.",
+        "reviewCategoryLabel": "Voorgestelde categorie",
+        "reviewSummaryLabel": "Samenvatting",
+        "reviewReplyLabel": "Voorgesteld antwoord",
+        "copyReply": "Antwoord kopiëren",
+        "copied": "Gekopieerd",
+        "reviewCategory": {
+          "inquiry": "Vraag",
+          "complaint": "Klacht",
+          "praise": "Lof",
+          "spam": "Spam",
+          "other": "Overig"
+        },
+        "aiSuggest": "AI-beoordeling"
+      },
+      "users": {
+        "title": "Gebruikers en rechten",
+        "note": "Accounts, rollen en individuele rechten met echte bediening",
+        "tabs": {
+          "users": "Gebruikers",
+          "roles": "Rollen"
+        },
+        "searchPlaceholder": "Zoeken op naam of e-mail...",
+        "createRole": "Nieuwe rol",
+        "editRole": "Rol bewerken",
+        "total": "Totaal",
+        "emptyUsers": "Geen overeenkomende gebruikers",
+        "emptyRoles": "Nog geen rollen",
+        "permissionCount": "Aantal rechten",
+        "allCount": "Alle beschikbare rechten",
+        "permissions": "Rechten",
+        "editPermissions": "Gebruikersrechten bewerken",
+        "roles": {
+          "member": "Lid",
+          "admin": "Beheerder"
+        },
+        "table": {
+          "name": "Naam",
+          "email": "E-mail",
+          "role": "Rol",
+          "joined": "Geregistreerd",
+          "actions": "Acties"
+        },
+        "fields": {
+          "roleName": "Rolnaam",
+          "roleDescription": "Beschrijving"
+        }
+      },
+      "media": {
+        "title": "Media",
+        "note": "Afbeeldingen die echt in artikelen en lokale uploads worden gebruikt",
+        "total": "Totaal",
+        "fromPosts": "Uit artikelen",
+        "fromUploads": "Uploads",
+        "upload": "Afbeelding uploaden",
+        "uploadHint": "Uploaden maakt een tijdelijke link en voegt de afbeelding niet toe aan de bibliotheek. Kopieer de link en gebruik die waar nodig.",
+        "empty": "Nog geen afbeeldingen",
+        "uploadResult": "Uploadresultaat",
+        "copyHint": "Dit is een tijdelijke datalink - kopieer die voordat u het venster sluit",
+        "copy": "Link kopieren",
+        "copied": "Gekopieerd",
+        "deleteImage": "Afbeelding verwijderen",
+        "deleteHint": "Alleen lokale uploads kunnen worden verwijderd; artikelafbeeldingen worden via het artikel verwijderd."
+      },
       "volunteers": {
         "title": "Vrijwilligers",
         "note": "Geregistreerde vrijwilligers uit echte platformgegevens",
@@ -1854,8 +1970,7 @@
         "searchPlaceholder": "Zoeken op naam of e-mail...",
         "empty": "Nog geen vrijwilligers",
         "registered": "Geregistreerd"
-      }
-    ,
+      },
       "settings": {
         "title": "Accountinstellingen",
         "memberTitle": "Lidmaatschapskaart",
@@ -1884,8 +1999,7 @@
           "contributor": "Bijdrager",
           "member": "Lid"
         }
-      }
-    ,
+      },
       "vault": {
         "title": "Documentenkluis",
         "note": "Documenten van leden beoordelen en goedkeuren met echte gegevens",
@@ -1907,8 +2021,7 @@
           "approved": "Goedgekeurd",
           "rejected": "Afgewezen"
         }
-      }
-    ,
+      },
       "membershipSettings": {
         "title": "Lidmaatschapsinstellingen",
         "note": "Velden van het inschrijfformulier - opslaan schrijft echte instellingen",
@@ -1933,8 +2046,7 @@
           "skills": "Vaardigheden",
           "maritalStatus": "Burgerlijke staat"
         }
-      }
-    ,
+      },
       "stats": {
         "title": "Ledenstatistieken",
         "note": "Cijfers berekend uit echte ledengegevens, geen schattingen",
@@ -1960,8 +2072,7 @@
         "topProvince": "Topprovincie",
         "originTitle": "Herkomstprovincies",
         "originNote": "Uit lidmaatschapsgegevens"
-      }
-    ,
+      },
       "facebookSync": {
         "title": "Facebook-synchronisatie",
         "note": "Verbindingsstatus en handmatige import van paginaberichten uit de officiële bron",
@@ -2001,8 +2112,7 @@
         "tokenValidShort": "Token geldig.",
         "tokenInvalidShort": "Ongeldige token. Controleer de waarde en paginarechten.",
         "callbackErrorShort": "Pagina kon niet worden verbonden. Controleer de toestemmingsinstellingen."
-      }
-    ,
+      },
       "regulations": {
         "title": "Reglementen",
         "note": "Opgeslagen reglementtekst met bewerking en versieverhoging",
@@ -2019,8 +2129,7 @@
           "title": "Titel",
           "body": "Tekst"
         }
-      }
-    ,
+      },
       "mobileControl": {
         "title": "App-beheer",
         "note": "App-instellingen en pushmeldingen - appvertalingen worden hier niet bewerkt",
@@ -2066,33 +2175,106 @@
     "edit": "Bewerken",
     "delete": "Verwijderen",
     "confirmDelete": "Dit item definitief verwijderen?",
-    "saveFailed": "Opslaan mislukt — controleer je aanmelding en rechten"
-  ,
+    "saveFailed": "Opslaan mislukt — controleer je aanmelding en rechten",
     "breadcrumbBoard": "Bestuur",
     "breadcrumbComments": "Reacties",
     "breadcrumbUsers": "Gebruikers en rechten",
     "breadcrumbMedia": "Media",
-    "permissions": {"news.create":"Nieuws maken","news.edit":"Nieuws bewerken","news.delete":"Nieuws verwijderen","news.publish":"Nieuws publiceren","news.feature":"Nieuws uitlichten","events.create":"Evenementen maken","events.edit":"Evenementen bewerken","events.delete":"Evenementen verwijderen","events.publish":"Evenementen publiceren","tasks.create":"Taken maken","tasks.edit":"Taken bewerken","tasks.delete":"Taken verwijderen","tasks.assign":"Taken toewijzen","comments.approve":"Reacties goedkeuren","comments.delete":"Reacties verwijderen","comments.manage":"Reacties beheren","ads.create":"Advertenties maken","ads.edit":"Advertenties bewerken","ads.delete":"Advertenties verwijderen","surveys.create":"Enquetes maken","surveys.edit":"Enquetes bewerken","surveys.delete":"Enquetes verwijderen","surveys.view_results":"Enqueteresultaten bekijken","media.upload":"Media uploaden","media.delete":"Media verwijderen","pages.create":"Pagina's maken","pages.edit":"Pagina's bewerken","pages.delete":"Pagina's verwijderen","pages.publish":"Pagina's publiceren","users.view":"Gebruikers bekijken","users.edit_role":"Gebruikersrollen bewerken","users.delete":"Gebruikers verwijderen","settings.view":"Instellingen bekijken","settings.edit":"Instellingen bewerken","roles.manage":"Rollen beheren","volunteers.view":"Vrijwilligers bekijken","volunteers.manage":"Vrijwilligers beheren","subscribers.view":"Abonnees bekijken","subscribers.export":"Abonnees exporteren","landing.create":"Landingspagina's maken","landing.edit":"Landingspagina's bewerken","landing.delete":"Landingspagina's verwijderen","landing.publish":"Landingspagina's publiceren","regulations.edit":"Reglementen bewerken","faqs.manage":"Veelgestelde vragen beheren"},
-    "modules": {"news":"Nieuws","events":"Evenementen","tasks":"Taken","comments":"Reacties","ads":"Advertenties","surveys":"Enquetes","media":"Media","pages":"Pagina's","users":"Gebruikers","settings":"Instellingen","roles":"Rollen","volunteers":"Vrijwilligers","subscribers":"Abonnees","landing":"Landingspagina's","regulations":"Reglementen","faqs":"Veelgestelde vragen"}
-  ,
-    "breadcrumbStats": "Statistieken"
-  ,
-    "breadcrumbVolunteers": "Vrijwilligers"
-  ,
-    "breadcrumbRegulations": "Reglementen"
-  ,
-    "breadcrumbVault": "Documentenkluis"
-  ,
-    "breadcrumbMembershipSettings": "Lidmaatschapsinstellingen"
-  ,
-    "breadcrumbFacebookSync": "Facebook-synchronisatie"
-  ,
-    "breadcrumbSettings": "Accountinstellingen"
-  ,
-    "breadcrumbDocumentsGenerator": "Officiële documenten"
-  ,
-    "breadcrumbMobileControl": "App-beheer"
-  ,
-    "backToHome": "Terug naar homepagina"
+    "permissions": {
+      "news.create": "Nieuws maken",
+      "news.edit": "Nieuws bewerken",
+      "news.delete": "Nieuws verwijderen",
+      "news.publish": "Nieuws publiceren",
+      "news.feature": "Nieuws uitlichten",
+      "events.create": "Evenementen maken",
+      "events.edit": "Evenementen bewerken",
+      "events.delete": "Evenementen verwijderen",
+      "events.publish": "Evenementen publiceren",
+      "tasks.create": "Taken maken",
+      "tasks.edit": "Taken bewerken",
+      "tasks.delete": "Taken verwijderen",
+      "tasks.assign": "Taken toewijzen",
+      "comments.approve": "Reacties goedkeuren",
+      "comments.delete": "Reacties verwijderen",
+      "comments.manage": "Reacties beheren",
+      "ads.create": "Advertenties maken",
+      "ads.edit": "Advertenties bewerken",
+      "ads.delete": "Advertenties verwijderen",
+      "surveys.create": "Enquetes maken",
+      "surveys.edit": "Enquetes bewerken",
+      "surveys.delete": "Enquetes verwijderen",
+      "surveys.view_results": "Enqueteresultaten bekijken",
+      "media.upload": "Media uploaden",
+      "media.delete": "Media verwijderen",
+      "pages.create": "Pagina's maken",
+      "pages.edit": "Pagina's bewerken",
+      "pages.delete": "Pagina's verwijderen",
+      "pages.publish": "Pagina's publiceren",
+      "users.view": "Gebruikers bekijken",
+      "users.edit_role": "Gebruikersrollen bewerken",
+      "users.delete": "Gebruikers verwijderen",
+      "settings.view": "Instellingen bekijken",
+      "settings.edit": "Instellingen bewerken",
+      "roles.manage": "Rollen beheren",
+      "volunteers.view": "Vrijwilligers bekijken",
+      "volunteers.manage": "Vrijwilligers beheren",
+      "subscribers.view": "Abonnees bekijken",
+      "subscribers.export": "Abonnees exporteren",
+      "landing.create": "Landingspagina's maken",
+      "landing.edit": "Landingspagina's bewerken",
+      "landing.delete": "Landingspagina's verwijderen",
+      "landing.publish": "Landingspagina's publiceren",
+      "regulations.edit": "Reglementen bewerken",
+      "faqs.manage": "Veelgestelde vragen beheren"
+    },
+    "modules": {
+      "news": "Nieuws",
+      "events": "Evenementen",
+      "tasks": "Taken",
+      "comments": "Reacties",
+      "ads": "Advertenties",
+      "surveys": "Enquetes",
+      "media": "Media",
+      "pages": "Pagina's",
+      "users": "Gebruikers",
+      "settings": "Instellingen",
+      "roles": "Rollen",
+      "volunteers": "Vrijwilligers",
+      "subscribers": "Abonnees",
+      "landing": "Landingspagina's",
+      "regulations": "Reglementen",
+      "faqs": "Veelgestelde vragen"
+    },
+    "breadcrumbStats": "Statistieken",
+    "breadcrumbVolunteers": "Vrijwilligers",
+    "breadcrumbRegulations": "Reglementen",
+    "breadcrumbVault": "Documentenkluis",
+    "breadcrumbMembershipSettings": "Lidmaatschapsinstellingen",
+    "breadcrumbFacebookSync": "Facebook-synchronisatie",
+    "breadcrumbSettings": "Accountinstellingen",
+    "breadcrumbDocumentsGenerator": "Officiële documenten",
+    "breadcrumbMobileControl": "App-beheer",
+    "backToHome": "Terug naar homepagina",
+    "menu": "Menu",
+    "aiHubTitle": "AI-suggesties",
+    "aiHubNote": "Alleen suggesties ter beoordeling — jij beslist wat je goedkeurt. Er wordt niets automatisch gepubliceerd.",
+    "aiHubCards": {
+      "content": {
+        "title": "Conceptinhoud",
+        "note": "Vul een idee in en ontvang een concept om te controleren vóór publicatie."
+      },
+      "comments": {
+        "title": "Reactiebeoordeling",
+        "note": "Categorie, samenvatting en voorgesteld antwoord — kopieer het na jouw controle."
+      },
+      "messages": {
+        "title": "Berichtbeoordeling",
+        "note": "Samenvatting en voorgesteld antwoord voor contactberichten — geen automatisch verzenden."
+      },
+      "identity": {
+        "title": "Identiteitsadvies",
+        "note": "Kaartlezen met vastgelegde menselijke beslissing — de status van het lid verandert niet."
+      }
+    }
   }
 }

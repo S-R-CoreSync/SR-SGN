@@ -2380,27 +2380,20 @@
       "finance": "Finance",
       "subscribers": "Subscribers",
       "ads": "Ads",
-      "surveys": "Surveys"
-    ,
+      "surveys": "Surveys",
       "board": "Board",
       "comments": "Comments",
       "users": "Users & permissions",
-      "media": "Media"
-    ,
-      "stats": "Statistics"
-    ,
-      "volunteers": "Volunteers"
-    ,
-      "regulations": "Regulations"
-    ,
-      "vault": "Document vault"
-    ,
-      "membershipSettings": "Membership settings"
-    ,
-      "facebookSync": "Facebook sync"
-    ,
+      "media": "Media",
+      "stats": "Statistics",
+      "volunteers": "Volunteers",
+      "regulations": "Regulations",
+      "vault": "Document vault",
+      "membershipSettings": "Membership settings",
+      "facebookSync": "Facebook sync",
       "mobileControl": "App control",
-      "documentsGenerator": "Official Documents & Paperwork"
+      "documentsGenerator": "Official Documents & Paperwork",
+      "aiHub": "AI assistant"
     },
     "tasksTitle": "Needs your attention",
     "tasksNote": "Real items from platform data, ordered by importance",
@@ -2555,7 +2548,8 @@
           "praise": "Praise",
           "spam": "Spam",
           "other": "Other"
-        }
+        },
+        "aiSuggest": "AI review"
       },
       "system": {
         "title": "System status",
@@ -2654,7 +2648,8 @@
         "aiDraftNote": "Suggested draft — not saved yet",
         "aiAdopt": "Fill the form with the draft",
         "aiAdoptedHint": "The draft is now in the form. Review it, then press Save to create the post.",
-        "aiNoNumbersHint": "AI adds no numbers; add any real figures yourself."
+        "aiNoNumbersHint": "AI adds no numbers; add any real figures yourself.",
+        "aiNewDraft": "AI draft"
       },
       "finance": {
         "title": "Finance",
@@ -2675,13 +2670,11 @@
           "success": "Received",
           "pending": "Pending",
           "failed": "Failed"
-        }
-      ,
+        },
         "pageInfo": "Page {current} of {total}",
         "prevPage": "Previous page",
         "nextPage": "Next page",
-        "markPaid": "Mark as paid"
-      ,
+        "markPaid": "Mark as paid",
         "markFailed": "Mark as failed"
       },
       "subscribers": {
@@ -2742,8 +2735,7 @@
           "optionsHint": "Options are only added when creating",
           "active": "Active"
         }
-      }
-    ,
+      },
       "documents-generator": {
         "title": "Official document generator",
         "note": "Documents built from real platform members and volunteers - no automated drafting",
@@ -2824,11 +2816,135 @@
           "other": "Other"
         }
       },
-      "board": {"title":"Board members","note":"Board members, invitation records and linked accounts from live platform data","total":"Total","linked":"Linked accounts","invited":"Invited","inviteSent":"Invitation sent successfully","inviteFailed":"Could not send the invitation - check the address and permissions","inviteHint":"Invitations are sent by email and recorded only after a successful send","createTitle":"New member","editTitle":"Edit member","invite":"Send invitation","empty":"No board members yet","table":{"photo":"Photo","name":"Name","title":"Position","role":"Role","contact":"Contact","invited":"Invited on","actions":"Actions"},"roles":{"admin":"Admin","moderator":"Moderator","contributor":"Contributor","member":"Member"},"fields":{"nameAr":"Arabic name","nameEn":"English name","titleAr":"Arabic position","titleEn":"English position","email":"Email address","phone":"Phone number","role":"Role","website":"Website","image":"Image URL"},"uploadImage":"Upload image","uploadHintLocal":"Uploading converts the image to a data URL and saves it on the member directly.","linkAccount":"Link account","linkTitle":"Link a board member account","selectUser":"Choose a user","linkedAs":"Linked account: {email}","unlink":"Unlink","linkSaved":"Link saved","linkFailed":"Could not save the link","noUsers":"No matching accounts","accountFallback":"Registered account"},
-      "comments": {"title":"Comments","note":"Review and approve community comments from live platform data","total":"Total","pending":"Awaiting approval","searchPlaceholder":"Search by author or text...","empty":"No comments yet","approved":"Approved","waiting":"Pending","approve":"Approve","unapprove":"Unapprove","replies":"Replies","review":"AI suggestion","reviewTitle":"Review suggestion","reviewNote":"Suggestion for review only — not approved or sent.","reviewCategoryLabel":"Suggested category","reviewSummaryLabel":"Summary","reviewReplyLabel":"Suggested reply","copyReply":"Copy reply","copied":"Copied","reviewCategory":{"inquiry":"Inquiry","complaint":"Complaint","praise":"Praise","spam":"Spam","other":"Other"}},
-      "users": {"title":"Users & permissions","note":"Platform accounts, roles and individual permissions with real controls","tabs":{"users":"Users","roles":"Roles"},"searchPlaceholder":"Search by name or email...","createRole":"New role","editRole":"Edit role","total":"Total","emptyUsers":"No matching users","emptyRoles":"No roles yet","permissionCount":"Permission count","allCount":"All available permissions","permissions":"Permissions","editPermissions":"Edit user permissions","roles":{"member":"Member","admin":"Admin"},"table":{"name":"Name","email":"Email","role":"Role","joined":"Joined","actions":"Actions"},"fields":{"roleName":"Role name","roleDescription":"Description"}},
-      "media": {"title":"Media","note":"Images actually used in posts and local uploads","total":"Total","fromPosts":"From posts","fromUploads":"Uploads","upload":"Upload image","uploadHint":"Uploading creates a temporary image link and does not add it to the platform library. Copy the link and use it where needed.","empty":"No images yet","uploadResult":"Upload result","copyHint":"This is a temporary data link - copy it before closing the dialog","copy":"Copy link","copied":"Copied","deleteImage":"Delete image","deleteHint":"Only local uploads can be deleted; post images are removed from the post itself."}
-    ,
+      "board": {
+        "title": "Board members",
+        "note": "Board members, invitation records and linked accounts from live platform data",
+        "total": "Total",
+        "linked": "Linked accounts",
+        "invited": "Invited",
+        "inviteSent": "Invitation sent successfully",
+        "inviteFailed": "Could not send the invitation - check the address and permissions",
+        "inviteHint": "Invitations are sent by email and recorded only after a successful send",
+        "createTitle": "New member",
+        "editTitle": "Edit member",
+        "invite": "Send invitation",
+        "empty": "No board members yet",
+        "table": {
+          "photo": "Photo",
+          "name": "Name",
+          "title": "Position",
+          "role": "Role",
+          "contact": "Contact",
+          "invited": "Invited on",
+          "actions": "Actions"
+        },
+        "roles": {
+          "admin": "Admin",
+          "moderator": "Moderator",
+          "contributor": "Contributor",
+          "member": "Member"
+        },
+        "fields": {
+          "nameAr": "Arabic name",
+          "nameEn": "English name",
+          "titleAr": "Arabic position",
+          "titleEn": "English position",
+          "email": "Email address",
+          "phone": "Phone number",
+          "role": "Role",
+          "website": "Website",
+          "image": "Image URL"
+        },
+        "uploadImage": "Upload image",
+        "uploadHintLocal": "Uploading converts the image to a data URL and saves it on the member directly.",
+        "linkAccount": "Link account",
+        "linkTitle": "Link a board member account",
+        "selectUser": "Choose a user",
+        "linkedAs": "Linked account: {email}",
+        "unlink": "Unlink",
+        "linkSaved": "Link saved",
+        "linkFailed": "Could not save the link",
+        "noUsers": "No matching accounts",
+        "accountFallback": "Registered account"
+      },
+      "comments": {
+        "title": "Comments",
+        "note": "Review and approve community comments from live platform data",
+        "total": "Total",
+        "pending": "Awaiting approval",
+        "searchPlaceholder": "Search by author or text...",
+        "empty": "No comments yet",
+        "approved": "Approved",
+        "waiting": "Pending",
+        "approve": "Approve",
+        "unapprove": "Unapprove",
+        "replies": "Replies",
+        "review": "AI suggestion",
+        "reviewTitle": "Review suggestion",
+        "reviewNote": "Suggestion for review only — not approved or sent.",
+        "reviewCategoryLabel": "Suggested category",
+        "reviewSummaryLabel": "Summary",
+        "reviewReplyLabel": "Suggested reply",
+        "copyReply": "Copy reply",
+        "copied": "Copied",
+        "reviewCategory": {
+          "inquiry": "Inquiry",
+          "complaint": "Complaint",
+          "praise": "Praise",
+          "spam": "Spam",
+          "other": "Other"
+        },
+        "aiSuggest": "AI review"
+      },
+      "users": {
+        "title": "Users & permissions",
+        "note": "Platform accounts, roles and individual permissions with real controls",
+        "tabs": {
+          "users": "Users",
+          "roles": "Roles"
+        },
+        "searchPlaceholder": "Search by name or email...",
+        "createRole": "New role",
+        "editRole": "Edit role",
+        "total": "Total",
+        "emptyUsers": "No matching users",
+        "emptyRoles": "No roles yet",
+        "permissionCount": "Permission count",
+        "allCount": "All available permissions",
+        "permissions": "Permissions",
+        "editPermissions": "Edit user permissions",
+        "roles": {
+          "member": "Member",
+          "admin": "Admin"
+        },
+        "table": {
+          "name": "Name",
+          "email": "Email",
+          "role": "Role",
+          "joined": "Joined",
+          "actions": "Actions"
+        },
+        "fields": {
+          "roleName": "Role name",
+          "roleDescription": "Description"
+        }
+      },
+      "media": {
+        "title": "Media",
+        "note": "Images actually used in posts and local uploads",
+        "total": "Total",
+        "fromPosts": "From posts",
+        "fromUploads": "Uploads",
+        "upload": "Upload image",
+        "uploadHint": "Uploading creates a temporary image link and does not add it to the platform library. Copy the link and use it where needed.",
+        "empty": "No images yet",
+        "uploadResult": "Upload result",
+        "copyHint": "This is a temporary data link - copy it before closing the dialog",
+        "copy": "Copy link",
+        "copied": "Copied",
+        "deleteImage": "Delete image",
+        "deleteHint": "Only local uploads can be deleted; post images are removed from the post itself."
+      },
       "volunteers": {
         "title": "Volunteers",
         "note": "Registered volunteers read from live platform data",
@@ -2836,8 +2952,7 @@
         "searchPlaceholder": "Search by name or email...",
         "empty": "No volunteers yet",
         "registered": "Registered"
-      }
-    ,
+      },
       "settings": {
         "title": "Account settings",
         "memberTitle": "Membership card",
@@ -2866,8 +2981,7 @@
           "contributor": "Contributor",
           "member": "Member"
         }
-      }
-    ,
+      },
       "vault": {
         "title": "Document vault",
         "note": "Review and approve member documents from real data",
@@ -2889,8 +3003,7 @@
           "approved": "Approved",
           "rejected": "Rejected"
         }
-      }
-    ,
+      },
       "membershipSettings": {
         "title": "Membership settings",
         "note": "Fields shown on the membership form - saving writes real settings",
@@ -2915,8 +3028,7 @@
           "skills": "Skills",
           "maritalStatus": "Marital status"
         }
-      }
-    ,
+      },
       "stats": {
         "title": "Member statistics",
         "note": "Figures calculated from real member records, no estimates",
@@ -2942,8 +3054,7 @@
         "topProvince": "Top province",
         "originTitle": "Origin governorates",
         "originNote": "From membership records"
-      }
-    ,
+      },
       "facebookSync": {
         "title": "Facebook sync",
         "note": "Connection status and manual import of page posts from the official source",
@@ -2983,8 +3094,7 @@
         "tokenValidShort": "Token valid.",
         "tokenInvalidShort": "Invalid token. Check the value and page permissions.",
         "callbackErrorShort": "Could not connect the page. Check the consent settings."
-      }
-    ,
+      },
       "regulations": {
         "title": "Regulations",
         "note": "Stored regulation text with editing and version bumps",
@@ -3001,8 +3111,7 @@
           "title": "Title",
           "body": "Text"
         }
-      }
-    ,
+      },
       "mobileControl": {
         "title": "App control",
         "note": "App settings and push notifications - app translations are not edited here",
@@ -3048,33 +3157,106 @@
     "edit": "Edit",
     "delete": "Delete",
     "confirmDelete": "Delete this item permanently?",
-    "saveFailed": "Could not save — check your sign-in and permissions"
-  ,
+    "saveFailed": "Could not save — check your sign-in and permissions",
     "breadcrumbBoard": "Board",
     "breadcrumbComments": "Comments",
     "breadcrumbUsers": "Users & permissions",
     "breadcrumbMedia": "Media",
-    "permissions": {"news.create":"Create news","news.edit":"Edit news","news.delete":"Delete news","news.publish":"Publish news","news.feature":"Feature news","events.create":"Create events","events.edit":"Edit events","events.delete":"Delete events","events.publish":"Publish events","tasks.create":"Create tasks","tasks.edit":"Edit tasks","tasks.delete":"Delete tasks","tasks.assign":"Assign tasks","comments.approve":"Approve comments","comments.delete":"Delete comments","comments.manage":"Manage comments","ads.create":"Create ads","ads.edit":"Edit ads","ads.delete":"Delete ads","surveys.create":"Create surveys","surveys.edit":"Edit surveys","surveys.delete":"Delete surveys","surveys.view_results":"View survey results","media.upload":"Upload media","media.delete":"Delete media","pages.create":"Create pages","pages.edit":"Edit pages","pages.delete":"Delete pages","pages.publish":"Publish pages","users.view":"View users","users.edit_role":"Edit user roles","users.delete":"Delete users","settings.view":"View settings","settings.edit":"Edit settings","roles.manage":"Manage roles","volunteers.view":"View volunteers","volunteers.manage":"Manage volunteers","subscribers.view":"View subscribers","subscribers.export":"Export subscribers","landing.create":"Create landing pages","landing.edit":"Edit landing pages","landing.delete":"Delete landing pages","landing.publish":"Publish landing pages","regulations.edit":"Edit regulations","faqs.manage":"Manage FAQs"},
-    "modules": {"news":"News","events":"Events","tasks":"Tasks","comments":"Comments","ads":"Ads","surveys":"Surveys","media":"Media","pages":"Pages","users":"Users","settings":"Settings","roles":"Roles","volunteers":"Volunteers","subscribers":"Subscribers","landing":"Landing pages","regulations":"Regulations","faqs":"FAQs"}
-  ,
-    "breadcrumbStats": "Statistics"
-  ,
-    "breadcrumbVolunteers": "Volunteers"
-  ,
-    "breadcrumbRegulations": "Regulations"
-  ,
-    "breadcrumbVault": "Document vault"
-  ,
-    "breadcrumbMembershipSettings": "Membership settings"
-  ,
-    "breadcrumbFacebookSync": "Facebook sync"
-  ,
-    "breadcrumbSettings": "Account settings"
-  ,
-    "breadcrumbDocumentsGenerator": "Official documents"
-  ,
-    "breadcrumbMobileControl": "App control"
-  ,
-    "backToHome": "Back to home"
+    "permissions": {
+      "news.create": "Create news",
+      "news.edit": "Edit news",
+      "news.delete": "Delete news",
+      "news.publish": "Publish news",
+      "news.feature": "Feature news",
+      "events.create": "Create events",
+      "events.edit": "Edit events",
+      "events.delete": "Delete events",
+      "events.publish": "Publish events",
+      "tasks.create": "Create tasks",
+      "tasks.edit": "Edit tasks",
+      "tasks.delete": "Delete tasks",
+      "tasks.assign": "Assign tasks",
+      "comments.approve": "Approve comments",
+      "comments.delete": "Delete comments",
+      "comments.manage": "Manage comments",
+      "ads.create": "Create ads",
+      "ads.edit": "Edit ads",
+      "ads.delete": "Delete ads",
+      "surveys.create": "Create surveys",
+      "surveys.edit": "Edit surveys",
+      "surveys.delete": "Delete surveys",
+      "surveys.view_results": "View survey results",
+      "media.upload": "Upload media",
+      "media.delete": "Delete media",
+      "pages.create": "Create pages",
+      "pages.edit": "Edit pages",
+      "pages.delete": "Delete pages",
+      "pages.publish": "Publish pages",
+      "users.view": "View users",
+      "users.edit_role": "Edit user roles",
+      "users.delete": "Delete users",
+      "settings.view": "View settings",
+      "settings.edit": "Edit settings",
+      "roles.manage": "Manage roles",
+      "volunteers.view": "View volunteers",
+      "volunteers.manage": "Manage volunteers",
+      "subscribers.view": "View subscribers",
+      "subscribers.export": "Export subscribers",
+      "landing.create": "Create landing pages",
+      "landing.edit": "Edit landing pages",
+      "landing.delete": "Delete landing pages",
+      "landing.publish": "Publish landing pages",
+      "regulations.edit": "Edit regulations",
+      "faqs.manage": "Manage FAQs"
+    },
+    "modules": {
+      "news": "News",
+      "events": "Events",
+      "tasks": "Tasks",
+      "comments": "Comments",
+      "ads": "Ads",
+      "surveys": "Surveys",
+      "media": "Media",
+      "pages": "Pages",
+      "users": "Users",
+      "settings": "Settings",
+      "roles": "Roles",
+      "volunteers": "Volunteers",
+      "subscribers": "Subscribers",
+      "landing": "Landing pages",
+      "regulations": "Regulations",
+      "faqs": "FAQs"
+    },
+    "breadcrumbStats": "Statistics",
+    "breadcrumbVolunteers": "Volunteers",
+    "breadcrumbRegulations": "Regulations",
+    "breadcrumbVault": "Document vault",
+    "breadcrumbMembershipSettings": "Membership settings",
+    "breadcrumbFacebookSync": "Facebook sync",
+    "breadcrumbSettings": "Account settings",
+    "breadcrumbDocumentsGenerator": "Official documents",
+    "breadcrumbMobileControl": "App control",
+    "backToHome": "Back to home",
+    "menu": "Menu",
+    "aiHubTitle": "AI suggestions",
+    "aiHubNote": "Suggestions for review only — you decide what to approve. Nothing is published automatically.",
+    "aiHubCards": {
+      "content": {
+        "title": "Content draft",
+        "note": "Enter an idea and get a draft to review before publishing."
+      },
+      "comments": {
+        "title": "Comment review",
+        "note": "Category, summary and a suggested reply — copy it after you review."
+      },
+      "messages": {
+        "title": "Message review",
+        "note": "Summary and suggested reply for contact messages — no automatic sending."
+      },
+      "identity": {
+        "title": "Identity suggestion",
+        "note": "Card reading with a recorded human decision — the member status never changes."
+      }
+    }
   }
 }
