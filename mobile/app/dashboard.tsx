@@ -38,15 +38,16 @@ export default function DashboardScreen() {
     return <ActivityIndicator size="large" color={COLORS.primary} style={{ marginTop: 40 }} />;
   }
 
-  const vitality = stats?.vitalityScore || 92;
+  // الرقم الوحيد المعروض هنا هو ما يرجعه /api/stats (تغطية الصور فعلياً) — بلا قيمة احتياطية مقدّرة.
+  const vitality: number | undefined = stats?.vitalityScore;
 
+  // كل قيمة تأتي من الـ API، والملاحظات الوهمية (+14%، 12 Prov.، 100%) أُزيلت.
   const cards = [
-    { icon: "people" as const, label: locale === "nl" ? "Geregistreerde Leden" : locale === "en" ? "Registered Members" : "الأعضاء والمستفيدين", value: stats?.users ?? 0, color: "#1a5632", sub: "+14%" },
-    { icon: "eye" as const, label: locale === "nl" ? "Contentweergaven" : locale === "en" ? "Total Views" : "مشاهدات المنصة", value: stats?.totalViews ?? 0, color: "#dc2626", sub: "+24.5%" },
-    { icon: "newspaper" as const, label: locale === "nl" ? "Artikelen & Nieuws" : locale === "en" ? "News & Articles" : "المقالات والتقارير", value: stats?.posts ?? 0, color: "#2563eb", sub: "Live" },
-    { icon: "calendar" as const, label: locale === "nl" ? "Evenementen" : locale === "en" ? "Upcoming Events" : "الفعاليات القادمة", value: stats?.events ?? 0, color: "#c8a84e", sub: "Actief" },
-    { icon: "heart" as const, label: locale === "nl" ? "Vrijwilligers" : locale === "en" ? "Volunteers" : "الكوادر والمتطوعين", value: stats?.volunteers ?? 18, color: "#9333ea", sub: "12 Prov." },
-    { icon: "shield-checkmark" as const, label: locale === "nl" ? "Status Systeem" : locale === "en" ? "System Health" : "حالة المنظومة", value: "100%", color: "#059669", sub: "Optimal" },
+    { icon: "people" as const, label: t("dashboard.users"), value: stats?.users ?? 0, color: "#1a5632" },
+    { icon: "eye" as const, label: t("dashboard.totalViews"), value: stats?.totalViews ?? 0, color: "#dc2626" },
+    { icon: "newspaper" as const, label: t("dashboard.posts"), value: stats?.posts ?? 0, color: "#2563eb" },
+    { icon: "calendar" as const, label: t("dashboard.events"), value: stats?.events ?? 0, color: "#c8a84e" },
+    { icon: "heart" as const, label: t("dashboard.overviewStats.volunteers"), value: stats?.volunteers ?? 0, color: "#9333ea" },
   ];
 
   return (
@@ -76,12 +77,12 @@ export default function DashboardScreen() {
               {locale === "nl" ? "Platformvitaliteit" : locale === "en" ? "Platform Vitality" : "مؤشر حيوية ونشاط المنصة"}
             </Text>
             <Text style={{ fontSize: 10, color: "rgba(255,255,255,0.8)" }}>
-              {locale === "nl" ? "Optimale interactie & stabiele sync" : locale === "en" ? "Optimal engagement & healthy sync" : "تفاعل نوعي ومزامنة سحابية مستمرة"}
+              {t("dashboard.vitalityNote")}
             </Text>
           </View>
           <View style={{ backgroundColor: "#c8a84e", borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4 }}>
-            <Text style={{ fontSize: 14, fontWeight: "bold", color: "#0c2e17" }}>
-              {formatDigits(vitality)}%
+            <Text style={{ fontSize: typeof vitality === "number" ? 14 : 10, fontWeight: "bold", color: "#0c2e17" }}>
+              {typeof vitality === "number" ? `${formatDigits(vitality)}%` : t("dashboard.dataNotAvailable")}
             </Text>
           </View>
         </View>
@@ -95,9 +96,6 @@ export default function DashboardScreen() {
               <View style={{ width: 40, height: 40, borderRadius: 14, backgroundColor: `${card.color}15`, justifyContent: "center", alignItems: "center" }}>
                 <Ionicons name={card.icon} size={20} color={card.color} />
               </View>
-              <Text style={{ fontSize: 10, fontWeight: "bold", color: COLORS.primary, backgroundColor: `${COLORS.primary}10`, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 8 }}>
-                {card.sub}
-              </Text>
             </View>
             <View style={{ gap: 2 }}>
               <Text style={{ fontSize: 22, fontWeight: "bold", color: COLORS.text, textAlign: isRTL ? "right" : "left" }}>

@@ -32,7 +32,6 @@ interface Stats {
   membersByStatus: Record<string, number>;
   newUsersThisWeek?: number;
   newMembersThisWeek?: number;
-  vitalityScore?: number;
   provinceDistribution?: { name: string; count: number }[];
   topPosts: { title: string; views: number; slug: string }[];
   postsByCategory: { name: string; count: number }[];
@@ -42,7 +41,6 @@ interface Stats {
 }
 
 interface AIBriefingData {
-  vitalityScore: number;
   executiveSummary: string;
   actionItems: { id: string; title: string; desc: string; priority: string; href: string }[];
   provincesData: { name: string; count: number }[];
@@ -123,7 +121,8 @@ export default function DashboardPage() {
   if (!session) return null;
 
   const totalApplications = Object.values(stats.membersByStatus).reduce((a, b) => a + b, 0);
-  const vitality = aiData?.vitalityScore ?? stats.vitalityScore ?? 0;
+  // لا يوجد مؤشر حيوية محسوب من بيانات فعلية — نعرض حالة «لا بيانات» بدل رقم مقدّر.
+  const vitality: number | null = null;
   const health = aiData?.systemHealth;
 
   const handleGenerateAi = async () => {
@@ -226,7 +225,7 @@ export default function DashboardPage() {
                 />
                 <path
                   className="text-[#c8a84e] transition-all duration-1000 ease-out"
-                  strokeDasharray={`${vitality}, 100`}
+                  strokeDasharray={vitality === null ? "0, 100" : `${vitality}, 100`}
                   strokeLinecap="round"
                   strokeWidth="3.5"
                   stroke="currentColor"
@@ -236,7 +235,9 @@ export default function DashboardPage() {
               </svg>
               <div className="absolute flex flex-col items-center justify-center text-center">
                 <span className="text-lg font-black text-white leading-none">
-                  {formatLocalizedDigits(vitality, locale)}{tCommon("percentSign")}
+                  {vitality === null
+                    ? t("dataNotAvailable")
+                    : `${formatLocalizedDigits(vitality, locale)}${tCommon("percentSign")}`}
                 </span>
                 <span className="text-[9px] text-[#edd28a] font-bold mt-0.5">
                   {locale === "nl" ? "Score" : locale === "en" ? "Score" : "المؤشر"}

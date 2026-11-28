@@ -375,7 +375,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <ExecutiveReportModal
         open={reportOpen}
         onClose={() => setReportOpen(false)}
-        vitalityScore={stats?.vitalityScore ?? 0}
+        vitalityScore={stats?.vitalityScore ?? null}
         stats={stats ?? {}}
       />
     </div>

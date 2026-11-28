@@ -10,7 +10,7 @@ interface ExecutiveReportModalProps {
   open: boolean;
   onClose: () => void;
   stats: any;
-  vitalityScore: number;
+  vitalityScore: number | null;
 }
 
 export function ExecutiveReportModal({
@@ -22,6 +22,7 @@ export function ExecutiveReportModal({
   const locale = useLocale();
   const t = useTranslations("dashboardReport");
   const tCommon = useTranslations("common");
+  const td = useTranslations("dashboard");
 
   if (!open) return null;
 
@@ -127,7 +128,9 @@ export function ExecutiveReportModal({
             <div className="bg-[#1a5632] text-white rounded-2xl p-5 flex flex-col justify-between text-center">
               <span className="text-xs text-[#edd28a] font-bold">{t("vitalityLabel")}</span>
               <span className="text-4xl font-black my-1 text-white">
-                {formatLocalizedDigits(vitalityScore, locale)}{tCommon("percentSign")}
+                {vitalityScore === null
+                  ? td("dataNotAvailable")
+                  : `${formatLocalizedDigits(vitalityScore, locale)}${tCommon("percentSign")}`}
               </span>
               <span className="text-[11px] text-emerald-200 font-medium">{t("vitalityNote")}</span>
             </div>

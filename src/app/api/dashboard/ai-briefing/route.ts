@@ -69,13 +69,7 @@ export async function GET(req: Request) {
       ? "active"
       : "idle";
 
-    // Calculate Vitality Score (0-100)
-    let vitalityScore = 75; // baseline
-    if (newMembers7d > 0) vitalityScore += Math.min(10, newMembers7d * 2);
-    if (unreadMessages === 0) vitalityScore += 5;
-    if (pendingMembers < 5) vitalityScore += 5;
-    if (volunteersCount > 10) vitalityScore += 5;
-    vitalityScore = Math.min(99, Math.max(70, vitalityScore));
+    // لا نُنتج مؤشر حيوية مقدّراً — الملخص يعتمد على الأرقام المعدودة فعلياً فقط.
 
     const provincesData = provincesRaw.map((p) => ({
       name: p.nlProvincie || "غير محدد",
@@ -104,11 +98,11 @@ export async function GET(req: Request) {
     } catch (e) {
       // Fallback smart text if AI provider is cold/offline
       if (locale === "nl") {
-        executiveSummary = `De Syrische Gemeenschap in Nederland groeit gestaag met ${totalMembers} actieve leden en ${newMembers7d} nieuwe aanmeldingen deze week. De algehele platformvitaliteit is uitstekend met een score van ${vitalityScore}%. Belangrijkste prioriteit voor vandaag is het afronden van de openstaande aanmeldingen.`;
+        executiveSummary = `De Syrische Gemeenschap in Nederland telt ${totalMembers} leden, waarvan ${newMembers7d} zich deze week aanmeldden. Er wachten ${pendingMembers} aanvragen op goedkeuring. Topprioriteit vandaag: de openstaande aanmeldingen afhandelen.`;
       } else if (locale === "en") {
-        executiveSummary = `The Syrian Community in the Netherlands is growing steadily with ${totalMembers} registered members and ${newMembers7d} new signups this week. Overall platform vitality is high at ${vitalityScore}%. Top priority for today is processing pending member verifications.`;
+        executiveSummary = `The Syrian Community in the Netherlands has ${totalMembers} members, including ${newMembers7d} new signups this week. ${pendingMembers} applications are awaiting approval. Top priority today: processing pending member verifications.`;
       } else {
-        executiveSummary = `تشهد منصة الجالية السورية في هولندا نمواً متصاعداً بتسجيل ${totalMembers} عضواً و ${newMembers7d} انتساباً جديداً خلال هذا الأسبوع. مؤشر حيوية المنصة مرتفع وممتاز بواقع ${vitalityScore}٪، مع تسجيل تفاعل نوعي على المقالات والخدمات. الأولوية التشغيلية اليوم هي اعتماد طلبات الانتساب المعلقة.`;
+        executiveSummary = `تسجّل منصة الجالية السورية في هولندا ${totalMembers} عضواً، منهم ${newMembers7d} انتساباً جديداً خلال هذا الأسبوع. يوجد ${pendingMembers} طلباً بانتظار الاعتماد. الأولوية اليوم هي مراجعة طلبات الانتساب المعلقة.`;
       }
     }
 
@@ -137,7 +131,6 @@ export async function GET(req: Request) {
     ];
 
     return NextResponse.json({
-      vitalityScore,
       executiveSummary: executiveSummary.trim(),
       actionItems,
       provincesData,
