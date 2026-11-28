@@ -1363,7 +1363,7 @@
     "errorGeneric": "An error occurred"
   },
   "dashboardV2": {
-    "prototype": "Prototype",
+    "officialDashboard": "Official dashboard",
     "communityName": "Syrian community in the Netherlands",
     "searchPlaceholder": "Search the dashboard...",
     "searchTitle": "Quick search",

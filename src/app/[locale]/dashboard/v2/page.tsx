@@ -156,7 +156,7 @@ export default function DashboardV2Page() {
             />
             <div className="relative">
               <p className="mb-3 text-[10px] font-black uppercase tracking-[0.22em] text-[#e2c77c]">
-                {t("prototype")} · {t("communityName")}
+                {t("officialDashboard")} · {t("communityName")}
               </p>
               <h1 className="text-2xl font-black tracking-tight sm:text-[32px]">
                 {t("greeting", { name: session?.user?.name ?? "" })}

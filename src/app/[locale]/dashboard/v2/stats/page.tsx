@@ -25,6 +25,7 @@ function matchesLocale(text: string, locale: string) {
 export default function V2StatsPage() {
   const t = useTranslations("dashboardV2");
   const tp = useTranslations("dashboardV2.pages.stats");
+  const tCommon = useTranslations("common");
   const locale = useLocale();
 
   const [stats, setStats] = useState<Stats | null>(null);
@@ -125,7 +126,7 @@ export default function V2StatsPage() {
                     {formatLocalizedDigits(item.count, locale)}
                   </p>
                   <p className="mt-1 text-[10px] tabular-nums text-[#8a6a1f]">
-                    {formatLocalizedDigits(item.percentage ?? 0, locale)}%
+                    {formatLocalizedDigits(item.percentage ?? 0, locale)}{tCommon("percentSign")}
                   </p>
                 </div>
               ))
