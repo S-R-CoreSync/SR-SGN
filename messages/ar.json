@@ -2427,6 +2427,20 @@
           "other": "حالة أخرى"
         }
       ,
+        "filterLabel": "تصفية الحالة",
+        "filterAll": "كل الحالات",
+        "filterPending": "بانتظار المراجعة",
+        "filterAccepted": "معتمد",
+        "filterRejected": "مرفوض",
+        "selectAll": "تحديد أعضاء هذه الصفحة",
+        "clearSelection": "إلغاء التحديد",
+        "selectedCount": "المحدد: {count}",
+        "approveSelected": "اعتماد المحدد",
+        "rejectSelected": "رفض المحدد",
+        "batchDone": "تم تحديث {count} عضو",
+        "pageInfo": "صفحة {current} من {total}",
+        "prevPage": "الصفحة السابقة",
+        "nextPage": "الصفحة التالية",
         "export": "تصدير الأعضاء"
       ,
         "approve": "قبول العضو"

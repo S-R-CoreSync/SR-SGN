@@ -2427,6 +2427,20 @@
           "other": "Other"
         }
       ,
+        "filterLabel": "Filter by status",
+        "filterAll": "All statuses",
+        "filterPending": "Pending",
+        "filterAccepted": "Approved",
+        "filterRejected": "Rejected",
+        "selectAll": "Select this page",
+        "clearSelection": "Clear selection",
+        "selectedCount": "Selected: {count}",
+        "approveSelected": "Approve selected",
+        "rejectSelected": "Reject selected",
+        "batchDone": "Updated {count} members",
+        "pageInfo": "Page {current} of {total}",
+        "prevPage": "Previous page",
+        "nextPage": "Next page",
         "export": "Export members"
       ,
         "approve": "Approve member"

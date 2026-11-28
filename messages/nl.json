@@ -2427,6 +2427,20 @@
           "other": "Overig"
         }
       ,
+        "filterLabel": "Filter op status",
+        "filterAll": "Alle statussen",
+        "filterPending": "In afwachting",
+        "filterAccepted": "Goedgekeurd",
+        "filterRejected": "Afgewezen",
+        "selectAll": "Deze pagina selecteren",
+        "clearSelection": "Selectie wissen",
+        "selectedCount": "Geselecteerd: {count}",
+        "approveSelected": "Geselecteerde goedkeuren",
+        "rejectSelected": "Geselecteerde afwijzen",
+        "batchDone": "{count} leden bijgewerkt",
+        "pageInfo": "Pagina {current} van {total}",
+        "prevPage": "Vorige pagina",
+        "nextPage": "Volgende pagina",
         "export": "Leden exporteren"
       ,
         "approve": "Lid goedkeuren"
