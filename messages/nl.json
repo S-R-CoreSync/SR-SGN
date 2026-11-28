@@ -2441,6 +2441,11 @@
         "pageInfo": "Pagina {current} van {total}",
         "prevPage": "Vorige pagina",
         "nextPage": "Volgende pagina",
+        "import": "Leden importeren",
+        "importTitle": "CSV-bestand importeren",
+        "importNote": "Upload een CSV-bestand met komma's als scheiding. Verplichte kolommen: nameAr, whatsapp, birthYear. Onvolledige rijen worden automatisch overgeslagen.",
+        "importSubmit": "Import starten",
+        "importDone": "{imported} leden geïmporteerd, {skipped} rijen overgeslagen",
         "export": "Leden exporteren"
       ,
         "approve": "Lid goedkeuren"

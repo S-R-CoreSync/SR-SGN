@@ -5,8 +5,8 @@ import { useLocale, useTranslations } from "next-intl";
 import { formatLocalizedDigits } from "@/lib/language-guard";
 import { V2Shell } from "@/components/dashboard/v2-shell";
 import { V2Intro, V2Message, V2Panel, V2Pill } from "@/components/dashboard/v2-ui";
-import { V2IconButton, v2Api } from "@/components/dashboard/v2-form";
-import { Check, ChevronLeft, ChevronRight, Download, RefreshCw, Search, X } from "lucide-react";
+import { V2Dialog, V2IconButton, v2Api } from "@/components/dashboard/v2-form";
+import { Check, ChevronLeft, ChevronRight, Download, RefreshCw, Search, Upload, X } from "lucide-react";
 
 const PAGE_SIZE = 50;
 
@@ -51,6 +51,11 @@ export default function V2MembersPage() {
   const [error, setError] = useState(false);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
+  const [importOpen, setImportOpen] = useState(false);
+  const [importFile, setImportFile] = useState<File | null>(null);
+  const [importBusy, setImportBusy] = useState(false);
+  const [importError, setImportError] = useState("");
+  const [importResult, setImportResult] = useState<{ imported: number; skipped: number } | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -119,6 +124,35 @@ export default function V2MembersPage() {
     }
   }
 
+  async function runImport() {
+    if (!importFile) return;
+    setImportBusy(true);
+    setImportError("");
+    setImportResult(null);
+    try {
+      const body = new FormData();
+      body.append("file", importFile);
+      const result = await v2Api<{ imported?: number; skipped?: number }>("/api/members/import", {
+        method: "POST",
+        body,
+      });
+      setImportResult({ imported: result.imported ?? 0, skipped: result.skipped ?? 0 });
+      setImportFile(null);
+      await load();
+    } catch (e) {
+      setImportError(e instanceof Error ? e.message : t("error"));
+    } finally {
+      setImportBusy(false);
+    }
+  }
+
+  function openImport() {
+    setImportFile(null);
+    setImportError("");
+    setImportResult(null);
+    setImportOpen(true);
+  }
+
   function toggle(id: string) {
     setSelected((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]));
   }
@@ -172,6 +206,15 @@ export default function V2MembersPage() {
           >
             <Download size={15} />
           </a>
+          <button
+            type="button"
+            onClick={openImport}
+            title={tp("import")}
+            aria-label={tp("import")}
+            className="rounded-xl border border-[#e6ddc9] bg-white p-2 text-[#6f7a70] shadow-sm hover:bg-[#f5ecd6]"
+          >
+            <Upload size={15} />
+          </button>
           <button
             onClick={() => void load()}
             title={t("retry")}
@@ -339,6 +382,48 @@ export default function V2MembersPage() {
             </div>
           </div>
         </V2Panel>
+      )}
+
+      {importOpen && (
+        <V2Dialog title={tp("importTitle")} closeLabel={t("close")} onClose={() => setImportOpen(false)}>
+          <p className="mb-4 text-xs leading-relaxed text-[#6f7a70]">{tp("importNote")}</p>
+          <input
+            type="file"
+            accept=".csv,text/csv"
+            onChange={(e) => {
+              setImportFile(e.target.files?.[0] ?? null);
+              setImportError("");
+              setImportResult(null);
+            }}
+            className="w-full rounded-xl border border-[#e6ddc9] bg-[#fdfcf9] p-2.5 text-xs text-[#203026] outline-none"
+          />
+          {importError && <p className="mt-3 text-xs font-bold text-[#b42318]">{importError}</p>}
+          {importResult && (
+            <p className="mt-3 rounded-xl border border-[#d8e6d9] bg-[#f1f8f1] px-3 py-2 text-xs font-bold text-[#1a5632]">
+              {tp("importDone", {
+                imported: formatLocalizedDigits(importResult.imported, locale),
+                skipped: formatLocalizedDigits(importResult.skipped, locale),
+              })}
+            </p>
+          )}
+          <div className="mt-5 flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setImportOpen(false)}
+              className="rounded-xl border border-[#e6ddc9] px-4 py-2.5 text-xs font-bold text-[#6f7a70] hover:bg-[#f5ecd6]"
+            >
+              {t("close")}
+            </button>
+            <button
+              type="button"
+              disabled={!importFile || importBusy}
+              onClick={() => void runImport()}
+              className="rounded-xl bg-[#123b24] px-4 py-2.5 text-xs font-black text-white shadow-sm hover:bg-[#1a5632] disabled:opacity-50"
+            >
+              {tp("importSubmit")}
+            </button>
+          </div>
+        </V2Dialog>
       )}
     </V2Shell>
   );

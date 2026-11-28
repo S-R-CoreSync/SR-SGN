@@ -1488,6 +1488,11 @@
         "pageInfo": "Page {current} of {total}",
         "prevPage": "Previous page",
         "nextPage": "Next page",
+        "import": "Import members",
+        "importTitle": "Import CSV file",
+        "importNote": "Upload a comma-separated CSV file. Required columns: nameAr, whatsapp, birthYear. Incomplete rows are skipped automatically.",
+        "importSubmit": "Start import",
+        "importDone": "Imported {imported} members, skipped {skipped} rows",
         "export": "Export members"
       ,
         "approve": "Approve member"
