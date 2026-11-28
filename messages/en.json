@@ -1699,7 +1699,7 @@
     "identityReasonMatch": "The name and birth year extracted from the card match the member record.",
     "identityReasonMismatch": "The details extracted from the card do not match the member record. Review the card manually.",
     "identityReasonUnclear": "The card could not be read clearly. Review it manually.",
-    "identityFailed": "Could not generate the suggestion. Check that the card-reading model is running.",
+    "identityFailed": "Could not generate the suggestion. Check the card-reading provider settings.",
     "identityNotFound": "No identity card is on file for this member.",
     "identityOutcome": {
       "match": "Match",

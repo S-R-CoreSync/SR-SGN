@@ -5,7 +5,7 @@ import { requireAuthorize } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/db";
 import { getApiMessage } from "@/lib/api-messages";
 import { decryptBuffer } from "@/lib/crypto";
-import { ollamaGenerate } from "@/lib/ai/ollama";
+import { generateVisionJson } from "@/lib/ai/vision";
 import { logAIUsage } from "@/lib/ai/usage";
 import { createRateLimiter } from "@/lib/rate-limit";
 import { tooMany } from "@/lib/request-guard";
@@ -89,7 +89,7 @@ export async function POST(req: Request) {
     const contentType = `image/${extension}`;
     const base64Image = decryptBuffer(encryptedContent).toString("base64");
 
-    const raw = await ollamaGenerate(
+    const raw = await generateVisionJson(
       [
         {
           text: "Extract the cardholder's full name and birth year from this identity card. Return only JSON.",
@@ -97,7 +97,6 @@ export async function POST(req: Request) {
         },
       ],
       'Return only a JSON object with string-or-number keys: name, birthYear, readable (boolean), confidence ("high", "medium" or "low"). Read only what is printed on the card.',
-      "application/json",
     );
     extracted = parseExtraction(raw);
     if (!extracted) throw new Error("unparsable vision response");

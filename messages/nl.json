@@ -1699,7 +1699,7 @@
     "identityReasonMatch": "De naam en het geboortejaar op de kaart komen overeen met de gegevens van het lid.",
     "identityReasonMismatch": "De gegevens op de kaart komen niet overeen met de gegevens van het lid. Controleer de kaart handmatig.",
     "identityReasonUnclear": "De kaart kon niet duidelijk worden gelezen. Controleer deze handmatig.",
-    "identityFailed": "Advies kon niet worden gegenereerd. Controleer of het kaartleesmodel actief is.",
+    "identityFailed": "Advies kon niet worden gegenereerd. Controleer de instellingen van de kaartleesprovider.",
     "identityNotFound": "Er is geen identiteitskaart bekend voor dit lid.",
     "identityOutcome": {
       "match": "Overeenkomend",
